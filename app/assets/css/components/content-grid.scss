@@ -1,0 +1,115 @@
+@use "../tokens/breakpoints.scss" as bp;
+/* Universal Content Grid (SCSS -> CSS conversion) */
+.content-grid {
+  /* Base sizing variables */
+  --padding-inline: 1.5rem;
+  --content-max-width: 90vw;
+  --breakout-max-width: 95vw;
+
+  /* Breakout sizes for multiple indentation levels */
+  --breakout-size1: calc(
+    (var(--breakout-max-width) - var(--content-max-width)) / 4
+  );
+  --breakout-size2: calc(
+    (var(--breakout-max-width) - var(--content-max-width)) / 3
+  );
+  --breakout-size3: calc(
+    (var(--breakout-max-width) - var(--content-max-width)) / 2
+  );
+  --breakout-size4: calc(
+    (var(--breakout-max-width) - var(--content-max-width))
+  );
+
+  display: grid;
+  grid-template-columns:
+    [full-width-start] minmax(var(--padding-inline), 1fr)
+    [breakout-start1] minmax(0, var(--breakout-size1))
+    [breakout-start2] minmax(0, var(--breakout-size2))
+    [breakout-start3] minmax(0, var(--breakout-size3))
+    [breakout-start4] minmax(0, var(--breakout-size4))
+    [content-start] min(
+      100% - (var(--padding-inline) * 2),
+      var(--content-max-width)
+    )
+    [content-end]
+    minmax(0, var(--breakout-size4)) [breakout-end4]
+    minmax(0, var(--breakout-size3)) [breakout-end3]
+    minmax(0, var(--breakout-size2)) [breakout-end2]
+    minmax(0, var(--breakout-size1)) [breakout-end1]
+    minmax(var(--padding-inline), 1fr) [full-width-end];
+}
+
+/* Layout scaling for bigger resolutions */
+
+@include bp.up(bp.$bp-lg) {
+  /* 1024px */
+  .content-grid {
+    --padding-inline: 2.5rem;
+    --content-max-width: 80vw;
+    --breakout-max-width: 95vw;
+  }
+}
+
+@include bp.up(bp.$bp-xxl) {
+  /* ~2030px */
+  .content-grid {
+    --padding-inline: 3.5rem;
+    --content-max-width: 75vw;
+    --breakout-max-width: 90vw;
+  }
+}
+
+/* Default content placement */
+.content-grid > :not(.breakout, .full-width),
+.full-width-content > :not(.breakout, .full-width-content) {
+  grid-column: content;
+}
+
+/* Full-bleed element spanning the entire grid width */
+.full-width {
+  grid-column: full-width;
+}
+
+/* Breakout variants for progressively wider content */
+.content-grid > .breakout1 {
+  grid-column: breakout-start1 / breakout-end1;
+}
+.content-grid > .breakout2 {
+  grid-column: breakout-start2 / breakout-end2;
+}
+.content-grid > .breakout3 {
+  grid-column: breakout-start3 / breakout-end3;
+}
+.content-grid > .breakout4 {
+  grid-column: breakout-start4 / breakout-end4;
+}
+
+/* Nest a full-width sub-grid that inherits the column structure */
+.content-grid > .full-width-content {
+  grid-column: full-width;
+  display: grid;
+  grid-template-columns: inherit;
+}
+
+/* Root font-size scaling for large displays (based on requested settings) */
+@include bp.up(bp.$bp-2xl) {
+  /* 1920px */
+  :root {
+    font-size: 20px;
+  }
+}
+
+@include bp.up(bp.$bp-4xl) {
+  /* 2560px */
+  :root {
+    font-size: 28px;
+  }
+}
+
+@include bp.up(bp.$bp-6xl) {
+  /* 3840px */
+
+  :root {
+    font-size: 40px;
+  }
+}

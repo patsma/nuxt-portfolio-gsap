@@ -1,0 +1,42 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "npm run styles:watch & nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "styles:build": "sass --no-source-map --load-path app/assets/css app/assets/css/pre.scss:app/assets/css/pre.css app/assets/css/post.scss:app/assets/css/post.css",
+    "styles:watch": "sass --no-source-map --load-path app/assets/css app/assets/css/pre.scss:app/assets/css/pre.css app/assets/css/post.scss:app/assets/css/post.css --watch"
+  },
+  "dependencies": {
+    "@maz-ui/nuxt": "^4.1.6",
+    "@nuxt/content": "^3.6.3",
+    "@nuxt/eslint": "^1.6.0",
+    "@nuxt/fonts": "^0.11.4",
+    "@nuxt/icon": "^1.15.0",
+    "@nuxt/image": "^1.11.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@sentry/nuxt": "^10.11.0",
+    "@tresjs/nuxt": "^4.0.0",
+    "better-sqlite3": "^12.2.0",
+    "eslint": "^9.31.0",
+    "nuxt": "^4.1.2",
+    "pinia": "^3.0.3",
+    "three": "^0.180.0",
+    "vue": "^3.5.21",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@hypernym/nuxt-gsap": "^2.4.3",
+    "@iconify-json/tabler": "^1.2.22",
+    "@tailwindcss/vite": "^4.1.13",
+    "sass": "^1.93.2",
+    "tailwindcss": "^4.1.13"
+  },
+  "overrides": {
+    "@vercel/nft": "^0.27.4"
+  }
+}

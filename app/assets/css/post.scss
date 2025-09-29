@@ -1,0 +1,19 @@
+/*
+  Post-Tailwind SCSS bundle
+  - Compiled to post.css and imported by main.css AFTER Tailwind
+  - Place component-level CSS and any overrides relying on Tailwind utilities
+*/
+
+/* Component styles */
+@use "./components/content-grid.scss";
+@use "./components/header-grid.scss";
+
+/* Additional utilities that can safely come after Tailwind */
+@use "./utilities/layout.scss";
+@use "./utilities/spacing.scss";
+
+/*
+  Notes:
+  - Do not import Tailwind here. main.css owns the Tailwind import.
+  - Keep files small and focused; split if this grows beyond ~200 lines.
+*/

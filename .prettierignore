@@ -1,0 +1,10 @@
+# Prevent Prettier from formatting Nuxt Content MDC files
+# MDC syntax (e.g., ::Component ... ::) can be broken by standard markdown formatting
+content/**/*.md
+content/**/*.mdc
+
+# Optional: ignore Content YAML files if you keep blocks or data here
+content/**/*.yml
+content/**/*.yaml
+
+
