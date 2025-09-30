@@ -12,16 +12,32 @@
     "TT Ricordi Trial", ui-serif, Georgia, Cambria, "Times New Roman", Times,
     serif;
   --font-sans: var(--font-agrandir);
+  /* Project fonts (loaded via @nuxt/fonts) */
+  --font-pp-eiko:
+    "PP Eiko", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-ibm-plex-sans-jp:
+    "IBM Plex Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial;
 
-  /* Brand colors */
-  --color-ink: #000000;
-  --color-paper: #ffffff;
-  --color-accent: #d8b8b5;
-  --color-blush: #f6edec;
-  --color-stone-600: #656565; /* hero text */
-  --color-hero-bg: #d2d9d3; /* section background */
-  --color-timeline-line: #bfbfbf; /* baseline and dots */
-  --color-timeline-line-soft: #cfcfcf; /* mobile spine and arrow */
+  /* Semantic font roles for easy swapping */
+  --font-display: var(--font-pp-eiko);
+  --font-body: var(--font-ibm-plex-sans-jp);
+
+  /* Neutral palette — exposed to Tailwind as text-*, bg-* via --color-* tokens
+     Keep RGBA to preserve intended alpha across utilities like borders and rings */
+  --color-dark-100: rgba(9, 9, 37, 1);
+  --color-dark-60: rgba(9, 9, 37, 0.6);
+  --color-dark-50: rgba(9, 9, 37, 0.5);
+  --color-dark-40: rgba(9, 9, 37, 0.4);
+  --color-dark-30: rgba(9, 9, 37, 0.3);
+  --color-dark-15: rgba(9, 9, 37, 0.15);
+  --color-dark-5: rgba(9, 9, 37, 0.05);
+
+  --color-light-100: rgba(255, 250, 245, 1);
+  --color-light-60: rgba(255, 250, 245, 0.6);
+  --color-light-50: rgba(255, 250, 245, 0.5);
+  --color-light-40: rgba(255, 250, 245, 0.4);
+  --color-light-15: rgba(255, 250, 245, 0.15);
 
   /* Fluid Typography Scale - Utopia-inspired */
   --step-0: clamp(1.13rem, 1.06rem + 0.3vw, 1.38rem);

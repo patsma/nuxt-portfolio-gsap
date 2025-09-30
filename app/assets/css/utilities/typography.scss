@@ -40,6 +40,29 @@
 }
 
 /*
+  Font role utilities
+  - These use semantic tokens so we can swap families in @theme without touching templates.
+  - Combine with Tailwind weights (e.g. font-[300]) and text-step-* utilities above.
+*/
+@utility font-display {
+  font-family: var(--font-display);
+}
+@utility font-body {
+  font-family: var(--font-body);
+}
+
+/* Line-height and tracking helpers mapped to tokens */
+@utility leading-display {
+  line-height: var(--leading-display);
+}
+@utility tracking-tight {
+  letter-spacing: var(--tracking-tight);
+}
+@utility tracking-wider {
+  letter-spacing: var(--tracking-wider);
+}
+
+/*
   Text shadow utilities
   - Matches Figma: X 0, Y 4, Blur 4, Color #000000 at 25%
   - Keep small and focused for headings only

@@ -20,15 +20,29 @@
     "TT Ricordi Trial", ui-serif, Georgia, Cambria, "Times New Roman", Times,
     serif;
   --font-sans: var(--font-agrandir);
-  /* Brand colors */
-  --color-ink: #000000;
-  --color-paper: #ffffff;
-  --color-accent: #d8b8b5;
-  --color-blush: #f6edec;
-  --color-stone-600: #656565; /* hero text */
-  --color-hero-bg: #d2d9d3; /* section background */
-  --color-timeline-line: #bfbfbf; /* baseline and dots */
-  --color-timeline-line-soft: #cfcfcf; /* mobile spine and arrow */
+  /* Project fonts (loaded via @nuxt/fonts) */
+  --font-pp-eiko:
+    "PP Eiko", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-ibm-plex-sans-jp:
+    "IBM Plex Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial;
+  /* Semantic font roles for easy swapping */
+  --font-display: var(--font-pp-eiko);
+  --font-body: var(--font-ibm-plex-sans-jp);
+  /* Neutral palette — exposed to Tailwind as text-*, bg-* via --color-* tokens
+     Keep RGBA to preserve intended alpha across utilities like borders and rings */
+  --color-dark-100: rgba(9, 9, 37, 1);
+  --color-dark-60: rgba(9, 9, 37, 0.6);
+  --color-dark-50: rgba(9, 9, 37, 0.5);
+  --color-dark-40: rgba(9, 9, 37, 0.4);
+  --color-dark-30: rgba(9, 9, 37, 0.3);
+  --color-dark-15: rgba(9, 9, 37, 0.15);
+  --color-dark-5: rgba(9, 9, 37, 0.05);
+  --color-light-100: rgba(255, 250, 245, 1);
+  --color-light-60: rgba(255, 250, 245, 0.6);
+  --color-light-50: rgba(255, 250, 245, 0.5);
+  --color-light-40: rgba(255, 250, 245, 0.4);
+  --color-light-15: rgba(255, 250, 245, 0.15);
   /* Fluid Typography Scale - Utopia-inspired */
   --step-0: clamp(1.13rem, 1.06rem + 0.3vw, 1.38rem);
   --step-1: clamp(1.35rem, 1.27rem + 0.4vw, 1.66rem);
@@ -136,6 +150,27 @@ html {
 }
 @utility text-step-10 {
   font-size: var(--step-10);
+}
+/*
+  Font role utilities
+  - These use semantic tokens so we can swap families in @theme without touching templates.
+  - Combine with Tailwind weights (e.g. font-[300]) and text-step-* utilities above.
+*/
+@utility font-display {
+  font-family: var(--font-display);
+}
+@utility font-body {
+  font-family: var(--font-body);
+}
+/* Line-height and tracking helpers mapped to tokens */
+@utility leading-display {
+  line-height: var(--leading-display);
+}
+@utility tracking-tight {
+  letter-spacing: var(--tracking-tight);
+}
+@utility tracking-wider {
+  letter-spacing: var(--tracking-wider);
 }
 /*
   Text shadow utilities

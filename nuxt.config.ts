@@ -105,6 +105,34 @@ export default defineNuxtConfig({
     "@tresjs/nuxt",
   ],
 
+  // Nuxt Fonts configuration (provider-based)
+  fonts: {
+    // Global defaults applied when resolving families automatically from CSS
+    defaults: {
+      weights: ["300", "400", "600"],
+      styles: ["normal"],
+      preload: true,
+      subsets: ["latin", "latin-ext"],
+    },
+    // Explicitly define families
+    families: [
+      {
+        name: "PP Eiko",
+        provider: "local",
+        weights: ["100", "300", "400", "500", "800", "900"],
+        styles: ["normal", "italic"],
+        global: true,
+      },
+      {
+        name: "IBM Plex Sans JP",
+        provider: "local",
+        weights: ["100", "200", "300", "400", "500", "600", "700"],
+        styles: ["normal"],
+        global: true,
+      },
+    ],
+  },
+
   // Enable TailwindCSS v4 via Vite plugin
   vite: {
     plugins: [tailwindcss()],

@@ -143,6 +143,8 @@ let gsapCtx = null;
 const items = [
   { label: "home", href: "/" },
   { label: "about", href: "/about" },
+  { label: "colors", href: "/dev/colors" },
+  { label: "typography", href: "/dev/typography" },
 ];
 
 // Active route highlighting
