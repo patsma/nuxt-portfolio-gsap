@@ -12,14 +12,9 @@
   - Includes additional ultra-wide breakpoints
 */
 @theme {
-  /* Font families */
-  --font-agrandir:
-    "Agrandir", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  --font-serif-display:
-    "TT Ricordi Trial", ui-serif, Georgia, Cambria, "Times New Roman", Times,
-    serif;
-  --font-sans: var(--font-agrandir);
+  /* Font families (project) */
+  /* Set Tailwind's font-sans to our body family for convenience */
+  --font-sans: var(--font-body);
   /* Project fonts (loaded via @nuxt/fonts) */
   --font-pp-eiko:
     "PP Eiko", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;

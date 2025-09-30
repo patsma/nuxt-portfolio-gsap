@@ -1,10 +1,14 @@
 <template>
   <main class="p-6 md:p-8 lg:p-12">
     <header class="mb-8">
-      <h1 class="text-3xl md:text-4xl font-semibold tracking-tight">
+      <h1
+        class="font-display text-step-3 md:text-step-4 font-semibold tracking-tight"
+      >
         Color Board
       </h1>
-      <p class="mt-2 text-stone-600">
+      <p
+        class="mt-2 text-stone-600 font-body text-step-0 leading-[var(--leading-normal)]"
+      >
         Visual test page for <code>@theme</code> <code>--color-*</code> tokens.
       </p>
     </header>

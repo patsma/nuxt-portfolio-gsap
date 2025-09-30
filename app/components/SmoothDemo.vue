@@ -16,12 +16,12 @@
         >
           <h2
             id="smooth-demo-heading"
-            class="font-serif-display text-step-3 md:text-step-4 lg:text-step-6 leading-[var(--leading-display)] tracking-[var(--tracking-widest)] font-semibold"
+            class="font-display text-step-3 md:text-step-4 lg:text-step-6 leading-display tracking-widest font-semibold"
           >
             Smooth Scrolling Demo
           </h2>
           <p
-            class="font-agrandir text-step-0 text-[var(--color-stone-600)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)]"
+            class="font-body text-step-0 text-[var(--color-stone-600)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)]"
             data-speed="1.05"
           >
             Minimal demo to verify GSAP ScrollSmoother effects. Scroll to see
@@ -52,7 +52,7 @@
             data-lag="0.2"
           />
           <figcaption
-            class="mt-[var(--space-2xs)] text-center font-agrandir text-step-0 text-[color:rgb(107_114_128)]"
+            class="mt-[var(--space-2xs)] text-center font-body text-step-0 text-[color:rgb(107_114_128)]"
             data-speed="0.98"
           >
             Image uses data-speed="auto" and data-lag="0.2" for a smooth feel
@@ -64,7 +64,7 @@
           class="max-w-3xl mx-auto mt-[var(--space-l)] grid gap-[var(--space-s)]"
         >
           <p
-            class="font-agrandir text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)]"
+            class="font-body text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)]"
             data-speed="1.06"
           >
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel
@@ -74,7 +74,7 @@
             ex facilisis lorem, at lobortis eros urna quis metus.
           </p>
           <p
-            class="font-agrandir text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)] opacity-80"
+            class="font-body text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)] opacity-80"
             data-speed="0.94"
           >
             Suspendisse potenti. Cras lobortis, arcu nec egestas rhoncus, felis
@@ -88,7 +88,7 @@
           class="max-w-3xl mx-auto mt-[var(--space-m)] grid gap-[var(--space-s)]"
         >
           <p
-            class="font-agrandir text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)]"
+            class="font-body text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)]"
             data-speed="1.02"
           >
             Proin ac nunc a diam porttitor pulvinar. Morbi at efficitur neque.
@@ -97,7 +97,7 @@
             egestas. Nam varius bibendum nunc, id aliquet nunc faucibus non.
           </p>
           <p
-            class="font-agrandir text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)] opacity-80"
+            class="font-body text-step-0 text-[var(--color-ink)] font-light tracking-[var(--tracking-normal)] leading-[var(--leading-relaxed)] opacity-80"
             data-speed="0.98"
           >
             Integer porttitor, nisl id dapibus consectetur, mauris risus

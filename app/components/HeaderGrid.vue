@@ -52,7 +52,7 @@
               v-for="(item, idx) in items"
               :key="item.href"
               :to="item.href"
-              class="boot-hidden relative font-agrandir text-step-1 font-light leading-[var(--leading-normal)] tracking-[var(--tracking-normal)] transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+              class="boot-hidden relative font-body text-step-1 font-light leading-[var(--leading-normal)] tracking-[var(--tracking-normal)] transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
               :data-boot-item="idx + 2"
               :class="
                 isActive(item.href)
@@ -84,7 +84,7 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block relative font-agrandir text-step-1 font-light leading-[var(--leading-normal)] tracking-[var(--tracking-normal)] transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+            class="block relative font-body text-step-1 font-light leading-[var(--leading-normal)] tracking-[var(--tracking-normal)] transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
             :class="
               isActive(item.href)
                 ? 'text-accent after:w-full'
