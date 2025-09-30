@@ -62,6 +62,14 @@
   letter-spacing: var(--tracking-wider);
 }
 
+/* Extra tracking helpers for display styles */
+@utility tracking-tighter {
+  letter-spacing: var(--tracking-tighter);
+}
+@utility tracking-tightest {
+  letter-spacing: var(--tracking-tightest);
+}
+
 /*
   Text shadow utilities
   - Matches Figma: X 0, Y 4, Blur 4, Color #000000 at 25%

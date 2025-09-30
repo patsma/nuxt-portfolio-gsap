@@ -102,4 +102,4 @@ public/oldportfolio/*
 # Sentry Config File
 .env.sentry-build-plugin
 app/assets/css/post.css
-app/assets/css/pre.css
+app/assets/css/pre.css 
