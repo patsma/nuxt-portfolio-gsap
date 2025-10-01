@@ -79,14 +79,16 @@
   --leading-loose: 1.8;
   --leading-display: clamp(1.1, 1.05 + 0.2vw, 1.3);
 
-  /* Letter spacing */
-  --tracking-tight: -0.025em;
-  --tracking-tighter: -0.05em;
-  --tracking-tightest: -0.1em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.025em;
-  --tracking-wider: 0.05em;
-  --tracking-widest: 0.08em;
+  /* Display tracking scale (proportional, em-based)
+     - Scales with element font-size (1em)
+     - Use for large display styles (e.g., PP Eiko headings)
+     - Chosen to approximate previous px values while scaling gracefully */
+  --tracking-display-1: -0.03em; /* ~-1px at ~32–40px */
+  --tracking-display-2: -0.05em; /* ~-2px at ~40px, ~-4px at ~80px */
+  --tracking-display-3: -0.075em; /* ~-3px at ~40px, ~-6px at ~80px */
+  --tracking-display-4: -0.1em; /* ~-4px at ~40px, ~-8px at ~80px */
+  --tracking-display-5: -0.125em; /* ultra-tight for very large sizes */
+  --tracking-display-6: -0.15em; /* extreme tightening for largest sizes */
 
   /* Layout sizing */
   --size-header: var(--space-3xl);

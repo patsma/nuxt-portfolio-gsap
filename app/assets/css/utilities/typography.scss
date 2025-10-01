@@ -92,7 +92,8 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h1);
   line-height: 120%;
-  letter-spacing: -2px;
+  /* scalable tracking */
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-mobile-h1-bold {
   font-family: var(--font-display);
@@ -100,7 +101,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h1-bold);
   line-height: 120%;
-  letter-spacing: -2px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-mobile-h1-italic {
   font-family: var(--font-display);
@@ -108,7 +109,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h1-italic);
   line-height: 120%;
-  letter-spacing: -2px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-mobile-h2 {
   font-family: var(--font-display);
@@ -116,7 +117,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h2);
   line-height: 150%;
-  letter-spacing: -1px;
+  letter-spacing: var(--tracking-display-1);
 }
 @utility pp-eiko-mobile-h2-enlarged {
   font-family: var(--font-display);
@@ -124,7 +125,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h2-enlarged);
   line-height: 120%;
-  letter-spacing: -3px;
+  letter-spacing: var(--tracking-display-3);
 }
 @utility pp-eiko-mobile-h2-enlarged-italic {
   font-family: var(--font-display);
@@ -132,7 +133,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h2-enlarged-italic);
   line-height: 120%;
-  letter-spacing: -3px;
+  letter-spacing: var(--tracking-display-3);
 }
 @utility pp-eiko-mobile-h3 {
   font-family: var(--font-display);
@@ -140,7 +141,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h3);
   line-height: 140%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-mobile-h3-italic {
   font-family: var(--font-display);
@@ -148,7 +149,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h3--italic);
   line-height: 140%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-mobile-h3-enlarged {
   font-family: var(--font-display);
@@ -156,7 +157,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h3-enlarged);
   line-height: 110%;
-  letter-spacing: -2px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-mobile-custom-navigation-menu-items {
   font-family: var(--font-display);
@@ -164,7 +165,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---custom---navigation--menu-items);
   line-height: 100%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-laptop-h1 {
   font-family: var(--font-display);
@@ -172,7 +173,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h1);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-laptop-h1-bold {
   font-family: var(--font-display);
@@ -180,7 +181,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h1-bold);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-laptop-h1-italic {
   font-family: var(--font-display);
@@ -188,7 +189,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---laptop---h1--italic);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-laptop-h2 {
   font-family: var(--font-display);
@@ -196,7 +197,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h2);
   line-height: 150%;
-  letter-spacing: -1px;
+  letter-spacing: var(--tracking-display-1);
 }
 @utility pp-eiko-laptop-h2-enlarged {
   font-family: var(--font-display);
@@ -204,7 +205,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h2-enlarged);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-laptop-h2-enlarged-italic {
   font-family: var(--font-display);
@@ -212,7 +213,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---laptop---h2-enlarged-italic);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-laptop-h3-enlarged {
   font-family: var(--font-display);
@@ -220,7 +221,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h3-enlarged);
   line-height: 110%;
-  letter-spacing: -6px;
+  letter-spacing: var(--tracking-display-3);
 }
 @utility pp-eiko-desktop-h1 {
   font-family: var(--font-display);
@@ -228,7 +229,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h1);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-desktop-h1-bold {
   font-family: var(--font-display);
@@ -236,7 +237,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h1-bold);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-desktop-h1-italic {
   font-family: var(--font-display);
@@ -244,7 +245,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h1-italic);
   line-height: 120%;
-  letter-spacing: -4px;
+  letter-spacing: var(--tracking-display-2);
 }
 @utility pp-eiko-desktop-h2 {
   font-family: var(--font-display);
@@ -252,7 +253,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h2);
   line-height: 150%;
-  letter-spacing: -1px;
+  letter-spacing: var(--tracking-display-1);
 }
 @utility pp-eiko-desktop-h2-enlarged {
   font-family: var(--font-display);
@@ -260,7 +261,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h2-enlarged);
   line-height: 120%;
-  letter-spacing: -6px;
+  letter-spacing: var(--tracking-display-3);
 }
 @utility pp-eiko-desktop-h2-enlarged-italic {
   font-family: var(--font-display);
@@ -268,7 +269,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h2-enlarged-italic);
   line-height: 120%;
-  letter-spacing: -6px;
+  letter-spacing: var(--tracking-display-3);
 }
 @utility pp-eiko-desktop-h3 {
   font-family: var(--font-display);
@@ -276,7 +277,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h3);
   line-height: 140%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-desktop-h3-italic {
   font-family: var(--font-display);
@@ -284,7 +285,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h3-italic);
   line-height: 140%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-desktop-h3-enlarged {
   font-family: var(--font-display);
@@ -292,7 +293,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h3-enlarged);
   line-height: 110%;
-  letter-spacing: -8px;
+  letter-spacing: var(--tracking-display-4);
 }
 @utility pp-eiko-desktop-custom-navigation {
   font-family: var(--font-display);
@@ -300,7 +301,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---custom---navigation);
   line-height: 100%;
-  letter-spacing: 0px;
+  letter-spacing: var(--tracking-normal);
 }
 @utility pp-eiko-desktop-large-h2 {
   font-family: var(--font-display);
@@ -308,5 +309,5 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop-large---h2);
   line-height: 150%;
-  letter-spacing: -1px;
+  letter-spacing: var(--tracking-display-1);
 }
