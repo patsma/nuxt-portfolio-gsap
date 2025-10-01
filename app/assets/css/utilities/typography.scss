@@ -79,3 +79,234 @@
   /* Reference token so it scales with fluid type */
   text-shadow: var(--shadow-text-default);
 }
+
+/*
+  Figma-compatible utilities — PP Eiko (exact px + percent leading)
+  - Use one class per style, matching Figma naming closely
+  - Sizes reference tokens defined in :root within theme.scss
+  - Keep this section in sync with design when specs change
+*/
+@utility pp-eiko-mobile-h1 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h1);
+  line-height: 120%;
+  letter-spacing: -2px;
+}
+@utility pp-eiko-mobile-h1-bold {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h1-bold);
+  line-height: 120%;
+  letter-spacing: -2px;
+}
+@utility pp-eiko-mobile-h1-italic {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--p-p--eiko---mobile---h1-italic);
+  line-height: 120%;
+  letter-spacing: -2px;
+}
+@utility pp-eiko-mobile-h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h2);
+  line-height: 150%;
+  letter-spacing: -1px;
+}
+@utility pp-eiko-mobile-h2-enlarged {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: -3px;
+}
+@utility pp-eiko-mobile-h2-enlarged-italic {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: italic;
+  font-size: var(--p-p--eiko---mobile---h2-enlarged-italic);
+  line-height: 120%;
+  letter-spacing: -3px;
+}
+@utility pp-eiko-mobile-h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h3);
+  line-height: 140%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-mobile-h3-italic {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--p-p--eiko---mobile---h3--italic);
+  line-height: 140%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-mobile-h3-enlarged {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---h3-enlarged);
+  line-height: 110%;
+  letter-spacing: -2px;
+}
+@utility pp-eiko-mobile-custom-navigation-menu-items {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--p-p--eiko---mobile---custom---navigation--menu-items);
+  line-height: 100%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-laptop-h1 {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: normal;
+  font-size: var(--p-p--eiko---laptop---h1);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-laptop-h1-bold {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---laptop---h1-bold);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-laptop-h1-italic {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--p-p--eiko---laptop---h1--italic);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-laptop-h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---laptop---h2);
+  line-height: 150%;
+  letter-spacing: -1px;
+}
+@utility pp-eiko-laptop-h2-enlarged {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: normal;
+  font-size: var(--p-p--eiko---laptop---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-laptop-h2-enlarged-italic {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: italic;
+  font-size: var(--p-p--eiko---laptop---h2-enlarged-italic);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-laptop-h3-enlarged {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---laptop---h3-enlarged);
+  line-height: 110%;
+  letter-spacing: -6px;
+}
+@utility pp-eiko-desktop-h1 {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h1);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-desktop-h1-bold {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h1-bold);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-desktop-h1-italic {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--p-p--eiko---desktop---h1-italic);
+  line-height: 120%;
+  letter-spacing: -4px;
+}
+@utility pp-eiko-desktop-h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h2);
+  line-height: 150%;
+  letter-spacing: -1px;
+}
+@utility pp-eiko-desktop-h2-enlarged {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: -6px;
+}
+@utility pp-eiko-desktop-h2-enlarged-italic {
+  font-family: var(--font-display);
+  font-weight: 100;
+  font-style: italic;
+  font-size: var(--p-p--eiko---desktop---h2-enlarged-italic);
+  line-height: 120%;
+  letter-spacing: -6px;
+}
+@utility pp-eiko-desktop-h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h3);
+  line-height: 140%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-desktop-h3-italic {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--p-p--eiko---desktop---h3-italic);
+  line-height: 140%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-desktop-h3-enlarged {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---h3-enlarged);
+  line-height: 110%;
+  letter-spacing: -8px;
+}
+@utility pp-eiko-desktop-custom-navigation {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop---custom---navigation);
+  line-height: 100%;
+  letter-spacing: 0px;
+}
+@utility pp-eiko-desktop-large-h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--p-p--eiko---desktop-large---h2);
+  line-height: 150%;
+  letter-spacing: -1px;
+}
