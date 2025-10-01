@@ -8,13 +8,13 @@
         <header class="text-center grid gap-[var(--space-xs)]">
           <h2
             id="alt-smooth-heading"
-            class="font-display text-step-3 md:text-step-4 lg:text-step-6 leading-display tracking-widest font-semibold"
+            class="pp-eiko-mobile-h2 md:pp-eiko-desktop-h2"
             data-speed="1.04"
           >
             Smooth Demo (Alt Layout)
           </h2>
           <p
-            class="font-body text-step-0 text-[var(--color-stone-600)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)]"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-stone-600)]"
             data-speed="0.96"
           >
             A simple two-column composition to test ScrollSmoother on another
@@ -41,7 +41,7 @@
               data-lag="0.25"
             />
             <figcaption
-              class="mt-[var(--space-2xs)] font-body text-step-0 text-[color:rgb(107_114_128)]"
+              class="mt-[var(--space-2xs)] ibm-plex-sans-jp-mobile-caption text-[color:rgb(107_114_128)]"
               data-speed="1.02"
             >
               Wide image with auto speed and small lag
@@ -49,11 +49,14 @@
           </figure>
 
           <article class="order-2 grid gap-[var(--space-s)]">
-            <h3 class="font-body text-step-2 font-medium" data-speed="0.97">
+            <h3
+              class="ibm-plex-sans-jp-mobile-p2 font-medium"
+              data-speed="0.97"
+            >
               Clean and minimal
             </h3>
             <p
-              class="font-body text-step-0 text-[var(--color-ink)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)]"
+              class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)]"
               data-speed="1.06"
             >
               This layout uses a simple grid. The image on the left moves
@@ -61,7 +64,7 @@
               depth effect while scrolling.
             </p>
             <p
-              class="font-body text-step-0 text-[var(--color-ink)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)] opacity-80"
+              class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] opacity-80"
               data-speed="0.94"
             >
               Tailwind utilities provide spacing and typography. No component
@@ -80,7 +83,7 @@
               Reversed section
             </h3>
             <p
-              class="font-body text-step-0 text-[var(--color-ink)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)]"
+              class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)]"
               data-speed="0.95"
             >
               Here we reverse the grid order on large screens to verify effects
@@ -88,7 +91,7 @@
               the easing behavior.
             </p>
             <p
-              class="font-body text-step-0 text-[var(--color-ink)] leading-[var(--leading-relaxed)] tracking-[var(--tracking-normal)] opacity-80"
+              class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] opacity-80"
               data-speed="1.05"
             >
               You can tweak the numbers (e.g., 0.9 or 1.1) if you need stronger
@@ -111,7 +114,7 @@
               data-lag="0.15"
             />
             <figcaption
-              class="mt-[var(--space-2xs)] text-center font-body text-step-0 text-[color:rgb(107_114_128)]"
+              class="mt-[var(--space-2xs)] text-center ibm-plex-sans-jp-mobile-caption text-[color:rgb(107_114_128)]"
               data-speed="1.0"
             >
               Icon with a lighter lag value
