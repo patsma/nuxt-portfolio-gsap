@@ -75,5 +75,57 @@ const families = [
       { label: "Desktop large/H2", class: "pp-eiko-desktop-large-h2" },
     ],
   },
+  {
+    name: "IBM Plex Sans JP",
+    styles: [
+      { label: "Mobile/H1", class: "ibm-plex-sans-jp-mobile-h1" },
+      {
+        label: "Mobile/H2 enlarged",
+        class: "ibm-plex-sans-jp-mobile-h2-enlarged",
+      },
+      { label: "Mobile/Caption", class: "ibm-plex-sans-jp-mobile-caption" },
+      { label: "Mobile/P2", class: "ibm-plex-sans-jp-mobile-p2" },
+      { label: "Mobile/P1", class: "ibm-plex-sans-jp-mobile-p1" },
+      { label: "Mobile/Button", class: "ibm-plex-sans-jp-mobile-button" },
+      {
+        label: "Mobile/Custom/Labels",
+        class: "ibm-plex-sans-jp-mobile-custom-labels",
+      },
+      {
+        label: "Mobile/Custom/Navigation Caption",
+        class: "ibm-plex-sans-jp-mobile-custom-navigation-caption",
+      },
+      {
+        label: "Mobile/Custom/Navigation Subcaption",
+        class: "ibm-plex-sans-jp-mobile-custom-navigation-subcaption",
+      },
+      { label: "Laptop/H1", class: "ibm-plex-sans-jp-laptop-h1" },
+      {
+        label: "Laptop/H2 enlarged",
+        class: "ibm-plex-sans-jp-laptop-h2-enlarged",
+      },
+      { label: "Laptop/P2", class: "ibm-plex-sans-jp-laptop-p2" },
+      { label: "Desktop/H1", class: "ibm-plex-sans-jp-desktop-h1" },
+      {
+        label: "Desktop/H2 enlarged",
+        class: "ibm-plex-sans-jp-desktop-h2-enlarged",
+      },
+      { label: "Desktop/Caption", class: "ibm-plex-sans-jp-desktop-caption" },
+      { label: "Desktop/P2", class: "ibm-plex-sans-jp-desktop-p2" },
+      { label: "Desktop/P1", class: "ibm-plex-sans-jp-desktop-p1" },
+      {
+        label: "Desktop/Custom/Labels",
+        class: "ibm-plex-sans-jp-desktop-custom-labels",
+      },
+      {
+        label: "Desktop/Custom/Navigation Caption",
+        class: "ibm-plex-sans-jp-desktop-custom-navigation-caption",
+      },
+      {
+        label: "Desktop/Custom/Navigation Subcaption",
+        class: "ibm-plex-sans-jp-desktop-custom-navigation-subcaption",
+      },
+    ],
+  },
 ];
 </script>

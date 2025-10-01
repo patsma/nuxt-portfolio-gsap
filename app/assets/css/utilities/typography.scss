@@ -1,10 +1,4 @@
 /* Fluid Typography Utilities (define before Tailwind so responsive variants override) */
-@utility text-step--2 {
-  font-size: var(--step--2);
-}
-@utility text-step--1 {
-  font-size: var(--step--1);
-}
 @utility text-step-0 {
   font-size: var(--step-0);
 }
@@ -37,6 +31,12 @@
 }
 @utility text-step-10 {
   font-size: var(--step-10);
+}
+@utility text-step-11 {
+  font-size: var(--step-11);
+}
+@utility text-step-12 {
+  font-size: var(--step-12);
 }
 
 /*
@@ -97,7 +97,7 @@
 }
 @utility pp-eiko-mobile-h1-bold {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 500;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h1-bold);
   line-height: 120%;
@@ -141,7 +141,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h3);
   line-height: 140%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-mobile-h3-italic {
   font-family: var(--font-display);
@@ -149,7 +149,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h3--italic);
   line-height: 140%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-mobile-h3-enlarged {
   font-family: var(--font-display);
@@ -165,7 +165,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---custom---navigation--menu-items);
   line-height: 100%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-laptop-h1 {
   font-family: var(--font-display);
@@ -277,7 +277,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h3);
   line-height: 140%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-desktop-h3-italic {
   font-family: var(--font-display);
@@ -285,7 +285,7 @@
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h3-italic);
   line-height: 140%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-desktop-h3-enlarged {
   font-family: var(--font-display);
@@ -301,7 +301,7 @@
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---custom---navigation);
   line-height: 100%;
-  letter-spacing: var(--tracking-normal);
+  letter-spacing: 0;
 }
 @utility pp-eiko-desktop-large-h2 {
   font-family: var(--font-display);
@@ -310,4 +310,213 @@
   font-size: var(--p-p--eiko---desktop-large---h2);
   line-height: 150%;
   letter-spacing: var(--tracking-display-1);
+}
+
+/* IBM Plex Sans JP (body system) — Figma parity utilities */
+@utility ibm-plex-sans-jp-mobile-h1 {
+  /* 32px / 120%, weight Light */
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---h1);
+  line-height: 120%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-mobile-h2-enlarged {
+  /* 56px / 120%, weight ExtraLight */
+  font-family: var(--font-body);
+  font-weight: 200;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: var(--tracking-display-2);
+}
+
+@utility ibm-plex-sans-jp-mobile-caption {
+  /* 16px / 150%, weight Medium */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---caption);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-mobile-p2 {
+  /* 24px / 150%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---p2);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-1);
+}
+
+@utility ibm-plex-sans-jp-mobile-p1 {
+  /* 16px / 150%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---p1);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-mobile-button {
+  /* 16px / 150%, weight Medium */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---button);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-mobile-custom-labels {
+  /* 10px / 110%, weight Medium */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---custom---labels);
+  line-height: 110%;
+  letter-spacing: var(--tracking-body-wide-1);
+}
+
+@utility ibm-plex-sans-jp-mobile-custom-navigation-caption {
+  /* 12px / 130%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(
+    --i-b-m--plex--sans--j-p---mobile---custom---navigation--caption
+  );
+  line-height: 130%;
+  letter-spacing: var(--tracking-body-tight-1);
+}
+
+@utility ibm-plex-sans-jp-mobile-custom-navigation-subcaption {
+  /* 10px / 120%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(
+    --i-b-m--plex--sans--j-p---mobile---custom---navigation--subcaption
+  );
+  line-height: 120%;
+  letter-spacing: 0;
+}
+
+@utility ibm-plex-sans-jp-laptop-h1 {
+  /* 64px / 120%, weight Light */
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---laptop---h1);
+  line-height: 120%;
+  letter-spacing: var(--tracking-display-2);
+}
+
+@utility ibm-plex-sans-jp-laptop-h2-enlarged {
+  /* 80px / 120%, weight ExtraLight */
+  font-family: var(--font-body);
+  font-weight: 200;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---laptop---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: var(--tracking-display-2);
+}
+
+@utility ibm-plex-sans-jp-laptop-p2 {
+  /* 32px / 150%, weight Light */
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---laptop---p2);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-desktop-h1 {
+  /* 80px / 120%, weight Light */
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---h1);
+  line-height: 120%;
+  letter-spacing: var(--tracking-display-3);
+}
+
+@utility ibm-plex-sans-jp-desktop-h2-enlarged {
+  /* 104px / 120%, weight ExtraLight */
+  font-family: var(--font-body);
+  font-weight: 200;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---h2-enlarged);
+  line-height: 120%;
+  letter-spacing: var(--tracking-display-4);
+}
+
+@utility ibm-plex-sans-jp-desktop-caption {
+  /* 24px / 150%, weight Medium */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---caption);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-1);
+}
+
+@utility ibm-plex-sans-jp-desktop-p2 {
+  /* 48px / 150%, weight Light */
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---p2);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-3);
+}
+
+@utility ibm-plex-sans-jp-desktop-p1 {
+  /* 24px / 150%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---p1);
+  line-height: 150%;
+  letter-spacing: var(--tracking-body-tight-1);
+}
+
+@utility ibm-plex-sans-jp-desktop-custom-labels {
+  /* 14px / 110%, weight Medium */
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--i-b-m--plex--sans--j-p---desktop---custom---labels);
+  line-height: 110%;
+  letter-spacing: var(--tracking-body-wide-2);
+}
+
+@utility ibm-plex-sans-jp-desktop-custom-navigation-caption {
+  /* 16px / 100%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(
+    --i-b-m--plex--sans--j-p---desktop---custom---navigation--caption
+  );
+  line-height: 100%;
+  letter-spacing: var(--tracking-body-tight-2);
+}
+
+@utility ibm-plex-sans-jp-desktop-custom-navigation-subcaption {
+  /* 14px / 100%, weight Regular */
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: var(
+    --i-b-m--plex--sans--j-p---desktop---custom---navigation--subcaption
+  );
+  line-height: 100%;
+  letter-spacing: 0;
 }

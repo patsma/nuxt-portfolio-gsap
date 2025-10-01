@@ -90,6 +90,16 @@
   --tracking-display-5: -0.125em; /* ultra-tight for very large sizes */
   --tracking-display-6: -0.15em; /* extreme tightening for largest sizes */
 
+  /* Body tracking scale (proportional, em-based)
+     - Use for paragraphs, captions, labels, navigation text
+     - Encodes common magnitudes we use across sizes */
+  --tracking-body-tight-1: -0.0417em; /* ~-1px @ 24px, ~-0.5px @ 12px */
+  --tracking-body-tight-2: -0.0625em; /* ~-1px @ 16px, ~-2px @ 32px */
+  --tracking-body-tight-3: -0.0833em; /* ~-4px @ 48px */
+  --tracking-body-normal: 0; /* default */
+  --tracking-body-wide-1: 0.1em; /* ~+1px @ 10px */
+  --tracking-body-wide-2: 0.143em; /* ~+2px @ 14px */
+
   /* Layout sizing */
   --size-header: var(--space-3xl);
   --size-hero-reveal: 10vh;
