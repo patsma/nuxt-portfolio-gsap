@@ -52,7 +52,7 @@
               v-for="(item, idx) in items"
               :key="item.href"
               :to="item.href"
-              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
               :data-boot-item="idx + 2"
               :class="
                 isActive(item.href)
@@ -93,7 +93,7 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block relativ pp-eiko-mobile-custom-navigation-menu-items transition-all duration-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+            class="block relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
             :class="
               isActive(item.href)
                 ? 'text-accent after:w-full'
