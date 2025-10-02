@@ -2,52 +2,62 @@
   <main class="p-6 md:p-8 lg:p-12">
     <header class="mb-8">
       <h1
-        class="font-display text-step-3 md:text-step-4 font-semibold tracking-tight"
+        class="font-display text-step-3 md:text-step-4 font-semibold tracking-tight text-[var(--theme-text-100)]"
       >
-        Color Board
+        Theme Color System
       </h1>
       <p
-        class="mt-2 text-stone-600 font-body text-step-0 leading-[var(--leading-normal)]"
+        class="mt-2 text-[var(--theme-text-60)] font-body text-step-0 leading-[var(--leading-normal)]"
       >
-        Visual test page for <code>@theme</code> <code>--color-*</code> tokens.
+        Toggle the theme in the header to see smooth color transitions across all variants.
       </p>
     </header>
 
-    <section aria-labelledby="palette-heading">
-      <h2 id="palette-heading" class="sr-only">Palette</h2>
-      <ul
-        role="list"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
+    <!-- Text Variants Section -->
+    <section aria-labelledby="text-heading" class="mb-12">
+      <h2 id="text-heading" class="text-step-2 font-semibold mb-4 text-[var(--theme-text-100)]">
+        Text Colors (--theme-text-*)
+      </h2>
+      <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <li
-          v-for="swatch in swatches"
+          v-for="swatch in textSwatches"
           :key="swatch.name"
-          class="rounded-lg overflow-hidden border border-black/10 bg-white"
+          class="rounded-lg overflow-hidden border border-[var(--theme-text-15)] bg-[var(--theme-5)] p-4"
         >
-          <!-- Big color tile -->
-          <div
-            class="aspect-[16/9] flex items-end p-4"
-            :class="[swatch.bg, swatch.text]"
-          >
-            <div class="w-full flex items-center justify-between">
-              <span class="text-sm font-medium">{{ swatch.name }}</span>
-              <span class="text-xs opacity-80">{{ swatch.bg }}</span>
-            </div>
+          <div class="mb-2 text-xs font-mono text-[var(--theme-text-40)]">
+            {{ swatch.varName }}
           </div>
+          <div :style="{ color: swatch.varName }" class="text-step-1 font-medium">
+            {{ swatch.name }}
+          </div>
+          <div :style="{ color: swatch.varName }" class="text-sm mt-2">
+            The quick brown fox jumps over the lazy dog
+          </div>
+        </li>
+      </ul>
+    </section>
 
-          <!-- Mini samples -->
-          <div class="p-4 grid grid-cols-2 gap-3">
-            <div
-              class="rounded-md p-3 text-center border"
-              :class="[swatch.bg, swatch.text, swatch.border]"
-            >
-              Text
+    <!-- Background Variants Section -->
+    <section aria-labelledby="bg-heading">
+      <h2 id="bg-heading" class="text-step-2 font-semibold mb-4 text-[var(--theme-text-100)]">
+        Background Colors (--theme-*)
+      </h2>
+      <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <li
+          v-for="swatch in bgSwatches"
+          :key="swatch.name"
+          class="rounded-lg overflow-hidden border border-[var(--theme-text-15)]"
+          :style="{ backgroundColor: swatch.varName }"
+        >
+          <div class="p-4">
+            <div class="mb-2 text-xs font-mono text-[var(--theme-text-60)]">
+              {{ swatch.varName }}
             </div>
-            <div
-              class="rounded-md p-3 text-center"
-              :class="[swatch.textBg, swatch.textOnAlt]"
-            >
-              On Light
+            <div class="text-step-1 font-medium text-[var(--theme-text-100)]">
+              {{ swatch.name }}
+            </div>
+            <div class="text-sm mt-2 text-[var(--theme-text-100)]">
+              Background with {{ swatch.opacity }} opacity
             </div>
           </div>
         </li>
@@ -63,119 +73,25 @@
 </template>
 
 <script setup>
-/**
- * Swatch definition for the board.
- * We pair each background with a high-contrast text color.
- * For light backgrounds we display an alternate sample labeled "On Light".
- * @typedef {Object} Swatch
- * @property {string} name   Human-readable token name (without --color- prefix)
- * @property {string} bg     Tailwind background class (e.g. bg-dark-100)
- * @property {string} text   Tailwind text color class for contrast on bg
- * @property {string} border Tailwind border color to outline the sample
- * @property {string} textBg Alternate surface background (usually light)
- * @property {string} textOnAlt Text color used on the alternate surface
- */
+// Text color swatches using the theme system
+const textSwatches = [
+  { name: "100% Text", varName: "var(--theme-text-100)", opacity: "100%" },
+  { name: "60% Text", varName: "var(--theme-text-60)", opacity: "60%" },
+  { name: "50% Text", varName: "var(--theme-text-50)", opacity: "50%" },
+  { name: "40% Text", varName: "var(--theme-text-40)", opacity: "40%" },
+  { name: "30% Text", varName: "var(--theme-text-30)", opacity: "30%" },
+  { name: "15% Text", varName: "var(--theme-text-15)", opacity: "15%" },
+  { name: "5% Text", varName: "var(--theme-text-5)", opacity: "5%" },
+];
 
-/** @type {Swatch[]} */
-const swatches = [
-  // Dark scale
-  {
-    name: "dark-100",
-    bg: "bg-dark-100",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-60",
-    bg: "bg-dark-60",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-50",
-    bg: "bg-dark-50",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-40",
-    bg: "bg-dark-40",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-30",
-    bg: "bg-dark-30",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-15",
-    bg: "bg-dark-15",
-    text: "text-light-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "dark-5",
-    bg: "bg-dark-5",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-
-  // Light scale
-  {
-    name: "light-100",
-    bg: "bg-light-100",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "light-60",
-    bg: "bg-light-60",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "light-50",
-    bg: "bg-light-50",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "light-40",
-    bg: "bg-light-40",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
-  {
-    name: "light-15",
-    bg: "bg-light-15",
-    text: "text-dark-100",
-    border: "border-dark-15",
-    textBg: "bg-light-100",
-    textOnAlt: "text-dark-100",
-  },
+// Background color swatches using the theme system
+const bgSwatches = [
+  { name: "100% Background", varName: "var(--theme-100)", opacity: "100%" },
+  { name: "60% Background", varName: "var(--theme-60)", opacity: "60%" },
+  { name: "50% Background", varName: "var(--theme-50)", opacity: "50%" },
+  { name: "40% Background", varName: "var(--theme-40)", opacity: "40%" },
+  { name: "30% Background", varName: "var(--theme-30)", opacity: "30%" },
+  { name: "15% Background", varName: "var(--theme-15)", opacity: "15%" },
+  { name: "5% Background", varName: "var(--theme-5)", opacity: "5%" },
 ];
 </script>
