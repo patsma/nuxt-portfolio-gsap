@@ -22,7 +22,7 @@
         <li
           v-for="swatch in textSwatches"
           :key="swatch.name"
-          class="group relative rounded-xl overflow-hidden border border-[var(--theme-text-10)] bg-[var(--theme-5)] p-[var(--space-m)] transition-all duration-300 hover:border-[var(--theme-text-30)] hover:shadow-lg"
+          class="group relative rounded-xl overflow-hidden border border-[var(--theme-text-10)] bg-[var(--theme-5)] p-[var(--space-m)] transition-hover hover:border-[var(--theme-text-30)] hover:shadow-lg"
         >
           <div class="mb-[var(--space-xs)] text-xs font-mono text-[var(--theme-text-40)] tracking-tight">
             {{ swatch.varName }}
@@ -46,7 +46,7 @@
         <li
           v-for="swatch in bgSwatches"
           :key="swatch.name"
-          class="group relative rounded-xl overflow-hidden border border-[var(--theme-text-10)] transition-all duration-300 hover:border-[var(--theme-text-30)] hover:shadow-lg"
+          class="group relative rounded-xl overflow-hidden border border-[var(--theme-text-10)] transition-hover hover:border-[var(--theme-text-30)] hover:shadow-lg"
           :style="{ backgroundColor: swatch.varName }"
         >
           <div class="p-[var(--space-m)]">

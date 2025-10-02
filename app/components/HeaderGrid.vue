@@ -52,7 +52,7 @@
               v-for="(item, idx) in items"
               :key="item.href"
               :to="item.href"
-              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
               :data-boot-item="idx + 2"
               :class="
                 isActive(item.href)
@@ -93,7 +93,7 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-300 after:ease-out"
+            class="block relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
             :class="
               isActive(item.href)
                 ? 'text-accent after:w-full'
@@ -216,6 +216,10 @@ onMounted(() => {
         return;
       }
 
+      // Read durations from CSS variables
+      const html = document.documentElement;
+      const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
+
       const tl = $gsap.timeline({
         paused: true,
         defaults: { ease: "power2.inOut" },
@@ -225,18 +229,18 @@ onMounted(() => {
         $gsap.set(closedPaths, { autoAlpha: 1, drawSVG: "100%" });
         $gsap.set(openedPaths, { autoAlpha: 1, drawSVG: 0 });
 
-        // Animate out closed, then in opened
-        tl.to(closedPaths, { drawSVG: 0, duration: 0.28, stagger: 0.04 }, 0).to(
+        // Animate out closed, then in opened using CSS variable duration
+        tl.to(closedPaths, { drawSVG: 0, duration: hoverDuration * 0.93, stagger: 0.04 }, 0).to(
           openedPaths,
-          { drawSVG: "100%", duration: 0.32, stagger: 0.04 },
+          { drawSVG: "100%", duration: hoverDuration * 1.07, stagger: 0.04 },
           "<+0.06"
         );
       } else {
         // Fallback without DrawSVG: simple crossfade
         $gsap.set(openedPaths, { autoAlpha: 0 });
-        tl.to(closedPaths, { autoAlpha: 0, duration: 0.18 }, 0).to(
+        tl.to(closedPaths, { autoAlpha: 0, duration: hoverDuration * 0.6 }, 0).to(
           openedPaths,
-          { autoAlpha: 1, duration: 0.22 },
+          { autoAlpha: 1, duration: hoverDuration * 0.73 },
           "<+0.05"
         );
       }
@@ -260,13 +264,13 @@ onMounted(() => {
           $gsap.set(overlayRef.value, { pointerEvents: "auto" });
         }, 0);
 
-        // Reveal overlay from top to bottom, then bring in links
+        // Reveal overlay from top to bottom, then bring in links using CSS variable duration
         tl2
           .to(
             overlayRef.value,
             {
               clipPath: "inset(0 0 0% 0 round 0px)",
-              duration: 0.35,
+              duration: hoverDuration * 1.17,
               ease: "power2.out",
             },
             0
@@ -276,7 +280,7 @@ onMounted(() => {
             {
               autoAlpha: 1,
               y: 0,
-              duration: 0.3,
+              duration: hoverDuration,
               ease: "power2.out",
               stagger: 0.06,
             },

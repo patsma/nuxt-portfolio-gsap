@@ -8,5 +8,21 @@ body {
   background-color: var(--theme-bg);
   color: var(--theme-text);
   /* Smooth CSS transition fallback for browsers without GSAP or when GSAP hasn't loaded yet */
-  transition: background-color 0.6s ease, color 0.6s ease;
+  transition:
+    background-color var(--duration-theme) ease,
+    color var(--duration-theme) ease;
+}
+
+/* Global utility: transition for hover effects with separate durations for colors vs other properties
+   - Border/text colors: --duration-hover (for hover state changes)
+   - Background colors: No CSS transition (GSAP handles at --duration-theme)
+   - Other properties: --duration-hover (shadows, transforms, etc.)
+   This prevents conflict between GSAP theme transitions and hover state transitions */
+.transition-hover {
+  transition:
+    border-color var(--duration-hover) var(--ease-smooth),
+    box-shadow var(--duration-hover) var(--ease-smooth),
+    transform var(--duration-hover) var(--ease-smooth),
+    opacity var(--duration-hover) var(--ease-smooth),
+    filter var(--duration-hover) var(--ease-smooth);
 }

@@ -132,6 +132,9 @@ export default function useThemeSwitch() {
         }
       });
 
+      // Read theme duration from CSS variable for consistency
+      const themeDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-theme")) / 1000 || 0.6;
+
       // Animate the proxy object's color values - light to dark
       tl.to(
         colorProxy,
@@ -142,34 +145,34 @@ export default function useThemeSwitch() {
           textR: colors.light["100"].r,
           textG: colors.light["100"].g,
           textB: colors.light["100"].b,
-          duration: 0.6,
+          duration: themeDuration,
           ease: "power2.inOut",
         },
         0
       );
 
-      // SVG icon animations - sync with color theme
+      // SVG icon animations - sync with color theme using same duration
       const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
       const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
       tl.to(
         background,
-        { duration: 0.5, fill: lightHex, ease: "power1.out" },
+        { duration: themeDuration, fill: lightHex, ease: "power1.out" },
         "<"
       );
       tl.to(
         sunLightBeams,
-        { duration: 0.5, autoAlpha: 0, ease: "power1.out" },
+        { duration: themeDuration, autoAlpha: 0, ease: "power1.out" },
         "<"
       );
       tl.to(
         convertedMoonWhite,
-        { duration: 0.5, morphSVG: moonDark, fill: darkHex, ease: "power1.out" },
+        { duration: themeDuration, morphSVG: moonDark, fill: darkHex, ease: "power1.out" },
         "<"
       );
       tl.to(
         sunLightInner,
-        { duration: 0.5, morphSVG: convertedSunDark, fill: darkHex, ease: "power1.out" },
+        { duration: themeDuration, morphSVG: convertedSunDark, fill: darkHex, ease: "power1.out" },
         "<"
       );
       tl.reverse();
