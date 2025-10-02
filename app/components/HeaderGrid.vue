@@ -7,7 +7,7 @@
   -->
   <header
     ref="containerRef"
-    class="header-grid bg-[var(--color-bg)] fixed inset-x-0 top-0 z-50"
+    class="header-grid fixed inset-x-0 top-0 z-50"
   >
     <div class="content-grid">
       <div class="breakout1 header-grid__inner">
@@ -52,12 +52,12 @@
               v-for="(item, idx) in items"
               :key="item.href"
               :to="item.href"
-              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
+              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items text-[var(--theme-text-100)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-[var(--theme-text-100)] after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
               :data-boot-item="idx + 2"
               :class="
                 isActive(item.href)
-                  ? 'text-accent after:w-full'
-                  : 'text-ink hover:text-accent after:w-0 hover:after:w-full'
+                  ? 'after:w-full'
+                  : 'after:w-0 hover:after:w-full'
               "
             >
               {{ item.label }}
@@ -83,7 +83,7 @@
     <div
       id="mobile-overlay"
       ref="overlayRef"
-      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--color-bg)] md:hidden z-40 opacity-0 pointer-events-none"
+      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)] md:hidden z-40 opacity-0 pointer-events-none"
     >
       <div class="content-grid h-full">
         <div
@@ -93,11 +93,11 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block relative pp-eiko-mobile-custom-navigation-menu-items after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-accent after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
+            class="block relative pp-eiko-mobile-custom-navigation-menu-items text-[var(--theme-text-100)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-[var(--theme-text-100)] after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
             :class="
               isActive(item.href)
-                ? 'text-accent after:w-full'
-                : 'text-ink hover:text-accent after:w-0 hover:after:w-full'
+                ? 'after:w-full'
+                : 'after:w-0 hover:after:w-full'
             "
             @click="close()"
           >

@@ -1,6 +1,10 @@
 @use "../tokens/breakpoints.scss" as bp;
+
+/* Header container */
 .header-grid {
   height: var(--size-header);
+  background-color: var(--theme-100);
+  /* No transition - GSAP handles theme color transitions */
 }
 
 .header-grid__inner {
@@ -18,14 +22,15 @@
   height: var(--size-header);
 }
 
+/* Hamburger button */
 .header-grid__hamburger {
   cursor: pointer;
   display: inline-flex;
-  width: 3.5rem; /* w-10 */
-  height: 3.5rem; /* h-10 */
+  width: 3.5rem;
+  height: 3.5rem;
   align-items: center;
   justify-content: start;
-  color: var(--color-ink);
+  color: var(--theme-text-100);
   margin-left: -0.25rem;
   margin-top: -0.25rem;
 }
@@ -37,16 +42,18 @@
 }
 
 .header-grid__hamburgerIcon {
-  width: 2.5rem; /* w-6 */
-  height: 2.5rem; /* h-6 */
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
+/* Brand/logo */
 .header-grid__brand {
   display: inline-flex;
   align-items: center;
   height: 100%;
   grid-column: 2; /* center column on mobile */
   justify-self: center;
+  color: var(--theme-text-100);
 }
 
 @media (min-width: 768px) {
@@ -61,6 +68,7 @@
   width: auto;
 }
 
+/* Navigation */
 .header-grid__nav {
   grid-column: 2; /* center column */
   display: none;
@@ -73,6 +81,7 @@
   }
 }
 
+/* Right spacer */
 .header-grid__spacer {
   grid-column: 3;
 }

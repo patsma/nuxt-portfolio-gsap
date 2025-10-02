@@ -155,6 +155,13 @@ export default function useThemeSwitch() {
       const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
       const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
+      // Set initial states explicitly so GSAP knows where to animate from
+      $gsap.set(background, { fill: darkHex }); // Starts dark on light theme
+      $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex }); // Sun beams visible and light on light theme
+      $gsap.set(convertedMoonWhite, { fill: lightHex }); // Moon starts light
+      $gsap.set(sunLightInner, { fill: lightHex }); // Sun starts light
+
+      // Animate TO dark theme state
       tl.to(
         background,
         { duration: themeDuration, fill: lightHex, ease: "power1.out" },
@@ -175,7 +182,10 @@ export default function useThemeSwitch() {
         { duration: themeDuration, morphSVG: convertedSunDark, fill: darkHex, ease: "power1.out" },
         "<"
       );
-      tl.reverse();
+
+      // Start with light theme (progress at 0, timeline paused, not reversed)
+      // User clicks will toggle between light (progress 0) and dark (progress 1)
+      tl.progress(0).pause();
 
       themeSwitch.addEventListener("click", function () {
         console.log("Theme switch clicked!");

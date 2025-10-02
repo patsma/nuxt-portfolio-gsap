@@ -20,7 +20,7 @@
               style="
                 fill: none;
                 fill-rule: nonzero;
-                stroke: rgb(101, 101, 101);
+                stroke: var(--theme-text-100);
                 stroke-width: 1px;
               "
             />
@@ -31,7 +31,7 @@
               style="
                 fill: none;
                 fill-rule: nonzero;
-                stroke: rgb(101, 101, 101);
+                stroke: var(--theme-text-100);
                 stroke-width: 1px;
               "
             />
@@ -42,7 +42,7 @@
               style="
                 fill: none;
                 fill-rule: nonzero;
-                stroke: rgb(101, 101, 101);
+                stroke: var(--theme-text-100);
                 stroke-width: 1px;
               "
             />
@@ -57,7 +57,7 @@
               style="
                 fill: none;
                 fill-rule: nonzero;
-                stroke: rgb(101, 101, 101);
+                stroke: var(--theme-text-100);
                 stroke-width: 1px;
               "
             />
@@ -70,7 +70,7 @@
               style="
                 fill: none;
                 fill-rule: nonzero;
-                stroke: rgb(101, 101, 101);
+                stroke: var(--theme-text-100);
                 stroke-width: 1px;
               "
             />
