@@ -50,3 +50,67 @@ body {
     opacity: 0.5;
   }
 }
+
+/* Theme-aware Nuxt Icon utilities
+   Use these classes to ensure icons inherit theme colors and scale properly */
+
+/* Default icon inherits text color from parent */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  color: currentColor;
+}
+
+/* Icon opacity variants - match text hierarchy */
+.icon-100 {
+  color: var(--theme-text-100);
+}
+
+.icon-60 {
+  color: var(--theme-text-60);
+}
+
+.icon-50 {
+  color: var(--theme-text-50);
+}
+
+.icon-40 {
+  color: var(--theme-text-40);
+}
+
+/* Icon size utilities using em (scales with parent font-size) */
+.icon-xs {
+  font-size: 0.75em; /* 12px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-sm {
+  font-size: 0.875em; /* 14px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-base {
+  font-size: 1em; /* Same as text */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-lg {
+  font-size: 1.25em; /* 20px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-xl {
+  font-size: 1.5em; /* 24px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-2xl {
+  font-size: 2em; /* 32px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}

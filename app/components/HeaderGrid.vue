@@ -61,7 +61,7 @@
           <div class="header-grid__spacer flex items-center justify-end">
             <button
               id="themeSwitch"
-              class=""
+              class="cursor-pointer"
               :data-boot-item="items.length + 2"
               aria-label="Toggle theme"
             >
