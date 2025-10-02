@@ -26,3 +26,28 @@ body {
     opacity var(--duration-hover) var(--ease-smooth),
     filter var(--duration-hover) var(--ease-smooth);
 }
+
+/* Text link underline - modern, theme-aware
+   Use .text-link class for inline hyperlinks (not navigation)
+   Underline fades in/out on hover, synced with GSAP opacity animation */
+.text-link {
+  position: relative;
+  text-decoration: none;
+}
+
+.text-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0.3;
+  transform-origin: left;
+  transition: opacity var(--duration-hover) var(--ease-power2);
+}
+
+.text-link:hover::after {
+  opacity: 0.5;
+}

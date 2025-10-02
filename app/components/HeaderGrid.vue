@@ -145,6 +145,7 @@ const items = [
   { label: "colors", href: "/dev/colors" },
   { label: "typography", href: "/dev/typography" },
   { label: "responsive", href: "/dev/responsive" },
+  { label: "texts", href: "/dev/typography-test" },
 ];
 
 // Active route highlighting

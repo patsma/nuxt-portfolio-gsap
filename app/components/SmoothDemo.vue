@@ -136,6 +136,28 @@
             </div>
           </div>
         </div>
+
+        <!-- Links showcase -->
+        <div ref="linksSection" class="max-w-3xl mx-auto mt-[var(--space-xl)] grid gap-[var(--space-m)]">
+          <h3 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)]">
+            Interactive Links
+          </h3>
+
+          <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] font-light">
+            This paragraph contains
+            <a href="/dev/typography-test" class="nav-link text-[var(--theme-text-100)]" :data-active="false">inline links</a>
+            that use GSAP hover animations. Try hovering to see the smooth 300ms fade to 50% opacity.
+            Here's <a href="/dev/colors" class="nav-link text-[var(--theme-text-100)]" :data-active="false">another link</a>
+            to test with.
+          </p>
+
+          <nav class="flex gap-[var(--space-m)] flex-wrap">
+            <a href="/" class="nav-link text-[var(--theme-text-100)] pp-eiko-mobile-custom-navigation-menu-items" :data-active="false">Home</a>
+            <a href="/about" class="nav-link text-[var(--theme-text-100)] pp-eiko-mobile-custom-navigation-menu-items" :data-active="false">About</a>
+            <a href="/dev/typography-test" class="nav-link text-[var(--theme-text-100)] pp-eiko-mobile-custom-navigation-menu-items" :data-active="false">Typography Test</a>
+            <a href="/dev/colors" class="nav-link text-[var(--theme-text-100)] pp-eiko-mobile-custom-navigation-menu-items" :data-active="false">Colors</a>
+          </nav>
+        </div>
       </div>
     </div>
   </section>
@@ -143,9 +165,50 @@
 </template>
 
 <script setup>
-// No interactive logic required for the demo.
-// The GSAP ScrollSmoother plugin (initialized globally) reads the
+// GSAP ScrollSmoother plugin (initialized globally) reads the
 // data-speed and data-lag attributes when effects: true.
+
+// GSAP hover animations for links
+const { $gsap } = useNuxtApp();
+const linksSection = ref(null);
+
+onMounted(() => {
+  if (!$gsap) return;
+
+  nextTick(() => {
+    // Read hover duration from CSS
+    const html = document.documentElement;
+    const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
+
+    // Setup GSAP hover for all nav-link elements
+    const navLinks = document.querySelectorAll(".nav-link");
+    navLinks.forEach((link) => {
+      const isActive = link.getAttribute("data-active") === "true";
+
+      // Set initial opacity
+      $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
+
+      // Only add hover for non-active links
+      if (!isActive) {
+        link.addEventListener("mouseenter", () => {
+          $gsap.to(link, {
+            opacity: 0.5,
+            duration: hoverDuration,
+            ease: "power2.inOut",
+          });
+        });
+
+        link.addEventListener("mouseleave", () => {
+          $gsap.to(link, {
+            opacity: 1,
+            duration: hoverDuration,
+            ease: "power2.inOut",
+          });
+        });
+      }
+    });
+  });
+});
 
 // Accessibility notes:
 // - Section is labeled by the heading via aria-labelledby.
