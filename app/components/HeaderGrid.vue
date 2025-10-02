@@ -64,8 +64,17 @@
             </NuxtLink>
           </nav>
 
-          <!-- Right spacer to balance the grid on desktop -->
-          <div class="header-grid__spacer" aria-hidden="true" />
+          <!-- Right spacer with theme toggle -->
+          <div class="header-grid__spacer flex items-center justify-end">
+            <button
+              id="themeSwitch"
+              class="boot-hidden"
+              :data-boot-item="items.length + 2"
+              aria-label="Toggle theme"
+            >
+              <ThemeToggleSVG class="w-12" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -103,6 +112,7 @@
 <script setup lang="js">
 // Import the provided SVG-based hamburger icon for mobile
 import HamburgerSVG from "./SVG/HamburgerSVG.vue";
+import ThemeToggleSVG from "./ThemeToggleSVG.vue";
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const { $gsap, $DrawSVGPlugin } = useNuxtApp();
@@ -160,8 +170,13 @@ function isActive(href) {
 
 onMounted(() => {
   if (!$gsap) return;
+
   const scopeEl = containerRef.value || undefined;
   nextTick(() => {
+    // Initialize theme switch
+    const { initThemeSwitch } = useThemeSwitch();
+    initThemeSwitch();
+
     gsapCtx = $gsap.context(() => {
       /**
        * Helper to unwrap child-exposed refs safely
