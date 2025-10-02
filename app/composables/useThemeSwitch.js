@@ -156,7 +156,7 @@ export default function useThemeSwitch() {
       const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
       // Set initial states explicitly so GSAP knows where to animate from
-      $gsap.set(background, { fill: darkHex }); // Starts dark on light theme
+      $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 }); // Starts dark 60% on light theme
       $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex }); // Sun beams visible and light on light theme
       $gsap.set(convertedMoonWhite, { fill: lightHex }); // Moon starts light
       $gsap.set(sunLightInner, { fill: lightHex }); // Sun starts light
@@ -164,7 +164,7 @@ export default function useThemeSwitch() {
       // Animate TO dark theme state
       tl.to(
         background,
-        { duration: themeDuration, fill: lightHex, ease: "power1.out" },
+        { duration: themeDuration, fill: lightHex, fillOpacity: 0.6, ease: "power1.out" },
         "<"
       );
       tl.to(
