@@ -16,12 +16,12 @@
         >
           <h2
             id="smooth-demo-heading"
-            class="pp-eiko-mobile-h2 md:pp-eiko-desktop-h2"
+            class="pp-eiko-mobile-h2 md:pp-eiko-desktop-h2 text-[var(--color-ink)]"
           >
             Smooth Scrolling Demo
           </h2>
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-stone-600)]"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)]"
             data-speed="1.05"
           >
             Minimal demo to verify GSAP ScrollSmoother effects. Scroll to see
@@ -52,61 +52,90 @@
             data-lag="0.2"
           />
           <figcaption
-            class="mt-[var(--space-2xs)] text-center ibm-plex-sans-jp-mobile-caption text-[color:rgb(107_114_128)]"
+            class="mt-[var(--space-2xs)] text-center ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
             data-speed="0.98"
           >
             Image uses data-speed="auto" and data-lag="0.2" for a smooth feel
           </figcaption>
         </figure>
 
-        <!-- Paragraph block 1 -->
+        <!-- Paragraph block 1 - showcasing color variants -->
         <article
           class="max-w-3xl mx-auto mt-[var(--space-l)] grid gap-[var(--space-s)]"
         >
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] font-light"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] font-light"
             data-speed="1.06"
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel
+            <strong class="font-medium">100% opacity:</strong> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel
             enim vel nisl viverra bibendum. Integer tincidunt, purus id volutpat
             dignissim, libero lectus imperdiet dui, id accumsan ipsum mauris
-            vitae risus. Integer egestas, nunc at hendrerit consectetur, ipsum
-            ex facilisis lorem, at lobortis eros urna quis metus.
+            vitae risus.
           </p>
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] font-light opacity-80"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)] font-light"
             data-speed="0.94"
           >
-            Suspendisse potenti. Cras lobortis, arcu nec egestas rhoncus, felis
+            <strong class="font-medium">60% opacity:</strong> Suspendisse potenti. Cras lobortis, arcu nec egestas rhoncus, felis
             lectus lobortis mi, vitae cursus risus sapien id magna. Donec id dui
             at nibh mattis sagittis. Sed nec faucibus lorem, non tincidunt nibh.
           </p>
         </article>
 
-        <!-- Paragraph block 2 -->
+        <!-- Paragraph block 2 - more color variants -->
         <article
           class="max-w-3xl mx-auto mt-[var(--space-m)] grid gap-[var(--space-s)]"
         >
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] font-light"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-50)] font-light"
             data-speed="1.02"
           >
-            Proin ac nunc a diam porttitor pulvinar. Morbi at efficitur neque.
+            <strong class="font-medium text-[var(--theme-text-100)]">50% opacity:</strong> Proin ac nunc a diam porttitor pulvinar. Morbi at efficitur neque.
             Donec feugiat erat vitae sagittis ornare. Pellentesque habitant
             morbi tristique senectus et netus et malesuada fames ac turpis
-            egestas. Nam varius bibendum nunc, id aliquet nunc faucibus non.
+            egestas.
           </p>
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--color-ink)] font-light opacity-80"
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)] font-light"
             data-speed="0.98"
           >
-            Integer porttitor, nisl id dapibus consectetur, mauris risus
+            <strong class="font-medium text-[var(--theme-text-100)]">40% opacity:</strong> Integer porttitor, nisl id dapibus consectetur, mauris risus
             scelerisque nulla, vitae sollicitudin nisl augue at ante. In hac
             habitasse platea dictumst. Phasellus egestas, velit sit amet
-            ullamcorper auctor, nibh sem consequat nisl, non vestibulum nibh
-            libero id augue.
+            ullamcorper auctor, nibh sem consequat nisl.
+          </p>
+          <p
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-30)] font-light"
+            data-speed="0.96"
+          >
+            <strong class="font-medium text-[var(--theme-text-100)]">30% opacity:</strong> Nam varius bibendum nunc, id aliquet nunc faucibus non.
+            Sed nec faucibus lorem, non tincidunt nibh.
+          </p>
+          <p
+            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-15)] font-light"
+            data-speed="1.04"
+          >
+            <strong class="font-medium text-[var(--theme-text-100)]">15% opacity:</strong> Very subtle text for backgrounds or dividers.
           </p>
         </article>
+
+        <!-- Background color showcase -->
+        <div class="max-w-3xl mx-auto mt-[var(--space-xl)] grid gap-[var(--space-s)]">
+          <h3 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)]">
+            Background Variants
+          </h3>
+          <div class="grid gap-[var(--space-2xs)]">
+            <div class="p-[var(--space-s)] bg-[var(--theme-5)] border border-[var(--theme-text-15)] rounded-md">
+              <p class="text-[var(--theme-text-100)] font-light">5% background opacity</p>
+            </div>
+            <div class="p-[var(--space-s)] bg-[var(--theme-15)] border border-[var(--theme-text-15)] rounded-md">
+              <p class="text-[var(--theme-text-100)] font-light">15% background opacity</p>
+            </div>
+            <div class="p-[var(--space-s)] bg-[var(--theme-30)] border border-[var(--theme-text-15)] rounded-md">
+              <p class="text-[var(--theme-text-100)] font-light">30% background opacity</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>

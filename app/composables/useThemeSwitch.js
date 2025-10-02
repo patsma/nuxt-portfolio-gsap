@@ -93,24 +93,42 @@ export default function useThemeSwitch() {
         paused: true,
         onUpdate: function () {
           updateCount++;
-          // Format as hex colors for CSS custom properties
-          const toHex = (r, g, b) => {
-            const hex = ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
-            return `#${hex}`;
+          // Format as rgba colors for CSS custom properties
+          const toRgba = (r, g, b, a) => {
+            return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`;
           };
 
-          const bgColor = toHex(colorProxy.bgR, colorProxy.bgG, colorProxy.bgB);
-          const textColor = toHex(colorProxy.textR, colorProxy.textG, colorProxy.textB);
+          const bgR = Math.round(colorProxy.bgR);
+          const bgG = Math.round(colorProxy.bgG);
+          const bgB = Math.round(colorProxy.bgB);
+          const textR = Math.round(colorProxy.textR);
+          const textG = Math.round(colorProxy.textG);
+          const textB = Math.round(colorProxy.textB);
 
           if (updateCount % 10 === 0 || updateCount === 1) {
-            console.log(`🎨 onUpdate #${updateCount}:`, bgColor, textColor);
+            console.log(`🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`);
           }
 
-          // Update CSS variables with interpolated color values on EVERY frame
-          html.style.setProperty("--theme-bg", bgColor);
-          html.style.setProperty("--theme-text", textColor);
-          html.style.setProperty("--theme-text-muted", textColor); // Will use opacity in CSS
-          html.style.setProperty("--theme-accent", textColor);
+          // Update ALL theme variables with interpolated color values on EVERY frame
+          // Background variants use TEXT color (inverted!) - so accent backgrounds are visible
+          // Light theme: light bg + dark accent backgrounds
+          // Dark theme: dark bg + light accent backgrounds
+          html.style.setProperty("--theme-100", toRgba(bgR, bgG, bgB, 1));
+          html.style.setProperty("--theme-60", toRgba(textR, textG, textB, 0.6));
+          html.style.setProperty("--theme-50", toRgba(textR, textG, textB, 0.5));
+          html.style.setProperty("--theme-40", toRgba(textR, textG, textB, 0.4));
+          html.style.setProperty("--theme-30", toRgba(textR, textG, textB, 0.3));
+          html.style.setProperty("--theme-15", toRgba(textR, textG, textB, 0.15));
+          html.style.setProperty("--theme-5", toRgba(textR, textG, textB, 0.05));
+
+          // Text variants use TEXT color
+          html.style.setProperty("--theme-text-100", toRgba(textR, textG, textB, 1));
+          html.style.setProperty("--theme-text-60", toRgba(textR, textG, textB, 0.6));
+          html.style.setProperty("--theme-text-50", toRgba(textR, textG, textB, 0.5));
+          html.style.setProperty("--theme-text-40", toRgba(textR, textG, textB, 0.4));
+          html.style.setProperty("--theme-text-30", toRgba(textR, textG, textB, 0.3));
+          html.style.setProperty("--theme-text-15", toRgba(textR, textG, textB, 0.15));
+          html.style.setProperty("--theme-text-5", toRgba(textR, textG, textB, 0.05));
         }
       });
 

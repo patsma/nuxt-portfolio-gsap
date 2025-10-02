@@ -37,11 +37,9 @@
   --color-light-5: rgba(255, 250, 245, 0.05);
 
   /* Semantic color tokens - these reference runtime theme variables
-     Tailwind will generate bg-bg, text-ink, etc. utilities */
-  --color-bg: var(--theme-bg);
-  --color-ink: var(--theme-text);
-  --color-ink-muted: var(--theme-text-muted);
-  --color-accent: var(--theme-accent);
+     Tailwind will generate utilities via arbitrary values like bg-[var(--color-bg)] */
+  --color-bg: var(--theme-100);
+  --color-ink: var(--theme-text-100);
 
   /* Fluid Typography Scale tuned to Figma key sizes
      - Standardized steps starting at step-0 (smallest)
@@ -138,12 +136,6 @@
   --theme-text-30: var(--color-dark-30);
   --theme-text-15: var(--color-dark-15);
   --theme-text-5: var(--color-dark-5);
-
-  /* Legacy aliases for backward compatibility */
-  --theme-bg: var(--theme-100);
-  --theme-text: var(--theme-text-100);
-  --theme-text-muted: var(--theme-text-60);
-  --theme-accent: var(--theme-text-100);
 
   /* Text shadow tokens for consistent scalable heading shadows */
   /*
