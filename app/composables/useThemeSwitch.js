@@ -40,14 +40,19 @@ export default function useThemeSwitch() {
 
     const html = document.documentElement;
 
-    // Read color values from CSS custom properties - single source of truth!
-    const light100Str = getComputedStyle(html).getPropertyValue("--color-light-100").trim();
-    const dark100Str = getComputedStyle(html).getPropertyValue("--color-dark-100").trim();
-
+    // Read all color values from CSS custom properties - single source of truth!
+    const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
     const colors = {
-      light100: parseRgba(light100Str),
-      dark100: parseRgba(dark100Str),
+      light: {},
+      dark: {},
     };
+
+    colorVariants.forEach((variant) => {
+      const lightStr = getComputedStyle(html).getPropertyValue(`--color-light-${variant}`).trim();
+      const darkStr = getComputedStyle(html).getPropertyValue(`--color-dark-${variant}`).trim();
+      colors.light[variant] = parseRgba(lightStr);
+      colors.dark[variant] = parseRgba(darkStr);
+    });
 
     console.log("🎨 Colors from CSS:", colors);
     const sunDark = document.querySelector("#sun-dark");
@@ -73,14 +78,14 @@ export default function useThemeSwitch() {
       // Use the converted elements for setting initial state
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
-      // Create a proxy object to animate color values - start with light theme
+      // Create a proxy object to animate ALL color values - start with light theme
       const colorProxy = {
-        bgR: colors.light100.r,
-        bgG: colors.light100.g,
-        bgB: colors.light100.b,
-        textR: colors.dark100.r,
-        textG: colors.dark100.g,
-        textB: colors.dark100.b,
+        bgR: colors.light["100"].r,
+        bgG: colors.light["100"].g,
+        bgB: colors.light["100"].b,
+        textR: colors.dark["100"].r,
+        textG: colors.dark["100"].g,
+        textB: colors.dark["100"].b,
       };
 
       let updateCount = 0;
@@ -113,12 +118,12 @@ export default function useThemeSwitch() {
       tl.to(
         colorProxy,
         {
-          bgR: colors.dark100.r,
-          bgG: colors.dark100.g,
-          bgB: colors.dark100.b,
-          textR: colors.light100.r,
-          textG: colors.light100.g,
-          textB: colors.light100.b,
+          bgR: colors.dark["100"].r,
+          bgG: colors.dark["100"].g,
+          bgB: colors.dark["100"].b,
+          textR: colors.light["100"].r,
+          textG: colors.light["100"].g,
+          textB: colors.light["100"].b,
           duration: 0.6,
           ease: "power2.inOut",
         },
@@ -126,8 +131,8 @@ export default function useThemeSwitch() {
       );
 
       // SVG icon animations - sync with color theme
-      const lightHex = `#${((1 << 24) + (colors.light100.r << 16) + (colors.light100.g << 8) + colors.light100.b).toString(16).slice(1)}`;
-      const darkHex = `#${((1 << 24) + (colors.dark100.r << 16) + (colors.dark100.g << 8) + colors.dark100.b).toString(16).slice(1)}`;
+      const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
+      const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
       tl.to(
         background,

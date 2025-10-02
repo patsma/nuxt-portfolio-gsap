@@ -18,7 +18,7 @@
   --font-display: var(--font-pp-eiko);
   --font-body: var(--font-ibm-plex-sans-jp);
 
-  /* Neutral palette — exposed to Tailwind as text-*, bg-* via --color-* tokens
+  /* Neutral palette — Static color definitions (single source of truth)
      Keep RGBA to preserve intended alpha across utilities like borders and rings */
   --color-dark-100: rgba(9, 9, 37, 1);
   --color-dark-60: rgba(9, 9, 37, 0.6);
@@ -32,7 +32,9 @@
   --color-light-60: rgba(255, 250, 245, 0.6);
   --color-light-50: rgba(255, 250, 245, 0.5);
   --color-light-40: rgba(255, 250, 245, 0.4);
+  --color-light-30: rgba(255, 250, 245, 0.3);
   --color-light-15: rgba(255, 250, 245, 0.15);
+  --color-light-5: rgba(255, 250, 245, 0.05);
 
   /* Semantic color tokens - these reference runtime theme variables
      Tailwind will generate bg-bg, text-ink, etc. utilities */
@@ -120,11 +122,28 @@
 /* Runtime theme variables - animated by GSAP, defined outside @theme */
 :root {
   /* Theme variables - default to light theme, GSAP will animate these
-     Reference the static color tokens defined in @theme */
-  --theme-bg: var(--color-light-100);
-  --theme-text: var(--color-dark-100);
-  --theme-text-muted: var(--color-dark-60);
-  --theme-accent: var(--color-dark-100);
+     Each opacity variant will swap with its counterpart during theme toggle */
+  --theme-100: var(--color-light-100);
+  --theme-60: var(--color-light-60);
+  --theme-50: var(--color-light-50);
+  --theme-40: var(--color-light-40);
+  --theme-30: var(--color-light-30);
+  --theme-15: var(--color-light-15);
+  --theme-5: var(--color-light-5);
+
+  --theme-text-100: var(--color-dark-100);
+  --theme-text-60: var(--color-dark-60);
+  --theme-text-50: var(--color-dark-50);
+  --theme-text-40: var(--color-dark-40);
+  --theme-text-30: var(--color-dark-30);
+  --theme-text-15: var(--color-dark-15);
+  --theme-text-5: var(--color-dark-5);
+
+  /* Legacy aliases for backward compatibility */
+  --theme-bg: var(--theme-100);
+  --theme-text: var(--theme-text-100);
+  --theme-text-muted: var(--theme-text-60);
+  --theme-accent: var(--theme-text-100);
 
   /* Text shadow tokens for consistent scalable heading shadows */
   /*
