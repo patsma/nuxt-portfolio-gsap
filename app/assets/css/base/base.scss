@@ -1,4 +1,12 @@
 /* Base element resets or minimal globals */
 html {
   min-height: 102dvh;
+  background-color: var(--theme-bg);
+}
+
+body {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  /* Smooth CSS transition fallback for browsers without GSAP or when GSAP hasn't loaded yet */
+  transition: background-color 0.6s ease, color 0.6s ease;
 }

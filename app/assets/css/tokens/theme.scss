@@ -34,6 +34,13 @@
   --color-light-40: rgba(255, 250, 245, 0.4);
   --color-light-15: rgba(255, 250, 245, 0.15);
 
+  /* Semantic color tokens - these reference runtime theme variables
+     Tailwind will generate bg-bg, text-ink, etc. utilities */
+  --color-bg: var(--theme-bg);
+  --color-ink: var(--theme-text);
+  --color-ink-muted: var(--theme-text-muted);
+  --color-accent: var(--theme-accent);
+
   /* Fluid Typography Scale tuned to Figma key sizes
      - Standardized steps starting at step-0 (smallest)
      - Anchors mobile → desktop around: 10, 12, 16, 24, 32, 40, 48, 56, 64, 80, 104, 144 (px) */
@@ -110,8 +117,15 @@
   --breakpoint-5xl: 156.25rem;
   --breakpoint-6xl: 237.5rem;
 }
-/* Text shadow tokens for consistent scalable heading shadows */
+/* Runtime theme variables - animated by GSAP, defined outside @theme */
 :root {
+  /* Theme variables - default to light theme, GSAP will animate these */
+  --theme-bg: #fffaf5;
+  --theme-text: #090925;
+  --theme-text-muted: rgba(9, 9, 37, 0.6);
+  --theme-accent: #090925;
+
+  /* Text shadow tokens for consistent scalable heading shadows */
   /*
     Use em units so the shadow scales with font-size (fluid type).
     Matches Figma base: 0 4px 4px @ 25% when font-size ≈ 16px.

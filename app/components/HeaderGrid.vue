@@ -7,7 +7,7 @@
   -->
   <header
     ref="containerRef"
-    class="header-grid bg-white fixed inset-x-0 top-0 z-50"
+    class="header-grid bg-[var(--color-bg)] fixed inset-x-0 top-0 z-50"
   >
     <div class="content-grid">
       <div class="breakout1 header-grid__inner">
@@ -40,7 +40,7 @@
           <!-- Single logo used for both desktop and mobile -->
           <NuxtLink
             to="/"
-            class="header-grid__brand boot-hidden"
+            class="header-grid__brand boot-hidden text-[var(--color-ink)]"
             :data-boot-item="1"
           >
             LOGO
@@ -83,7 +83,7 @@
     <div
       id="mobile-overlay"
       ref="overlayRef"
-      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-white md:hidden z-40 opacity-0 pointer-events-none"
+      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--color-bg)] md:hidden z-40 opacity-0 pointer-events-none"
     >
       <div class="content-grid h-full">
         <div

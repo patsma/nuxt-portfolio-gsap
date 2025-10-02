@@ -11,33 +11,34 @@ export default function useThemeSwitch() {
     }
   }
 
-  // Define your themes
+  // Define your themes - using your project colors
   const lightTheme = {
-    "--color-bg": "#FFFFFF",
-    "--color-text": "#000000",
-    "--color-secondary": "#AAAAAA",
-    "--color-tertiary": "#888888",
-    "--color-gradient": "linear-gradient(to right, #FFFFFF, #DDDDDD)",
-    "--color-bg-gradient": "linear-gradient(to right, #DDDDDD, #FFFFFF)",
+    "--theme-bg": "#fffaf5", // --color-light-100
+    "--theme-text": "#090925", // --color-dark-100
+    "--theme-text-muted": "rgba(9, 9, 37, 0.6)", // --color-dark-60
+    "--theme-accent": "#090925",
   };
 
   const darkTheme = {
-    "--color-bg": "#000000",
-    "--color-text": "#FFFFFF",
-    "--color-secondary": "#444444",
-    "--color-tertiary": "#666666",
-    "--color-gradient": "linear-gradient(to right, #000000, #333333)",
-    "--color-bg-gradient": "linear-gradient(to right, #333333, #000000)",
+    "--theme-bg": "#090925", // --color-dark-100
+    "--theme-text": "#fffaf5", // --color-light-100
+    "--theme-text-muted": "rgba(255, 250, 245, 0.6)", // --color-light-60
+    "--theme-accent": "#fffaf5",
   };
 
   // Function to initialize theme switching
   const initThemeSwitch = () => {
+    console.log("🎨 initThemeSwitch called!");
+    console.log("$gsap:", !!$gsap, "$MorphSVGPlugin:", !!$MorphSVGPlugin);
+
     if (!$gsap || !$MorphSVGPlugin) {
       console.warn("useThemeSwitch: GSAP or MorphSVGPlugin not available");
       return;
     }
 
     const themeSwitch = document.querySelector("#themeSwitch");
+    console.log("Theme switch button found:", !!themeSwitch);
+
     if (!themeSwitch) {
       console.warn("useThemeSwitch: #themeSwitch button not found");
       return;
@@ -62,22 +63,62 @@ export default function useThemeSwitch() {
     const convertedMoonWhite = $MorphSVGPlugin.convertToPath(moonWhite)[0];
     const convertedSunDark = $MorphSVGPlugin.convertToPath(sunDark)[0];
 
-    const currentBgColor = getComputedStyle(html)
-      .getPropertyValue("--color-bg")
-      .trim();
-
     // Create GSAP context for proper cleanup
     const ctx = $gsap.context(() => {
       // Use the converted elements for setting initial state
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
-      const tl = $gsap.timeline({ paused: true });
+      // Create a proxy object to animate color values
+      const colorProxy = {
+        bgR: 255,
+        bgG: 250,
+        bgB: 245,
+        textR: 9,
+        textG: 9,
+        textB: 37,
+      };
 
-      if (currentBgColor === darkTheme["--color-bg"]) {
-        tl.to(html, { ...lightTheme, ease: "power1.out", duration: 0.5 });
-      } else {
-        tl.to(html, { ...darkTheme, ease: "power1.out", duration: 0.5 });
-      }
+      let updateCount = 0;
+      const tl = $gsap.timeline({
+        paused: true,
+        onUpdate: function () {
+          updateCount++;
+          // Format as hex colors for CSS custom properties
+          const toHex = (r, g, b) => {
+            const hex = ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+            return `#${hex}`;
+          };
+
+          const bgColor = toHex(colorProxy.bgR, colorProxy.bgG, colorProxy.bgB);
+          const textColor = toHex(colorProxy.textR, colorProxy.textG, colorProxy.textB);
+
+          if (updateCount % 10 === 0 || updateCount === 1) {
+            console.log(`🎨 onUpdate #${updateCount}:`, bgColor, textColor);
+          }
+
+          // Update CSS variables with interpolated color values on EVERY frame
+          html.style.setProperty("--theme-bg", bgColor);
+          html.style.setProperty("--theme-text", textColor);
+          html.style.setProperty("--theme-text-muted", textColor); // Will use opacity in CSS
+          html.style.setProperty("--theme-accent", textColor);
+        }
+      });
+
+      // Animate the proxy object's color values
+      tl.to(
+        colorProxy,
+        {
+          bgR: 9,
+          bgG: 9,
+          bgB: 37,
+          textR: 255,
+          textG: 250,
+          textB: 245,
+          duration: 0.6,
+          ease: "power2.inOut",
+        },
+        0
+      );
 
       tl.to(
         background,
@@ -102,7 +143,12 @@ export default function useThemeSwitch() {
       tl.reverse();
 
       themeSwitch.addEventListener("click", function () {
+        console.log("Theme switch clicked!");
+        console.log("Timeline reversed?", tl.reversed());
+        console.log("Timeline progress:", tl.progress());
+        console.log("Current colorProxy values:", colorProxy);
         toggleTimeline(tl);
+        console.log("After toggle - reversed?", tl.reversed());
       });
     }, themeSwitch);
 
