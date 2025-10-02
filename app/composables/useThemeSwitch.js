@@ -164,22 +164,22 @@ export default function useThemeSwitch() {
       // Animate TO dark theme state
       tl.to(
         background,
-        { duration: themeDuration, fill: lightHex, fillOpacity: 0.6, ease: "power1.out" },
+        { duration: themeDuration, fill: lightHex, fillOpacity: 0.6, ease: "power2.inOut" },
         "<"
       );
       tl.to(
         sunLightBeams,
-        { duration: themeDuration, autoAlpha: 0, ease: "power1.out" },
+        { duration: themeDuration, autoAlpha: 0, ease: "power2.inOut" },
         "<"
       );
       tl.to(
         convertedMoonWhite,
-        { duration: themeDuration, morphSVG: moonDark, fill: darkHex, ease: "power1.out" },
+        { duration: themeDuration, morphSVG: moonDark, fill: darkHex, ease: "power2.inOut" },
         "<"
       );
       tl.to(
         sunLightInner,
-        { duration: themeDuration, morphSVG: convertedSunDark, fill: darkHex, ease: "power1.out" },
+        { duration: themeDuration, morphSVG: convertedSunDark, fill: darkHex, ease: "power2.inOut" },
         "<"
       );
 

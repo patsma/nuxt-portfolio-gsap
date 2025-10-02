@@ -119,6 +119,7 @@
 
   /* Easing functions */
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1); /* Standard ease-in-out */
+  --ease-power2: cubic-bezier(0.455, 0.03, 0.515, 0.955); /* GSAP power2.inOut exact match (easeInOutQuad) */
   --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Deceleration */
   --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Acceleration */
   --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce effect */
@@ -155,6 +156,10 @@
     Matches Figma base: 0 4px 4px @ 25% when font-size ≈ 16px.
   */
   --shadow-text-default: 0 0.25em 0.25em rgb(0 0 0 / 0.25);
+
+  /* Hover transition timing - shorter for instant feedback on interactive elements
+     GSAP handles theme color transitions at 600ms, hover should feel snappier */
+  --transition-hover-color: color var(--duration-hover) var(--ease-power2);
 }
 
 /* Figma Text-size styles using step tokens (no raw px) */

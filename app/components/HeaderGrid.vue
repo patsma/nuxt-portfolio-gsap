@@ -5,10 +5,7 @@
     - Mobile: hamburger (left), logo (center), empty (right), nav hidden
     - Mobile overlay: appears below header, fills viewport minus header height
   -->
-  <header
-    ref="containerRef"
-    class="header-grid fixed inset-x-0 top-0 z-50"
-  >
+  <header ref="containerRef" class="header-grid fixed inset-x-0 top-0 z-50">
     <div class="content-grid">
       <div class="breakout1 header-grid__inner">
         <!-- Top row: shared row for both desktop and mobile -->
@@ -20,7 +17,7 @@
           <ClientOnly>
             <button
               ref="hamburgerBtn"
-              class="header-grid__hamburger boot-hidden"
+              class="header-grid__hamburger"
               :data-boot-item="0"
               :aria-expanded="Boolean(isOpen)"
               aria-controls="mobile-overlay"
@@ -40,7 +37,7 @@
           <!-- Single logo used for both desktop and mobile -->
           <NuxtLink
             to="/"
-            class="header-grid__brand boot-hidden text-[var(--color-ink)]"
+            class="header-grid__brand text-[var(--color-ink)]"
             :data-boot-item="1"
           >
             LOGO
@@ -52,13 +49,9 @@
               v-for="(item, idx) in items"
               :key="item.href"
               :to="item.href"
-              class="boot-hidden relative pp-eiko-mobile-custom-navigation-menu-items text-[var(--theme-text-100)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-[var(--theme-text-100)] after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
+              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
               :data-boot-item="idx + 2"
-              :class="
-                isActive(item.href)
-                  ? 'after:w-full'
-                  : 'after:w-0 hover:after:w-full'
-              "
+              :data-active="isActive(item.href)"
             >
               {{ item.label }}
             </NuxtLink>
@@ -68,7 +61,7 @@
           <div class="header-grid__spacer flex items-center justify-end">
             <button
               id="themeSwitch"
-              class="boot-hidden"
+              class=""
               :data-boot-item="items.length + 2"
               aria-label="Toggle theme"
             >
@@ -93,12 +86,8 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block relative pp-eiko-mobile-custom-navigation-menu-items text-[var(--theme-text-100)] after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:bg-[var(--theme-text-100)] after:transition-[width] after:duration-[var(--duration-hover)] after:ease-[var(--ease-out)]"
-            :class="
-              isActive(item.href)
-                ? 'after:w-full'
-                : 'after:w-0 hover:after:w-full'
-            "
+            class="block pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+            :data-active="isActive(item.href)"
             @click="close()"
           >
             {{ item.label }}
@@ -218,7 +207,38 @@ onMounted(() => {
 
       // Read durations from CSS variables
       const html = document.documentElement;
-      const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
+      const hoverDuration =
+        parseFloat(
+          getComputedStyle(html).getPropertyValue("--duration-hover")
+        ) / 1000 || 0.3;
+
+      // Setup GSAP hover animations for nav links using opacity
+      const navLinks = containerRef.value.querySelectorAll(".nav-link");
+      navLinks.forEach((link) => {
+        const isActive = link.getAttribute("data-active") === "true";
+
+        // Set initial opacity: active links at 0.5, inactive at 1
+        $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
+
+        // Only add hover for non-active links
+        if (!isActive) {
+          link.addEventListener("mouseenter", () => {
+            $gsap.to(link, {
+              opacity: 0.5,
+              duration: hoverDuration,
+              ease: "power2.inOut",
+            });
+          });
+
+          link.addEventListener("mouseleave", () => {
+            $gsap.to(link, {
+              opacity: 1,
+              duration: hoverDuration,
+              ease: "power2.inOut",
+            });
+          });
+        }
+      });
 
       const tl = $gsap.timeline({
         paused: true,
@@ -230,7 +250,11 @@ onMounted(() => {
         $gsap.set(openedPaths, { autoAlpha: 1, drawSVG: 0 });
 
         // Animate out closed, then in opened using CSS variable duration
-        tl.to(closedPaths, { drawSVG: 0, duration: hoverDuration * 0.93, stagger: 0.04 }, 0).to(
+        tl.to(
+          closedPaths,
+          { drawSVG: 0, duration: hoverDuration * 0.93, stagger: 0.04 },
+          0
+        ).to(
           openedPaths,
           { drawSVG: "100%", duration: hoverDuration * 1.07, stagger: 0.04 },
           "<+0.06"
@@ -238,7 +262,11 @@ onMounted(() => {
       } else {
         // Fallback without DrawSVG: simple crossfade
         $gsap.set(openedPaths, { autoAlpha: 0 });
-        tl.to(closedPaths, { autoAlpha: 0, duration: hoverDuration * 0.6 }, 0).to(
+        tl.to(
+          closedPaths,
+          { autoAlpha: 0, duration: hoverDuration * 0.6 },
+          0
+        ).to(
           openedPaths,
           { autoAlpha: 1, duration: hoverDuration * 0.73 },
           "<+0.05"
