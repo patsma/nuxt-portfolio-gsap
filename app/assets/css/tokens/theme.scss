@@ -119,11 +119,12 @@
 }
 /* Runtime theme variables - animated by GSAP, defined outside @theme */
 :root {
-  /* Theme variables - default to light theme, GSAP will animate these */
-  --theme-bg: #fffaf5;
-  --theme-text: #090925;
-  --theme-text-muted: rgba(9, 9, 37, 0.6);
-  --theme-accent: #090925;
+  /* Theme variables - default to light theme, GSAP will animate these
+     Reference the static color tokens defined in @theme */
+  --theme-bg: var(--color-light-100);
+  --theme-text: var(--color-dark-100);
+  --theme-text-muted: var(--color-dark-60);
+  --theme-accent: var(--color-dark-100);
 
   /* Text shadow tokens for consistent scalable heading shadows */
   /*

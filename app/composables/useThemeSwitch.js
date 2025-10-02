@@ -11,19 +11,13 @@ export default function useThemeSwitch() {
     }
   }
 
-  // Define your themes - using your project colors
-  const lightTheme = {
-    "--theme-bg": "#fffaf5", // --color-light-100
-    "--theme-text": "#090925", // --color-dark-100
-    "--theme-text-muted": "rgba(9, 9, 37, 0.6)", // --color-dark-60
-    "--theme-accent": "#090925",
-  };
-
-  const darkTheme = {
-    "--theme-bg": "#090925", // --color-dark-100
-    "--theme-text": "#fffaf5", // --color-light-100
-    "--theme-text-muted": "rgba(255, 250, 245, 0.6)", // --color-light-60
-    "--theme-accent": "#fffaf5",
+  // Helper to parse rgba() string to RGB object
+  const parseRgba = (rgbaString) => {
+    const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      return { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) };
+    }
+    return { r: 0, g: 0, b: 0 };
   };
 
   // Function to initialize theme switching
@@ -45,6 +39,17 @@ export default function useThemeSwitch() {
     }
 
     const html = document.documentElement;
+
+    // Read color values from CSS custom properties - single source of truth!
+    const light100Str = getComputedStyle(html).getPropertyValue("--color-light-100").trim();
+    const dark100Str = getComputedStyle(html).getPropertyValue("--color-dark-100").trim();
+
+    const colors = {
+      light100: parseRgba(light100Str),
+      dark100: parseRgba(dark100Str),
+    };
+
+    console.log("🎨 Colors from CSS:", colors);
     const sunDark = document.querySelector("#sun-dark");
     const sunLight = document.querySelector("#sun-light");
     const sunLightBeams = document.querySelectorAll("#sun-light-beams path");
@@ -68,14 +73,14 @@ export default function useThemeSwitch() {
       // Use the converted elements for setting initial state
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
-      // Create a proxy object to animate color values
+      // Create a proxy object to animate color values - start with light theme
       const colorProxy = {
-        bgR: 255,
-        bgG: 250,
-        bgB: 245,
-        textR: 9,
-        textG: 9,
-        textB: 37,
+        bgR: colors.light100.r,
+        bgG: colors.light100.g,
+        bgB: colors.light100.b,
+        textR: colors.dark100.r,
+        textG: colors.dark100.g,
+        textB: colors.dark100.b,
       };
 
       let updateCount = 0;
@@ -104,25 +109,29 @@ export default function useThemeSwitch() {
         }
       });
 
-      // Animate the proxy object's color values
+      // Animate the proxy object's color values - light to dark
       tl.to(
         colorProxy,
         {
-          bgR: 9,
-          bgG: 9,
-          bgB: 37,
-          textR: 255,
-          textG: 250,
-          textB: 245,
+          bgR: colors.dark100.r,
+          bgG: colors.dark100.g,
+          bgB: colors.dark100.b,
+          textR: colors.light100.r,
+          textG: colors.light100.g,
+          textB: colors.light100.b,
           duration: 0.6,
           ease: "power2.inOut",
         },
         0
       );
 
+      // SVG icon animations - sync with color theme
+      const lightHex = `#${((1 << 24) + (colors.light100.r << 16) + (colors.light100.g << 8) + colors.light100.b).toString(16).slice(1)}`;
+      const darkHex = `#${((1 << 24) + (colors.dark100.r << 16) + (colors.dark100.g << 8) + colors.dark100.b).toString(16).slice(1)}`;
+
       tl.to(
         background,
-        { duration: 0.5, fill: "#fffaf5", ease: "power1.out" },
+        { duration: 0.5, fill: lightHex, ease: "power1.out" },
         "<"
       );
       tl.to(
@@ -132,12 +141,12 @@ export default function useThemeSwitch() {
       );
       tl.to(
         convertedMoonWhite,
-        { duration: 0.5, morphSVG: moonDark, fill: "#090925", ease: "power1.out" },
+        { duration: 0.5, morphSVG: moonDark, fill: darkHex, ease: "power1.out" },
         "<"
       );
       tl.to(
         sunLightInner,
-        { duration: 0.5, morphSVG: convertedSunDark, fill: "#090925", ease: "power1.out" },
+        { duration: 0.5, morphSVG: convertedSunDark, fill: darkHex, ease: "power1.out" },
         "<"
       );
       tl.reverse();
