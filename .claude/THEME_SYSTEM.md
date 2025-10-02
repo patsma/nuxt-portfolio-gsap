@@ -77,10 +77,11 @@ All animation durations and easing functions are defined as design tokens:
 --duration-slow: 800ms;   /* Dramatic reveals */
 
 /* Easing functions */
---ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);      /* Standard ease */
---ease-out: cubic-bezier(0, 0, 0.2, 1);           /* Deceleration */
---ease-in: cubic-bezier(0.4, 0, 1, 1);            /* Acceleration */
---ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce */
+--ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);           /* Standard ease */
+--ease-power2: cubic-bezier(0.455, 0.03, 0.515, 0.955); /* GSAP power2.inOut exact match */
+--ease-out: cubic-bezier(0, 0, 0.2, 1);                /* Deceleration */
+--ease-in: cubic-bezier(0.4, 0, 1, 1);                 /* Acceleration */
+--ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);/* Bounce */
 ```
 
 ## Implementation
@@ -127,26 +128,83 @@ tl.to(colorProxy, {
 });
 ```
 
-### CSS Transitions for Hover Effects
+### Hover Effects: CSS vs GSAP
 
-Global utility class in `app/assets/css/base/base.scss`:
+**Critical Rule:** Theme-aware color hover effects MUST use GSAP, not CSS transitions.
+
+#### Why CSS Transitions Fail for Theme Colors
+
+CSS cannot smoothly animate `color: var(--theme-text-100)` because:
+1. GSAP animates the CSS variable value (`--theme-text-100`) at 600ms
+2. CSS transition on `color` property tries to animate at the same time
+3. Result: Double transitions, sluggish feel, timing conflicts
+
+**CSS transitions on color properties are FORBIDDEN when using theme variables.**
+
+#### GSAP Hover Pattern (Required for Theme Colors)
+
+Use GSAP to animate **opacity**, not color:
+
+```javascript
+// In GSAP context (onMounted)
+const html = document.documentElement;
+const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
+
+const navLinks = containerRef.value.querySelectorAll(".nav-link");
+navLinks.forEach((link) => {
+  const isActive = link.getAttribute("data-active") === "true";
+
+  // Set initial opacity
+  $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
+
+  if (!isActive) {
+    link.addEventListener("mouseenter", () => {
+      $gsap.to(link, {
+        opacity: 0.5,
+        duration: hoverDuration,
+        ease: "power2.inOut",
+      });
+    });
+
+    link.addEventListener("mouseleave", () => {
+      $gsap.to(link, {
+        opacity: 1,
+        duration: hoverDuration,
+        ease: "power2.inOut",
+      });
+    });
+  }
+});
+```
+
+**Why this works:**
+- Element always uses `text-[var(--theme-text-100)]` (full color)
+- GSAP animates **opacity** (numeric 0-1) which it interpolates perfectly
+- Visual effect: Fading to 50% = same as `var(--theme-text-50)`
+- No CSS transition conflicts
+- Perfect sync with theme toggle
+
+#### CSS Transitions (Only for Non-Color Properties)
+
+Global utility class in `app/assets/css/post.css`:
 
 ```scss
-.transition-hover {
-  transition:
-    border-color var(--duration-hover) var(--ease-smooth),
-    box-shadow var(--duration-hover) var(--ease-smooth),
-    transform var(--duration-hover) var(--ease-smooth),
-    opacity var(--duration-hover) var(--ease-smooth),
-    filter var(--duration-hover) var(--ease-smooth);
+@utility transition-theme-color {
+  transition: var(--transition-hover-color);
 }
 ```
 
-**Why not `transition-all`?**
-- `transition-all` includes `background-color` and `color`
-- This conflicts with GSAP theme animations (600ms) during theme toggle
-- `.transition-hover` only transitions non-color properties (300ms)
-- Color changes are ALWAYS handled by GSAP at 600ms
+**Use CSS transitions ONLY for:**
+- `transform`, `scale`, `rotate`
+- `box-shadow`
+- `border-width`, `border-radius`
+- `opacity` (if not theme-aware)
+- Static colors (non-theme variables)
+
+**NEVER use CSS transitions for:**
+- `color` when using `var(--theme-text-*)`
+- `background-color` when using `var(--theme-*)`
+- Any property that references theme variables
 
 ### Tailwind v4 Integration
 
@@ -207,24 +265,44 @@ Header layout and theming
    </div>
    ```
 
-2. **Use timing variables for hover effects:**
+2. **Theme-aware hover colors (REQUIRED: Use GSAP):**
    ```vue
-   <button class="transition-hover hover:shadow-lg">
+   <!-- Template: All links use full color, opacity controlled by GSAP -->
+   <a class="nav-link text-[var(--theme-text-100)]" :data-active="isActive">
+     Link text
+   </a>
+   ```
+   ```javascript
+   // Script: GSAP handles opacity animation
+   const links = containerRef.value.querySelectorAll(".nav-link");
+   const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000;
+
+   links.forEach((link) => {
+     const isActive = link.getAttribute("data-active") === "true";
+     $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
+
+     if (!isActive) {
+       link.addEventListener("mouseenter", () => {
+         $gsap.to(link, { opacity: 0.5, duration: hoverDuration, ease: "power2.inOut" });
+       });
+       link.addEventListener("mouseleave", () => {
+         $gsap.to(link, { opacity: 1, duration: hoverDuration, ease: "power2.inOut" });
+       });
+     }
+   });
+   ```
+
+3. **Non-color hover effects (CSS transitions OK):**
+   ```vue
+   <button class="transition-[transform,box-shadow] duration-[var(--duration-hover)] hover:shadow-lg hover:scale-105">
      Click me
    </button>
    ```
 
-3. **For custom transitions:**
-   ```scss
-   .my-element {
-     transition: transform var(--duration-hover) var(--ease-smooth);
-   }
-   ```
-
-4. **For GSAP animations:**
+4. **For custom GSAP animations:**
    ```javascript
-   const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000;
-   gsap.to(element, { x: 100, duration: hoverDuration });
+   const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000;
+   gsap.to(element, { x: 100, duration, ease: "power2.inOut" });
    ```
 
 ### Changing Theme Timing Globally
@@ -275,9 +353,11 @@ Test page: `/dev/colors`
 - Remove `transition-all` and use `.transition-hover` instead
 - Only non-color properties should have CSS transitions
 
-### Hover effects too slow/fast
+### Hover effects too slow/fast or jumping (not smooth)
+- **If using theme colors:** Remove CSS transitions, use GSAP opacity animation pattern
 - Check if hardcoded durations exist (search for `duration-\d+`)
-- Replace with `var(--duration-hover)` or `.transition-hover` class
+- Replace with `var(--duration-hover)` read via `getComputedStyle()`
+- Verify easing matches GSAP: `ease: "power2.inOut"`
 
 ### Theme toggle icon doesn't change colors
 - Verify SVG uses `:style="{ fill: 'var(--theme-text-100)' }"` not hardcoded colors
