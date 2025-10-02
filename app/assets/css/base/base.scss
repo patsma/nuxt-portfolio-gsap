@@ -33,21 +33,20 @@ body {
 .text-link {
   position: relative;
   text-decoration: none;
-}
 
-.text-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background-color: currentColor;
-  opacity: 0.3;
-  transform-origin: left;
-  transition: opacity var(--duration-hover) var(--ease-power2);
-}
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    block-size: 0.0825em; /* 1px equivalent that scales with font-size */
+    background-color: currentColor;
+    opacity: 0.3;
+    transform-origin: left;
+    transition: opacity var(--duration-hover) var(--ease-power2);
+  }
 
-.text-link:hover::after {
-  opacity: 0.5;
+  &:hover::after {
+    opacity: 0.5;
+  }
 }
