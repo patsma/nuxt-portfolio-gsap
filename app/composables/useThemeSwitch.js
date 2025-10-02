@@ -68,7 +68,8 @@ export default function useThemeSwitch() {
 
     // Create GSAP context for proper cleanup
     const ctx = $gsap.context(() => {
-      $gsap.set([sunDark, moonDark], { autoAlpha: 0 });
+      // Use the converted elements for setting initial state
+      $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
       const tl = $gsap.timeline({ paused: true });
 
