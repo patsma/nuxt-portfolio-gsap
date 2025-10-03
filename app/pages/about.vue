@@ -3,6 +3,7 @@
     <h1 class="sr-only">About</h1>
 
     <SmoothDemo />
+    <IconDemo />
 
     <!-- <ProjectPathAnimation /> -->
   </div>
