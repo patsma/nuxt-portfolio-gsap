@@ -14,17 +14,14 @@ body {
     background-color var(--duration-theme) ease,
     color var(--duration-theme) ease;
 }
-nav {
-  .router-link-active {
-    color: var(--theme-50);
-  }
-}
 
 /* Navigation link hover styles - CSS-based for simplicity and performance
    - Active links stay at 50% opacity
    - Inactive links fade to 50% on hover
    - Uses CSS variables for consistent timing with theme system */
 .nav-link {
+  /* Default state: full opacity */
+  opacity: 1;
   /* Smooth opacity transition for hover effects */
   transition: opacity var(--duration-hover) var(--ease-power2);
 
@@ -33,13 +30,9 @@ nav {
     opacity: 0.5;
   }
 
-  /* Inactive state: full opacity, fades on hover */
-  &[data-active="false"] {
-    opacity: 1;
-
-    &:hover {
-      opacity: 0.5;
-    }
+  /* Hover on non-active links */
+  &:not([data-active="true"]):hover {
+    opacity: 0.5;
   }
 }
 
