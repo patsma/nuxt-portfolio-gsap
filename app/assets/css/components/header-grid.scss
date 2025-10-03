@@ -81,6 +81,38 @@
   }
 }
 
+/* Navigation link underline animation - premium feel
+   - Animates from center outwards on hover
+   - Uses theme colors for consistency
+   - Only shows on hover, not on active links
+   - Syncs with text opacity transition */
+.header-grid__nav .nav-link {
+  position: relative;
+  padding-bottom: 0.5em; /* space for underline */
+
+  /* Underline using ::after pseudo-element */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); /* center the line */
+    width: 0%;
+    height: 1px;
+    background-color: var(--theme-text-100);
+    opacity: 0;
+    transition:
+      width var(--duration-hover) var(--ease-power2),
+      opacity var(--duration-hover) var(--ease-power2);
+  }
+
+  /* Hover on non-active links only: expand to full width and fade in */
+  &:not([data-active="true"]):hover::after {
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
 /* Right spacer */
 .header-grid__spacer {
   grid-column: 3;
