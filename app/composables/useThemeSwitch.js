@@ -15,7 +15,11 @@ export default function useThemeSwitch() {
   const parseRgba = (rgbaString) => {
     const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
     if (match) {
-      return { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) };
+      return {
+        r: parseInt(match[1]),
+        g: parseInt(match[2]),
+        b: parseInt(match[3]),
+      };
     }
     return { r: 0, g: 0, b: 0 };
   };
@@ -39,6 +43,7 @@ export default function useThemeSwitch() {
     }
 
     const html = document.documentElement;
+    const isDarkInitially = html.classList.contains("theme-dark");
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
@@ -48,8 +53,12 @@ export default function useThemeSwitch() {
     };
 
     colorVariants.forEach((variant) => {
-      const lightStr = getComputedStyle(html).getPropertyValue(`--color-light-${variant}`).trim();
-      const darkStr = getComputedStyle(html).getPropertyValue(`--color-dark-${variant}`).trim();
+      const lightStr = getComputedStyle(html)
+        .getPropertyValue(`--color-light-${variant}`)
+        .trim();
+      const darkStr = getComputedStyle(html)
+        .getPropertyValue(`--color-dark-${variant}`)
+        .trim();
       colors.light[variant] = parseRgba(lightStr);
       colors.dark[variant] = parseRgba(darkStr);
     });
@@ -78,15 +87,27 @@ export default function useThemeSwitch() {
       // Use the converted elements for setting initial state
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
-      // Create a proxy object to animate ALL color values - start with light theme
-      const colorProxy = {
-        bgR: colors.light["100"].r,
-        bgG: colors.light["100"].g,
-        bgB: colors.light["100"].b,
-        textR: colors.dark["100"].r,
-        textG: colors.dark["100"].g,
-        textB: colors.dark["100"].b,
-      };
+      // Create a proxy object to animate ALL color values
+      // Initialize from current theme to avoid first-frame jump
+      const colorProxy = isDarkInitially
+        ? {
+            // Dark theme active → background = dark, text = light
+            bgR: colors.dark["100"].r,
+            bgG: colors.dark["100"].g,
+            bgB: colors.dark["100"].b,
+            textR: colors.light["100"].r,
+            textG: colors.light["100"].g,
+            textB: colors.light["100"].b,
+          }
+        : {
+            // Light theme active → background = light, text = dark
+            bgR: colors.light["100"].r,
+            bgG: colors.light["100"].g,
+            bgB: colors.light["100"].b,
+            textR: colors.dark["100"].r,
+            textG: colors.dark["100"].g,
+            textB: colors.dark["100"].b,
+          };
 
       let updateCount = 0;
       const tl = $gsap.timeline({
@@ -106,7 +127,9 @@ export default function useThemeSwitch() {
           const textB = Math.round(colorProxy.textB);
 
           if (updateCount % 10 === 0 || updateCount === 1) {
-            console.log(`🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`);
+            console.log(
+              `🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`
+            );
           }
 
           // Update ALL theme variables with interpolated color values on EVERY frame
@@ -114,26 +137,68 @@ export default function useThemeSwitch() {
           // Light theme: light bg + dark accent backgrounds
           // Dark theme: dark bg + light accent backgrounds
           html.style.setProperty("--theme-100", toRgba(bgR, bgG, bgB, 1));
-          html.style.setProperty("--theme-60", toRgba(textR, textG, textB, 0.6));
-          html.style.setProperty("--theme-50", toRgba(textR, textG, textB, 0.5));
-          html.style.setProperty("--theme-40", toRgba(textR, textG, textB, 0.4));
-          html.style.setProperty("--theme-30", toRgba(textR, textG, textB, 0.3));
-          html.style.setProperty("--theme-15", toRgba(textR, textG, textB, 0.15));
-          html.style.setProperty("--theme-5", toRgba(textR, textG, textB, 0.05));
+          html.style.setProperty(
+            "--theme-60",
+            toRgba(textR, textG, textB, 0.6)
+          );
+          html.style.setProperty(
+            "--theme-50",
+            toRgba(textR, textG, textB, 0.5)
+          );
+          html.style.setProperty(
+            "--theme-40",
+            toRgba(textR, textG, textB, 0.4)
+          );
+          html.style.setProperty(
+            "--theme-30",
+            toRgba(textR, textG, textB, 0.3)
+          );
+          html.style.setProperty(
+            "--theme-15",
+            toRgba(textR, textG, textB, 0.15)
+          );
+          html.style.setProperty(
+            "--theme-5",
+            toRgba(textR, textG, textB, 0.05)
+          );
 
           // Text variants use TEXT color
-          html.style.setProperty("--theme-text-100", toRgba(textR, textG, textB, 1));
-          html.style.setProperty("--theme-text-60", toRgba(textR, textG, textB, 0.6));
-          html.style.setProperty("--theme-text-50", toRgba(textR, textG, textB, 0.5));
-          html.style.setProperty("--theme-text-40", toRgba(textR, textG, textB, 0.4));
-          html.style.setProperty("--theme-text-30", toRgba(textR, textG, textB, 0.3));
-          html.style.setProperty("--theme-text-15", toRgba(textR, textG, textB, 0.15));
-          html.style.setProperty("--theme-text-5", toRgba(textR, textG, textB, 0.05));
-        }
+          html.style.setProperty(
+            "--theme-text-100",
+            toRgba(textR, textG, textB, 1)
+          );
+          html.style.setProperty(
+            "--theme-text-60",
+            toRgba(textR, textG, textB, 0.6)
+          );
+          html.style.setProperty(
+            "--theme-text-50",
+            toRgba(textR, textG, textB, 0.5)
+          );
+          html.style.setProperty(
+            "--theme-text-40",
+            toRgba(textR, textG, textB, 0.4)
+          );
+          html.style.setProperty(
+            "--theme-text-30",
+            toRgba(textR, textG, textB, 0.3)
+          );
+          html.style.setProperty(
+            "--theme-text-15",
+            toRgba(textR, textG, textB, 0.15)
+          );
+          html.style.setProperty(
+            "--theme-text-5",
+            toRgba(textR, textG, textB, 0.05)
+          );
+        },
       });
 
       // Read theme duration from CSS variable for consistency
-      const themeDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-theme")) / 1000 || 0.6;
+      const themeDuration =
+        parseFloat(
+          getComputedStyle(html).getPropertyValue("--duration-theme")
+        ) / 1000 || 0.6;
 
       // Animate the proxy object's color values - light to dark
       tl.to(
@@ -156,15 +221,29 @@ export default function useThemeSwitch() {
       const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
       // Set initial states explicitly so GSAP knows where to animate from
-      $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 }); // Starts dark 60% on light theme
-      $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex }); // Sun beams visible and light on light theme
-      $gsap.set(convertedMoonWhite, { fill: lightHex }); // Moon starts light
-      $gsap.set(sunLightInner, { fill: lightHex }); // Sun starts light
+      if (isDarkInitially) {
+        // Already dark → set to timeline end visuals
+        $gsap.set(background, { fill: lightHex, fillOpacity: 0.6 });
+        $gsap.set(sunLightBeams, { autoAlpha: 0, fill: lightHex });
+        $gsap.set(convertedMoonWhite, { fill: darkHex });
+        $gsap.set(sunLightInner, { fill: darkHex });
+      } else {
+        // Light theme visuals
+        $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
+        $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
+        $gsap.set(convertedMoonWhite, { fill: lightHex });
+        $gsap.set(sunLightInner, { fill: lightHex });
+      }
 
       // Animate TO dark theme state
       tl.to(
         background,
-        { duration: themeDuration, fill: lightHex, fillOpacity: 0.6, ease: "power2.inOut" },
+        {
+          duration: themeDuration,
+          fill: lightHex,
+          fillOpacity: 0.6,
+          ease: "power2.inOut",
+        },
         "<"
       );
       tl.to(
@@ -174,18 +253,30 @@ export default function useThemeSwitch() {
       );
       tl.to(
         convertedMoonWhite,
-        { duration: themeDuration, morphSVG: moonDark, fill: darkHex, ease: "power2.inOut" },
+        {
+          duration: themeDuration,
+          morphSVG: moonDark,
+          fill: darkHex,
+          ease: "power2.inOut",
+        },
         "<"
       );
       tl.to(
         sunLightInner,
-        { duration: themeDuration, morphSVG: convertedSunDark, fill: darkHex, ease: "power2.inOut" },
+        {
+          duration: themeDuration,
+          morphSVG: convertedSunDark,
+          fill: darkHex,
+          ease: "power2.inOut",
+        },
         "<"
       );
 
-      // Start with light theme (progress at 0, timeline paused, not reversed)
-      // User clicks will toggle between light (progress 0) and dark (progress 1)
-      tl.progress(0).pause();
+      // Sync timeline with current theme and choose first-click direction
+      // - If dark initially → set progress to 1 and first click should go back to light (reverse)
+      // - If light initially → set progress to 0 and first click should go to dark (play)
+      tl.progress(isDarkInitially ? 1 : 0).pause();
+      tl.reversed(!isDarkInitially);
 
       themeSwitch.addEventListener("click", function () {
         console.log("Theme switch clicked!");
@@ -194,6 +285,12 @@ export default function useThemeSwitch() {
         console.log("Current colorProxy values:", colorProxy);
         toggleTimeline(tl);
         console.log("After toggle - reversed?", tl.reversed());
+        // Persist and reflect target theme immediately for consistency and next load
+        const newIsDark = !tl.reversed();
+        try {
+          localStorage.setItem("theme", newIsDark ? "dark" : "light");
+        } catch (e) {}
+        html.classList.toggle("theme-dark", newIsDark);
       });
     }, themeSwitch);
 

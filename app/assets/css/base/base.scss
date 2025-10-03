@@ -1,12 +1,14 @@
 /* Base element resets or minimal globals */
 html {
   min-height: 102dvh;
-  background-color: var(--theme-bg);
+  /* Use semantic token that points to animated theme var */
+  background-color: var(--color-bg);
 }
 
 body {
-  background-color: var(--theme-bg);
-  color: var(--theme-text);
+  /* Use semantic tokens so Tailwind and GSAP stay in sync */
+  background-color: var(--color-bg);
+  color: var(--color-ink);
   /* Smooth CSS transition fallback for browsers without GSAP or when GSAP hasn't loaded yet */
   transition:
     background-color var(--duration-theme) ease,
