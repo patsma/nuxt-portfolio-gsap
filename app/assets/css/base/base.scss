@@ -20,6 +20,29 @@ nav {
   }
 }
 
+/* Navigation link hover styles - CSS-based for simplicity and performance
+   - Active links stay at 50% opacity
+   - Inactive links fade to 50% on hover
+   - Uses CSS variables for consistent timing with theme system */
+.nav-link {
+  /* Smooth opacity transition for hover effects */
+  transition: opacity var(--duration-hover) var(--ease-power2);
+
+  /* Active state: reduced opacity */
+  &[data-active="true"] {
+    opacity: 0.5;
+  }
+
+  /* Inactive state: full opacity, fades on hover */
+  &[data-active="false"] {
+    opacity: 1;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+}
+
 /* Global utility: transition for hover effects with separate durations for colors vs other properties
    - Border/text colors: --duration-hover (for hover state changes)
    - Background colors: No CSS transition (GSAP handles at --duration-theme)

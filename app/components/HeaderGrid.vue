@@ -201,33 +201,8 @@ onMounted(() => {
           getComputedStyle(html).getPropertyValue("--duration-hover")
         ) / 1000 || 0.3;
 
-      // Setup GSAP hover animations for nav links using opacity
-      const navLinks = containerRef.value.querySelectorAll(".nav-link");
-      navLinks.forEach((link) => {
-        const isActive = link.getAttribute("data-active") === "true";
-
-        // Set initial opacity: active links at 0.5, inactive at 1
-        $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
-
-        // Only add hover for non-active links
-        if (!isActive) {
-          link.addEventListener("mouseenter", () => {
-            $gsap.to(link, {
-              opacity: 0.5,
-              duration: hoverDuration,
-              ease: "power2.inOut",
-            });
-          });
-
-          link.addEventListener("mouseleave", () => {
-            $gsap.to(link, {
-              opacity: 1,
-              duration: hoverDuration,
-              ease: "power2.inOut",
-            });
-          });
-        }
-      });
+      // Nav link hover effects are now handled by CSS (see base.scss)
+      // No GSAP event listeners needed - browser-native :hover is simpler and more performant
 
       const tl = $gsap.timeline({
         paused: true,

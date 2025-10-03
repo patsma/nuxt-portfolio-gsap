@@ -128,63 +128,63 @@ tl.to(colorProxy, {
 });
 ```
 
-### Hover Effects: CSS vs GSAP
+### Hover Effects: CSS-Based Approach
 
-**Critical Rule:** Theme-aware color hover effects MUST use GSAP, not CSS transitions.
+**Simple Rule:** Hover effects are handled by native CSS using the `:hover` pseudo-class.
 
-#### Why CSS Transitions Fail for Theme Colors
+#### Why CSS Hover Works Well
 
-CSS cannot smoothly animate `color: var(--theme-text-100)` because:
-1. GSAP animates the CSS variable value (`--theme-text-100`) at 600ms
-2. CSS transition on `color` property tries to animate at the same time
-3. Result: Double transitions, sluggish feel, timing conflicts
+The theme uses a smart approach:
+1. GSAP animates theme color CSS variables (`--theme-text-100`, etc.) at 600ms during theme toggle
+2. CSS `:hover` animates **opacity** at 300ms for interactive elements
+3. Elements always reference full-opacity theme colors (e.g., `text-[var(--theme-text-100)]`)
+4. Opacity fading creates the same visual effect as lower-opacity variants
 
-**CSS transitions on color properties are FORBIDDEN when using theme variables.**
+**Benefits:**
+- ✅ Simpler code - no JavaScript event listeners
+- ✅ Better performance - browser-native optimizations
+- ✅ Easier maintenance - declarative CSS vs imperative JS
+- ✅ Still theme-aware - uses same CSS variables
 
-#### GSAP Hover Pattern (Required for Theme Colors)
+#### CSS Hover Pattern (Navigation Links)
 
-Use GSAP to animate **opacity**, not color:
+All navigation links use the `.nav-link` class with CSS-based hover:
 
-```javascript
-// In GSAP context (onMounted)
-const html = document.documentElement;
-const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
+```vue
+<!-- Template: Use full-color theme variable, CSS handles opacity -->
+<a class="nav-link text-[var(--theme-text-100)]" :data-active="isActive">
+  Link text
+</a>
+```
 
-const navLinks = containerRef.value.querySelectorAll(".nav-link");
-navLinks.forEach((link) => {
-  const isActive = link.getAttribute("data-active") === "true";
+```scss
+/* In base.scss - CSS handles all hover states */
+.nav-link {
+  transition: opacity var(--duration-hover) var(--ease-power2);
 
-  // Set initial opacity
-  $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
-
-  if (!isActive) {
-    link.addEventListener("mouseenter", () => {
-      $gsap.to(link, {
-        opacity: 0.5,
-        duration: hoverDuration,
-        ease: "power2.inOut",
-      });
-    });
-
-    link.addEventListener("mouseleave", () => {
-      $gsap.to(link, {
-        opacity: 1,
-        duration: hoverDuration,
-        ease: "power2.inOut",
-      });
-    });
+  &[data-active="true"] {
+    opacity: 0.5; /* Active links stay dimmed */
   }
-});
+
+  &[data-active="false"] {
+    opacity: 1; /* Inactive links start full */
+
+    &:hover {
+      opacity: 0.5; /* Fade on hover */
+    }
+  }
+}
 ```
 
 **Why this works:**
-- Element always uses `text-[var(--theme-text-100)]` (full color)
-- GSAP animates **opacity** (numeric 0-1) which it interpolates perfectly
-- Visual effect: Fading to 50% = same as `var(--theme-text-50)`
-- No CSS transition conflicts
-- Perfect sync with theme toggle
+- Element always uses `text-[var(--theme-text-100)]` (full theme color)
+- CSS animates **opacity** which browsers handle efficiently
+- Visual effect: Fading to 50% = same appearance as `var(--theme-text-50)`
+- No JavaScript overhead or event listener cleanup needed
 
-#### CSS Transitions (Only for Non-Color Properties)
+**Acceptable tradeoff:** Hover states won't smoothly transition during theme toggle (they'll jump to the new theme color), but this is visually acceptable and much simpler than coordinating GSAP animations.
+
+#### CSS Transitions (For Other Interactive Elements)
 
 Global utility class in `app/assets/css/post.css`:
 
@@ -194,17 +194,17 @@ Global utility class in `app/assets/css/post.css`:
 }
 ```
 
-**Use CSS transitions ONLY for:**
+**Use CSS transitions for:**
+- `opacity` (for hover effects on theme-colored elements)
 - `transform`, `scale`, `rotate`
 - `box-shadow`
 - `border-width`, `border-radius`
-- `opacity` (if not theme-aware)
 - Static colors (non-theme variables)
 
-**NEVER use CSS transitions for:**
-- `color` when using `var(--theme-text-*)`
-- `background-color` when using `var(--theme-*)`
-- Any property that references theme variables
+**Avoid CSS transitions for:**
+- `color` property when using `var(--theme-text-*)` directly
+- `background-color` when using `var(--theme-*)` directly
+- Instead, transition `opacity` to achieve color fading effect
 
 ### Tailwind v4 Integration
 
@@ -265,34 +265,19 @@ Header layout and theming
    </div>
    ```
 
-2. **Theme-aware hover colors (REQUIRED: Use GSAP):**
+2. **Navigation links with hover (CSS-based):**
    ```vue
-   <!-- Template: All links use full color, opacity controlled by GSAP -->
+   <!-- Add .nav-link class and data-active attribute -->
    <a class="nav-link text-[var(--theme-text-100)]" :data-active="isActive">
      Link text
    </a>
    ```
-   ```javascript
-   // Script: GSAP handles opacity animation
-   const links = containerRef.value.querySelectorAll(".nav-link");
-   const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000;
+   CSS automatically handles:
+   - Active state (50% opacity)
+   - Hover state (fades to 50% opacity)
+   - Smooth transitions using `--duration-hover`
 
-   links.forEach((link) => {
-     const isActive = link.getAttribute("data-active") === "true";
-     $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
-
-     if (!isActive) {
-       link.addEventListener("mouseenter", () => {
-         $gsap.to(link, { opacity: 0.5, duration: hoverDuration, ease: "power2.inOut" });
-       });
-       link.addEventListener("mouseleave", () => {
-         $gsap.to(link, { opacity: 1, duration: hoverDuration, ease: "power2.inOut" });
-       });
-     }
-   });
-   ```
-
-3. **Non-color hover effects (CSS transitions OK):**
+3. **Other hover effects (CSS transitions):**
    ```vue
    <button class="transition-[transform,box-shadow] duration-[var(--duration-hover)] hover:shadow-lg hover:scale-105">
      Click me
@@ -353,11 +338,11 @@ Test page: `/dev/colors`
 - Remove `transition-all` and use `.transition-hover` instead
 - Only non-color properties should have CSS transitions
 
-### Hover effects too slow/fast or jumping (not smooth)
-- **If using theme colors:** Remove CSS transitions, use GSAP opacity animation pattern
-- Check if hardcoded durations exist (search for `duration-\d+`)
-- Replace with `var(--duration-hover)` read via `getComputedStyle()`
-- Verify easing matches GSAP: `ease: "power2.inOut"`
+### Hover effects not working or timing incorrect
+- Verify element has `.nav-link` class and `data-active` attribute
+- Check if CSS custom properties are available (`--duration-hover`, `--ease-power2`)
+- Ensure base.scss is loaded and `.nav-link` styles are applied
+- For non-navigation hovers, use standard Tailwind hover utilities
 
 ### Theme toggle icon doesn't change colors
 - Verify SVG uses `:style="{ fill: 'var(--theme-text-100)' }"` not hardcoded colors
@@ -371,7 +356,7 @@ Test page: `/dev/colors`
 
 ### Core Files
 - `app/assets/css/tokens/theme.scss` - All design tokens
-- `app/assets/css/base/base.scss` - Global utilities (`.transition-hover`)
+- `app/assets/css/base/base.scss` - Global utilities (`.nav-link`, `.transition-hover`)
 - `app/composables/useThemeSwitch.js` - GSAP theme animation logic
 
 ### Components
@@ -388,11 +373,13 @@ Test page: `/dev/colors`
 ## Benefits of This System
 
 ✅ **Single source of truth** - Change colors/timing in one place
-✅ **Smooth animations** - GSAP handles all color transitions
-✅ **No conflicts** - CSS and GSAP transitions don't fight
+✅ **Smooth animations** - GSAP handles theme color transitions
+✅ **Simple hovers** - Native CSS `:hover` for interactive elements
+✅ **No conflicts** - CSS and GSAP operate independently
 ✅ **Maintainable** - No hardcoded colors or durations scattered in code
 ✅ **Type-safe** - CSS variables provide consistent naming
-✅ **Performant** - GSAP animates efficiently, CSS vars update on GPU
+✅ **Performant** - GSAP animates theme efficiently, CSS handles hovers natively
+✅ **Clean code** - No JavaScript event listeners for hover effects
 ✅ **Accessible** - respects user's color preferences (can be extended)
 
 ## Future Enhancements

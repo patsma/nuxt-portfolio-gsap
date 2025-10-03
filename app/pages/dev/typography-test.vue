@@ -185,9 +185,6 @@
 </template>
 
 <script setup lang="js">
-// Nuxt GSAP services
-const { $gsap } = useNuxtApp();
-
 // Navigation items with icons for testing
 const navItems = [
   { label: "Home", href: "/", icon: "heroicons:home-20-solid" },
@@ -196,44 +193,6 @@ const navItems = [
   { label: "Icons", href: "/dev/typography-test", icon: "heroicons:sparkles-20-solid" },
 ];
 
-// Ref for links section
-const linksSection = ref(null);
-
-onMounted(() => {
-  if (!$gsap) return;
-
-  nextTick(() => {
-    // Read hover duration from CSS
-    const html = document.documentElement;
-    const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
-
-    // Setup GSAP hover for all nav-link elements
-    const navLinks = document.querySelectorAll(".nav-link");
-    navLinks.forEach((link) => {
-      const isActive = link.getAttribute("data-active") === "true";
-
-      // Set initial opacity
-      $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
-
-      // Only add hover for non-active links
-      if (!isActive) {
-        link.addEventListener("mouseenter", () => {
-          $gsap.to(link, {
-            opacity: 0.5,
-            duration: hoverDuration,
-            ease: "power2.inOut",
-          });
-        });
-
-        link.addEventListener("mouseleave", () => {
-          $gsap.to(link, {
-            opacity: 1,
-            duration: hoverDuration,
-            ease: "power2.inOut",
-          });
-        });
-      }
-    });
-  });
-});
+// Nav link hover effects are now handled by CSS (see base.scss)
+// No GSAP setup needed - browser-native :hover is simpler and more performant
 </script>
