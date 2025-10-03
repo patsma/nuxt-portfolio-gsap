@@ -168,28 +168,6 @@
   --transition-hover-color: color var(--duration-hover) var(--ease-power2);
 }
 
-/* Pre-paint dark theme mapping using class on <html>
-   This ensures correct colors before GSAP initializes to prevent flashes/jumps */
-html.theme-dark {
-  /* Main background is dark; accent backgrounds use LIGHT colors (inverted) */
-  --theme-100: var(--color-dark-100);
-  --theme-60: var(--color-light-60);
-  --theme-50: var(--color-light-50);
-  --theme-40: var(--color-light-40);
-  --theme-30: var(--color-light-30);
-  --theme-15: var(--color-light-15);
-  --theme-5: var(--color-light-5);
-
-  /* Text colors are light on dark theme */
-  --theme-text-100: var(--color-light-100);
-  --theme-text-60: var(--color-light-60);
-  --theme-text-50: var(--color-light-50);
-  --theme-text-40: var(--color-light-40);
-  --theme-text-30: var(--color-light-30);
-  --theme-text-15: var(--color-light-15);
-  --theme-text-5: var(--color-light-5);
-}
-
 /* Figma Text-size styles using step tokens (no raw px) */
 :root {
   /* PP Eiko */

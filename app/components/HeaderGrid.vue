@@ -7,39 +7,29 @@
   -->
   <header ref="containerRef" class="header-grid fixed inset-x-0 top-0 z-50">
     <div class="content-grid">
-      <div class="breakout1 header-grid__inner">
+      <div class="breakout3 header-grid__inner">
         <!-- Top row: shared row for both desktop and mobile -->
-        <div
-          class="header-grid__row header-grid__row--top"
-          data-boot-group="header-nav"
-        >
+        <div class="header-grid__row header-grid__row--top">
           <!-- Hamburger: visible only on mobile, animates lines (no icon swap) -->
-          <ClientOnly>
-            <button
-              ref="hamburgerBtn"
-              class="header-grid__hamburger"
-              :data-boot-item="0"
-              :aria-expanded="Boolean(isOpen)"
-              aria-controls="mobile-overlay"
-              aria-label="Toggle main menu"
-              @click="toggle()"
-            >
-              <span class="sr-only">{{
-                isOpen ? "Close menu" : "Open menu"
-              }}</span>
-              <HamburgerSVG
-                ref="hamburgerSvgComponent"
-                class="header-grid__hamburgerIcon"
-              />
-            </button>
-          </ClientOnly>
+          <button
+            ref="hamburgerBtn"
+            class="header-grid__hamburger"
+            :aria-expanded="Boolean(isOpen)"
+            aria-controls="mobile-overlay"
+            aria-label="Toggle main menu"
+            @click="toggle()"
+          >
+            <span class="sr-only">{{
+              isOpen ? "Close menu" : "Open menu"
+            }}</span>
+            <HamburgerSVG
+              ref="hamburgerSvgComponent"
+              class="header-grid__hamburgerIcon"
+            />
+          </button>
 
           <!-- Single logo used for both desktop and mobile -->
-          <NuxtLink
-            to="/"
-            class="header-grid__brand text-[var(--color-ink)]"
-            :data-boot-item="1"
-          >
+          <NuxtLink to="/" class="header-grid__brand text-[var(--color-ink)]">
             LOGO
           </NuxtLink>
 
@@ -50,7 +40,6 @@
               :key="item.href"
               :to="item.href"
               class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-boot-item="idx + 2"
               :data-active="isActive(item.href)"
             >
               {{ item.label }}
@@ -62,7 +51,6 @@
             <button
               id="themeSwitch"
               class="cursor-pointer"
-              :data-boot-item="items.length + 2"
               aria-label="Toggle theme"
             >
               <ThemeToggleSVG class="w-12" />
