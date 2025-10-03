@@ -28,16 +28,16 @@
             Basic Icons (inherit color from parent)
           </h3>
           <div class="flex gap-[var(--space-l)] items-center flex-wrap">
-            <span class="text-[var(--theme-text-100)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1">
-              <Icon name="heroicons:home-20-solid" class="icon icon-base" />
+            <span class="text-[var(--theme-text-100)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1 leading-none">
+              <Icon name="heroicons:home-20-solid" class="icon icon-base shrink-0" />
               Home
             </span>
-            <span class="text-[var(--theme-text-60)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1">
-              <Icon name="heroicons:heart-20-solid" class="icon icon-base" />
+            <span class="text-[var(--theme-text-60)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1 leading-none">
+              <Icon name="heroicons:heart-20-solid" class="icon icon-base shrink-0" />
               Favorite
             </span>
-            <span class="text-[var(--theme-text-50)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1">
-              <Icon name="heroicons:star-20-solid" class="icon icon-base" />
+            <span class="text-[var(--theme-text-50)] flex items-center gap-[var(--space-2xs)] ibm-plex-sans-jp-mobile-p1 leading-none">
+              <Icon name="heroicons:star-20-solid" class="icon icon-base shrink-0" />
               Star
             </span>
           </div>
