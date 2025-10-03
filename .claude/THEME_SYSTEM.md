@@ -84,6 +84,29 @@ All animation durations and easing functions are defined as design tokens:
 --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);/* Bounce */
 ```
 
+### Border Widths
+
+Standardized border widths for consistent UI elements:
+
+```scss
+--border-width-thin: 1px;     /* Underlines, dividers */
+--border-width-default: 2px;  /* Standard borders */
+--border-width-thick: 4px;    /* Emphasis borders */
+```
+
+### Responsive Font-Size Scaling
+
+Base font-size tokens for different viewport sizes (applied at `:root` level):
+
+```scss
+--font-size-base-sm: 16px;   /* Mobile/tablet base */
+--font-size-base-lg: 20px;   /* Large desktop (1920px+) */
+--font-size-base-xl: 28px;   /* Ultra-wide (2560px+) */
+--font-size-base-2xl: 40px;  /* 4K displays (3840px+) */
+```
+
+These work WITH fluid typography (`--step-*`) for optimal scaling across all screen sizes.
+
 ## Implementation
 
 ### GSAP Animation (`app/composables/useThemeSwitch.js`)
@@ -250,8 +273,64 @@ Mobile menu hamburger icon
 
 ### `app/assets/css/components/header-grid.scss`
 Header layout and theming
-- Background transition: `background-color var(--duration-theme) ease`
+- Background uses `var(--theme-100)` (no CSS transition - GSAP handles it)
 - All colors reference theme variables
+- Uses breakpoint mixins from `tokens/breakpoints.scss` (not hardcoded px values)
+- **Premium underline animation** on navigation links:
+  - Expands from center outwards on hover
+  - Synced opacity and width transitions
+  - Only shows on hover, not on active links
+  - Uses `--duration-hover`, `--ease-power2`, and `--border-width-thin` tokens
+
+## Breakpoint System
+
+### SCSS Breakpoint Variables
+
+All responsive breakpoints are centralized in `app/assets/css/tokens/breakpoints.scss`:
+
+```scss
+$bp-md: 48rem;        /* 768px */
+$bp-lg: 64rem;        /* 1024px */
+$bp-2xl: 120rem;      /* 1920px */
+$bp-xxl: 126.875rem;  /* ~2030px */
+$bp-4xl: 156.25rem;   /* 2560px */
+$bp-6xl: 237.5rem;    /* 3840px */
+```
+
+**Usage in SCSS files:**
+
+```scss
+@use "../tokens/breakpoints.scss" as bp;
+
+.my-component {
+  display: none;
+
+  @include bp.up(bp.$bp-md) {
+    display: block;  /* Show on tablet+ */
+  }
+}
+```
+
+**Important:**
+- ✅ Always use breakpoint variables via the mixin
+- ❌ Never hardcode pixel values like `@media (min-width: 768px)`
+- This ensures consistency and makes global breakpoint changes easy
+
+### Tailwind Breakpoints
+
+For Tailwind v4, breakpoints are also defined in `theme.scss` under `@theme`:
+
+```scss
+--breakpoint-3xl: 120rem;
+--breakpoint-4xl: 126.875rem;
+--breakpoint-5xl: 156.25rem;
+--breakpoint-6xl: 237.5rem;
+```
+
+Use these in templates with Tailwind responsive modifiers:
+```vue
+<div class="hidden md:block 3xl:text-step-6">
+```
 
 ## Usage Guidelines
 
@@ -273,9 +352,12 @@ Header layout and theming
    </a>
    ```
    CSS automatically handles:
-   - Active state (50% opacity)
-   - Hover state (fades to 50% opacity)
-   - Smooth transitions using `--duration-hover`
+   - Active state (50% opacity, no underline)
+   - Hover state (fades to 50% opacity + underline animation)
+   - Underline expands from center outwards
+   - All transitions use `--duration-hover` and `--ease-power2`
+
+   **Note:** Header navigation links get the premium underline animation via `.header-grid__nav .nav-link` in `header-grid.scss`. Other nav links get opacity-only hover from `base.scss`.
 
 3. **Other hover effects (CSS transitions):**
    ```vue
@@ -324,6 +406,18 @@ This automatically updates:
 | `--theme-text-15` | Dark 15% | Light 15% | Barely visible text |
 | `--theme-text-5` | Dark 5% | Light 5% | Nearly invisible text |
 
+### Sizing Tokens Reference
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--border-width-thin` | 1px | Underlines, dividers |
+| `--border-width-default` | 2px | Standard borders |
+| `--border-width-thick` | 4px | Emphasis borders |
+| `--font-size-base-sm` | 16px | Mobile/tablet base |
+| `--font-size-base-lg` | 20px | Desktop 1920px+ |
+| `--font-size-base-xl` | 28px | Desktop 2560px+ |
+| `--font-size-base-2xl` | 40px | Desktop 3840px+ |
+
 ## Testing
 
 Test page: `/dev/colors`
@@ -355,19 +449,27 @@ Test page: `/dev/colors`
 ## Files Reference
 
 ### Core Files
-- `app/assets/css/tokens/theme.scss` - All design tokens
+- `app/assets/css/tokens/theme.scss` - All design tokens (colors, sizing, spacing, typography, timing)
+- `app/assets/css/tokens/breakpoints.scss` - Responsive breakpoints and mixins
 - `app/assets/css/base/base.scss` - Global utilities (`.nav-link`, `.transition-hover`)
+- `app/assets/css/main.css` - CSS orchestrator (pre → Tailwind → post)
 - `app/composables/useThemeSwitch.js` - GSAP theme animation logic
 
-### Components
+### Component Styles
+- `app/assets/css/components/header-grid.scss` - Header layout and navigation
+- `app/assets/css/components/content-grid.scss` - Universal grid system
+- `app/assets/css/utilities/typography.scss` - Font utilities
+- `app/assets/css/utilities/spacing.scss` - Spacing utilities
+- `app/assets/css/utilities/layout.scss` - Layout utilities
+
+### Vue Components
 - `app/components/ThemeToggleSVG.vue` - Theme toggle icon
 - `app/components/HeaderGrid.vue` - Navigation header
 - `app/components/SVG/HamburgerSVG.vue` - Mobile menu icon
-- `app/assets/css/components/header-grid.scss` - Header styles
 
 ### Test Pages
 - `app/pages/dev/colors.vue` - Color system showcase
-- `app/components/SmoothDemo.vue` - Demo with theme colors
+- `app/components/SmoothDemo.vue` - Demo with theme colors (CSS hover only)
 - `app/components/SmoothDemoAlt.vue` - Alternative demo layout
 
 ## Benefits of This System

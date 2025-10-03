@@ -111,6 +111,19 @@
   --size-header: var(--space-3xl);
   --size-hero-reveal: 10vh;
 
+  /* Border widths - standardized for consistency */
+  --border-width-thin: 1px; /* Used for underlines, dividers */
+  --border-width-default: 2px; /* Standard borders */
+  --border-width-thick: 4px; /* Emphasis borders */
+
+  /* Responsive font-size scaling tokens (applied at root level)
+     - Used for scaling base font-size at different viewports
+     - These work WITH fluid typography (--step-*) for optimal scaling */
+  --font-size-base-sm: 16px; /* Mobile/tablet base */
+  --font-size-base-lg: 20px; /* Large desktop (1920px+) */
+  --font-size-base-xl: 28px; /* Ultra-wide (2560px+) */
+  --font-size-base-2xl: 40px; /* 4K displays (3840px+) */
+
   /* Transition durations - single source of truth for animation timing */
   --duration-theme: 600ms; /* GSAP theme color transitions */
   --duration-hover: 300ms; /* Interactive hover effects */

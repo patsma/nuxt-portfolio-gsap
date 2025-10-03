@@ -138,7 +138,7 @@
         </div>
 
         <!-- Links showcase -->
-        <div ref="linksSection" class="max-w-3xl mx-auto mt-[var(--space-xl)] grid gap-[var(--space-m)]">
+        <div class="max-w-3xl mx-auto mt-[var(--space-xl)] grid gap-[var(--space-m)]">
           <h3 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)]">
             Interactive Links
           </h3>
@@ -168,51 +168,14 @@
 // GSAP ScrollSmoother plugin (initialized globally) reads the
 // data-speed and data-lag attributes when effects: true.
 
-// GSAP hover animations for links
-const { $gsap } = useNuxtApp();
-const linksSection = ref(null);
-
-onMounted(() => {
-  if (!$gsap) return;
-
-  nextTick(() => {
-    // Read hover duration from CSS
-    const html = document.documentElement;
-    const hoverDuration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000 || 0.3;
-
-    // Setup GSAP hover for all nav-link elements
-    const navLinks = document.querySelectorAll(".nav-link");
-    navLinks.forEach((link) => {
-      const isActive = link.getAttribute("data-active") === "true";
-
-      // Set initial opacity
-      $gsap.set(link, { opacity: isActive ? 0.5 : 1 });
-
-      // Only add hover for non-active links
-      if (!isActive) {
-        link.addEventListener("mouseenter", () => {
-          $gsap.to(link, {
-            opacity: 0.5,
-            duration: hoverDuration,
-            ease: "power2.inOut",
-          });
-        });
-
-        link.addEventListener("mouseleave", () => {
-          $gsap.to(link, {
-            opacity: 1,
-            duration: hoverDuration,
-            ease: "power2.inOut",
-          });
-        });
-      }
-    });
-  });
-});
+// NOTE: Hover effects are handled by CSS via .nav-link class (see base.scss)
+// This follows the theme system's CSS-based approach for better performance
+// and simpler code maintenance. No JavaScript needed for hover states!
 
 // Accessibility notes:
 // - Section is labeled by the heading via aria-labelledby.
 // - Figure/figcaption provide semantic description for the image content.
+// - All interactive elements use CSS hover for consistent timing and behavior.
 </script>
 
 <!-- TailwindCSS only: No scoped styles. -->

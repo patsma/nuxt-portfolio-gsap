@@ -91,25 +91,25 @@
   grid-template-columns: inherit;
 }
 
-/* Root font-size scaling for large displays (based on requested settings) */
+/* Root font-size scaling for large displays
+   Uses tokens from theme.scss for consistency */
 @include bp.up(bp.$bp-2xl) {
   /* 1920px */
   :root {
-    font-size: 20px;
+    font-size: var(--font-size-base-lg);
   }
 }
 
 @include bp.up(bp.$bp-4xl) {
   /* 2560px */
   :root {
-    font-size: 28px;
+    font-size: var(--font-size-base-xl);
   }
 }
 
 @include bp.up(bp.$bp-6xl) {
   /* 3840px */
-
   :root {
-    font-size: 40px;
+    font-size: var(--font-size-base-2xl);
   }
 }
