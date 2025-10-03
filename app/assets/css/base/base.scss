@@ -14,6 +14,11 @@ body {
     background-color var(--duration-theme) ease,
     color var(--duration-theme) ease;
 }
+nav {
+  .router-link-active {
+    color: var(--theme-50);
+  }
+}
 
 /* Global utility: transition for hover effects with separate durations for colors vs other properties
    - Border/text colors: --duration-hover (for hover state changes)
