@@ -9,28 +9,46 @@
       <p
         class="mt-[var(--space-xs)] text-[var(--theme-text-60)] font-body text-step-1 leading-[var(--leading-normal)]"
       >
-        Toggle the theme in the header to see smooth color transitions across all variants.
+        Toggle the theme in the header to see smooth color transitions across
+        all variants.
       </p>
     </header>
 
     <!-- Text Variants Section -->
-    <section aria-labelledby="text-heading" class="max-w-7xl mx-auto mb-[var(--space-2xl)]">
-      <h2 id="text-heading" class="font-display text-step-3 font-medium mb-[var(--space-m)] text-[var(--theme-text-100)] tracking-[var(--tracking-display-1)]">
+    <section
+      aria-labelledby="text-heading"
+      class="max-w-7xl mx-auto mb-[var(--space-2xl)]"
+    >
+      <h2
+        id="text-heading"
+        class="font-display text-step-3 font-medium mb-[var(--space-m)] text-[var(--theme-text-100)] tracking-[var(--tracking-display-1)]"
+      >
         Text Colors
       </h2>
-      <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[var(--space-s)]">
+      <ul
+        role="list"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[var(--space-s)]"
+      >
         <li
           v-for="swatch in textSwatches"
           :key="swatch.name"
           class="group relative rounded-xl overflow-hidden border border-[var(--theme-text-10)] bg-[var(--theme-5)] p-[var(--space-m)] transition-hover hover:border-[var(--theme-text-30)] hover:shadow-lg"
         >
-          <div class="mb-[var(--space-xs)] text-xs font-mono text-[var(--theme-text-40)] tracking-tight">
+          <div
+            class="mb-[var(--space-xs)] text-xs font-mono text-[var(--theme-text-40)] tracking-tight"
+          >
             {{ swatch.varName }}
           </div>
-          <div :style="{ color: swatch.varName }" class="font-body text-step-2 font-semibold mb-[var(--space-2xs)]">
+          <div
+            :style="{ color: swatch.varName }"
+            class="font-body text-step-2 font-semibold mb-[var(--space-2xs)]"
+          >
             {{ swatch.opacity }}
           </div>
-          <div :style="{ color: swatch.varName }" class="font-body text-step-0 leading-[var(--leading-normal)]">
+          <div
+            :style="{ color: swatch.varName }"
+            class="font-body text-step-0 leading-[var(--leading-normal)]"
+          >
             The quick brown fox jumps over the lazy dog
           </div>
         </li>
@@ -39,10 +57,16 @@
 
     <!-- Background Variants Section -->
     <section aria-labelledby="bg-heading" class="max-w-7xl mx-auto">
-      <h2 id="bg-heading" class="font-display text-step-3 font-medium mb-[var(--space-m)] text-[var(--theme-text-100)] tracking-[var(--tracking-display-1)]">
+      <h2
+        id="bg-heading"
+        class="font-display text-step-3 font-medium mb-[var(--space-m)] text-[var(--theme-text-100)] tracking-[var(--tracking-display-1)]"
+      >
         Background Colors
       </h2>
-      <ul role="list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[var(--space-s)]">
+      <ul
+        role="list"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[var(--space-s)]"
+      >
         <li
           v-for="swatch in bgSwatches"
           :key="swatch.name"
@@ -50,13 +74,19 @@
           :style="{ backgroundColor: swatch.varName }"
         >
           <div class="p-[var(--space-m)]">
-            <div class="mb-[var(--space-xs)] text-xs font-mono text-[var(--theme-text-60)] tracking-tight">
+            <div
+              class="mb-[var(--space-xs)] text-xs font-mono text-[var(--theme-text-60)] tracking-tight"
+            >
               {{ swatch.varName }}
             </div>
-            <div class="font-body text-step-2 font-semibold text-[var(--theme-text-100)] mb-[var(--space-2xs)]">
+            <div
+              class="font-body text-step-2 font-semibold text-[var(--theme-text-100)] mb-[var(--space-2xs)]"
+            >
               {{ swatch.opacity }}
             </div>
-            <div class="font-body text-step-0 text-[var(--theme-text-100)] leading-[var(--leading-normal)]">
+            <div
+              class="font-body text-step-0 text-[var(--theme-text-100)] leading-[var(--leading-normal)]"
+            >
               Background variant
             </div>
           </div>
@@ -64,12 +94,6 @@
       </ul>
     </section>
   </main>
-  <!--
-    Notes:
-    - This page demonstrates how Tailwind v4 consumes @theme color tokens.
-    - Each "bg-*-*" class maps to a CSS variable: var(--color-*-*).
-    - We deliberately keep layout simple and semantic for quick visual QA.
-  -->
 </template>
 
 <script setup>
