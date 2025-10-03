@@ -222,17 +222,17 @@ const heading = {
 
         <!-- Feature Grid -->
         <div class="grid gap-[var(--space-s)] md:grid-cols-3" data-speed="1.06">
-          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center">
+          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center" v-once>
             <Icon name="heroicons:bolt-20-solid" class="icon icon-2xl icon-60 mx-auto mb-[var(--space-xs)]" />
             <h5 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)] mb-[var(--space-2xs)]">Fast</h5>
             <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-60)]">Optimized performance</p>
           </div>
-          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center">
+          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center" v-once>
             <Icon name="heroicons:paint-brush-20-solid" class="icon icon-2xl icon-60 mx-auto mb-[var(--space-xs)]" />
             <h5 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)] mb-[var(--space-2xs)]">Themed</h5>
             <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-60)]">Smooth transitions</p>
           </div>
-          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center">
+          <div class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center" v-once>
             <Icon name="heroicons:code-bracket-20-solid" class="icon icon-2xl icon-60 mx-auto mb-[var(--space-xs)]" />
             <h5 class="pp-eiko-mobile-h3 text-[var(--theme-text-100)] mb-[var(--space-2xs)]">Clean</h5>
             <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-60)]">Token-driven design</p>
@@ -261,6 +261,11 @@ const heading = {
 </template>
 
 <script setup>
+// Define component name for better DevTools debugging
+defineOptions({
+  name: 'SmoothDemoAlt',
+})
+
 // No component logic necessary - all interactions handled by:
 // - CSS hover via .nav-link class (see base.scss)
 // - GSAP ScrollSmoother reads data-speed and data-lag attributes

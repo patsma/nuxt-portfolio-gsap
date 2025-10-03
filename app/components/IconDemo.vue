@@ -151,6 +151,11 @@
 </template>
 
 <script setup>
+// Define component name for better DevTools debugging
+defineOptions({
+  name: 'IconDemo',
+})
+
 // NOTE: All hover effects are handled by CSS via .nav-link class (see base.scss)
 // This follows the theme system's CSS-based approach for better performance
 // Scroll effects use subtle data-speed values (0.96-1.04) for gentle motion

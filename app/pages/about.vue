@@ -4,8 +4,6 @@
 
     <SmoothDemo />
     <IconDemo />
-
-    <!-- <ProjectPathAnimation /> -->
   </div>
 </template>
 
