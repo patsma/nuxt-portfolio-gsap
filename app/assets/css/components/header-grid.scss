@@ -3,11 +3,8 @@
 /* Header container */
 .header-grid {
   height: var(--size-header);
-  /* Transparent to reveal FluidGradient background */
+  /* Transparent to reveal FluidGradient background - no backdrop-blur for performance */
   background: transparent;
-  /* Optional: subtle glass effect for better text readability */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px); /* Safari support */
 }
 
 .header-grid__inner {

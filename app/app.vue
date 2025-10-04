@@ -1,13 +1,13 @@
 <template>
   <!-- Fluid gradient background (z-0, behind everything) -->
-  <FluidGradient />
+  <FluidGradient class="opacity-70" />
 
   <NuxtLayout>
     <NuxtPage
       :transition="{
         mode: 'out-in',
         css: false,
-        onEnter: handlePageEnter
+        onEnter: handlePageEnter,
       }"
     />
   </NuxtLayout>
@@ -16,11 +16,11 @@
   <PageTransitionOverlay ref="overlayComponentRef" />
 
   <!-- Smooth cursor trail effect (z-50, on top) -->
-  <CursorTrail />
+  <CursorTrail class="!opacity-20" />
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed } from "vue";
 
 // Page transition setup
 const overlayComponentRef = ref(null);
