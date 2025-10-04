@@ -1,4 +1,7 @@
 <template>
+  <!-- Fluid gradient background (z-0, behind everything) -->
+  <FluidGradient />
+
   <NuxtLayout>
     <NuxtPage
       :transition="{
@@ -12,7 +15,7 @@
   <!-- Circle reveal page transition overlay -->
   <PageTransitionOverlay ref="overlayComponentRef" />
 
-  <!-- Smooth cursor trail effect -->
+  <!-- Smooth cursor trail effect (z-50, on top) -->
   <CursorTrail />
 </template>
 
