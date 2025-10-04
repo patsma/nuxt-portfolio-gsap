@@ -11,6 +11,9 @@
 
   <!-- Circle reveal page transition overlay -->
   <PageTransitionOverlay ref="overlayComponentRef" />
+
+  <!-- Smooth cursor trail effect -->
+  <CursorTrail />
 </template>
 
 <script setup>
