@@ -1,10 +1,30 @@
 <template>
   <NuxtLayout>
-    <NuxtPage />
+    <NuxtPage
+      :transition="{
+        mode: 'out-in',
+        css: false,
+        onEnter: handlePageEnter
+      }"
+    />
   </NuxtLayout>
+
+  <!-- Circle reveal page transition overlay -->
+  <PageTransitionOverlay ref="overlayComponentRef" />
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
+
+// Page transition setup
+const overlayComponentRef = ref(null);
+
+// Access the overlay element ref from the component
+const overlayRef = computed(() => overlayComponentRef.value?.overlayRef);
+
+// Initialize page transition composable
+const { handlePageLeave, handlePageEnter } = usePageTransition(overlayRef);
+
 // Display fancy console info about developer and work
 if (process.client) {
   console.log(`

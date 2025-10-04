@@ -1,11 +1,11 @@
 <template>
-  <!--
+  <main class="p-6 md:p-8 lg:p-12 space-y-12">
+    <!--
     Responsive typography utility sandbox
     - Verifies responsive variants (md:, lg:, xl:) work with our custom @utility classes
     - Demonstrates switching font families and full style utilities across breakpoints
     - Demonstrates switching raw size steps with text-step-* utilities
   -->
-  <main class="p-6 md:p-8 lg:p-12 space-y-12">
     <!-- Section: Font family switcher using semantic role utilities -->
     <section class="space-y-2">
       <h2 class="text-step-4 font-display">Font family switcher (semantic)</h2>

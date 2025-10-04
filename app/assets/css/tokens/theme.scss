@@ -126,6 +126,7 @@
 
   /* Transition durations - single source of truth for animation timing */
   --duration-theme: 600ms; /* GSAP theme color transitions */
+  --duration-page: 1000ms; /* Page transition circle reveal */
   --duration-hover: 300ms; /* Interactive hover effects */
   --duration-fast: 150ms; /* Quick UI feedback */
   --duration-slow: 800ms; /* Dramatic reveals */
@@ -138,6 +139,7 @@
     0.515,
     0.955
   ); /* GSAP power2.inOut exact match (easeInOutQuad) */
+  --ease-sine-out: cubic-bezier(0.39, 0.575, 0.565, 1); /* GSAP sine.out - organic page transitions */
   --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Deceleration */
   --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Acceleration */
   --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce effect */

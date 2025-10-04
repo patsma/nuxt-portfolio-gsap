@@ -131,26 +131,66 @@ export default defineNuxtPlugin((nuxtApp) => {
   });
 
   // Hooks: kill before navigation, init after
-  nuxtApp.hook("page:start", () => {
+  // Coordinate with page transition store using proper async patterns
+  nuxtApp.hook("page:start", async () => {
     setRouteChanging(true);
+
+    // Get transition store to coordinate
+    const transitionStore = usePageTransitionStore?.();
+
+    // Mark ScrollSmoother as not ready immediately
+    if (transitionStore) {
+      transitionStore.setScrollSmootherReady(false);
+    }
+
+    // Use nextTick instead of setTimeout for better coordination
+    // Wait for overlay to start covering before killing ScrollSmoother
+    await nextTick();
+    await nextTick(); // Double nextTick ensures overlay animation has started
+
     kill();
+    console.log('[ScrollSmoother] Killed on page:start (after nextTick)');
   });
 
-  nuxtApp.hook("page:finish", () => {
+  nuxtApp.hook("page:finish", async () => {
     setScrollerDefaultsEarly();
-    requestAnimationFrame(() => {
-      init();
-      // Clear transition flag on next frame after init so CSS fades in
-      requestAnimationFrame(() => setRouteChanging(false));
-    });
+
+    // Get transition store to coordinate
+    const transitionStore = usePageTransitionStore?.();
+
+    // Wait for next frame before initializing
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    init();
+
+    // Mark ScrollSmoother as ready after init
+    if (transitionStore) {
+      transitionStore.setScrollSmootherReady(true);
+    }
+
+    console.log('[ScrollSmoother] Initialized on page:finish');
+
+    // Clear transition flag on next frame after init so CSS fades in
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    setRouteChanging(false);
   });
 
   // Initialize on app mount
-  nuxtApp.hook("app:mounted", () => {
-    requestAnimationFrame(() => {
-      setScrollerDefaultsEarly();
-      init();
-    });
+  nuxtApp.hook("app:mounted", async () => {
+    const transitionStore = usePageTransitionStore?.();
+
+    // Wait for next frame using Promise instead of callback
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    setScrollerDefaultsEarly();
+    init();
+
+    // Mark as ready on initial mount
+    if (transitionStore) {
+      transitionStore.setScrollSmootherReady(true);
+    }
+
+    console.log('[ScrollSmoother] Initialized on app:mounted');
   });
 
   // Cleanup
