@@ -5,6 +5,7 @@
         <!-- Background pill shape - GSAP controls fill -->
         <path
           id="bg"
+          fill="var(--theme-100)"
           d="M11.14.91h20a10,10,0,0,1,10,10h0a10,10,0,0,1-10,10h-20a10,10,0,0,1-10-10h0A10,10,0,0,1,11.14.91Z"
         />
 

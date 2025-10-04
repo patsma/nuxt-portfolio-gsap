@@ -16,7 +16,7 @@
   <PageTransitionOverlay ref="overlayComponentRef" />
 
   <!-- Smooth cursor trail effect (z-50, on top) -->
-  <CursorTrail class="!opacity-20" />
+  <CursorTrail class="!opacity-30 z-50 mix-blend-overlay" />
 </template>
 
 <script setup>

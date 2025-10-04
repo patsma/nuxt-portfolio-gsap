@@ -303,7 +303,7 @@ export default function useThemeSwitch() {
 
       // Always set to light (start state), timeline.progress() will move to dark if needed
       $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
-      $gsap.set(sunLightBeams, { autoAlpha: 1 });
+      $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
       $gsap.set(convertedMoonWhite, { fill: lightHex });
       $gsap.set(sunLightInner, { fill: lightHex });
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
