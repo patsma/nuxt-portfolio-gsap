@@ -42,11 +42,11 @@
   --gradient-light-bl: rgba(153, 128, 255, 1); /* Lavender - cool */
   --gradient-light-br: rgba(204, 255, 128, 1); /* Lime - energetic */
 
-  /* Fluid gradient palette - Dark theme (deep rich colors for dark UI) */
-  --gradient-dark-tl: rgba(102, 51, 153, 1); /* Deep purple - royal */
-  --gradient-dark-tr: rgba(51, 102, 128, 1); /* Deep teal - sophisticated */
-  --gradient-dark-bl: rgba(77, 51, 102, 1); /* Dark violet - mysterious */
-  --gradient-dark-br: rgba(102, 128, 102, 1); /* Sage - grounded */
+  /* Fluid gradient palette - Dark theme (very dark, subtle colors for dark UI) */
+  --gradient-dark-tl: rgba(15, 10, 25, 1); /* Near black with slight purple tint */
+  --gradient-dark-tr: rgba(10, 15, 20, 1); /* Near black with slight blue tint */
+  --gradient-dark-bl: rgba(12, 8, 18, 1); /* Near black with slight violet tint */
+  --gradient-dark-br: rgba(18, 12, 15, 1); /* Near black with slight warm tint */
 
   /* Semantic color tokens - these reference runtime theme variables
      Tailwind will generate utilities via arbitrary values like bg-[var(--color-bg)] */

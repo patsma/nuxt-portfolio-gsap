@@ -1,6 +1,6 @@
 <template>
   <!-- Fluid gradient background (z-0, behind everything) -->
-  <FluidGradient class="opacity-70" />
+  <FluidGradient />
 
   <NuxtLayout>
     <NuxtPage
@@ -21,6 +21,12 @@
 
 <script setup>
 import { ref, computed } from "vue";
+
+// Initialize theme store on app mount
+const themeStore = useThemeStore();
+onMounted(() => {
+  themeStore.init();
+});
 
 // Page transition setup
 const overlayComponentRef = ref(null);

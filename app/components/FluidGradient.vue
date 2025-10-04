@@ -48,6 +48,9 @@
 // Standard GSAP from Nuxt app
 const { $gsap } = useNuxtApp();
 
+// Theme store for centralized theme state
+const themeStore = useThemeStore();
+
 // Core refs
 const containerRef = ref(null);
 const timeline = ref(null);
@@ -55,15 +58,35 @@ const isMounted = ref(false);
 let gsapCtx = null;
 
 /**
+ * Gradient color palettes - normalized RGB values for Three.js (0-1 range)
+ * Light theme: bright pastels for light UI
+ * Dark theme: deeper, more saturated colors with good contrast for visibility
+ */
+const gradientColors = {
+  light: {
+    tl: [1.0, 0.5, 0.7],   // Rose/pink - warm
+    tr: [0.5, 1.0, 0.6],   // Mint green - fresh
+    bl: [0.6, 0.5, 1.0],   // Lavender - cool
+    br: [0.8, 1.0, 0.5],   // Lime - energetic
+  },
+  dark: {
+    tl: [0.25, 0.15, 0.4],  // Rich purple (64, 38, 102)
+    tr: [0.15, 0.25, 0.45], // Deep blue (38, 64, 115)
+    bl: [0.35, 0.15, 0.25], // Deep magenta (89, 38, 64)
+    br: [0.15, 0.35, 0.3],  // Deep teal (38, 89, 76)
+  }
+};
+
+/**
  * Shader uniforms (reactive so GSAP can tween nested .value)
  * Includes time and 4 corner colors for theme-aware gradient
  */
 const uniforms = reactive({
   time: { value: 0 },
-  colorTL: { value: [1.0, 0.5, 0.7] }, // Top-left (vec3)
-  colorTR: { value: [0.5, 1.0, 0.6] }, // Top-right (vec3)
-  colorBL: { value: [0.6, 0.5, 1.0] }, // Bottom-left (vec3)
-  colorBR: { value: [0.8, 1.0, 0.5] }, // Bottom-right (vec3)
+  colorTL: { value: [...gradientColors.dark.tl] }, // Top-left (vec3) - TESTING WITH DARK
+  colorTR: { value: [...gradientColors.dark.tr] }, // Top-right (vec3) - TESTING WITH DARK
+  colorBL: { value: [...gradientColors.dark.bl] }, // Bottom-left (vec3) - TESTING WITH DARK
+  colorBR: { value: [...gradientColors.dark.br] }, // Bottom-right (vec3) - TESTING WITH DARK
 });
 
 /**
@@ -121,37 +144,61 @@ void main() {
 }`;
 
 /**
- * Parse CSS rgba/rgb color to normalized vec3 for shader
- * @param {string} cssVar - CSS variable name (e.g., '--gradient-tl')
- * @returns {number[]} - [r, g, b] normalized 0-1
+ * Animate gradient colors to match theme
+ * Uses GSAP to smoothly transition between light/dark color palettes
+ * @param {boolean} isDark - Whether dark theme is active
  */
-function parseToVec3(cssVar) {
-  if (!process.client) return [1, 1, 1];
+function animateToTheme(isDark) {
+  const targetColors = isDark ? gradientColors.dark : gradientColors.light;
 
-  const html = document.documentElement;
-  const str = getComputedStyle(html).getPropertyValue(cssVar).trim();
-  const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  // Create a proxy object to animate, then update the uniform arrays
+  // This ensures GSAP can properly interpolate the values
+  const proxy = {
+    tlR: uniforms.colorTL.value[0],
+    tlG: uniforms.colorTL.value[1],
+    tlB: uniforms.colorTL.value[2],
+    trR: uniforms.colorTR.value[0],
+    trG: uniforms.colorTR.value[1],
+    trB: uniforms.colorTR.value[2],
+    blR: uniforms.colorBL.value[0],
+    blG: uniforms.colorBL.value[1],
+    blB: uniforms.colorBL.value[2],
+    brR: uniforms.colorBR.value[0],
+    brG: uniforms.colorBR.value[1],
+    brB: uniforms.colorBR.value[2],
+  };
 
-  if (match) {
-    return [
-      parseInt(match[1]) / 255,
-      parseInt(match[2]) / 255,
-      parseInt(match[3]) / 255
-    ];
-  }
-
-  return [1, 1, 1]; // Fallback white
-}
-
-/**
- * Update gradient colors from CSS theme variables
- * Called on mount and when theme changes
- */
-function updateGradientColors() {
-  uniforms.colorTL.value = parseToVec3('--gradient-tl');
-  uniforms.colorTR.value = parseToVec3('--gradient-tr');
-  uniforms.colorBL.value = parseToVec3('--gradient-bl');
-  uniforms.colorBR.value = parseToVec3('--gradient-br');
+  $gsap.to(proxy, {
+    tlR: targetColors.tl[0],
+    tlG: targetColors.tl[1],
+    tlB: targetColors.tl[2],
+    trR: targetColors.tr[0],
+    trG: targetColors.tr[1],
+    trB: targetColors.tr[2],
+    blR: targetColors.bl[0],
+    blG: targetColors.bl[1],
+    blB: targetColors.bl[2],
+    brR: targetColors.br[0],
+    brG: targetColors.br[1],
+    brB: targetColors.br[2],
+    duration: 0.6,
+    ease: "power2.inOut",
+    onUpdate: () => {
+      // Update the actual uniform arrays on every frame
+      uniforms.colorTL.value[0] = proxy.tlR;
+      uniforms.colorTL.value[1] = proxy.tlG;
+      uniforms.colorTL.value[2] = proxy.tlB;
+      uniforms.colorTR.value[0] = proxy.trR;
+      uniforms.colorTR.value[1] = proxy.trG;
+      uniforms.colorTR.value[2] = proxy.trB;
+      uniforms.colorBL.value[0] = proxy.blR;
+      uniforms.colorBL.value[1] = proxy.blG;
+      uniforms.colorBL.value[2] = proxy.blB;
+      uniforms.colorBR.value[0] = proxy.brR;
+      uniforms.colorBR.value[1] = proxy.brG;
+      uniforms.colorBR.value[2] = proxy.brB;
+    }
+  });
 }
 
 /**
@@ -174,6 +221,11 @@ const createAnimation = () => {
   return tl;
 };
 
+// Watch theme store for changes and animate gradient colors
+watch(() => themeStore.isDark, (isDark) => {
+  animateToTheme(isDark);
+});
+
 // Lifecycle: mount and initialize fluid gradient animation
 onMounted(() => {
   // Set mounted flag to allow TresCanvas to render
@@ -184,28 +236,12 @@ onMounted(() => {
     setTimeout(() => {
       if (!containerRef.value) return;
 
-      // Initialize gradient colors from theme CSS variables
-      updateGradientColors();
-
-      // Watch for theme changes via MutationObserver on html.classList
-      // When theme-dark class toggles, GSAP animates --gradient-* vars, we read them
-      const html = document.documentElement;
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            // Theme changed - update colors from CSS (GSAP is animating them)
-            updateGradientColors();
-          }
-        });
-      });
-
-      observer.observe(html, {
-        attributes: true,
-        attributeFilter: ['class']
-      });
-
-      // Also listen to CSS variable changes directly (more responsive during transition)
-      const updateInterval = setInterval(updateGradientColors, 16); // ~60fps during theme transition
+      // Set initial colors based on current theme from store (no animation)
+      const initialColors = themeStore.isDark ? gradientColors.dark : gradientColors.light;
+      uniforms.colorTL.value = [...initialColors.tl];
+      uniforms.colorTR.value = [...initialColors.tr];
+      uniforms.colorBL.value = [...initialColors.bl];
+      uniforms.colorBR.value = [...initialColors.br];
 
       gsapCtx = $gsap.context(() => {
         const tl = createAnimation();
@@ -214,12 +250,6 @@ onMounted(() => {
         // Auto-play the animation (no ScrollTrigger needed for background)
         tl.play();
       }, containerRef.value);
-
-      // Cleanup interval and observer on unmount
-      onUnmounted(() => {
-        clearInterval(updateInterval);
-        observer.disconnect();
-      });
     }, 100);
   });
 });

@@ -381,12 +381,10 @@ export default function useThemeSwitch() {
         console.log("Current colorProxy values:", colorProxy);
         toggleTimeline(tl);
         console.log("After toggle - reversed?", tl.reversed());
-        // Persist and reflect target theme immediately for consistency and next load
-        const newIsDark = !tl.reversed();
-        try {
-          localStorage.setItem("theme", newIsDark ? "dark" : "light");
-        } catch (e) {}
-        html.classList.toggle("theme-dark", newIsDark);
+
+        // Use theme store for centralized state management
+        const themeStore = useThemeStore();
+        themeStore.toggle();
       });
     }, themeSwitch);
 
