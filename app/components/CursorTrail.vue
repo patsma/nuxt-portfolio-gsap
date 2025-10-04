@@ -15,6 +15,28 @@ const canvasRef = ref(null);
 // Animation frame ID for cleanup
 let animationFrameId = null;
 
+/**
+ * Get cursor stroke color from theme system
+ * Uses --theme-text-100 for proper visibility (inverted from background)
+ * @returns {string} RGBA color string
+ */
+function getCursorColor() {
+  if (!process.client) return 'rgba(9, 9, 37, 0.6)';
+
+  const html = document.documentElement;
+  const themeColor = getComputedStyle(html).getPropertyValue('--theme-text-100').trim();
+
+  // Parse rgba() or rgb() string and add opacity
+  const rgbaMatch = themeColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch;
+    return `rgba(${r}, ${g}, ${b}, 0.6)`; // 60% opacity for smooth trail
+  }
+
+  // Fallback to dark color
+  return 'rgba(9, 9, 37, 0.6)';
+}
+
 onMounted(() => {
   // Only run on client side
   if (!process.client) return;
@@ -104,6 +126,9 @@ onMounted(() => {
     // Clear canvas for new frame
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.beginPath();
+
+    // Set stroke color from theme system (updates on theme change)
+    ctx.strokeStyle = getCursorColor();
 
     // Update trail point positions using spring physics
     touchTrail.forEach((p, pIdx) => {
