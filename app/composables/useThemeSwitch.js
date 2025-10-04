@@ -296,20 +296,17 @@ export default function useThemeSwitch() {
       const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
       const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
 
-      // Set initial states explicitly so GSAP knows where to animate from
-      if (isDarkInitially) {
-        // Already dark → set to timeline end visuals
-        $gsap.set(background, { fill: lightHex, fillOpacity: 0.6 });
-        $gsap.set(sunLightBeams, { autoAlpha: 0, fill: lightHex });
-        $gsap.set(convertedMoonWhite, { fill: darkHex });
-        $gsap.set(sunLightInner, { fill: darkHex });
-      } else {
-        // Light theme visuals
-        $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
-        $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
-        $gsap.set(convertedMoonWhite, { fill: lightHex });
-        $gsap.set(sunLightInner, { fill: lightHex });
-      }
+      // Set LIGHT theme state (timeline START at progress 0)
+      // Timeline will move to correct position based on isDarkInitially
+      console.log("🌙 SVG init - isDark:", isDarkInitially);
+      console.log("🎨 lightHex:", lightHex, "darkHex:", darkHex);
+
+      // Always set to light (start state), timeline.progress() will move to dark if needed
+      $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
+      $gsap.set(sunLightBeams, { autoAlpha: 1 });
+      $gsap.set(convertedMoonWhite, { fill: lightHex });
+      $gsap.set(sunLightInner, { fill: lightHex });
+      $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
       // Animate TO dark theme state
       tl.to(

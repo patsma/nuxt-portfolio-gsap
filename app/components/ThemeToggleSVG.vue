@@ -71,12 +71,6 @@
   opacity: 0;
   visibility: hidden;
 }
-#bg {
-  fill: var(--color-dark-60);
-}
-#moon-white,
-#sun-light-inner,
-#sun-light-beams path {
-  fill: #fff;
-}
+
+/* Don't set fills - let GSAP handle all colors to avoid conflicts */
 </style>
