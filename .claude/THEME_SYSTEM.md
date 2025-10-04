@@ -588,8 +588,18 @@ The FluidGradient component is fully self-contained with:
 
 ```javascript
 const gradientColors = {
-  light: { /* bright pastels */ },
-  dark: { /* very dark near-black tones */ }
+  light: {
+    tl: [1.0, 0.5, 0.7],    // Rose/pink - warm
+    tr: [0.5, 1.0, 0.6],    // Mint green - fresh
+    bl: [0.6, 0.5, 1.0],    // Lavender - cool
+    br: [0.8, 1.0, 0.5],    // Lime - energetic
+  },
+  dark: {
+    tl: [0.25, 0.15, 0.4],  // Rich purple (64, 38, 102)
+    tr: [0.15, 0.25, 0.45], // Deep blue (38, 64, 115)
+    bl: [0.35, 0.15, 0.25], // Deep magenta (89, 38, 64)
+    br: [0.15, 0.35, 0.3],  // Deep teal (38, 89, 76)
+  }
 };
 
 // Watch store for theme changes
@@ -600,9 +610,65 @@ watch(() => themeStore.isDark, (isDark) => {
 
 **Benefits:**
 - ✅ No CSS variable parsing (no gray transitions)
-- ✅ Direct GSAP animation of uniform arrays
-- ✅ Much darker gradient in dark mode (0.04-0.12 range)
+- ✅ Direct GSAP animation of uniform arrays using proxy object
+- ✅ Visible gradient in dark mode (0.15-0.45 range with good contrast)
 - ✅ Synced with centralized store state
+
+### SVG Toggle Button (Critical Pattern)
+
+**File:** `app/composables/useThemeSwitch.js`
+
+The SVG toggle button requires careful GSAP timeline setup to work in both directions:
+
+**Key Pattern:**
+```javascript
+// 1. ALWAYS initialize colorProxy from LIGHT theme (timeline start)
+const colorProxy = {
+  bgR: colors.light["100"].r,
+  bgG: colors.light["100"].g,
+  bgB: colors.light["100"].b,
+  // ... all color values starting from LIGHT
+};
+
+// 2. Build timeline that animates TO dark (progress 0 → 1)
+tl.to(colorProxy, {
+  bgR: colors.dark["100"].r,
+  bgG: colors.dark["100"].g,
+  bgB: colors.dark["100"].b,
+  // ... all values animate TO dark
+});
+
+// 3. Set initial SVG state to LIGHT (start position)
+$gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
+$gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
+$gsap.set(convertedMoonWhite, { fill: lightHex });
+$gsap.set(sunLightInner, { fill: lightHex });
+
+// 4. Set timeline position based on actual theme
+tl.progress(isDarkInitially ? 1 : 0).pause();
+
+// 5. Toggle based on PREVIOUS state (not current)
+const wasLight = !themeStore.isDark;
+themeStore.toggle();
+if (wasLight) {
+  tl.play();    // Animate to dark
+} else {
+  tl.reverse(); // Animate to light
+}
+```
+
+**Critical Rules:**
+- ⚠️ colorProxy ALWAYS starts from light theme
+- ⚠️ Timeline ALWAYS animates TO dark (never conditional)
+- ⚠️ GSAP.set defines light state, timeline.progress() moves to dark if needed
+- ⚠️ NO CSS fills on SVG - GSAP has full control
+- ⚠️ Toggle logic uses PREVIOUS state to determine direction
+
+**Why This Works:**
+- Timeline has a fixed direction: light (0) → dark (1)
+- `progress(1)` automatically applies all end values (dark state)
+- `reverse()` animates backwards from current position
+- No conflicting GSAP.set calls for dark state
 
 ### Completed Features
 
@@ -611,6 +677,7 @@ watch(() => themeStore.isDark, (isDark) => {
 - ✅ SSR-safe initialization (no FOUC)
 - ✅ Pinia hydration pattern for state management
 - ✅ Self-contained FluidGradient with proper theme sync
+- ✅ SVG toggle button works in both directions on any initial theme
 
 ### Future Enhancements
 
