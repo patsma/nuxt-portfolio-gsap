@@ -24,18 +24,22 @@ let gsapCtx = null;
  * @returns {string} RGBA color string
  */
 function getCursorColor() {
-  if (!process.client) return 'rgba(9, 9, 37, 0.8)';
+  if (!process.client) return "rgba(9, 9, 37, 0.8)";
 
   const html = document.documentElement;
-  const themeColor = getComputedStyle(html).getPropertyValue('--theme-text-100').trim();
-  const bgColor = getComputedStyle(html).getPropertyValue('--theme-100').trim();
+  const themeColor = getComputedStyle(html)
+    .getPropertyValue("--theme-text-100")
+    .trim();
+  const bgColor = getComputedStyle(html).getPropertyValue("--theme-100").trim();
 
   // Detect if we're on light theme (background is light-colored)
   // Light theme has rgba(255, 250, 245, 1) as --theme-100
-  const isLightTheme = bgColor.includes('255');
+  const isLightTheme = bgColor.includes("255");
 
   // Parse rgba() or rgb() string and add opacity
-  const rgbaMatch = themeColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  const rgbaMatch = themeColor.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/
+  );
   if (rgbaMatch) {
     const [, r, g, b] = rgbaMatch;
     // Light theme: higher opacity (80%) for better visibility against light background
@@ -45,7 +49,7 @@ function getCursorColor() {
   }
 
   // Fallback to dark color with high opacity
-  return 'rgba(9, 9, 37, 0.8)';
+  return "rgba(9, 9, 37, 0.8)";
 }
 
 // Lifecycle: mount and initialize cursor trail animation
@@ -56,14 +60,14 @@ onMounted(() => {
 
     // Create GSAP context for proper cleanup
     gsapCtx = $gsap.context(() => {
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
 
       // Flag to track if mouse has moved (for intro motion)
       let mouseMoved = false;
 
       // Mouse position tracking
       let mouse = {
-        x: 0.5 * window.innerWidth,  // Current position
+        x: 0.5 * window.innerWidth, // Current position
         y: 0.5 * window.innerHeight,
         tX: 0, // Target position X
         tY: 0, // Target position Y
@@ -71,11 +75,11 @@ onMounted(() => {
 
       // Trail parameters - adjust these to customize the effect
       let params = {
-        pointsNumber: 40,      // Number of trail points (more = longer trail)
-        widthFactor: 0.45,     // Trail width multiplier
-        mouseThreshold: 0.6,   // Mouse smoothing (lower = smoother)
-        spring: 0.4,           // Spring force (higher = more responsive)
-        friction: 0.5,         // Friction/damping (lower = more fluid)
+        pointsNumber: 40, // Number of trail points (more = longer trail)
+        widthFactor: 0.45, // Trail width multiplier
+        mouseThreshold: 0.6, // Mouse smoothing (lower = smoother)
+        spring: 0.4, // Spring force (higher = more responsive)
+        friction: 0.5, // Friction/damping (lower = more fluid)
       };
 
       // Initialize trail points array
@@ -108,7 +112,7 @@ onMounted(() => {
       }
 
       // Add mouse event listener
-      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener("mousemove", handleMouseMove);
 
       /**
        * Set up canvas dimensions
@@ -122,7 +126,7 @@ onMounted(() => {
       setupCanvas();
 
       // Update canvas size on window resize
-      window.addEventListener('resize', setupCanvas);
+      window.addEventListener("resize", setupCanvas);
 
       /**
        * Update and render trail bubbles
@@ -131,8 +135,12 @@ onMounted(() => {
       function updateBubbles(t) {
         // Intro motion: create interesting movement before user moves mouse
         if (!mouseMoved) {
-          mouse.tX = (0.5 + 0.3 * Math.cos(0.002 * t) * Math.sin(0.005 * t)) * window.innerWidth;
-          mouse.tY = (0.5 + 0.2 * Math.cos(0.005 * t) + 0.1 * Math.cos(0.01 * t)) * window.innerHeight;
+          mouse.tX =
+            (0.5 + 0.3 * Math.cos(0.002 * t) * Math.sin(0.005 * t)) *
+            window.innerWidth;
+          mouse.tY =
+            (0.5 + 0.2 * Math.cos(0.005 * t) + 0.1 * Math.cos(0.01 * t)) *
+            window.innerHeight;
         }
 
         // Clear canvas for new frame
@@ -176,7 +184,10 @@ onMounted(() => {
         }
 
         // Draw final point
-        ctx.lineTo(touchTrail[touchTrail.length - 1].x, touchTrail[touchTrail.length - 1].y);
+        ctx.lineTo(
+          touchTrail[touchTrail.length - 1].x,
+          touchTrail[touchTrail.length - 1].y
+        );
         ctx.stroke();
 
         // Smooth mouse movement toward target
@@ -208,6 +219,6 @@ onUnmounted(() => {
 <style scoped>
 .cursor-trail {
   /* Initial opacity set via GSAP in original - you can animate this if needed */
-  opacity: 0.8;
+  opacity: 0.3;
 }
 </style>
