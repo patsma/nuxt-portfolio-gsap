@@ -42,8 +42,10 @@ export default function useThemeSwitch() {
       return;
     }
 
+    // Use theme store as single source of truth
+    const themeStore = useThemeStore();
     const html = document.documentElement;
-    const isDarkInitially = html.classList.contains("theme-dark");
+    const isDarkInitially = themeStore.isDark;
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
@@ -368,23 +370,38 @@ export default function useThemeSwitch() {
         "<"
       );
 
-      // Sync timeline with current theme and choose first-click direction
-      // - If dark initially → set progress to 1 and first click should go back to light (reverse)
-      // - If light initially → set progress to 0 and first click should go to dark (play)
+      // Sync timeline with current theme
+      // - If dark initially → set progress to 1 (end state)
+      // - If light initially → set progress to 0 (start state)
       tl.progress(isDarkInitially ? 1 : 0).pause();
-      tl.reversed(!isDarkInitially);
+
+      // Watch store and sync timeline to store state (store is source of truth)
+      const syncTimelineToStore = (isDark) => {
+        console.log("Syncing timeline to store - isDark:", isDark);
+        if (isDark) {
+          // Dark theme → play timeline forward to end
+          if (tl.progress() < 1) {
+            tl.play();
+          }
+        } else {
+          // Light theme → reverse timeline to start
+          if (tl.progress() > 0) {
+            tl.reverse();
+          }
+        }
+      };
 
       themeSwitch.addEventListener("click", function () {
         console.log("Theme switch clicked!");
-        console.log("Timeline reversed?", tl.reversed());
-        console.log("Timeline progress:", tl.progress());
-        console.log("Current colorProxy values:", colorProxy);
-        toggleTimeline(tl);
-        console.log("After toggle - reversed?", tl.reversed());
+        console.log("Current store state (before toggle):", themeStore.isDark);
 
-        // Use theme store for centralized state management
-        const themeStore = useThemeStore();
+        // Toggle theme store - this will trigger the watcher below
         themeStore.toggle();
+
+        console.log("New store state (after toggle):", themeStore.isDark);
+
+        // Sync timeline to new store state
+        syncTimelineToStore(themeStore.isDark);
       });
     }, themeSwitch);
 

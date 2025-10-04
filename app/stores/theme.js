@@ -2,26 +2,36 @@
 import { defineStore } from 'pinia';
 
 /**
+ * Get initial theme state from localStorage or system preference
+ * Must run synchronously during store creation
+ */
+function getInitialTheme() {
+  if (process.client) {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return stored ? stored === 'dark' : prefersDark;
+  }
+  return false;
+}
+
+/**
  * Theme store - centralized theme state management
  * Syncs with localStorage and HTML class for theme persistence
  */
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    isDark: false,
+    isDark: getInitialTheme(), // Initialize from localStorage immediately
   }),
 
   actions: {
     /**
-     * Initialize theme from localStorage or system preference
+     * Initialize theme - sync HTML class with current state
+     * Called after store is created to apply initial theme
      */
     init() {
       if (process.client) {
-        const stored = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        this.isDark = stored ? stored === 'dark' : prefersDark;
-
-        // Sync with HTML class
+        // State is already set from getInitialTheme()
+        // Just sync the HTML class
         document.documentElement.classList.toggle('theme-dark', this.isDark);
       }
     },
