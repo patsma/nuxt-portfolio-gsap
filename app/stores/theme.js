@@ -2,39 +2,29 @@
 import { defineStore } from 'pinia';
 
 /**
- * Get initial theme state from localStorage or system preference
- * Must run synchronously during store creation
- */
-function getInitialTheme() {
-  if (process.client) {
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    return stored ? stored === 'dark' : prefersDark;
-  }
-  return false;
-}
-
-/**
  * Theme store - centralized theme state management
- * Syncs with localStorage and HTML class for theme persistence
+ * Uses Pinia hydration for SSR-safe initialization
+ * Plugin handles HTML class, store only manages state
  */
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    isDark: getInitialTheme(), // Initialize from localStorage immediately
+    isDark: false, // Default state, will be hydrated from localStorage
   }),
 
+  /**
+   * Pinia hydration method for SSR compatibility
+   * Reads from localStorage during client-side hydration
+   * Plugin already set HTML class, we just sync the state
+   */
+  hydrate(state, initialState) {
+    if (process.client) {
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      state.isDark = stored ? stored === 'dark' : prefersDark;
+    }
+  },
+
   actions: {
-    /**
-     * Initialize theme - sync HTML class with current state
-     * Called after store is created to apply initial theme
-     */
-    init() {
-      if (process.client) {
-        // State is already set from getInitialTheme()
-        // Just sync the HTML class
-        document.documentElement.classList.toggle('theme-dark', this.isDark);
-      }
-    },
 
     /**
      * Toggle theme between light and dark

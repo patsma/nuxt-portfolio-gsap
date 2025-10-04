@@ -64,10 +64,10 @@ let gsapCtx = null;
  */
 const gradientColors = {
   light: {
-    tl: [1.0, 0.5, 0.7],   // Rose/pink - warm
-    tr: [0.5, 1.0, 0.6],   // Mint green - fresh
-    bl: [0.6, 0.5, 1.0],   // Lavender - cool
-    br: [0.8, 1.0, 0.5],   // Lime - energetic
+    tl: [1.0, 0.5, 0.7],    // Rose/pink - warm
+    tr: [0.5, 1.0, 0.6],    // Mint green - fresh
+    bl: [0.6, 0.5, 1.0],    // Lavender - cool
+    br: [0.8, 1.0, 0.5],    // Lime - energetic
   },
   dark: {
     tl: [0.25, 0.15, 0.4],  // Rich purple (64, 38, 102)
@@ -80,13 +80,14 @@ const gradientColors = {
 /**
  * Shader uniforms (reactive so GSAP can tween nested .value)
  * Includes time and 4 corner colors for theme-aware gradient
+ * Start with light colors by default - will be set correctly in onMounted
  */
 const uniforms = reactive({
   time: { value: 0 },
-  colorTL: { value: [...gradientColors.dark.tl] }, // Top-left (vec3) - TESTING WITH DARK
-  colorTR: { value: [...gradientColors.dark.tr] }, // Top-right (vec3) - TESTING WITH DARK
-  colorBL: { value: [...gradientColors.dark.bl] }, // Bottom-left (vec3) - TESTING WITH DARK
-  colorBR: { value: [...gradientColors.dark.br] }, // Bottom-right (vec3) - TESTING WITH DARK
+  colorTL: { value: [...gradientColors.light.tl] }, // Top-left (vec3)
+  colorTR: { value: [...gradientColors.light.tr] }, // Top-right (vec3)
+  colorBL: { value: [...gradientColors.light.bl] }, // Bottom-left (vec3)
+  colorBR: { value: [...gradientColors.light.br] }, // Bottom-right (vec3)
 });
 
 /**

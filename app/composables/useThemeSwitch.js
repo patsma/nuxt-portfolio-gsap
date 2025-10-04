@@ -109,52 +109,30 @@ export default function useThemeSwitch() {
       $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
       // Create a proxy object to animate ALL color values
-      // Initialize from current theme to avoid first-frame jump
-      const colorProxy = isDarkInitially
-        ? {
-            // Dark theme active → background = dark, text = light
-            bgR: colors.dark["100"].r,
-            bgG: colors.dark["100"].g,
-            bgB: colors.dark["100"].b,
-            textR: colors.light["100"].r,
-            textG: colors.light["100"].g,
-            textB: colors.light["100"].b,
-            // Gradient colors (dark theme)
-            gradTL_R: gradientColors.dark.tl.r,
-            gradTL_G: gradientColors.dark.tl.g,
-            gradTL_B: gradientColors.dark.tl.b,
-            gradTR_R: gradientColors.dark.tr.r,
-            gradTR_G: gradientColors.dark.tr.g,
-            gradTR_B: gradientColors.dark.tr.b,
-            gradBL_R: gradientColors.dark.bl.r,
-            gradBL_G: gradientColors.dark.bl.g,
-            gradBL_B: gradientColors.dark.bl.b,
-            gradBR_R: gradientColors.dark.br.r,
-            gradBR_G: gradientColors.dark.br.g,
-            gradBR_B: gradientColors.dark.br.b,
-          }
-        : {
-            // Light theme active → background = light, text = dark
-            bgR: colors.light["100"].r,
-            bgG: colors.light["100"].g,
-            bgB: colors.light["100"].b,
-            textR: colors.dark["100"].r,
-            textG: colors.dark["100"].g,
-            textB: colors.dark["100"].b,
-            // Gradient colors (light theme)
-            gradTL_R: gradientColors.light.tl.r,
-            gradTL_G: gradientColors.light.tl.g,
-            gradTL_B: gradientColors.light.tl.b,
-            gradTR_R: gradientColors.light.tr.r,
-            gradTR_G: gradientColors.light.tr.g,
-            gradTR_B: gradientColors.light.tr.b,
-            gradBL_R: gradientColors.light.bl.r,
-            gradBL_G: gradientColors.light.bl.g,
-            gradBL_B: gradientColors.light.bl.b,
-            gradBR_R: gradientColors.light.br.r,
-            gradBR_G: gradientColors.light.br.g,
-            gradBR_B: gradientColors.light.br.b,
-          };
+      // ALWAYS initialize from LIGHT theme (timeline start position)
+      // Timeline animates FROM light (progress 0) TO dark (progress 1)
+      const colorProxy = {
+        // Light theme → background = light, text = dark
+        bgR: colors.light["100"].r,
+        bgG: colors.light["100"].g,
+        bgB: colors.light["100"].b,
+        textR: colors.dark["100"].r,
+        textG: colors.dark["100"].g,
+        textB: colors.dark["100"].b,
+        // Gradient colors (light theme)
+        gradTL_R: gradientColors.light.tl.r,
+        gradTL_G: gradientColors.light.tl.g,
+        gradTL_B: gradientColors.light.tl.b,
+        gradTR_R: gradientColors.light.tr.r,
+        gradTR_G: gradientColors.light.tr.g,
+        gradTR_B: gradientColors.light.tr.b,
+        gradBL_R: gradientColors.light.bl.r,
+        gradBL_G: gradientColors.light.bl.g,
+        gradBL_B: gradientColors.light.bl.b,
+        gradBR_R: gradientColors.light.br.r,
+        gradBR_G: gradientColors.light.br.g,
+        gradBR_B: gradientColors.light.br.b,
+      };
 
       let updateCount = 0;
       const tl = $gsap.timeline({
@@ -370,38 +348,31 @@ export default function useThemeSwitch() {
         "<"
       );
 
-      // Sync timeline with current theme
-      // - If dark initially → set progress to 1 (end state)
-      // - If light initially → set progress to 0 (start state)
+      // Set initial timeline position based on store (source of truth)
       tl.progress(isDarkInitially ? 1 : 0).pause();
+      console.log("Initial timeline - isDark:", isDarkInitially, "progress:", tl.progress());
 
-      // Watch store and sync timeline to store state (store is source of truth)
-      const syncTimelineToStore = (isDark) => {
-        console.log("Syncing timeline to store - isDark:", isDark);
-        if (isDark) {
-          // Dark theme → play timeline forward to end
-          if (tl.progress() < 1) {
-            tl.play();
-          }
-        } else {
-          // Light theme → reverse timeline to start
-          if (tl.progress() > 0) {
-            tl.reverse();
-          }
-        }
-      };
-
+      // Button click ONLY toggles store - store is source of truth
       themeSwitch.addEventListener("click", function () {
-        console.log("Theme switch clicked!");
-        console.log("Current store state (before toggle):", themeStore.isDark);
+        // Get current state BEFORE toggle
+        const wasLight = !themeStore.isDark;
 
-        // Toggle theme store - this will trigger the watcher below
+        console.log("=== Theme Toggle Clicked ===");
+        console.log("Current theme:", wasLight ? "LIGHT" : "DARK");
+
+        // Toggle store ONCE
         themeStore.toggle();
 
-        console.log("New store state (after toggle):", themeStore.isDark);
-
-        // Sync timeline to new store state
-        syncTimelineToStore(themeStore.isDark);
+        // Animate timeline based on NEW state (simple toggle)
+        if (wasLight) {
+          // Was light, now dark → animate forward
+          console.log("Animating to DARK (progress → 1)");
+          tl.play();
+        } else {
+          // Was dark, now light → animate backward
+          console.log("Animating to LIGHT (progress → 0)");
+          tl.reverse();
+        }
       });
     }, themeSwitch);
 

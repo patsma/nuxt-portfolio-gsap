@@ -484,11 +484,137 @@ Test page: `/dev/colors`
 ✅ **Clean code** - No JavaScript event listeners for hover effects
 ✅ **Accessible** - respects user's color preferences (can be extended)
 
-## Future Enhancements
+## SSR & State Management (Nuxt 4 + Pinia)
+
+### Architecture Overview
+
+The theme system uses a modern, SSR-safe pattern with:
+1. **Nuxt Plugin** (`app/plugins/theme.client.ts`) - Runs BEFORE hydration to prevent FOUC
+2. **Pinia Store** (`app/stores/theme.js`) - Centralized state with hydration support
+3. **GSAP Timeline** (`app/composables/useThemeSwitch.js`) - Smooth color animations
+4. **FluidGradient** (`app/components/FluidGradient.vue`) - Self-contained gradient with theme sync
+
+### Initialization Flow
+
+```
+1. SERVER (SSR)
+   └─ HTML rendered with default state (no theme class)
+
+2. CLIENT (Hydration)
+   ├─ Plugin runs FIRST (theme.client.ts)
+   │  ├─ Reads localStorage
+   │  ├─ Checks prefers-color-scheme
+   │  └─ Sets 'theme-dark' class on <html> IMMEDIATELY
+   │
+   ├─ Pinia Store hydrates
+   │  ├─ hydrate() method reads localStorage
+   │  └─ Syncs isDark state with plugin
+   │
+   ├─ Vue App mounts
+   │  └─ Components read themeStore.isDark (already correct)
+   │
+   └─ GSAP timeline initializes
+      └─ Syncs with themeStore.isDark (single source of truth)
+```
+
+### Plugin Pattern (SSR-Safe)
+
+**File:** `app/plugins/theme.client.ts`
+
+```typescript
+export default defineNuxtPlugin(() => {
+  if (process.client) {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = stored ? stored === 'dark' : prefersDark;
+
+    // Set HTML class BEFORE hydration - prevents FOUC
+    document.documentElement.classList.toggle('theme-dark', isDark);
+  }
+});
+```
+
+**Benefits:**
+- ✅ Runs before Vue hydration (no flash of wrong theme)
+- ✅ Respects localStorage preference
+- ✅ Falls back to system preference (`prefers-color-scheme`)
+- ✅ No JavaScript required for initial render
+
+### Pinia Store with Hydration
+
+**File:** `app/stores/theme.js`
+
+```javascript
+export const useThemeStore = defineStore('theme', {
+  state: () => ({
+    isDark: false, // Default, hydrated from localStorage
+  }),
+
+  // Pinia hydration for SSR compatibility
+  hydrate(state, initialState) {
+    if (process.client) {
+      const stored = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      state.isDark = stored ? stored === 'dark' : prefersDark;
+    }
+  },
+
+  actions: {
+    toggle() {
+      this.isDark = !this.isDark;
+      if (process.client) {
+        localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('theme-dark', this.isDark);
+      }
+    }
+  }
+});
+```
+
+**Key Points:**
+- Plugin handles DOM (HTML class)
+- Store handles state (isDark)
+- Both read from same source (localStorage)
+- Clean separation of concerns
+
+### FluidGradient Theme Integration
+
+**File:** `app/components/FluidGradient.vue`
+
+The FluidGradient component is fully self-contained with:
+- Hardcoded gradient color palettes (no CSS parsing)
+- Direct Three.js uniform updates (no conversion overhead)
+- Watcher on `themeStore.isDark` for smooth transitions
+
+```javascript
+const gradientColors = {
+  light: { /* bright pastels */ },
+  dark: { /* very dark near-black tones */ }
+};
+
+// Watch store for theme changes
+watch(() => themeStore.isDark, (isDark) => {
+  animateToTheme(isDark);
+});
+```
+
+**Benefits:**
+- ✅ No CSS variable parsing (no gray transitions)
+- ✅ Direct GSAP animation of uniform arrays
+- ✅ Much darker gradient in dark mode (0.04-0.12 range)
+- ✅ Synced with centralized store state
+
+### Completed Features
+
+- ✅ localStorage persistence of theme preference
+- ✅ Respects `prefers-color-scheme` media query
+- ✅ SSR-safe initialization (no FOUC)
+- ✅ Pinia hydration pattern for state management
+- ✅ Self-contained FluidGradient with proper theme sync
+
+### Future Enhancements
 
 Potential additions:
-- [ ] localStorage persistence of theme preference
-- [ ] Respect `prefers-color-scheme` media query
 - [ ] Multiple theme variants (not just light/dark)
 - [ ] Per-component theme overrides
 - [ ] Theme transition disable for `prefers-reduced-motion`
