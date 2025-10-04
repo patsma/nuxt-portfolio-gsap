@@ -1,18 +1,16 @@
 /* Base element resets or minimal globals */
 html {
   min-height: 102dvh;
-  /* Use semantic token that points to animated theme var */
-  background-color: var(--color-bg);
+  /* Transparent to reveal FluidGradient background */
+  background: transparent;
 }
 
 body {
-  /* Use semantic tokens so Tailwind and GSAP stay in sync */
-  background-color: var(--color-bg);
+  /* Transparent to reveal FluidGradient background */
+  background: transparent;
   color: var(--color-ink);
-  /* Smooth CSS transition fallback for browsers without GSAP or when GSAP hasn't loaded yet */
-  transition:
-    background-color var(--duration-theme) ease,
-    color var(--duration-theme) ease;
+  /* Smooth CSS transition for text color only (background is FluidGradient) */
+  transition: color var(--duration-theme) ease;
 }
 
 /* Navigation link hover styles - CSS-based for simplicity and performance

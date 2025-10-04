@@ -3,8 +3,11 @@
 /* Header container */
 .header-grid {
   height: var(--size-header);
-  background-color: var(--theme-100);
-  /* No transition - GSAP handles theme color transitions */
+  /* Transparent to reveal FluidGradient background */
+  background: transparent;
+  /* Optional: subtle glass effect for better text readability */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px); /* Safari support */
 }
 
 .header-grid__inner {

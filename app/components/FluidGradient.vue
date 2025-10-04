@@ -56,9 +56,14 @@ let gsapCtx = null;
 
 /**
  * Shader uniforms (reactive so GSAP can tween nested .value)
+ * Includes time and 4 corner colors for theme-aware gradient
  */
 const uniforms = reactive({
   time: { value: 0 },
+  colorTL: { value: [1.0, 0.5, 0.7] }, // Top-left (vec3)
+  colorTR: { value: [0.5, 1.0, 0.6] }, // Top-right (vec3)
+  colorBL: { value: [0.6, 0.5, 1.0] }, // Bottom-left (vec3)
+  colorBR: { value: [0.8, 1.0, 0.5] }, // Bottom-right (vec3)
 });
 
 /**
@@ -73,10 +78,15 @@ void main() {
 
 /**
  * Fluid gradient fragment shader
+ * Now uses uniform colors from theme system
  */
 const fragmentShader = `
 precision mediump float;
 uniform float time;
+uniform vec3 colorTL;
+uniform vec3 colorTR;
+uniform vec3 colorBL;
+uniform vec3 colorBR;
 varying vec2 vUv;
 
 float noise(vec2 uv, float t) {
@@ -90,10 +100,11 @@ vec2 rotate(vec2 v, float a) {
 }
 
 vec3 getColor(vec2 uv, float t) {
-  vec3 topLeft = vec3(1.0, 0.5, 0.7);
-  vec3 topRight = vec3(0.5, 1.0, 0.6);
-  vec3 bottomLeft = vec3(0.6, 0.5, 1.0);
-  vec3 bottomRight = vec3(0.8, 1.0, 0.5);
+  // Use uniform colors from theme system (animated by GSAP)
+  vec3 topLeft = colorTL;
+  vec3 topRight = colorTR;
+  vec3 bottomLeft = colorBL;
+  vec3 bottomRight = colorBR;
 
   vec2 center = vec2(0.5, 0.5);
   vec2 offset = vec2(0.5) - center;
@@ -108,6 +119,40 @@ void main() {
   vec3 color = getColor(vUv, time);
   gl_FragColor = vec4(color, 1.0);
 }`;
+
+/**
+ * Parse CSS rgba/rgb color to normalized vec3 for shader
+ * @param {string} cssVar - CSS variable name (e.g., '--gradient-tl')
+ * @returns {number[]} - [r, g, b] normalized 0-1
+ */
+function parseToVec3(cssVar) {
+  if (!process.client) return [1, 1, 1];
+
+  const html = document.documentElement;
+  const str = getComputedStyle(html).getPropertyValue(cssVar).trim();
+  const match = str.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+
+  if (match) {
+    return [
+      parseInt(match[1]) / 255,
+      parseInt(match[2]) / 255,
+      parseInt(match[3]) / 255
+    ];
+  }
+
+  return [1, 1, 1]; // Fallback white
+}
+
+/**
+ * Update gradient colors from CSS theme variables
+ * Called on mount and when theme changes
+ */
+function updateGradientColors() {
+  uniforms.colorTL.value = parseToVec3('--gradient-tl');
+  uniforms.colorTR.value = parseToVec3('--gradient-tr');
+  uniforms.colorBL.value = parseToVec3('--gradient-bl');
+  uniforms.colorBR.value = parseToVec3('--gradient-br');
+}
 
 /**
  * Build a GSAP timeline that advances time uniformly
@@ -139,6 +184,29 @@ onMounted(() => {
     setTimeout(() => {
       if (!containerRef.value) return;
 
+      // Initialize gradient colors from theme CSS variables
+      updateGradientColors();
+
+      // Watch for theme changes via MutationObserver on html.classList
+      // When theme-dark class toggles, GSAP animates --gradient-* vars, we read them
+      const html = document.documentElement;
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            // Theme changed - update colors from CSS (GSAP is animating them)
+            updateGradientColors();
+          }
+        });
+      });
+
+      observer.observe(html, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+
+      // Also listen to CSS variable changes directly (more responsive during transition)
+      const updateInterval = setInterval(updateGradientColors, 16); // ~60fps during theme transition
+
       gsapCtx = $gsap.context(() => {
         const tl = createAnimation();
         if (!tl) return;
@@ -146,6 +214,12 @@ onMounted(() => {
         // Auto-play the animation (no ScrollTrigger needed for background)
         tl.play();
       }, containerRef.value);
+
+      // Cleanup interval and observer on unmount
+      onUnmounted(() => {
+        clearInterval(updateInterval);
+        observer.disconnect();
+      });
     }, 100);
   });
 });

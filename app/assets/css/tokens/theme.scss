@@ -36,6 +36,18 @@
   --color-light-15: rgba(255, 250, 245, 0.15);
   --color-light-5: rgba(255, 250, 245, 0.05);
 
+  /* Fluid gradient palette - Light theme (bright pastels for light UI) */
+  --gradient-light-tl: rgba(255, 128, 178, 1); /* Rose/pink - warm */
+  --gradient-light-tr: rgba(128, 255, 153, 1); /* Mint green - fresh */
+  --gradient-light-bl: rgba(153, 128, 255, 1); /* Lavender - cool */
+  --gradient-light-br: rgba(204, 255, 128, 1); /* Lime - energetic */
+
+  /* Fluid gradient palette - Dark theme (deep rich colors for dark UI) */
+  --gradient-dark-tl: rgba(102, 51, 153, 1); /* Deep purple - royal */
+  --gradient-dark-tr: rgba(51, 102, 128, 1); /* Deep teal - sophisticated */
+  --gradient-dark-bl: rgba(77, 51, 102, 1); /* Dark violet - mysterious */
+  --gradient-dark-br: rgba(102, 128, 102, 1); /* Sage - grounded */
+
   /* Semantic color tokens - these reference runtime theme variables
      Tailwind will generate utilities via arbitrary values like bg-[var(--color-bg)] */
   --color-bg: var(--theme-100);
@@ -170,6 +182,13 @@
   --theme-text-30: var(--color-dark-30);
   --theme-text-15: var(--color-dark-15);
   --theme-text-5: var(--color-dark-5);
+
+  /* Gradient colors - animated by GSAP during theme toggle
+     Default to light theme gradient, will swap to dark on theme change */
+  --gradient-tl: var(--gradient-light-tl);
+  --gradient-tr: var(--gradient-light-tr);
+  --gradient-bl: var(--gradient-light-bl);
+  --gradient-br: var(--gradient-light-br);
 
   /* Text shadow tokens for consistent scalable heading shadows */
   /*

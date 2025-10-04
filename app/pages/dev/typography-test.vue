@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[var(--theme-100)]">
+  <div class="min-h-screen">
     <!--
     Typography test page - real-world usage patterns
     - Links with GSAP hover

@@ -1,5 +1,5 @@
 <template>
-  <div class="header-safe-top bg-[var(--theme-100)]">
+  <div class="header-safe-top">
     <h1 class="sr-only">About</h1>
 
     <SmoothDemo />

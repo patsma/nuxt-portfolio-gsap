@@ -63,7 +63,26 @@ export default function useThemeSwitch() {
       colors.dark[variant] = parseRgba(darkStr);
     });
 
+    // Read gradient colors for FluidGradient component
+    const gradientCorners = ["tl", "tr", "bl", "br"];
+    const gradientColors = {
+      light: {},
+      dark: {},
+    };
+
+    gradientCorners.forEach((corner) => {
+      const lightStr = getComputedStyle(html)
+        .getPropertyValue(`--gradient-light-${corner}`)
+        .trim();
+      const darkStr = getComputedStyle(html)
+        .getPropertyValue(`--gradient-dark-${corner}`)
+        .trim();
+      gradientColors.light[corner] = parseRgba(lightStr);
+      gradientColors.dark[corner] = parseRgba(darkStr);
+    });
+
     console.log("🎨 Colors from CSS:", colors);
+    console.log("🌈 Gradient colors from CSS:", gradientColors);
     const sunDark = document.querySelector("#sun-dark");
     const sunLight = document.querySelector("#sun-light");
     const sunLightBeams = document.querySelectorAll("#sun-light-beams path");
@@ -98,6 +117,19 @@ export default function useThemeSwitch() {
             textR: colors.light["100"].r,
             textG: colors.light["100"].g,
             textB: colors.light["100"].b,
+            // Gradient colors (dark theme)
+            gradTL_R: gradientColors.dark.tl.r,
+            gradTL_G: gradientColors.dark.tl.g,
+            gradTL_B: gradientColors.dark.tl.b,
+            gradTR_R: gradientColors.dark.tr.r,
+            gradTR_G: gradientColors.dark.tr.g,
+            gradTR_B: gradientColors.dark.tr.b,
+            gradBL_R: gradientColors.dark.bl.r,
+            gradBL_G: gradientColors.dark.bl.g,
+            gradBL_B: gradientColors.dark.bl.b,
+            gradBR_R: gradientColors.dark.br.r,
+            gradBR_G: gradientColors.dark.br.g,
+            gradBR_B: gradientColors.dark.br.b,
           }
         : {
             // Light theme active → background = light, text = dark
@@ -107,6 +139,19 @@ export default function useThemeSwitch() {
             textR: colors.dark["100"].r,
             textG: colors.dark["100"].g,
             textB: colors.dark["100"].b,
+            // Gradient colors (light theme)
+            gradTL_R: gradientColors.light.tl.r,
+            gradTL_G: gradientColors.light.tl.g,
+            gradTL_B: gradientColors.light.tl.b,
+            gradTR_R: gradientColors.light.tr.r,
+            gradTR_G: gradientColors.light.tr.g,
+            gradTR_B: gradientColors.light.tr.b,
+            gradBL_R: gradientColors.light.bl.r,
+            gradBL_G: gradientColors.light.bl.g,
+            gradBL_B: gradientColors.light.bl.b,
+            gradBR_R: gradientColors.light.br.r,
+            gradBR_G: gradientColors.light.br.g,
+            gradBR_B: gradientColors.light.br.b,
           };
 
       let updateCount = 0;
@@ -191,6 +236,44 @@ export default function useThemeSwitch() {
             "--theme-text-5",
             toRgba(textR, textG, textB, 0.05)
           );
+
+          // Gradient colors for FluidGradient background
+          html.style.setProperty(
+            "--gradient-tl",
+            toRgba(
+              Math.round(colorProxy.gradTL_R),
+              Math.round(colorProxy.gradTL_G),
+              Math.round(colorProxy.gradTL_B),
+              1
+            )
+          );
+          html.style.setProperty(
+            "--gradient-tr",
+            toRgba(
+              Math.round(colorProxy.gradTR_R),
+              Math.round(colorProxy.gradTR_G),
+              Math.round(colorProxy.gradTR_B),
+              1
+            )
+          );
+          html.style.setProperty(
+            "--gradient-bl",
+            toRgba(
+              Math.round(colorProxy.gradBL_R),
+              Math.round(colorProxy.gradBL_G),
+              Math.round(colorProxy.gradBL_B),
+              1
+            )
+          );
+          html.style.setProperty(
+            "--gradient-br",
+            toRgba(
+              Math.round(colorProxy.gradBR_R),
+              Math.round(colorProxy.gradBR_G),
+              Math.round(colorProxy.gradBR_B),
+              1
+            )
+          );
         },
       });
 
@@ -210,6 +293,19 @@ export default function useThemeSwitch() {
           textR: colors.light["100"].r,
           textG: colors.light["100"].g,
           textB: colors.light["100"].b,
+          // Gradient colors - animate to dark theme
+          gradTL_R: gradientColors.dark.tl.r,
+          gradTL_G: gradientColors.dark.tl.g,
+          gradTL_B: gradientColors.dark.tl.b,
+          gradTR_R: gradientColors.dark.tr.r,
+          gradTR_G: gradientColors.dark.tr.g,
+          gradTR_B: gradientColors.dark.tr.b,
+          gradBL_R: gradientColors.dark.bl.r,
+          gradBL_G: gradientColors.dark.bl.g,
+          gradBL_B: gradientColors.dark.bl.b,
+          gradBR_R: gradientColors.dark.br.r,
+          gradBR_G: gradientColors.dark.br.g,
+          gradBR_B: gradientColors.dark.br.b,
           duration: themeDuration,
           ease: "power2.inOut",
         },

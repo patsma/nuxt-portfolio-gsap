@@ -64,7 +64,7 @@
     <div
       id="mobile-overlay"
       ref="overlayRef"
-      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)] md:hidden z-40 opacity-0 pointer-events-none"
+      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)]/90 md:hidden z-40 opacity-0 pointer-events-none"
     >
       <div class="content-grid h-full">
         <div
