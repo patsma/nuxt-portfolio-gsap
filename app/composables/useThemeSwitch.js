@@ -11,16 +11,29 @@ export default function useThemeSwitch() {
     }
   }
 
-  // Helper to parse rgba() string to RGB object
-  const parseRgba = (rgbaString) => {
-    const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (match) {
+  // Helper to parse rgba() or hex string to RGB object
+  const parseColor = (colorString) => {
+    // Try rgba() format first
+    const rgbaMatch = colorString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (rgbaMatch) {
       return {
-        r: parseInt(match[1]),
-        g: parseInt(match[2]),
-        b: parseInt(match[3]),
+        r: parseInt(rgbaMatch[1]),
+        g: parseInt(rgbaMatch[2]),
+        b: parseInt(rgbaMatch[3]),
       };
     }
+
+    // Try hex format (#ffffff or #fff)
+    const hexMatch = colorString.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i) ||
+                     colorString.match(/^#?([a-f\d])([a-f\d])([a-f\d])$/i);
+    if (hexMatch) {
+      return {
+        r: parseInt(hexMatch[1].length === 1 ? hexMatch[1] + hexMatch[1] : hexMatch[1], 16),
+        g: parseInt(hexMatch[2].length === 1 ? hexMatch[2] + hexMatch[2] : hexMatch[2], 16),
+        b: parseInt(hexMatch[3].length === 1 ? hexMatch[3] + hexMatch[3] : hexMatch[3], 16),
+      };
+    }
+
     return { r: 0, g: 0, b: 0 };
   };
 
@@ -61,8 +74,8 @@ export default function useThemeSwitch() {
       const darkStr = getComputedStyle(html)
         .getPropertyValue(`--color-dark-${variant}`)
         .trim();
-      colors.light[variant] = parseRgba(lightStr);
-      colors.dark[variant] = parseRgba(darkStr);
+      colors.light[variant] = parseColor(lightStr);
+      colors.dark[variant] = parseColor(darkStr);
     });
 
     // Read gradient colors for FluidGradient component
@@ -83,8 +96,8 @@ export default function useThemeSwitch() {
       console.log(`📊 Raw CSS for gradient-light-${corner}:`, lightStr);
       console.log(`📊 Raw CSS for gradient-dark-${corner}:`, darkStr);
 
-      gradientColors.light[corner] = parseRgba(lightStr);
-      gradientColors.dark[corner] = parseRgba(darkStr);
+      gradientColors.light[corner] = parseColor(lightStr);
+      gradientColors.dark[corner] = parseColor(darkStr);
 
       console.log(`📊 Parsed light ${corner}:`, gradientColors.light[corner]);
       console.log(`📊 Parsed dark ${corner}:`, gradientColors.dark[corner]);
