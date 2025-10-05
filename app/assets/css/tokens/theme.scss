@@ -42,12 +42,6 @@
   --gradient-light-bl: rgba(153, 128, 255, 1); /* Lavender - cool */
   --gradient-light-br: rgba(204, 255, 128, 1); /* Lime - energetic */
 
-  /* Fluid gradient palette - Dark theme (very dark, subtle colors for dark UI) */
-  --gradient-dark-tl: rgba(15, 10, 25, 1); /* Near black with slight purple tint */
-  --gradient-dark-tr: rgba(10, 15, 20, 1); /* Near black with slight blue tint */
-  --gradient-dark-bl: rgba(12, 8, 18, 1); /* Near black with slight violet tint */
-  --gradient-dark-br: rgba(18, 12, 15, 1); /* Near black with slight warm tint */
-
   /* Semantic color tokens - these reference runtime theme variables
      Tailwind will generate utilities via arbitrary values like bg-[var(--color-bg)] */
   --color-bg: var(--theme-100);
@@ -182,6 +176,12 @@
   --theme-text-30: var(--color-dark-30);
   --theme-text-15: var(--color-dark-15);
   --theme-text-5: var(--color-dark-5);
+
+  /* Fluid gradient palette - Dark theme (maximum brightness for visibility) */
+  --gradient-dark-tl: rgba(200, 150, 255, 1); /* Very bright purple */
+  --gradient-dark-tr: rgba(150, 200, 255, 1); /* Very bright blue */
+  --gradient-dark-bl: rgba(255, 150, 200, 1); /* Very bright pink */
+  --gradient-dark-br: rgba(150, 255, 220, 1); /* Very bright cyan */
 
   /* Gradient colors - animated by GSAP during theme toggle
      Default to light theme gradient, will swap to dark on theme change */

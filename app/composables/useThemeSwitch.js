@@ -79,8 +79,15 @@ export default function useThemeSwitch() {
       const darkStr = getComputedStyle(html)
         .getPropertyValue(`--gradient-dark-${corner}`)
         .trim();
+
+      console.log(`📊 Raw CSS for gradient-light-${corner}:`, lightStr);
+      console.log(`📊 Raw CSS for gradient-dark-${corner}:`, darkStr);
+
       gradientColors.light[corner] = parseRgba(lightStr);
       gradientColors.dark[corner] = parseRgba(darkStr);
+
+      console.log(`📊 Parsed light ${corner}:`, gradientColors.light[corner]);
+      console.log(`📊 Parsed dark ${corner}:`, gradientColors.dark[corner]);
     });
 
     console.log("🎨 Colors from CSS:", colors);
@@ -218,42 +225,42 @@ export default function useThemeSwitch() {
           );
 
           // Gradient colors for FluidGradient background
-          html.style.setProperty(
-            "--gradient-tl",
-            toRgba(
-              Math.round(colorProxy.gradTL_R),
-              Math.round(colorProxy.gradTL_G),
-              Math.round(colorProxy.gradTL_B),
-              1
-            )
+          const gradTL = toRgba(
+            Math.round(colorProxy.gradTL_R),
+            Math.round(colorProxy.gradTL_G),
+            Math.round(colorProxy.gradTL_B),
+            1
           );
-          html.style.setProperty(
-            "--gradient-tr",
-            toRgba(
-              Math.round(colorProxy.gradTR_R),
-              Math.round(colorProxy.gradTR_G),
-              Math.round(colorProxy.gradTR_B),
-              1
-            )
+          const gradTR = toRgba(
+            Math.round(colorProxy.gradTR_R),
+            Math.round(colorProxy.gradTR_G),
+            Math.round(colorProxy.gradTR_B),
+            1
           );
-          html.style.setProperty(
-            "--gradient-bl",
-            toRgba(
-              Math.round(colorProxy.gradBL_R),
-              Math.round(colorProxy.gradBL_G),
-              Math.round(colorProxy.gradBL_B),
-              1
-            )
+          const gradBL = toRgba(
+            Math.round(colorProxy.gradBL_R),
+            Math.round(colorProxy.gradBL_G),
+            Math.round(colorProxy.gradBL_B),
+            1
           );
-          html.style.setProperty(
-            "--gradient-br",
-            toRgba(
-              Math.round(colorProxy.gradBR_R),
-              Math.round(colorProxy.gradBR_G),
-              Math.round(colorProxy.gradBR_B),
-              1
-            )
+          const gradBR = toRgba(
+            Math.round(colorProxy.gradBR_R),
+            Math.round(colorProxy.gradBR_G),
+            Math.round(colorProxy.gradBR_B),
+            1
           );
+
+          if (updateCount % 10 === 0 || updateCount === 1) {
+            console.log(
+              `🌈 Gradient colors #${updateCount}:`,
+              { gradTL, gradTR, gradBL, gradBR }
+            );
+          }
+
+          html.style.setProperty("--gradient-tl", gradTL);
+          html.style.setProperty("--gradient-tr", gradTR);
+          html.style.setProperty("--gradient-bl", gradBL);
+          html.style.setProperty("--gradient-br", gradBR);
         },
       });
 
