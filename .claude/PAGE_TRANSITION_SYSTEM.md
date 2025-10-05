@@ -21,8 +21,7 @@ This project uses a sophisticated, GSAP-powered page transition system with circ
 - New page content renders (hidden behind overlay)
 
 **PHASE 3: REVEAL (Vue Transition Hook)**
-- Circle overlay flips to top position
-- Overlay contracts from top to reveal new page
+- Circle overlay contracts from bottom to reveal new page
 - Transition completes, state resets to idle
 
 ### Why This Complexity?
@@ -90,6 +89,14 @@ return abortNavigation(); // Block original navigation
 **Key Concepts:**
 ```javascript
 const handlePageEnter = async (el, done) => {
+  // Get overlay element from Pinia store (set by PageTransitionOverlay on mount)
+  const overlay = store.overlayElement;
+
+  if (!overlay || !$gsap) {
+    done();
+    return;
+  }
+
   store.startEntering();
 
   // Wait for ScrollSmoother using reactive watch, not polling
@@ -116,15 +123,14 @@ const handlePageEnter = async (el, done) => {
     await waitForScrollSmoother;
   }
 
-  // Reveal animation
+  // Reveal animation - contract from bottom (reverse of expand)
   await nextTick();
   const revealComplete = new Promise((resolve) => {
     $gsap.timeline({ onComplete: () => resolve() })
-      .set(overlay, { clipPath: 'circle(150% at 50% 0%)' }) // Flip to top
       .to(overlay, {
-        clipPath: 'circle(0% at 50% 0%)', // Contract from top
+        clipPath: 'circle(0% at 50% 100%)', // Contract to bottom
         duration,
-        ease: 'sine.out'
+        ease: 'power2.inOut'
       });
   });
 
@@ -141,24 +147,29 @@ const handlePageEnter = async (el, done) => {
 
 ### 3. Pinia Store: `app/stores/pageTransition.js`
 
-**Purpose:** Coordinate state between middleware, composable, and ScrollSmoother
+**Purpose:** Coordinate state between middleware, composable, and ScrollSmoother + manage overlay element reference
 
 **State Machine:**
 ```javascript
 state: {
-  state: 'idle' | 'leaving' | 'entering',
-  scrollSmootherReady: boolean
+  state: 'idle' | 'locked' | 'leaving' | 'entering',
+  scrollSmootherReady: boolean,
+  lockedPath: string | null,
+  overlayElement: HTMLElement | null
 }
 
 // Transition flow:
-// idle → startLeaving() → leaving → startEntering() → entering → complete() → idle
+// idle → lock() → locked → startLeaving() → leaving → startEntering() → entering → complete() → idle
 ```
 
 **Key Actions:**
-- `startLeaving()` - Only allowed from 'idle', prevents duplicate transitions
+- `lock(path)` - Acquire transition lock, prevents duplicate transitions
+- `startLeaving()` - Only allowed from 'locked', starts exit animation
 - `startEntering()` - Allows from 'leaving' or 'entering' (Vue calls twice sometimes)
-- `complete()` - Reset to idle state
-- `setScrollSmootherReady()` - Updated by ScrollSmoother plugin
+- `complete()` - Reset to idle state, clear lock
+- `reset()` - Emergency fallback to idle
+- `setScrollSmootherReady(ready)` - Updated by ScrollSmoother plugin
+- `setOverlayElement(element)` - Set by PageTransitionOverlay component on mount
 
 ### 4. ScrollSmoother Plugin: `app/plugins/scrollsmoother.client.js`
 
@@ -207,43 +218,71 @@ nuxtApp.hook("page:finish", async () => {
 
 ### 5. Overlay Component: `app/components/PageTransitionOverlay.vue`
 
-**Purpose:** Visual circle mask that covers/reveals content
+**Purpose:** Visual circle mask with animated gradients that covers/reveals content
+
+**Location:** Rendered in `app/layouts/default.vue` (same DOM context as header for proper stacking)
+
+**Key Features:**
+- Registers itself with Pinia store on mount via `setOverlayElement()`
+- Animated gradient layers that sync with theme colors
+- Z-index 40 (below header at 50, above content)
 
 **Key CSS:**
 ```css
 .page-transition-overlay {
   position: fixed;
-  top: var(--size-header); /* Below header - header stays visible */
+  top: 0; /* Cover full viewport including header area */
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 40; /* Below header (50), above content */
-  background-color: var(--theme-100); /* Theme-aware */
+  background-color: var(--theme-100); /* Theme-aware base color */
   opacity: 0;
   pointer-events: none;
   clip-path: circle(0% at 50% 100%); /* Start: bottom center, 0% radius */
   width: 100vw;
-  height: calc(100vh - var(--size-header));
+  height: 100vh;
+  overflow: hidden;
 }
+
+/* Animated gradient layers for organic fluid-like effect */
+.gradient-layer {
+  position: absolute;
+  width: 300%;
+  height: 300%;
+  mix-blend-mode: normal;
+  will-change: transform;
+}
+```
+
+**Component Setup:**
+```javascript
+const overlayRef = ref(null);
+const store = usePageTransitionStore();
+
+onMounted(() => {
+  store.setOverlayElement(overlayRef.value);
+});
+
+onBeforeUnmount(() => {
+  store.setOverlayElement(null);
+});
 ```
 
 **GSAP Animation Pattern:**
 ```javascript
-// PHASE 1: Expand from bottom
+// PHASE 1: Expand from bottom (in middleware)
 .to(overlay, {
   clipPath: 'circle(150% at 50% 100%)', // 150% radius at bottom
   duration,
-  ease: 'sine.out'
+  ease: 'power2.inOut'
 })
 
-// PHASE 3: Contract from top
-.set(overlay, {
-  clipPath: 'circle(150% at 50% 0%)' // Flip to top instantly
-})
+// PHASE 3: Contract from bottom (in composable)
 .to(overlay, {
-  clipPath: 'circle(0% at 50% 0%)', // Contract to 0% from top
+  clipPath: 'circle(0% at 50% 100%)', // Contract to 0% from bottom
   duration,
-  ease: 'sine.out'
+  ease: 'power2.inOut'
 })
 ```
 
@@ -253,6 +292,8 @@ nuxtApp.hook("page:finish", async () => {
 
 ```vue
 <template>
+  <FluidGradient />
+
   <NuxtLayout>
     <NuxtPage
       :transition="{
@@ -263,13 +304,13 @@ nuxtApp.hook("page:finish", async () => {
     />
   </NuxtLayout>
 
-  <PageTransitionOverlay ref="overlayComponentRef" />
+  <CursorTrail />
 </template>
 
 <script setup>
-const overlayComponentRef = ref(null);
-const overlayRef = computed(() => overlayComponentRef.value?.overlayRef);
-const { handlePageEnter } = usePageTransition(overlayRef);
+// Initialize page transition composable
+// Overlay element is accessed from Pinia store (set by PageTransitionOverlay component)
+const { handlePageEnter } = usePageTransition();
 </script>
 ```
 
@@ -281,16 +322,21 @@ const { handlePageEnter } = usePageTransition(overlayRef);
 - We use GSAP for animations, not Vue's CSS transitions
 - Gives us precise control over timing and coordination
 
+**Why no overlay ref?**
+- PageTransitionOverlay registers itself with Pinia store on mount
+- usePageTransition gets overlay from store (no prop passing needed)
+- Eliminates provide/inject timing issues
+
 ## Design Tokens
 
 ### Transition Timing (in `app/assets/css/tokens/theme.scss`)
 
 ```scss
 /* Page transition duration */
---duration-page: 1000ms; /* Circle reveal animation */
+--duration-page: 1400ms; /* Circle reveal animation */
 
-/* Easing function (matches GSAP sine.out) */
---ease-sine-out: cubic-bezier(0.39, 0.575, 0.565, 1);
+/* Easing function (matches GSAP power2.inOut) */
+--ease-power2-inout: cubic-bezier(0.65, 0, 0.35, 1);
 ```
 
 **Usage in JavaScript:**
@@ -303,16 +349,18 @@ const duration = parseFloat(
 $gsap.to(overlay, {
   clipPath: 'circle(150% at 50% 100%)',
   duration,
-  ease: 'sine.out' // GSAP ease name
+  ease: 'power2.inOut' // GSAP ease name
 });
 ```
 
 ### Theme Integration
 
-The overlay uses `var(--theme-100)` so it automatically matches the current theme:
-- Light theme: Light overlay covers content
-- Dark theme: Dark overlay covers content
-- Smooth theme transitions: Overlay color animates with theme
+The overlay uses theme-aware colors for organic gradient effects:
+- Base background: `var(--theme-100)` matches current theme
+- Gradient colors: `var(--gradient-tl/tr/bl/br)` animated by GSAP during theme toggle
+- Light theme: Soft pastel gradients (rose, mint, lavender, lime)
+- Dark theme: Deep rich gradients (purple, blue, magenta, teal)
+- Smooth theme transitions: All colors animate together
 
 ## Key Principles
 
@@ -524,21 +572,85 @@ const waitForScrollSmoother = new Promise((resolve) => {
 await waitForScrollSmoother;
 ```
 
+### Issue: Overlay ref is null in composable (provide/inject timing)
+
+**Cause:** When using provide/inject pattern between layout and app.vue, the overlay component hasn't mounted when app.vue setup runs, so the injected ref is null.
+
+**Solution:** Use Pinia store to manage overlay element reference:
+```javascript
+// In PageTransitionOverlay.vue
+const overlayRef = ref(null);
+const store = usePageTransitionStore();
+
+onMounted(() => {
+  store.setOverlayElement(overlayRef.value);
+});
+
+// In usePageTransition.js
+const overlay = store.overlayElement; // Always available after mount
+```
+
+**Why this works:**
+- Component mounts and registers overlay element immediately
+- Pinia store is reactive and accessible everywhere
+- No timing issues with provide/inject across layout boundaries
+- Simpler code, single source of truth
+
+### Issue: Header glitches/disappears during transition
+
+**Cause:** Overlay in different DOM context (app.vue) than header (layouts/default.vue), causing stacking context issues.
+
+**Solution:** Move overlay to same component as header:
+```vue
+<!-- layouts/default.vue -->
+<template>
+  <div id="smooth-wrapper">
+    <header role="banner">
+      <HeaderGrid />
+    </header>
+
+    <!-- Same DOM level as header -->
+    <PageTransitionOverlay />
+
+    <div id="smooth-content">
+      <main><slot /></main>
+    </div>
+  </div>
+</template>
+```
+
+**Additional fix:** Add isolation to header CSS:
+```scss
+.header-grid {
+  position: relative;
+  z-index: 50;
+  isolation: isolate; // Create isolated stacking context
+}
+```
+
+**Why this works:**
+- Header and overlay in same DOM tree
+- Header has z-index 50, overlay has z-index 40
+- `isolation: isolate` ensures header children stay above overlay
+- Overlay covers full viewport (including header area) but header renders on top
+
 ## Testing Checklist
 
 When testing page transitions:
 
-- [ ] First navigation works smoothly
-- [ ] Second+ navigations work consistently
-- [ ] No visible content jumps
-- [ ] Header stays visible throughout
-- [ ] Overlay color matches theme
-- [ ] Theme switching during transition works
-- [ ] No console errors
-- [ ] ScrollSmoother works on new page
-- [ ] Back button navigation works
-- [ ] Fast clicking doesn't break transitions
-- [ ] Mobile navigation works
+- [x] First navigation works smoothly
+- [x] Second+ navigations work consistently
+- [x] No visible content jumps
+- [x] Header stays visible throughout (fixed via DOM context + isolation)
+- [x] Overlay gradients match theme (animated gradient layers)
+- [x] Theme switching during transition works
+- [x] No console errors
+- [x] ScrollSmoother works on new page
+- [x] Back button navigation works
+- [x] Fast clicking doesn't break transitions (locking mechanism)
+- [ ] Mobile navigation works (needs testing)
+- [x] Overlay element properly registered in store
+- [x] Single bottom-origin animation (expand and contract from same position)
 
 ## Performance Considerations
 
@@ -646,6 +758,12 @@ definePageMeta({
 - ✅ `router.push()` to bypass middleware loop
 - ✅ Double `nextTick()` for proper timing
 - ✅ Theme-aware overlay using CSS variables
+- ✅ Pinia store for overlay element reference (no provide/inject timing issues)
+- ✅ Single bottom-origin animation (expand and contract from same point)
+- ✅ Moving overlay to layout (same DOM context as header)
+- ✅ `isolation: isolate` on header for proper stacking
+- ✅ Animated gradient layers for organic visual effect
+- ✅ Transition locking mechanism to prevent rapid clicks
 
 **What didn't work:**
 - ❌ `navigateTo()` in middleware (infinite loop)
@@ -654,6 +772,9 @@ definePageMeta({
 - ❌ Killing ScrollSmoother too early (visible jump)
 - ❌ Not waiting for ScrollSmoother (buggy reveal)
 - ❌ CSS transitions (can't coordinate with routing)
+- ❌ provide/inject for overlay ref (timing issues across layout boundaries)
+- ❌ Overlay in app.vue while header in layout (stacking context issues)
+- ❌ Different clip-path origins for expand/contract (disorienting animation)
 
 ## Credits & Resources
 
