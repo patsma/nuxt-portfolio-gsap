@@ -7,7 +7,7 @@ html {
 
 body {
   /* Transparent to reveal FluidGradient background */
-  background: transparent;
+  background: var(--theme-100);
   color: var(--color-ink);
   /* Smooth CSS transition for text color only (background is FluidGradient) */
   transition: color var(--duration-theme) ease;

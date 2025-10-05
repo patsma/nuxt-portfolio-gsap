@@ -10,7 +10,7 @@
     -->
     <TresCanvas
       v-if="isMounted"
-      class="w-full h-full opacity-40"
+      class="w-full h-full opacity-50"
       clearColor="#0b0b10"
       :antialias="true"
       :renderMode="'always'"
@@ -64,17 +64,17 @@ let gsapCtx = null;
  */
 const gradientColors = {
   light: {
-    tl: [1.0, 0.5, 0.7],    // Rose/pink - warm
-    tr: [0.5, 1.0, 0.6],    // Mint green - fresh
-    bl: [0.6, 0.5, 1.0],    // Lavender - cool
-    br: [0.8, 1.0, 0.5],    // Lime - energetic
+    tl: [1.0, 0.5, 0.7], // Rose/pink - warm
+    tr: [0.5, 1.0, 0.6], // Mint green - fresh
+    bl: [0.6, 0.5, 1.0], // Lavender - cool
+    br: [0.8, 1.0, 0.5], // Lime - energetic
   },
   dark: {
-    tl: [0.25, 0.15, 0.4],  // Rich purple (64, 38, 102)
+    tl: [0.25, 0.15, 0.4], // Rich purple (64, 38, 102)
     tr: [0.15, 0.25, 0.45], // Deep blue (38, 64, 115)
     bl: [0.35, 0.15, 0.25], // Deep magenta (89, 38, 64)
-    br: [0.15, 0.35, 0.3],  // Deep teal (38, 89, 76)
-  }
+    br: [0.15, 0.35, 0.3], // Deep teal (38, 89, 76)
+  },
 };
 
 /**
@@ -198,7 +198,7 @@ function animateToTheme(isDark) {
       uniforms.colorBR.value[0] = proxy.brR;
       uniforms.colorBR.value[1] = proxy.brG;
       uniforms.colorBR.value[2] = proxy.brB;
-    }
+    },
   });
 }
 
@@ -223,9 +223,12 @@ const createAnimation = () => {
 };
 
 // Watch theme store for changes and animate gradient colors
-watch(() => themeStore.isDark, (isDark) => {
-  animateToTheme(isDark);
-});
+watch(
+  () => themeStore.isDark,
+  (isDark) => {
+    animateToTheme(isDark);
+  }
+);
 
 // Lifecycle: mount and initialize fluid gradient animation
 onMounted(() => {
@@ -238,7 +241,9 @@ onMounted(() => {
       if (!containerRef.value) return;
 
       // Set initial colors based on current theme from store (no animation)
-      const initialColors = themeStore.isDark ? gradientColors.dark : gradientColors.light;
+      const initialColors = themeStore.isDark
+        ? gradientColors.dark
+        : gradientColors.light;
       uniforms.colorTL.value = [...initialColors.tl];
       uniforms.colorTR.value = [...initialColors.tr];
       uniforms.colorBL.value = [...initialColors.bl];
