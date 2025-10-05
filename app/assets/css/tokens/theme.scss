@@ -177,11 +177,11 @@
   --theme-text-15: var(--color-dark-15);
   --theme-text-5: var(--color-dark-5);
 
-  /* Fluid gradient palette - Dark theme (very subtle, close to FluidGradient.vue) */
-  --gradient-dark-tl: rgba(64, 38, 102, 1); /* Deep purple (0.25, 0.15, 0.4) */
-  --gradient-dark-tr: rgba(38, 64, 115, 1); /* Deep blue (0.15, 0.25, 0.45) */
-  --gradient-dark-bl: rgba(89, 38, 64, 1); /* Deep magenta (0.35, 0.15, 0.25) */
-  --gradient-dark-br: rgba(38, 89, 76, 1); /* Deep teal (0.15, 0.35, 0.3) */
+  /* Fluid gradient palette - Dark theme (extremely subtle) */
+  --gradient-dark-tl: rgba(45, 28, 70, 1); /* Very deep purple */
+  --gradient-dark-tr: rgba(28, 45, 80, 1); /* Very deep blue */
+  --gradient-dark-bl: rgba(60, 28, 45, 1); /* Very deep magenta */
+  --gradient-dark-br: rgba(28, 60, 50, 1); /* Very deep teal */
 
   /* Gradient colors - animated by GSAP during theme toggle
      Default to light theme gradient, will swap to dark on theme change */
