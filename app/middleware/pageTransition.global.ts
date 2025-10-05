@@ -1,14 +1,15 @@
 /**
  * Global Page Transition Middleware
  *
- * Uses abortNavigation + manual router push to avoid middleware loop.
+ * Uses locking + abortNavigation + manual router push to prevent rapid clicks.
  *
  * Flow:
  * 1. User clicks link → Middleware intercepts
- * 2. ABORT the navigation (blocks route change)
- * 3. Animate overlay to cover content
- * 4. Use direct router.push() (bypasses middleware)
- * 5. Vue transition hooks handle the reveal
+ * 2. Try to LOCK the transition (prevents duplicate clicks)
+ * 3. If locked, ABORT this navigation
+ * 4. Animate overlay to cover content
+ * 5. Use direct router.push() (bypasses middleware)
+ * 6. Vue transition hooks handle the reveal
  *
  * Uses proper async patterns with nextTick() instead of timeouts
  */
@@ -32,7 +33,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return; // Let it through
   }
 
-  // This is a USER-initiated navigation - BLOCK IT
+  // Try to acquire lock - if already locked, REJECT this navigation
+  if (!store.lock(to.path)) {
+    console.warn('[Middleware] 🚫 BLOCKED - transition already in progress');
+    return abortNavigation(); // Block rapid clicks
+  }
+
+  // This is a USER-initiated navigation - BLOCK IT and animate
   console.log('[Middleware] 🚦 User navigation intercepted:', from.path, '→', to.path);
 
   const nuxtApp = useNuxtApp();
@@ -41,11 +48,16 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   if (!overlay || !$gsap) {
     console.warn('[Middleware] ⚠️ No overlay/GSAP, allowing');
+    store.reset(); // Release lock
     return;
   }
 
-  // Mark as leaving (sets flag so next middleware call knows it's us)
-  store.startLeaving();
+  // Mark as leaving (can only be called after lock)
+  if (!store.startLeaving()) {
+    console.error('[Middleware] ❌ Failed to start leaving - resetting');
+    store.reset();
+    return abortNavigation();
+  }
 
   // Get duration from CSS custom property
   const duration = parseFloat(
@@ -54,6 +66,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   ) / 1000 || 1;
 
   console.log('[Middleware] 🔒 BLOCKING user navigation, animating cover');
+
+  // Safety timeout - auto-unlock if something goes wrong
+  const safetyTimeout = setTimeout(() => {
+    console.error('[Middleware] ⚠️ Safety timeout - resetting store');
+    store.reset();
+  }, (duration + 2) * 1000); // Extra 2 seconds buffer
 
   // Create a promise that resolves when animation completes
   const animationComplete = new Promise<void>((resolve) => {
@@ -76,6 +94,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // Wait for animation to complete, then navigate
   animationComplete.then(async () => {
+    // Clear safety timeout - animation completed successfully
+    clearTimeout(safetyTimeout);
+
     // Use nextTick to ensure DOM is ready
     await nextTick();
 
@@ -83,6 +104,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     await router.push(to.fullPath);
 
     console.log('[Middleware] ✅ Route pushed programmatically');
+  }).catch((error) => {
+    // Handle animation errors
+    console.error('[Middleware] ❌ Animation error:', error);
+    clearTimeout(safetyTimeout);
+    store.reset();
   });
 
   // ABORT the original navigation

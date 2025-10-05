@@ -45,7 +45,14 @@ export const usePageTransition = (overlayRef) => {
       return;
     }
 
-    store.startEntering();
+    // Check if we can start entering (must be in 'leaving' state from middleware)
+    if (!store.startEntering()) {
+      console.warn('[PageTransition] ⚠️ Cannot enter - invalid state, resetting');
+      store.reset();
+      done();
+      return;
+    }
+
     const duration = getTransitionDuration();
 
     console.log('[PageTransition] PHASE 3: REVEAL - Revealing new page');
@@ -54,42 +61,49 @@ export const usePageTransition = (overlayRef) => {
      * Start the reveal animation
      */
     const startReveal = async () => {
-      // Wait for next tick to ensure DOM is ready
-      await nextTick();
+      try {
+        // Wait for next tick to ensure DOM is ready
+        await nextTick();
 
-      // Create promise that resolves when animation completes
-      const revealComplete = new Promise((resolve) => {
-        $gsap.timeline({
-          onComplete: () => {
-            // Reset overlay for next transition
-            $gsap.set(overlay, {
-              opacity: 0,
-              pointerEvents: 'none',
-              clipPath: 'circle(0% at 50% 100%)'
-            });
+        // Create promise that resolves when animation completes
+        const revealComplete = new Promise((resolve) => {
+          $gsap.timeline({
+            onComplete: () => {
+              // Reset overlay for next transition
+              $gsap.set(overlay, {
+                opacity: 0,
+                pointerEvents: 'none',
+                clipPath: 'circle(0% at 50% 100%)'
+              });
 
-            store.complete();
-            console.log('[PageTransition] ✅ Reveal complete');
-            resolve();
-          }
-        })
-          // Flip to top position
-          .set(overlay, {
-            clipPath: 'circle(150% at 50% 0%)'
+              store.complete();
+              console.log('[PageTransition] ✅ Reveal complete');
+              resolve();
+            }
           })
-          // Contract to reveal
-          .to(overlay, {
-            clipPath: 'circle(0% at 50% 0%)',
-            duration,
-            ease: 'sine.out'
-          });
-      });
+            // Flip to top position
+            .set(overlay, {
+              clipPath: 'circle(150% at 50% 0%)'
+            })
+            // Contract to reveal
+            .to(overlay, {
+              clipPath: 'circle(0% at 50% 0%)',
+              duration,
+              ease: 'sine.out'
+            });
+        });
 
-      // Wait for animation to complete
-      await revealComplete;
+        // Wait for animation to complete
+        await revealComplete;
 
-      // Signal Vue that transition is done
-      done();
+        // Signal Vue that transition is done
+        done();
+      } catch (error) {
+        console.error('[PageTransition] ❌ Reveal error:', error);
+        // Ensure we always complete and unlock, even on error
+        store.complete();
+        done();
+      }
     };
 
     // Wait for ScrollSmoother to be ready

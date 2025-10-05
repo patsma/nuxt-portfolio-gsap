@@ -2,17 +2,19 @@
 import { defineStore } from 'pinia';
 
 /**
- * @typedef {'idle' | 'leaving' | 'entering'} TransitionState
+ * @typedef {'idle' | 'leaving' | 'entering' | 'locked'} TransitionState
  *
  * @typedef {Object} PageTransitionState
  * @property {TransitionState} state - Current transition state
  * @property {boolean} scrollSmootherReady - Whether ScrollSmoother is initialized and ready
+ * @property {string|null} lockedPath - Path that's currently being navigated to (prevents duplicate navigation)
  */
 
 export const usePageTransitionStore = defineStore('pageTransition', {
   state: () => /** @type {PageTransitionState} */ ({
     state: 'idle',
-    scrollSmootherReady: false
+    scrollSmootherReady: false,
+    lockedPath: null // Track which path is being navigated to
   }),
 
   getters: {
@@ -35,6 +37,12 @@ export const usePageTransitionStore = defineStore('pageTransition', {
     isEntering: (state) => state.state === 'entering',
 
     /**
+     * Whether transitions are locked (prevents rapid clicks)
+     * @returns {boolean}
+     */
+    isLocked: (state) => state.state === 'locked',
+
+    /**
      * Whether it's safe to start a transition
      * @returns {boolean}
      */
@@ -43,15 +51,32 @@ export const usePageTransitionStore = defineStore('pageTransition', {
 
   actions: {
     /**
+     * Lock transitions and set target path (prevents rapid clicks)
+     * @param {string} path - Path being navigated to
+     * @returns {boolean} - True if lock acquired, false if already locked
+     */
+    lock(path) {
+      if (this.state !== 'idle') {
+        console.warn('[PageTransition] 🔒 Cannot lock - already transitioning:', this.state);
+        return false;
+      }
+      this.state = 'locked';
+      this.lockedPath = path;
+      console.log('[PageTransition] 🔒 LOCKED for:', path);
+      return true;
+    },
+
+    /**
      * Start the leaving (exit) phase of page transition
+     * Can only be called if locked (ensures proper flow)
      */
     startLeaving() {
-      if (this.state !== 'idle') {
-        console.warn('[PageTransition] Cannot start leaving - already transitioning:', this.state);
+      if (this.state !== 'locked') {
+        console.warn('[PageTransition] Cannot start leaving - not locked:', this.state);
         return false;
       }
       this.state = 'leaving';
-      console.log('[PageTransition] State: leaving');
+      console.log('[PageTransition] State: locked → leaving');
       return true;
     },
 
@@ -79,18 +104,22 @@ export const usePageTransitionStore = defineStore('pageTransition', {
 
     /**
      * Complete the transition and return to idle state
+     * Clears the locked path
      */
     complete() {
       this.state = 'idle';
-      console.log('[PageTransition] State: idle (complete)');
+      this.lockedPath = null;
+      console.log('[PageTransition] State: idle (complete) ✅');
     },
 
     /**
      * Reset to idle state (emergency fallback)
+     * Clears the locked path
      */
     reset() {
       this.state = 'idle';
-      console.log('[PageTransition] State: idle (reset)');
+      this.lockedPath = null;
+      console.log('[PageTransition] State: idle (reset) ⚠️');
     },
 
     /**
