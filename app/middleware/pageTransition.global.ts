@@ -86,9 +86,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         pointerEvents: 'auto'
       })
       .to(overlay, {
-        clipPath: 'circle(150% at 50% 100%)',
+        clipPath: 'circle(150% at 50% 100%)', // Expand from bottom
         duration,
-        ease: 'sine.out'
+        ease: 'power2.inOut'
       });
   });
 

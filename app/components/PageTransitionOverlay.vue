@@ -17,25 +17,32 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
-// Expose overlay element ref to parent (app.vue will pass this to usePageTransition)
+// Overlay element ref
 const overlayRef = ref(null);
 
-defineExpose({
-  overlayRef,
+// Register overlay element with store on mount
+const store = usePageTransitionStore();
+
+onMounted(() => {
+  store.setOverlayElement(overlayRef.value);
+});
+
+onBeforeUnmount(() => {
+  store.setOverlayElement(null);
 });
 </script>
 
 <style scoped>
 .page-transition-overlay {
-  /* Fixed overlay covering FULL viewport to prevent content glitches */
+  /* Fixed overlay covering full viewport - header stays visible via z-index */
   position: fixed;
-  top: 0; /* Cover full viewport including header area */
+  top: 0; /* Cover full viewport to prevent content showing through transparent header */
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 55; /* above header (55)  */
+  z-index: 40; /* Below header (50), above content */
 
   /* Base background color (fallback) */
   background-color: var(--theme-100);
@@ -45,9 +52,8 @@ defineExpose({
   pointer-events: none;
 
   /* Start with circle at 0% (fully clipped)
-     Circle origin is adjusted for header height using calc()
-     The 100% bottom position needs to account for header offset */
-  clip-path: circle(0% at 50% calc(100%));
+     Circle origin at bottom center */
+  clip-path: circle(0% at 50% 100%);
 
   /* Full viewport dimensions */
   width: 100vw;

@@ -8,13 +8,15 @@ import { defineStore } from 'pinia';
  * @property {TransitionState} state - Current transition state
  * @property {boolean} scrollSmootherReady - Whether ScrollSmoother is initialized and ready
  * @property {string|null} lockedPath - Path that's currently being navigated to (prevents duplicate navigation)
+ * @property {HTMLElement|null} overlayElement - The overlay DOM element (set by PageTransitionOverlay component)
  */
 
 export const usePageTransitionStore = defineStore('pageTransition', {
   state: () => /** @type {PageTransitionState} */ ({
     state: 'idle',
     scrollSmootherReady: false,
-    lockedPath: null // Track which path is being navigated to
+    lockedPath: null, // Track which path is being navigated to
+    overlayElement: null // Overlay DOM element reference
   }),
 
   getters: {
@@ -129,6 +131,15 @@ export const usePageTransitionStore = defineStore('pageTransition', {
     setScrollSmootherReady(ready) {
       this.scrollSmootherReady = ready;
       console.log('[PageTransition] ScrollSmoother ready:', ready);
+    },
+
+    /**
+     * Set the overlay element reference (called by PageTransitionOverlay component on mount)
+     * @param {HTMLElement|null} element
+     */
+    setOverlayElement(element) {
+      this.overlayElement = element;
+      console.log('[PageTransition] Overlay element set:', !!element);
     }
   }
 });

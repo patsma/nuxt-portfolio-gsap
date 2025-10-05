@@ -7,12 +7,13 @@
  * PHASE 3 (REVEAL): Handled here - reveals new page by contracting overlay
  *
  * Usage in app.vue:
- * const { handlePageEnter } = usePageTransition(overlayRef);
+ * const { handlePageEnter } = usePageTransition();
  *
  * Uses proper Nuxt hooks and async patterns instead of polling
+ * Overlay element is accessed from Pinia store (set by PageTransitionOverlay component)
  */
 
-export const usePageTransition = (overlayRef) => {
+export const usePageTransition = () => {
   const { $gsap } = useNuxtApp();
   const store = usePageTransitionStore();
 
@@ -37,10 +38,11 @@ export const usePageTransition = (overlayRef) => {
    * Now reveal the new page by contracting the overlay.
    */
   const handlePageEnter = async (el, done) => {
-    const overlay = overlayRef.value;
+    // Get overlay element from store (set by PageTransitionOverlay component on mount)
+    const overlay = store.overlayElement;
 
     if (!overlay || !$gsap) {
-      console.warn('[PageTransition] overlay or GSAP not available');
+      console.warn('[PageTransition] overlay or GSAP not available', { overlay, gsap: !!$gsap });
       done();
       return;
     }
@@ -59,6 +61,7 @@ export const usePageTransition = (overlayRef) => {
 
     /**
      * Start the reveal animation
+     * Reverses the cover animation - contracts from bottom
      */
     const startReveal = async () => {
       try {
@@ -81,15 +84,11 @@ export const usePageTransition = (overlayRef) => {
               resolve();
             }
           })
-            // Flip to top position
-            .set(overlay, {
-              clipPath: 'circle(150% at 50% 0%)'
-            })
-            // Contract to reveal
+            // Contract from bottom (reverse of expand)
             .to(overlay, {
-              clipPath: 'circle(0% at 50% 0%)',
+              clipPath: 'circle(0% at 50% 100%)', // Contract to bottom
               duration,
-              ease: 'sine.out'
+              ease: 'power2.inOut'
             });
         });
 

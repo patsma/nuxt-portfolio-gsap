@@ -5,6 +5,10 @@
   height: var(--size-header);
   /* Transparent to reveal FluidGradient background - no backdrop-blur for performance */
   background: transparent;
+  /* Create isolated stacking context - ensures header and children stay above overlay */
+  position: relative;
+  z-index: 50;
+  isolation: isolate;
 }
 
 .header-grid__inner {

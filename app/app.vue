@@ -12,24 +12,14 @@
     />
   </NuxtLayout>
 
-  <!-- Circle reveal page transition overlay -->
-  <PageTransitionOverlay ref="overlayComponentRef" />
-
   <!-- Smooth cursor trail effect (z-50, on top) -->
   <CursorTrail />
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-
-// Page transition setup
-const overlayComponentRef = ref(null);
-
-// Access the overlay element ref from the component
-const overlayRef = computed(() => overlayComponentRef.value?.overlayRef);
-
 // Initialize page transition composable
-const { handlePageLeave, handlePageEnter } = usePageTransition(overlayRef);
+// Overlay element is accessed from Pinia store (set by PageTransitionOverlay component)
+const { handlePageEnter } = usePageTransition();
 
 // Display fancy console info about developer and work
 if (process.client) {

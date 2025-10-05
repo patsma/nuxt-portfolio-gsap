@@ -5,7 +5,7 @@
     - Mobile: hamburger (left), logo (center), empty (right), nav hidden
     - Mobile overlay: appears below header, fills viewport minus header height
   -->
-  <header ref="containerRef" class="header-grid fixed inset-x-0 top-0 z-50">
+  <header ref="containerRef" class="header-grid fixed inset-x-0 top-0">
     <div class="content-grid">
       <div class="breakout3 header-grid__inner">
         <!-- Top row: shared row for both desktop and mobile -->
