@@ -23,12 +23,18 @@ export const usePageTransition = () => {
   const getTransitionDuration = () => {
     if (import.meta.server) return 1;
 
-    const duration = parseFloat(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--duration-page')
-    ) / 1000;
+    const durationRaw = getComputedStyle(document.documentElement)
+      .getPropertyValue('--duration-page').trim();
 
-    return duration || 1;
+    let duration = 1; // Default fallback
+    if (durationRaw.endsWith('ms')) {
+      duration = parseFloat(durationRaw) / 1000; // Convert ms to seconds
+    } else if (durationRaw.endsWith('s')) {
+      duration = parseFloat(durationRaw); // Already in seconds
+    }
+
+    console.log('[PageTransition] 📏 Duration raw:', durationRaw, 'parsed:', duration, 'seconds');
+    return duration;
   };
 
   /**

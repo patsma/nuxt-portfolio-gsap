@@ -15,6 +15,9 @@
  */
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
+  // Debug log to verify middleware fires
+  console.log('[Middleware] 🚀 FIRED:', from?.path, '→', to.path);
+
   // Skip on server
   if (import.meta.server) return;
 
@@ -59,12 +62,19 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return abortNavigation();
   }
 
-  // Get duration from CSS custom property
-  const duration = parseFloat(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--duration-page')
-  ) / 1000 || 1;
+  // Get duration from CSS custom property - handle both 's' and 'ms' units
+  const durationRaw = getComputedStyle(document.documentElement)
+    .getPropertyValue('--duration-page').trim();
 
+  let duration = 1; // Default fallback
+  if (durationRaw.endsWith('ms')) {
+    duration = parseFloat(durationRaw) / 1000; // Convert ms to seconds
+  } else if (durationRaw.endsWith('s')) {
+    duration = parseFloat(durationRaw); // Already in seconds
+  }
+
+  console.log('[Middleware] 📏 Duration raw:', durationRaw, 'parsed:', duration, 'seconds');
+  console.log('[Middleware] 🎯 Overlay element:', overlay);
   console.log('[Middleware] 🔒 BLOCKING user navigation, animating cover');
 
   // Safety timeout - auto-unlock if something goes wrong

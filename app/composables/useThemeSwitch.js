@@ -277,11 +277,18 @@ export default function useThemeSwitch() {
         },
       });
 
-      // Read theme duration from CSS variable for consistency
-      const themeDuration =
-        parseFloat(
-          getComputedStyle(html).getPropertyValue("--duration-theme")
-        ) / 1000 || 0.6;
+      // Read theme duration from CSS variable for consistency - handle both 's' and 'ms' units
+      const themeDurationRaw = getComputedStyle(html)
+        .getPropertyValue("--duration-theme").trim();
+
+      let themeDuration = 0.6; // Default fallback
+      if (themeDurationRaw.endsWith('ms')) {
+        themeDuration = parseFloat(themeDurationRaw) / 1000; // Convert ms to seconds
+      } else if (themeDurationRaw.endsWith('s')) {
+        themeDuration = parseFloat(themeDurationRaw); // Already in seconds
+      }
+
+      console.log('🎨 Theme duration raw:', themeDurationRaw, 'parsed:', themeDuration, 'seconds');
 
       // Animate the proxy object's color values - light to dark
       tl.to(

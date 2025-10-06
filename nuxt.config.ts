@@ -10,10 +10,11 @@ export default defineNuxtConfig({
     },
   },
 
-  // Global transitions for pages and layouts
+  // Custom GSAP-based page transitions handled via middleware + app.vue
+  // See: app/middleware/pageTransition.global.ts and app/composables/usePageTransition.js
   app: {
-    pageTransition: { name: "page", mode: "out-in", appear: true },
-    layoutTransition: { name: "layout", mode: "out-in", appear: true },
+    pageTransition: false, // Disable Nuxt's built-in CSS transitions
+    layoutTransition: false, // Custom JS-based transitions only
 
     head: {
       title:

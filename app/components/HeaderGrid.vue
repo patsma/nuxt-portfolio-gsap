@@ -194,12 +194,17 @@ onMounted(() => {
         return;
       }
 
-      // Read durations from CSS variables
+      // Read durations from CSS variables - handle both 's' and 'ms' units
       const html = document.documentElement;
-      const hoverDuration =
-        parseFloat(
-          getComputedStyle(html).getPropertyValue("--duration-hover")
-        ) / 1000 || 0.3;
+      const hoverDurationRaw = getComputedStyle(html)
+        .getPropertyValue("--duration-hover").trim();
+
+      let hoverDuration = 0.3; // Default fallback
+      if (hoverDurationRaw.endsWith('ms')) {
+        hoverDuration = parseFloat(hoverDurationRaw) / 1000; // Convert ms to seconds
+      } else if (hoverDurationRaw.endsWith('s')) {
+        hoverDuration = parseFloat(hoverDurationRaw); // Already in seconds
+      }
 
       // Nav link hover effects are now handled by CSS (see base.scss)
       // No GSAP event listeners needed - browser-native :hover is simpler and more performant
