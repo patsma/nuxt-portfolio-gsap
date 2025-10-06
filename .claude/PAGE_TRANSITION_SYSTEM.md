@@ -490,6 +490,67 @@ Transition complete → State resets to 'idle'
 
 ## Common Issues & Solutions
 
+### Issue: Nuxt config conflicts with custom transitions
+
+**Cause:** Global `pageTransition` config in `nuxt.config.ts` overrides custom GSAP-based transitions
+
+**Symptoms:**
+- Middleware never fires (no console logs)
+- Super-fast CSS-based transitions instead of GSAP animations
+- onEnter hooks ignored in app.vue
+
+**Solution:** Explicitly disable Nuxt's built-in transitions in `nuxt.config.ts`:
+
+```typescript
+// nuxt.config.ts
+app: {
+  pageTransition: false, // Disable Nuxt's built-in CSS transitions
+  layoutTransition: false, // Custom JS-based transitions only
+
+  head: {
+    // ... rest of config
+  }
+}
+```
+
+**DO NOT USE:**
+```typescript
+// ❌ This will break your custom GSAP middleware system
+app: {
+  pageTransition: { name: "page", mode: "out-in", appear: true },
+  layoutTransition: { name: "layout", mode: "out-in", appear: true },
+}
+```
+
+### Issue: Page transitions too fast or instant
+
+**Cause:** Incorrect duration parsing when reading CSS custom properties
+
+**Symptoms:**
+- Animations complete in ~1-5ms instead of 1400ms
+- Console shows: `Duration raw: 1.4s parsed: 0.0014`
+
+**Solution:** Browser normalizes CSS time values (e.g., `1400ms` becomes `"1.4s"`). The parsing code must handle both formats:
+
+```javascript
+// WRONG - assumes ms and always divides by 1000
+const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-page")) / 1000;
+// If browser returns "1.4s", this gives 0.0014 seconds!
+
+// CORRECT - detects unit and parses accordingly
+const durationRaw = getComputedStyle(html).getPropertyValue("--duration-page").trim();
+let duration = 1; // Default fallback
+if (durationRaw.endsWith('ms')) {
+  duration = parseFloat(durationRaw) / 1000; // Convert ms to seconds
+} else if (durationRaw.endsWith('s')) {
+  duration = parseFloat(durationRaw); // Already in seconds
+}
+```
+
+This fix is implemented in:
+- `app/middleware/pageTransition.global.ts` (cover animation)
+- `app/composables/usePageTransition.js` (reveal animation)
+
 ### Issue: Content jumps visible during transition
 
 **Cause:** Route changing before overlay covers content
@@ -736,6 +797,7 @@ definePageMeta({
 ## Files Reference
 
 ### Core System
+- `nuxt.config.ts` - **CRITICAL:** Must disable built-in transitions (`pageTransition: false`)
 - `app/middleware/pageTransition.global.ts` - Navigation interception (PHASE 1)
 - `app/composables/usePageTransition.js` - Reveal animations (PHASE 3)
 - `app/stores/pageTransition.js` - State coordination
@@ -764,6 +826,8 @@ definePageMeta({
 - ✅ `isolation: isolate` on header for proper stacking
 - ✅ Animated gradient layers for organic visual effect
 - ✅ Transition locking mechanism to prevent rapid clicks
+- ✅ **CRITICAL:** Setting `pageTransition: false` in `nuxt.config.ts` to disable Nuxt's built-in system
+- ✅ Proper duration parsing that handles browser-normalized units (`s` vs `ms`)
 
 **What didn't work:**
 - ❌ `navigateTo()` in middleware (infinite loop)
@@ -775,6 +839,8 @@ definePageMeta({
 - ❌ provide/inject for overlay ref (timing issues across layout boundaries)
 - ❌ Overlay in app.vue while header in layout (stacking context issues)
 - ❌ Different clip-path origins for expand/contract (disorienting animation)
+- ❌ **CRITICAL:** Leaving default `pageTransition` config in `nuxt.config.ts` (completely bypasses middleware)
+- ❌ Assuming CSS duration values are always in `ms` (browser normalizes to `s` format)
 
 ## Credits & Resources
 

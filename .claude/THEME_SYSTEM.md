@@ -432,6 +432,35 @@ Test page: `/dev/colors`
 - Remove `transition-all` and use `.transition-hover` instead
 - Only non-color properties should have CSS transitions
 
+### Theme toggle animation too fast or instant
+
+**Cause:** Incorrect duration parsing when reading CSS custom properties
+
+**Symptoms:**
+- Theme transitions complete in ~0.6ms instead of 600ms
+- Console shows: `Duration raw: 0.6s parsed: 0.0006`
+
+**Solution:** Browser normalizes CSS time values (e.g., `600ms` becomes `"0.6s"`). The duration parsing code must handle both formats:
+
+```javascript
+// WRONG - assumes ms and divides by 1000
+const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-theme")) / 1000;
+// If browser returns "0.6s", this gives 0.0006 seconds!
+
+// CORRECT - detects unit and parses accordingly
+const durationRaw = getComputedStyle(html).getPropertyValue("--duration-theme").trim();
+let duration = 0.6; // Default fallback
+if (durationRaw.endsWith('ms')) {
+  duration = parseFloat(durationRaw) / 1000; // Convert ms to seconds
+} else if (durationRaw.endsWith('s')) {
+  duration = parseFloat(durationRaw); // Already in seconds
+}
+```
+
+This fix is implemented in:
+- `app/composables/useThemeSwitch.js` (theme toggle)
+- `app/components/HeaderGrid.vue` (hover animations)
+
 ### Hover effects not working or timing incorrect
 - Verify element has `.nav-link` class and `data-active` attribute
 - Check if CSS custom properties are available (`--duration-hover`, `--ease-power2`)
