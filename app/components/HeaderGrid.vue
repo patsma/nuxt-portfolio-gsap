@@ -64,7 +64,7 @@
     <div
       id="mobile-overlay"
       ref="overlayRef"
-      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)]/90 md:hidden z-40 opacity-0 pointer-events-none"
+      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)] md:hidden z-40 opacity-0"
     >
       <div class="content-grid h-full">
         <div
@@ -197,12 +197,13 @@ onMounted(() => {
       // Read durations from CSS variables - handle both 's' and 'ms' units
       const html = document.documentElement;
       const hoverDurationRaw = getComputedStyle(html)
-        .getPropertyValue("--duration-hover").trim();
+        .getPropertyValue("--duration-hover")
+        .trim();
 
       let hoverDuration = 0.3; // Default fallback
-      if (hoverDurationRaw.endsWith('ms')) {
+      if (hoverDurationRaw.endsWith("ms")) {
         hoverDuration = parseFloat(hoverDurationRaw) / 1000; // Convert ms to seconds
-      } else if (hoverDurationRaw.endsWith('s')) {
+      } else if (hoverDurationRaw.endsWith("s")) {
         hoverDuration = parseFloat(hoverDurationRaw); // Already in seconds
       }
 
@@ -288,7 +289,6 @@ onMounted(() => {
         tl2.eventCallback("onReverseComplete", () => {
           if (overlayRef.value) {
             $gsap.set(overlayRef.value, {
-              pointerEvents: "none",
               clipPath: "inset(0 0 100% 0 round 0px)",
             });
             $gsap.set(links, { y: 12, autoAlpha: 0 });
