@@ -60,15 +60,15 @@
       </div>
     </div>
 
-    <!-- Mobile overlay: positioned under header; fills remaining viewport -->
+    <!-- Mobile overlay: full height with clip-path reveal -->
     <div
       id="mobile-overlay"
       ref="overlayRef"
-      class="fixed inset-x-0 top-[var(--size-header)] bottom-0 bg-[var(--theme-100)] md:hidden z-40 opacity-0"
+      class="fixed inset-x-0 top-0 h-[100dvh] pt-20 bg-[var(--theme-100)] md:hidden z-40"
     >
       <div class="content-grid h-full">
         <div
-          class="breakout1 py-[var(--space-m)] flex flex-col gap-[var(--space-s)]"
+          class="breakout1 pt-[var(--size-header)] pb-[var(--space-m)] flex flex-col gap-[var(--space-s)]"
         >
           <NuxtLink
             v-for="item in items"
@@ -244,30 +244,25 @@ onMounted(() => {
       }
       hamburgerTl = tl;
 
-      // Animate overlay open/close using clip-path reveal + staggered links
+      // Mobile overlay animation with clip-path reveal
       if (overlayRef.value) {
         const tl2 = $gsap.timeline({ paused: true });
         const links = overlayRef.value.querySelectorAll("a");
 
-        // Prepare initial states for reveal and items
+        // Prepare initial states for overlay and links
         $gsap.set(overlayRef.value, {
-          opacity: 1, // we'll control visibility via clip-path
-          clipPath: "inset(0 0 100% 0 round 0px)", // fully clipped (hidden)
+          opacity: 1,
+          clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 100% 0 round 0px)`,
           willChange: "clip-path",
         });
         $gsap.set(links, { y: 12, autoAlpha: 0 });
 
-        // Enable interactions at start; disable on reverse end
-        tl2.add(() => {
-          $gsap.set(overlayRef.value, { pointerEvents: "auto" });
-        }, 0);
-
-        // Reveal overlay from top to bottom, then bring in links using CSS variable duration
+        // Reveal overlay from header position, then animate links
         tl2
           .to(
             overlayRef.value,
             {
-              clipPath: "inset(0 0 0% 0 round 0px)",
+              clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 0% 0 round 0px)`,
               duration: hoverDuration * 1.17,
               ease: "power2.out",
             },
@@ -285,11 +280,11 @@ onMounted(() => {
             "<+0.05"
           );
 
-        // On reverse complete, hide interactions again
+        // On reverse complete, reset overlay
         tl2.eventCallback("onReverseComplete", () => {
           if (overlayRef.value) {
             $gsap.set(overlayRef.value, {
-              clipPath: "inset(0 0 100% 0 round 0px)",
+              clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 100% 0 round 0px)`,
             });
             $gsap.set(links, { y: 12, autoAlpha: 0 });
           }

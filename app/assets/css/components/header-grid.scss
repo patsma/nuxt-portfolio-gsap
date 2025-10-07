@@ -142,3 +142,8 @@
 .header-grid__spacer {
   grid-column: 3;
 }
+
+/* Mobile overlay - full screen menu */
+#mobile-overlay {
+  transition: opacity var(--duration-hover) var(--ease-power2);
+}
