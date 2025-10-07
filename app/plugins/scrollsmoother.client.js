@@ -17,15 +17,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   let instance = null;
 
-  const setRouteChanging = (isChanging) => {
-    try {
-      const el = document.documentElement;
-      if (!el) return;
-      if (isChanging) el.classList.add("route-changing");
-      else el.classList.remove("route-changing");
-    } catch (e) {}
-  };
-
   const setScrollerDefaultsEarly = () => {
     try {
       const content = document.getElementById("smooth-content");
@@ -138,68 +129,88 @@ export default defineNuxtPlugin((nuxtApp) => {
     setDefaults: setScrollerDefaultsEarly,
   });
 
-  // Track if hooks are already processing to prevent double execution
-  let isProcessingTransition = false;
-
   /**
-   * Page Transition Coordination
+   * Page Transition Coordination - SIMPLIFIED
    *
-   * Timing Flow:
-   * 1. page:start → Add route-changing → #smooth-content fades out (800ms CSS) → Kill smoother
-   * 2. [Nuxt swaps page content]
-   * 3. page:finish → Init smoother → Remove route-changing → #smooth-content fades in (800ms CSS)
+   * PROBLEM: Nuxt hooks don't wait for async/await - page:finish fires immediately
+   * SOLUTION: Simple synchronous approach with careful timing
    *
-   * The route-changing class on <html> triggers CSS transitions in app.vue
+   * Flow:
+   * 1. page:start → Add route-changing immediately → Start fade (CSS) → Kill smoother after 400ms
+   * 2. page:finish → Wait for DOM → Init smoother → Remove route-changing → Fade in (CSS)
    */
 
-  nuxtApp.hook("page:start", () => {
-    console.log('[ScrollSmoother] page:start - starting fade out');
-    setRouteChanging(true); // Triggers #smooth-content opacity: 0 transition (800ms)
-    isProcessingTransition = true;
+  let isTransitioning = false;
+  let killTimeout = null;
 
-    // Kill smoother immediately - content is fading out anyway
-    kill();
-    console.log('[ScrollSmoother] smoother killed');
+  nuxtApp.hook("page:start", () => {
+    console.log('[ScrollSmoother] page:start');
+
+    // Prevent double execution
+    if (isTransitioning) {
+      console.warn('[ScrollSmoother] Already transitioning, clearing previous');
+      if (killTimeout) clearTimeout(killTimeout);
+    }
+
+    isTransitioning = true;
+
+    // Add route-changing class immediately → triggers CSS fade out
+    document.documentElement.classList.add('route-changing');
+    console.log('[ScrollSmoother] Fade out started');
+
+    // Kill smoother after fade is halfway through (400ms of 800ms)
+    // This gives time for fade to visually start, hiding the jump
+    killTimeout = setTimeout(() => {
+      kill();
+      console.log('[ScrollSmoother] Smoother killed (during fade)');
+    }, 400);
   });
 
   nuxtApp.hook("page:finish", () => {
-    // Prevent double execution
-    if (!isProcessingTransition) {
-      console.log('[ScrollSmoother] page:finish skipped - not in transition');
+    console.log('[ScrollSmoother] page:finish');
+
+    if (!isTransitioning) {
+      console.warn('[ScrollSmoother] page:finish but not transitioning');
       return;
     }
 
-    console.log('[ScrollSmoother] page:finish - preparing new content');
+    // Clear kill timeout if it hasn't fired
+    if (killTimeout) {
+      clearTimeout(killTimeout);
+      killTimeout = null;
+    }
+
+    // Set up scroller defaults
     setScrollerDefaultsEarly();
 
-    // Wait for DOM to settle before reinit
+    // Wait a bit for DOM to settle, then init
     setTimeout(() => {
       requestAnimationFrame(() => {
         // Initialize ScrollSmoother with new page content
         init();
-        console.log('[ScrollSmoother] init complete, refreshing ScrollTrigger');
+        console.log('[ScrollSmoother] Init complete');
 
         // Refresh ScrollTrigger to recalculate page height
         try {
           ScrollTrigger.refresh(true);
         } catch (e) {
-          console.error('[ScrollSmoother] refresh error:', e);
+          console.error('[ScrollSmoother] Refresh error:', e);
         }
 
-        // Wait one more frame for everything to be ready
+        // Remove route-changing on next frame → triggers CSS fade in
         requestAnimationFrame(() => {
-          // Remove route-changing class → triggers fade-in (800ms CSS)
-          setRouteChanging(false);
-          isProcessingTransition = false;
-          console.log('[ScrollSmoother] transition complete - fading in');
+          document.documentElement.classList.remove('route-changing');
+          isTransitioning = false;
+          console.log('[ScrollSmoother] Fade in started, transition complete');
         });
       });
-    }, 150); // Slightly longer delay for smoother transitions
+    }, 100);
   });
 
   // Initialize on app mount
   nuxtApp.hook("app:mounted", () => {
     console.log('[ScrollSmoother] app:mounted - initial setup');
+
     requestAnimationFrame(() => {
       setScrollerDefaultsEarly();
       init();
@@ -209,6 +220,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Cleanup
   nuxtApp.hook("app:beforeUnmount", () => {
+    if (killTimeout) clearTimeout(killTimeout);
     kill();
   });
 });
