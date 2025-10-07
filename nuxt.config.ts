@@ -10,10 +10,30 @@ export default defineNuxtConfig({
     },
   },
 
-  // Simple CSS-based page transitions using Nuxt's built-in system
-  // Works seamlessly with ScrollSmoother plugin hooks
+  /**
+   * Page Transition System - Progressive Enhancement
+   *
+   * Current: Phase 1 - Simple CSS transitions (see app.vue for styles)
+   * Future: Will evolve through 5 phases to GSAP SVG morphing transitions
+   *
+   * Phase 1: CSS transitions (opacity, blur, scale, transform) - CURRENT
+   * Phase 2: JavaScript lifecycle hooks
+   * Phase 3: GSAP timeline integration
+   * Phase 4: Advanced GSAP (stagger, SplitText, custom easing)
+   * Phase 5: SVG shape morphing transitions (AAA quality)
+   *
+   * Configuration:
+   * - name: 'page' - CSS class prefix (.page-enter-active, .page-leave-active)
+   * - mode: 'out-in' - Old page leaves completely before new page enters
+   *
+   * Coordinates with ScrollSmoother hooks:
+   * - page:start → Kill ScrollSmoother before transition
+   * - page:finish → Reinit ScrollSmoother after transition
+   *
+   * Documentation: .claude/PAGE_TRANSITION_SYSTEM.md
+   */
   app: {
-    pageTransition: { name: 'page', mode: 'out-in' }, // Simple fade transition
+    pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: false, // No layout transitions needed
 
     head: {

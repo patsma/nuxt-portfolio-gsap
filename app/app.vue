@@ -11,30 +11,65 @@
 </template>
 
 <script setup>
-// Intentionally minimal: all app-level structure is handled by layouts and pages
-// Page transitions configured in nuxt.config.ts and styled below
+/**
+ * Phase 1: Simple CSS-based page transitions
+ * - Animates #smooth-content (not NuxtPage) to avoid ScrollSmoother conflicts
+ * - Uses route-changing class for coordination
+ * - Gentle opacity fade only (800ms)
+ * - Will evolve to GSAP-powered transitions in Phase 3
+ * - See: .claude/PAGE_TRANSITION_SYSTEM.md for full roadmap
+ */
+
+// Debug logging for transition lifecycle
+if (import.meta.client) {
+  console.log('[PageTransition] System initialized - Phase 1 (smooth-content fade)');
+}
 </script>
 
 <style>
 /**
- * Simple page transition styles
- * Uses Nuxt's built-in transition system with 'page' name
- * Works seamlessly with ScrollSmoother kill/init hooks
+ * Phase 1: Gentle Page Transitions via #smooth-content
+ *
+ * CRITICAL FIX: We don't animate <NuxtPage /> because it's inside #smooth-content
+ * which has transforms applied by ScrollSmoother. Instead, we animate the container.
+ *
+ * How it works:
+ * 1. page:start → html.route-changing added → #smooth-content fades out (800ms)
+ * 2. ScrollSmoother killed after fade starts
+ * 3. DOM swap happens (new page content)
+ * 4. page:finish → ScrollSmoother reinit → #smooth-content fades in (800ms)
+ * 5. html.route-changing removed after fade complete
+ *
+ * Why just opacity:
+ * - No blur/scale/transform to avoid conflicts with ScrollSmoother
+ * - Simple, elegant, performant
+ * - Works reliably with transformed containers
+ *
+ * Duration: 800ms (visible but not too slow)
  */
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.6s ease, filter 0.6s ease;
-}
 
-.page-enter-from,
-.page-leave-to {
-  opacity: 0;
-  filter: blur(8px);
-}
-
-.page-enter-to,
-.page-leave-from {
+#smooth-content {
+  /* Enable smooth opacity transitions */
+  transition: opacity 800ms var(--ease-power2);
   opacity: 1;
-  filter: blur(0);
 }
+
+/**
+ * Route changing state - fades out content during transition
+ * Applied to HTML element by scrollsmoother.client.js
+ */
+html.route-changing #smooth-content {
+  opacity: 0;
+}
+
+/**
+ * Browser DevTools: Watch for these console logs during navigation
+ *
+ * [PageTransition] System initialized - Phase 1 (smooth-content fade)
+ * [ScrollSmoother] page:start - killing smoother
+ * [Headroom] page:start - resetting state
+ * [ScrollSmoother] page:finish - reinitializing
+ * [ScrollSmoother] init complete, refreshing ScrollTrigger
+ * [ScrollSmoother] transition complete
+ */
 </style>
