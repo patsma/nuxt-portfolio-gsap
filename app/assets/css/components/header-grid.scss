@@ -1,14 +1,35 @@
 @use "../tokens/breakpoints.scss" as bp;
 
-/* Header container */
+/* Header container - fixed positioning for headroom behavior
+   - Fixed outside ScrollSmoother content (per GSAP docs)
+   - Transparent to reveal FluidGradient background
+   - Animates via transform for performance (GPU-accelerated) */
 .header-grid {
+  /* Fixed positioning - works properly outside #smooth-content */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   height: var(--size-header);
   /* Transparent to reveal FluidGradient background - no backdrop-blur for performance */
   background: transparent;
-  /* Create isolated stacking context - ensures header and children stay above overlay */
-  position: relative;
+  /* High z-index to stay above content and overlay */
   z-index: 50;
   isolation: isolate;
+  /* Smooth transform animation for headroom show/hide */
+  will-change: transform;
+  transition: transform var(--duration-hover) var(--ease-power2);
+}
+
+/* Headroom states - inspired by headroom.js
+   - Pinned: header is visible (scroll up or at top)
+   - Unpinned: header is hidden (scroll down) */
+.header-grid.headroom--pinned {
+  transform: translateY(0%);
+}
+
+.header-grid.headroom--unpinned {
+  transform: translateY(-100%);
 }
 
 .header-grid__inner {

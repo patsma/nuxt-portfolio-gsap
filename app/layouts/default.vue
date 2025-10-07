@@ -7,7 +7,8 @@
     />
     <!--
     Default layout with GSAP ScrollSmoother structure.
-    - Keeps fixed UI outside transformed content to avoid position:fixed issues
+    - Header is OUTSIDE smooth-content as a fixed element (per ScrollSmoother docs)
+    - This allows position: fixed to work properly without transform interference
     - Provides #smooth-wrapper and #smooth-content for the plugin to hook into
   -->
     <!-- Accessible skip link: appears on focus to bypass repetitive content -->
@@ -18,14 +19,13 @@
       Skip to main content
     </a>
 
-    <!-- Visible, semantic site header (fixed outside #smooth-content for GSAP) -->
+    <!-- Header positioned outside smooth-content for proper fixed positioning -->
     <header role="banner" aria-label="Site header">
       <HeaderGrid />
     </header>
 
     <div id="smooth-content" :key="route.fullPath">
       <!-- Use landmark roles and a main heading region -->
-
       <main id="main-content" class="header-safe-top" role="main" tabindex="-1">
         <slot />
       </main>

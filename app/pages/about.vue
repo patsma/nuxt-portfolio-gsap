@@ -1,5 +1,5 @@
 <template>
-  <div class="header-safe-top">
+  <div>
     <h1 class="sr-only">About</h1>
 
     <SmoothDemo />

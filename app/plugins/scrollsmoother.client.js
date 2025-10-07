@@ -83,6 +83,14 @@ export default defineNuxtPlugin((nuxtApp) => {
         smoothTouch: 0.2,
         normalizeScroll: true,
         ignoreMobileResize: true,
+        // Integrate headroom behavior via onUpdate callback
+        onUpdate: (self) => {
+          // Call headroom's update function if available
+          if (nuxtApp.$headroom && typeof nuxtApp.$headroom.updateHeader === "function") {
+            const currentScroll = self.scrollTop();
+            nuxtApp.$headroom.updateHeader(currentScroll);
+          }
+        },
       });
       try {
         instance.scrollTop(0, false);
@@ -130,26 +138,55 @@ export default defineNuxtPlugin((nuxtApp) => {
     setDefaults: setScrollerDefaultsEarly,
   });
 
+  // Track if hooks are already processing to prevent double execution
+  let isProcessingTransition = false;
+
   // Hooks: kill before navigation, init after
   nuxtApp.hook("page:start", () => {
+    console.log('[ScrollSmoother] page:start - killing smoother');
     setRouteChanging(true);
+    isProcessingTransition = true;
     kill();
   });
 
   nuxtApp.hook("page:finish", () => {
+    // Prevent double execution
+    if (!isProcessingTransition) {
+      console.log('[ScrollSmoother] page:finish skipped - not in transition');
+      return;
+    }
+
+    console.log('[ScrollSmoother] page:finish - reinitializing');
     setScrollerDefaultsEarly();
-    requestAnimationFrame(() => {
-      init();
-      // Clear transition flag on next frame after init so CSS fades in
-      requestAnimationFrame(() => setRouteChanging(false));
-    });
+
+    // Wait a bit longer for DOM to settle
+    setTimeout(() => {
+      requestAnimationFrame(() => {
+        init();
+        console.log('[ScrollSmoother] init complete, refreshing ScrollTrigger');
+        // Refresh ScrollTrigger to recalculate page height
+        try {
+          ScrollTrigger.refresh(true);
+        } catch (e) {
+          console.error('[ScrollSmoother] refresh error:', e);
+        }
+        // Clear transition flag on next frame after init
+        requestAnimationFrame(() => {
+          setRouteChanging(false);
+          isProcessingTransition = false;
+          console.log('[ScrollSmoother] transition complete');
+        });
+      });
+    }, 100); // Small delay to let page transition start
   });
 
   // Initialize on app mount
   nuxtApp.hook("app:mounted", () => {
+    console.log('[ScrollSmoother] app:mounted - initial setup');
     requestAnimationFrame(() => {
       setScrollerDefaultsEarly();
       init();
+      console.log('[ScrollSmoother] initial setup complete');
     });
   });
 

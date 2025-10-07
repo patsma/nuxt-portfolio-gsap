@@ -23,12 +23,18 @@
  */
 .page-enter-active,
 .page-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity 0.6s ease, filter 0.6s ease;
 }
 
 .page-enter-from,
 .page-leave-to {
   opacity: 0;
-  filter: blur(4px);
+  filter: blur(8px);
+}
+
+.page-enter-to,
+.page-leave-from {
+  opacity: 1;
+  filter: blur(0);
 }
 </style>

@@ -24,13 +24,23 @@ export default function useThemeSwitch() {
     }
 
     // Try hex format (#ffffff or #fff)
-    const hexMatch = colorString.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i) ||
-                     colorString.match(/^#?([a-f\d])([a-f\d])([a-f\d])$/i);
+    const hexMatch =
+      colorString.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i) ||
+      colorString.match(/^#?([a-f\d])([a-f\d])([a-f\d])$/i);
     if (hexMatch) {
       return {
-        r: parseInt(hexMatch[1].length === 1 ? hexMatch[1] + hexMatch[1] : hexMatch[1], 16),
-        g: parseInt(hexMatch[2].length === 1 ? hexMatch[2] + hexMatch[2] : hexMatch[2], 16),
-        b: parseInt(hexMatch[3].length === 1 ? hexMatch[3] + hexMatch[3] : hexMatch[3], 16),
+        r: parseInt(
+          hexMatch[1].length === 1 ? hexMatch[1] + hexMatch[1] : hexMatch[1],
+          16
+        ),
+        g: parseInt(
+          hexMatch[2].length === 1 ? hexMatch[2] + hexMatch[2] : hexMatch[2],
+          16
+        ),
+        b: parseInt(
+          hexMatch[3].length === 1 ? hexMatch[3] + hexMatch[3] : hexMatch[3],
+          16
+        ),
       };
     }
 
@@ -39,8 +49,8 @@ export default function useThemeSwitch() {
 
   // Function to initialize theme switching
   const initThemeSwitch = () => {
-    console.log("🎨 initThemeSwitch called!");
-    console.log("$gsap:", !!$gsap, "$MorphSVGPlugin:", !!$MorphSVGPlugin);
+    // console.log("🎨 initThemeSwitch called!");
+    // console.log("$gsap:", !!$gsap, "$MorphSVGPlugin:", !!$MorphSVGPlugin);
 
     if (!$gsap || !$MorphSVGPlugin) {
       console.warn("useThemeSwitch: GSAP or MorphSVGPlugin not available");
@@ -48,7 +58,7 @@ export default function useThemeSwitch() {
     }
 
     const themeSwitch = document.querySelector("#themeSwitch");
-    console.log("Theme switch button found:", !!themeSwitch);
+    // console.log("Theme switch button found:", !!themeSwitch);
 
     if (!themeSwitch) {
       console.warn("useThemeSwitch: #themeSwitch button not found");
@@ -93,18 +103,18 @@ export default function useThemeSwitch() {
         .getPropertyValue(`--gradient-dark-${corner}`)
         .trim();
 
-      console.log(`📊 Raw CSS for gradient-light-${corner}:`, lightStr);
-      console.log(`📊 Raw CSS for gradient-dark-${corner}:`, darkStr);
+      // console.log(`📊 Raw CSS for gradient-light-${corner}:`, lightStr);
+      // console.log(`📊 Raw CSS for gradient-dark-${corner}:`, darkStr);
 
       gradientColors.light[corner] = parseColor(lightStr);
       gradientColors.dark[corner] = parseColor(darkStr);
 
-      console.log(`📊 Parsed light ${corner}:`, gradientColors.light[corner]);
-      console.log(`📊 Parsed dark ${corner}:`, gradientColors.dark[corner]);
+      // console.log(`📊 Parsed light ${corner}:`, gradientColors.light[corner]);
+      // console.log(`📊 Parsed dark ${corner}:`, gradientColors.dark[corner]);
     });
 
-    console.log("🎨 Colors from CSS:", colors);
-    console.log("🌈 Gradient colors from CSS:", gradientColors);
+    // console.log("🎨 Colors from CSS:", colors);
+    // console.log("🌈 Gradient colors from CSS:", gradientColors);
     const sunDark = document.querySelector("#sun-dark");
     const sunLight = document.querySelector("#sun-light");
     const sunLightBeams = document.querySelectorAll("#sun-light-beams path");
@@ -172,9 +182,9 @@ export default function useThemeSwitch() {
           const textB = Math.round(colorProxy.textB);
 
           if (updateCount % 10 === 0 || updateCount === 1) {
-            console.log(
-              `🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`
-            );
+            // console.log(
+            //   `🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`
+            // );
           }
 
           // Update ALL theme variables with interpolated color values on EVERY frame
@@ -264,10 +274,10 @@ export default function useThemeSwitch() {
           );
 
           if (updateCount % 10 === 0 || updateCount === 1) {
-            console.log(
-              `🌈 Gradient colors #${updateCount}:`,
-              { gradTL, gradTR, gradBL, gradBR }
-            );
+            // console.log(
+            //   `🌈 Gradient colors #${updateCount}:`,
+            //   { gradTL, gradTR, gradBL, gradBR }
+            // );
           }
 
           html.style.setProperty("--gradient-tl", gradTL);
@@ -279,16 +289,17 @@ export default function useThemeSwitch() {
 
       // Read theme duration from CSS variable for consistency - handle both 's' and 'ms' units
       const themeDurationRaw = getComputedStyle(html)
-        .getPropertyValue("--duration-theme").trim();
+        .getPropertyValue("--duration-theme")
+        .trim();
 
       let themeDuration = 0.6; // Default fallback
-      if (themeDurationRaw.endsWith('ms')) {
+      if (themeDurationRaw.endsWith("ms")) {
         themeDuration = parseFloat(themeDurationRaw) / 1000; // Convert ms to seconds
-      } else if (themeDurationRaw.endsWith('s')) {
+      } else if (themeDurationRaw.endsWith("s")) {
         themeDuration = parseFloat(themeDurationRaw); // Already in seconds
       }
 
-      console.log('🎨 Theme duration raw:', themeDurationRaw, 'parsed:', themeDuration, 'seconds');
+      // console.log('🎨 Theme duration raw:', themeDurationRaw, 'parsed:', themeDuration, 'seconds');
 
       // Animate the proxy object's color values - light to dark
       tl.to(
@@ -325,8 +336,8 @@ export default function useThemeSwitch() {
 
       // Set LIGHT theme state (timeline START at progress 0)
       // Timeline will move to correct position based on isDarkInitially
-      console.log("🌙 SVG init - isDark:", isDarkInitially);
-      console.log("🎨 lightHex:", lightHex, "darkHex:", darkHex);
+      // console.log("🌙 SVG init - isDark:", isDarkInitially);
+      // console.log("🎨 lightHex:", lightHex, "darkHex:", darkHex);
 
       // Always set to light (start state), timeline.progress() will move to dark if needed
       $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
@@ -374,15 +385,15 @@ export default function useThemeSwitch() {
 
       // Set initial timeline position based on store (source of truth)
       tl.progress(isDarkInitially ? 1 : 0).pause();
-      console.log("Initial timeline - isDark:", isDarkInitially, "progress:", tl.progress());
+      // console.log("Initial timeline - isDark:", isDarkInitially, "progress:", tl.progress());
 
       // Button click ONLY toggles store - store is source of truth
       themeSwitch.addEventListener("click", function () {
         // Get current state BEFORE toggle
         const wasLight = !themeStore.isDark;
 
-        console.log("=== Theme Toggle Clicked ===");
-        console.log("Current theme:", wasLight ? "LIGHT" : "DARK");
+        // console.log("=== Theme Toggle Clicked ===");
+        // console.log("Current theme:", wasLight ? "LIGHT" : "DARK");
 
         // Toggle store ONCE
         themeStore.toggle();
@@ -390,11 +401,11 @@ export default function useThemeSwitch() {
         // Animate timeline based on NEW state (simple toggle)
         if (wasLight) {
           // Was light, now dark → animate forward
-          console.log("Animating to DARK (progress → 1)");
+          // console.log("Animating to DARK (progress → 1)");
           tl.play();
         } else {
           // Was dark, now light → animate backward
-          console.log("Animating to LIGHT (progress → 0)");
+          // console.log("Animating to LIGHT (progress → 0)");
           tl.reverse();
         }
       });
