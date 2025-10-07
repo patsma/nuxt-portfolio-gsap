@@ -23,9 +23,6 @@
       <HeaderGrid />
     </header>
 
-    <!-- Circle reveal page transition overlay -->
-    <PageTransitionOverlay />
-
     <div id="smooth-content" :key="route.fullPath">
       <!-- Use landmark roles and a main heading region -->
 
@@ -42,7 +39,4 @@
 
 <script setup>
 const route = useRoute();
-
-// PageTransitionOverlay component registers itself with the store on mount
-// No need to pass refs around - store handles it
 </script>

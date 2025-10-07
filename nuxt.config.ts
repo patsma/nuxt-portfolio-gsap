@@ -10,11 +10,11 @@ export default defineNuxtConfig({
     },
   },
 
-  // Custom GSAP-based page transitions handled via middleware + app.vue
-  // See: app/middleware/pageTransition.global.ts and app/composables/usePageTransition.js
+  // Simple CSS-based page transitions using Nuxt's built-in system
+  // Works seamlessly with ScrollSmoother plugin hooks
   app: {
-    pageTransition: false, // Disable Nuxt's built-in CSS transitions
-    layoutTransition: false, // Custom JS-based transitions only
+    pageTransition: { name: 'page', mode: 'out-in' }, // Simple fade transition
+    layoutTransition: false, // No layout transitions needed
 
     head: {
       title:
