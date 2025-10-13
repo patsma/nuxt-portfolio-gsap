@@ -32,8 +32,10 @@ onMounted(() => {
     createSmoother({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
-      smooth: 2,
+      smooth: 1, // Optimized for consistent 60fps across all browsers (higher values can drop to 14fps on Safari)
       effects: true, // Enable data-speed and data-lag attributes
+      normalizeScroll: true, // Significantly improves Safari performance and touch behavior
+      ignoreMobileResize: true, // Prevents janky resizing on mobile devices
 
       // Headroom integration: update header visibility on scroll
       onUpdate: (self) => {

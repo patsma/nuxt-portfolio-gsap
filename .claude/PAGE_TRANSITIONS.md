@@ -233,8 +233,10 @@ onMounted(() => {
     createSmoother({
       wrapper: '#smooth-wrapper',
       content: '#smooth-content',
-      smooth: 2,
+      smooth: 1, // Optimized for consistent 60fps (Safari-friendly)
       effects: true,
+      normalizeScroll: true, // Improves Safari performance
+      ignoreMobileResize: true, // Prevents mobile jank
       onUpdate: (self) => {
         nuxtApp.$headroom?.updateHeader(self.scrollTop())
       }
@@ -321,6 +323,62 @@ onComplete → headroom.resume()
     - Remove headroom--no-transition
     - Headroom active again
 ```
+
+## Safari-Specific Fixes
+
+### Issue 1: Content Jumps During Page Transitions
+
+**Problem:** On Safari (desktop and mobile), content jumps ~7px down when page transitions start.
+
+**Cause:** SplitText with masking wraps each character/word/line in an `overflow: hidden` container, which adds ~7px to the element's height. Safari renders this layout shift visibly during the LEAVE transition.
+
+**Solution:** The fix is built into `animateSplit()` in `usePageTransition.js` - it locks element height BEFORE SplitText runs:
+
+```javascript
+// Lock height before SplitText to prevent Safari jump
+const originalHeight = el.offsetHeight;
+$gsap.set(el, { height: originalHeight });
+
+// Now create split - can't grow because height is locked
+const split = $SplitText.create(el, { type: splitType, mask: splitType });
+```
+
+This prevents the element from growing when masks are added. The locked height is automatically cleared in `afterLeave()` with `clearProps: 'all'`.
+
+### Issue 2: Slow Scrolling Performance (14fps drops)
+
+**Problem:** ScrollSmoother can drop to 14fps on Safari, especially with higher `smooth` values.
+
+**Cause:** Higher `smooth` values (2, 3, etc.) require more calculations per frame, causing Safari's rendering engine to struggle.
+
+**Solution:** Use optimized ScrollSmoother settings in `app/layouts/default.vue`:
+
+```javascript
+createSmoother({
+  wrapper: '#smooth-wrapper',
+  content: '#smooth-content',
+  smooth: 1,                    // Lower value = better performance (2+ can drop to 14fps on Safari)
+  effects: true,                // Enable data-speed and data-lag
+  normalizeScroll: true,        // Significantly improves Safari performance and touch behavior
+  ignoreMobileResize: true,     // Prevents janky resizing on mobile devices
+  onUpdate: (self) => {
+    // Your scroll handlers here
+  }
+})
+```
+
+**Why these settings work:**
+- `smooth: 1` maintains consistent 60fps across all browsers while still providing smooth scrolling
+- `normalizeScroll: true` normalizes scroll behavior across different devices, especially Safari
+- `ignoreMobileResize: true` prevents layout jank when mobile browsers resize (address bar hiding/showing)
+
+### Safari Performance Summary
+
+✅ **Fixed Issues:**
+1. Content jump during transitions (SplitText height lock)
+2. Slow 14fps scrolling (optimized smooth value + normalizeScroll)
+3. Mobile resize jank (ignoreMobileResize setting)
+4. Parallax effects not working after route change (refreshSmoother timing)
 
 ## Common Issues
 
@@ -414,6 +472,7 @@ onComplete → headroom.resume()
 ✅ **No Jumps** - Perfect scroll and header coordination
 ✅ **ScrollSmoother Compatible** - Seamless parallax integration
 ✅ **Opposite Animations** - OUT then IN with reverse effect
+✅ **Safari Optimized** - Built-in fixes for height jump and 60fps performance
 ✅ **Simple & DRY** - 8 files, easy to understand
 ✅ **Production Ready** - Battle-tested patterns
 ✅ **Easy to Reuse** - Copy to any Nuxt 4 project
@@ -447,3 +506,5 @@ Based on [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) 
 - Manual scroll control (no visible jump)
 - Headroom pause/resume integration
 - CSS transition disabling during page changes
+- Safari height jump fix (SplitText height lock)
+- Optimized ScrollSmoother settings for Safari 60fps performance

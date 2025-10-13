@@ -42,6 +42,12 @@ export const usePageTransition = () => {
     const ease = config.ease || "power2.out";
     const y = config.y || 35;
 
+    // Lock height before SplitText to prevent Safari jump (~7px layout shift)
+    // SplitText with masking wraps content in overflow:hidden containers which adds height
+    // Locking height prevents visible layout shift during LEAVE transitions on Safari
+    const originalHeight = el.offsetHeight;
+    $gsap.set(el, { height: originalHeight });
+
     // Create split
     const split = $SplitText.create(el, {
       type: splitType,
