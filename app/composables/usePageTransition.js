@@ -80,8 +80,9 @@ export const usePageTransition = () => {
    * @param {string} animDirection - 'out' or 'in'
    * @param {Object} timeline - GSAP timeline
    * @param {number} position - Timeline position
+   * @param {boolean} skipInitialState - Skip setting initial state (used when already set)
    */
-  const animateFade = (el, config, animDirection, timeline, position) => {
+  const animateFade = (el, config, animDirection, timeline, position, skipInitialState = false) => {
     const fadeDirection = config.direction || 'up'
     const distance = config.distance || 20
     const duration = config.duration || 0.6
@@ -101,7 +102,10 @@ export const usePageTransition = () => {
       }, position)
     } else {
       // Animate IN: fade and move in from opposite
-      $gsap.set(el, { [axis]: -multiplier * distance, opacity: 0 })
+      // Only set initial state if not already set
+      if (!skipInitialState) {
+        $gsap.set(el, { [axis]: -multiplier * distance, opacity: 0 })
+      }
       timeline.to(el, {
         [axis]: 0,
         opacity: 1,
@@ -120,8 +124,9 @@ export const usePageTransition = () => {
    * @param {string} animDirection - 'out' or 'in'
    * @param {Object} timeline - GSAP timeline
    * @param {number} position - Timeline position
+   * @param {boolean} skipInitialState - Skip setting initial state (used when already set)
    */
-  const animateClip = (el, config, animDirection, timeline, position) => {
+  const animateClip = (el, config, animDirection, timeline, position, skipInitialState = false) => {
     const direction = config.direction || 'top'
     const duration = config.duration || 0.6
     const ease = config.ease || 'power2.out'
@@ -143,7 +148,10 @@ export const usePageTransition = () => {
       }, position)
     } else {
       // Animate IN: clip reveal
-      $gsap.set(el, { clipPath: clips[direction].in })
+      // Only set initial state if not already set
+      if (!skipInitialState) {
+        $gsap.set(el, { clipPath: clips[direction].in })
+      }
       timeline.to(el, {
         clipPath: 'inset(0% 0% 0% 0%)',
         duration: duration,
@@ -161,8 +169,9 @@ export const usePageTransition = () => {
    * @param {string} direction - 'out' or 'in'
    * @param {Object} timeline - GSAP timeline
    * @param {number} position - Timeline position
+   * @param {boolean} skipInitialState - Skip setting initial state (used when already set)
    */
-  const animateStagger = (el, config, direction, timeline, position) => {
+  const animateStagger = (el, config, direction, timeline, position, skipInitialState = false) => {
     const selector = config.selector || ':scope > *'
     const stagger = config.stagger || 0.1
     const duration = config.duration || 0.5
@@ -181,7 +190,10 @@ export const usePageTransition = () => {
       }, position)
     } else {
       // Animate IN: fade down
-      $gsap.set(children, { y: 15, opacity: 0 })
+      // Only set initial state if not already set
+      if (!skipInitialState) {
+        $gsap.set(children, { y: 15, opacity: 0 })
+      }
       timeline.to(children, {
         y: 0,
         opacity: 1,
@@ -281,25 +293,71 @@ export const usePageTransition = () => {
         return
       }
 
+      // STEP 1: Set initial states for ALL elements FIRST (before ScrollSmoother refresh)
+      // This ensures ScrollSmoother calculates positions with elements already hidden
+      elements.forEach((element) => {
+        const { type, config } = element._pageAnimation
+
+        switch (type) {
+          case 'split':
+            // Split will set its own initial state
+            break
+          case 'fade':
+            // Set fade initial state
+            const fadeDirection = config.direction || 'up'
+            const distance = config.distance || 20
+            const axis = (fadeDirection === 'up' || fadeDirection === 'down') ? 'y' : 'x'
+            const multiplier = (fadeDirection === 'up' || fadeDirection === 'left') ? -1 : 1
+            $gsap.set(element, { [axis]: -multiplier * distance, opacity: 0 })
+            break
+          case 'clip':
+            // Set clip initial state
+            const direction = config.direction || 'top'
+            const clips = {
+              top: 'inset(100% 0% 0% 0%)',
+              bottom: 'inset(0% 0% 100% 0%)',
+              left: 'inset(0% 0% 0% 100%)',
+              right: 'inset(0% 100% 0% 0%)'
+            }
+            $gsap.set(element, { clipPath: clips[direction] })
+            break
+          case 'stagger':
+            // Set stagger children initial state
+            const selector = config.selector || ':scope > *'
+            const children = element.querySelectorAll(selector)
+            $gsap.set(children, { y: 15, opacity: 0 })
+            break
+        }
+      })
+
+      // STEP 2: NOW refresh ScrollSmoother with elements in their initial hidden states
+      // This prevents the jump because ScrollSmoother calculates with elements already transformed
+      const { refreshSmoother } = useScrollSmootherManager()
+      refreshSmoother()
+
+      // STEP 3: Create timeline and animate from initial states (without setting them again)
       const tl = $gsap.timeline({ onComplete: done })
 
       elements.forEach((element, index) => {
         const { type, config } = element._pageAnimation
         const position = index * 0.08 // Stagger start times (slightly slower than leave)
 
-        // Call appropriate animation function
+        // Animate based on type (initial states already set above, so skip setting them again)
         switch (type) {
           case 'split':
             animateSplit(element, config, 'in', tl, position)
             break
           case 'fade':
-            animateFade(element, config, 'in', tl, position)
+            // Call animation function with skipInitialState = true
+            animateFade(element, config, 'in', tl, position, true)
             break
           case 'clip':
-            animateClip(element, config, 'in', tl, position)
+            // Call animation function with skipInitialState = true
+            animateClip(element, config, 'in', tl, position, true)
             break
           case 'stagger':
-            animateStagger(element, config, 'in', tl, position)
+            // Call animation function with skipInitialState = true
+            animateStagger(element, config, 'in', tl, position, true)
             break
           default:
             console.warn(`⚠️ Unknown animation type: ${type}`)

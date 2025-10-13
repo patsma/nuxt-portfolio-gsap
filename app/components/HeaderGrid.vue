@@ -124,16 +124,13 @@ let overlayTl = null;
 /** @type {{ revert?: () => void } | null} */
 let gsapCtx = null;
 
-// Navigation items — mirrors existing site structure
+// Navigation items — main pages for page transition demo
 /** @typedef {{ label: string, href: string }} NavItem */
 /** @type {NavItem[]} */
 const items = [
   { label: "home", href: "/" },
   { label: "about", href: "/about" },
-  { label: "colors", href: "/dev/colors" },
-  { label: "typography", href: "/dev/typography" },
-  { label: "responsive", href: "/dev/responsive" },
-  { label: "texts", href: "/dev/typography-test" },
+  { label: "contact", href: "/contact" },
 ];
 
 // Active route highlighting

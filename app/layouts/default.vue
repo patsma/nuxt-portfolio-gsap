@@ -1,134 +1,42 @@
 <script setup>
 /**
- * Default Layout - ScrollSmoother Integration
+ * Default Layout - ScrollSmoother Integration (Simplified)
  *
- * Manages ScrollSmoother lifecycle and page transitions.
- * ScrollSmoother is initialized in layout (not plugin) for better control.
- *
- * Structure:
- * - Header is OUTSIDE smooth-content (per ScrollSmoother docs for fixed positioning)
- * - Page content inside #smooth-content with NuxtPage transition hooks
- *
- * Page Transition Flow:
- * 1. Page leaves → Kill ScrollSmoother (prevents conflicts)
- * 2. afterLeave → Cleanup GSAP properties
- * 3. New page enters → Animations run
- * 4. After enter completes → Reinitialize ScrollSmoother (picks up new effects)
+ * Matches reference implementation structure for reliable page transitions.
+ * ScrollSmoother is managed simply: create on mount, kill on unmount.
  */
 
-const route = useRoute()
-const nuxtApp = useNuxtApp()
+// Page transition composable for route changes
+const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 
-// ScrollSmoother instance reference
-let ctx
-let smoother
+// ScrollSmoother manager for smooth scrolling
+const { createSmoother, killSmoother } = useScrollSmootherManager()
 
-/**
- * Initialize ScrollSmoother
- */
-const initSmoother = () => {
-  if (typeof window === 'undefined') return
+onMounted(() => {
+  // Wait for next tick to ensure DOM elements are ready
+  nextTick(() => {
+    // Verify wrapper elements exist
+    const wrapper = document.getElementById('smooth-wrapper')
+    const content = document.getElementById('smooth-content')
 
-  const { $gsap, $ScrollSmoother, $ScrollTrigger } = nuxtApp
+    if (!wrapper || !content) {
+      console.error('⚠️ ScrollSmoother wrapper elements not found in layout')
+      return
+    }
 
-  if (!$gsap || !$ScrollSmoother) {
-    console.warn('⚠️ GSAP or ScrollSmoother not available')
-    return
-  }
-
-  // Verify wrapper elements exist
-  const wrapper = document.getElementById('smooth-wrapper')
-  const content = document.getElementById('smooth-content')
-
-  if (!wrapper || !content) {
-    console.error('⚠️ ScrollSmoother wrapper elements not found')
-    return
-  }
-
-  // Kill existing instance before creating new one
-  killSmoother()
-
-  // Create ScrollSmoother with explicit selectors
-  ctx = $gsap.context(() => {
-    smoother = $ScrollSmoother.create({
+    // Create ScrollSmoother instance using composable
+    createSmoother({
       wrapper: '#smooth-wrapper',
       content: '#smooth-content',
       smooth: 2,
-      effects: true,
-      smoothTouch: 0.2,
-      normalizeScroll: true
+      effects: true // Enable data-speed and data-lag attributes
     })
-    console.log('✅ ScrollSmoother created')
-  })
-
-  // Refresh ScrollTrigger to recalculate after initialization
-  if ($ScrollTrigger) {
-    $ScrollTrigger.refresh()
-  }
-}
-
-/**
- * Kill ScrollSmoother
- */
-const killSmoother = () => {
-  if (smoother) {
-    smoother.kill()
-    smoother = null
-  }
-  if (ctx) {
-    ctx.revert()
-    ctx = null
-  }
-}
-
-// Page transition hooks from usePageTransition composable
-const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
-
-/**
- * Custom leave handler - kills ScrollSmoother before page animations
- */
-const handleLeave = (el, done) => {
-  console.log('🔄 Page leaving - killing ScrollSmoother')
-  killSmoother()
-  // Run page transition animations
-  leave(el, done)
-}
-
-/**
- * Custom after leave handler - cleanup
- */
-const handleAfterLeave = (el) => {
-  console.log('🧹 After leave cleanup')
-  afterLeave(el)
-}
-
-/**
- * Custom enter handler - runs animations
- */
-const handleEnter = (el, done) => {
-  console.log('🎬 Page entering')
-  // Run page transition animations
-  enter(el, () => {
-    // After animations complete, reinitialize ScrollSmoother
-    nextTick(() => {
-      console.log('🔄 Reinitializing ScrollSmoother after page enter')
-      initSmoother()
-      done()
-    })
-  })
-}
-
-// Initialize on mount
-onMounted(() => {
-  nextTick(() => {
-    initSmoother()
   })
 })
 
-// Cleanup on unmount
 onUnmounted(() => {
+  // Cleanup ScrollSmoother when layout is destroyed
   killSmoother()
-  console.log('🗑️ ScrollSmoother destroyed')
 })
 </script>
 
@@ -150,29 +58,39 @@ onUnmounted(() => {
     </a>
 
     <!-- Header positioned outside smooth-content for proper fixed positioning -->
-    <header role="banner" aria-label="Site header">
-      <HeaderGrid />
-    </header>
+    <HeaderGrid />
 
     <!-- ScrollSmoother content wrapper -->
     <div id="smooth-content">
-      <!-- Page content - transitions on route change with GSAP -->
-      <main id="main-content" class="header-safe-top" role="main" tabindex="-1">
+      <div class="layout-wrapper">
+        <!-- Page content - transitions on route change with GSAP -->
         <NuxtPage
           :transition="{
             name: 'page',
             mode: 'out-in',
             onBeforeEnter: beforeEnter,
-            onEnter: handleEnter,
-            onLeave: handleLeave,
-            onAfterLeave: handleAfterLeave,
+            onEnter: enter,
+            onLeave: leave,
+            onAfterLeave: afterLeave,
           }"
         />
-      </main>
-
-      <footer role="contentinfo" class="sr-only">
-        <p class="sr-only">© TastySites</p>
-      </footer>
+      </div>
     </div>
   </div>
 </template>
+
+<style>
+/* Layout wrapper for page content */
+.layout-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-top: calc(var(--size-header) + 2rem);
+}
+
+/* Page content wrapper */
+.page-content {
+  width: 100%;
+}
+</style>
