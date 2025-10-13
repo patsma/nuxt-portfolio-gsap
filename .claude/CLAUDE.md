@@ -114,27 +114,20 @@ Add to any element for smooth parallax effects:
 - **data-speed** - Controls movement speed relative to scroll (0.5 = slower, 1.5 = faster)
 - **data-lag** - Creates "catch up" effect with momentum (0.1 to 0.3 typical)
 
-#### Critical Jump Prevention Pattern
-**Problem**: Elements "jump" when ScrollSmoother applies transforms after they become visible.
+#### Safari Height Lock Fix
+**Problem**: On Safari, SplitText with masking adds ~7px to element height, causing visible layout jump.
 
-**Solution**: Three-step process in `usePageTransition.js` enter() function:
+**Solution**: Lock element height BEFORE SplitText runs in `usePageTransition.js`:
 ```javascript
-// STEP 1: Set initial states FIRST (elements hidden)
-elements.forEach((element) => {
-  gsap.set(element, { opacity: 0, y: -20 })
-})
+// In animateSplit() function
+const originalHeight = el.offsetHeight
+gsap.set(el, { height: originalHeight })
 
-// STEP 2: Refresh ScrollSmoother with elements already hidden
-const { refreshSmoother } = useScrollSmootherManager()
-refreshSmoother() // Calculates positions with elements in initial state
-
-// STEP 3: Animate from initial states (skipInitialState = true)
-elements.forEach((element) => {
-  animateFade(element, config, 'in', tl, position, true)
-})
+// Now create split - can't grow because height is locked
+const split = SplitText.create(el, { type: splitType, mask: splitType })
 ```
 
-This ensures ScrollSmoother sees elements in their hidden state before animation starts.
+The locked height is automatically cleared in `afterLeave()` with `clearProps: 'all'`.
 
 See `.claude/PAGE_TRANSITIONS.md` for comprehensive transition documentation.
 
@@ -210,59 +203,6 @@ This pattern ensures:
 - Single source of truth for ScrollSmoother instance
 - Proper cleanup without stale references
 - Composables can refresh without circular dependencies
-
-### skipInitialState Parameter Pattern
-Animation functions in `usePageTransition.js` use a `skipInitialState` parameter to prevent double-transforms:
-
-```javascript
-function animateFade(element, config, direction, tl, position, skipInitialState = false) {
-  const distance = config.distance || 20
-  const duration = config.duration || 0.6
-  const ease = config.ease || 'power2.out'
-
-  // Direction mapping
-  const axis = (fadeDirection === 'up' || fadeDirection === 'down') ? 'y' : 'x'
-  const multiplier = (fadeDirection === 'up' || fadeDirection === 'left') ? -1 : 1
-
-  if (direction === 'out') {
-    // Animate OUT: visible → hidden with movement
-    tl.to(element, {
-      [axis]: -multiplier * distance,
-      opacity: 0,
-      duration,
-      ease
-    }, position)
-  } else {
-    // Animate IN: hidden with movement → visible
-    const fromVars = skipInitialState ? {} : {
-      [axis]: multiplier * distance,
-      opacity: 0
-    }
-
-    // If skipInitialState is true, assumes element already has initial state
-    // This prevents double-setting when ScrollSmoother has already transformed it
-    if (!skipInitialState) {
-      gsap.set(element, fromVars)
-    }
-
-    tl.to(element, {
-      [axis]: 0,
-      opacity: 1,
-      duration,
-      ease
-    }, position)
-  }
-}
-```
-
-**When to use `skipInitialState = true`**:
-- When initial states were already set in the enter() function
-- Prevents conflict with ScrollSmoother transforms
-- Critical for jump prevention pattern
-
-**When to use `skipInitialState = false` (default)**:
-- Standard animations where element needs initial state set
-- Leave animations where element is already visible
 
 ### Directive Config Storage Pattern
 Directives store animation configuration directly on DOM elements using `element._pageAnimation`:
@@ -400,9 +340,9 @@ Key files adapted from reference:
 
 All implementations follow the reference patterns for:
 - Directive-based manual control
-- Three-step jump prevention
+- Safari height lock fix for SplitText
 - Module-level state management
-- skipInitialState parameter pattern
+- Simple enter() timing (no pre-setting states)
 - ScrollSmoother lifecycle
 
 For detailed transition documentation, see `.claude/PAGE_TRANSITIONS.md`.

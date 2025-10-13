@@ -159,24 +159,25 @@ Typical range: `0.1` to `0.3`
 
 ## Implementation Details
 
-### Three Critical Fixes
+### Four Critical Fixes
 
-**1. ScrollSmoother Jump Prevention**
+**1. ScrollSmoother Refresh Timing**
 
-Elements set to hidden state BEFORE ScrollSmoother refresh:
+ScrollSmoother is refreshed after page enters but before animations start:
 
 ```javascript
-// STEP 1: Set initial states (hidden)
-elements.forEach((element) => {
-  gsap.set(element, { opacity: 0, y: -20 })
-})
+// Wait for directives to mount
+nextTick(() => {
+  const elements = findAnimatedElements(el)
 
-// STEP 2: Refresh ScrollSmoother with elements hidden
-refreshSmoother()
+  // Refresh ScrollSmoother to recalculate parallax for new page
+  refreshSmoother()
 
-// STEP 3: Animate from initial states (skipInitialState = true)
-elements.forEach((element) => {
-  animateFade(element, config, 'in', tl, position, true)
+  // Create timeline and animate elements
+  const tl = gsap.timeline({ onComplete: done })
+  elements.forEach((element) => {
+    animateFade(element, config, 'in', tl, position)
+  })
 })
 ```
 
@@ -217,6 +218,19 @@ const tl = gsap.timeline({
     nuxtApp.$headroom?.resume() // Removes headroom--no-transition
   }
 })
+```
+
+**4. Safari Height Lock for SplitText**
+
+Prevent ~7px layout jump when SplitText masking adds height:
+
+```javascript
+// Lock element height BEFORE SplitText
+const originalHeight = el.offsetHeight
+gsap.set(el, { height: originalHeight })
+
+// Now create split - can't grow because height is locked
+const split = SplitText.create(el, { type: splitType, mask: splitType })
 ```
 
 ## Layout Integration

@@ -339,6 +339,9 @@ export const usePageTransition = () => {
 
   /**
    * ENTER Animation - Elements animate IN
+   *
+   * SAFARI FIX: Uses double requestAnimationFrame to ensure DOM is fully painted
+   * before animations start. Safari executes animations too fast otherwise.
    */
   const enter = (el, done) => {
     // console.log('🎬 Page ENTER')
@@ -349,103 +352,71 @@ export const usePageTransition = () => {
 
       if (elements.length === 0) {
         console.warn("⚠️ No elements with page animation directives found");
+        $gsap.set(el, { visibility: 'visible' }); // Show page even if no animations
         done();
         return;
       }
 
-      // Get nuxtApp to access headroom
-      const nuxtApp = useNuxtApp();
+      // SAFARI FIX: Double requestAnimationFrame ensures Safari has fully painted DOM
+      // Without this, Safari starts animations before layout is complete
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Now Safari is ready - make page visible
+          $gsap.set(el, { visibility: 'visible' });
 
-      // STEP 1: Set initial states for ALL elements FIRST (before ScrollSmoother refresh)
-      // This ensures ScrollSmoother calculates positions with elements already hidden
-      elements.forEach((element) => {
-        const { type, config } = element._pageAnimation;
+          // Refresh ScrollSmoother to recalculate data-speed/data-lag for new page
+          const { refreshSmoother } = useScrollSmootherManager();
+          refreshSmoother();
 
-        switch (type) {
-          case "split":
-            // Split will set its own initial state
-            break;
-          case "fade":
-            // Set fade initial state
-            const fadeDirection = config.direction || "up";
-            const distance = config.distance || 20;
-            const axis =
-              fadeDirection === "up" || fadeDirection === "down" ? "y" : "x";
-            const multiplier =
-              fadeDirection === "up" || fadeDirection === "left" ? -1 : 1;
-            $gsap.set(element, { [axis]: -multiplier * distance, opacity: 0 });
-            break;
-          case "clip":
-            // Set clip initial state
-            const direction = config.direction || "top";
-            const clips = {
-              top: "inset(100% 0% 0% 0%)",
-              bottom: "inset(0% 0% 100% 0%)",
-              left: "inset(0% 0% 0% 100%)",
-              right: "inset(0% 100% 0% 0%)",
-            };
-            $gsap.set(element, { clipPath: clips[direction] });
-            break;
-          case "stagger":
-            // Set stagger children initial state
-            const selector = config.selector || ":scope > *";
-            const children = element.querySelectorAll(selector);
-            $gsap.set(children, { y: 15, opacity: 0 });
-            break;
-        }
-      });
+          // Get nuxtApp to access headroom
+          const nuxtApp = useNuxtApp();
 
-      // STEP 2: NOW refresh ScrollSmoother with elements in their initial hidden states
-      // This prevents the jump because ScrollSmoother calculates with elements already transformed
-      const { refreshSmoother } = useScrollSmootherManager();
-      refreshSmoother();
+          // Create timeline - resume headroom when animation completes
+          const tl = $gsap.timeline({
+            onComplete: () => {
+              done();
+              // Resume headroom AFTER visual transition completes
+              if (nuxtApp.$headroom?.resume) {
+                nuxtApp.$headroom.resume();
+                // console.log('[Transition] Resumed headroom after enter animation')
+              }
+            },
+          });
 
-      // STEP 3: Create timeline and animate from initial states (without setting them again)
-      // Resume headroom when animation completes
-      const tl = $gsap.timeline({
-        onComplete: () => {
-          done();
-          // Resume headroom AFTER visual transition completes
-          if (nuxtApp.$headroom?.resume) {
-            nuxtApp.$headroom.resume();
-            console.log("[Transition] Resumed headroom after enter animation");
-          }
-        },
-      });
+          elements.forEach((element, index) => {
+            const { type, config } = element._pageAnimation;
+            const position = index * 0.08; // Stagger start times (slightly slower than leave)
 
-      elements.forEach((element, index) => {
-        const { type, config } = element._pageAnimation;
-        const position = index * 0.08; // Stagger start times (slightly slower than leave)
-
-        // Animate based on type (initial states already set above, so skip setting them again)
-        switch (type) {
-          case "split":
-            animateSplit(element, config, "in", tl, position);
-            break;
-          case "fade":
-            // Call animation function with skipInitialState = true
-            animateFade(element, config, "in", tl, position, true);
-            break;
-          case "clip":
-            // Call animation function with skipInitialState = true
-            animateClip(element, config, "in", tl, position, true);
-            break;
-          case "stagger":
-            // Call animation function with skipInitialState = true
-            animateStagger(element, config, "in", tl, position, true);
-            break;
-          default:
-            console.warn(`⚠️ Unknown animation type: ${type}`);
-        }
+            // Call appropriate animation function
+            // Animation functions will set their own initial states
+            switch (type) {
+              case "split":
+                animateSplit(element, config, "in", tl, position);
+                break;
+              case "fade":
+                animateFade(element, config, "in", tl, position);
+                break;
+              case "clip":
+                animateClip(element, config, "in", tl, position);
+                break;
+              case "stagger":
+                animateStagger(element, config, "in", tl, position);
+                break;
+              default:
+                console.warn(`⚠️ Unknown animation type: ${type}`);
+            }
+          });
+        });
       });
     });
   };
 
   /**
-   * Before enter hook
+   * Before enter hook - hide page to prevent flash of content
    */
-  const beforeEnter = () => {
-    // Initial states will be set by animation functions
+  const beforeEnter = (el) => {
+    // Hide page immediately to prevent flash while Safari paints DOM
+    $gsap.set(el, { visibility: 'hidden' });
   };
 
   /**
