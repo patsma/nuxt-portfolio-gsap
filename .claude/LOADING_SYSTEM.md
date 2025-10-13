@@ -1,22 +1,34 @@
 # Loading System Documentation
 
-A state-based loading system with visual loader, resource verification, and entrance animation sequencing.
+State-based loading system with visual loader, resource verification, and entrance animation sequencing for Nuxt 4 SSR apps.
 
-## Architecture
+## Architecture Overview
 
-### Flow
+### Loading Flow
 
 ```
-1. SSR Response → Loader HTML + CSS injected (Nitro plugin)
-2. Browser Loads → Loader visible immediately
-3. Vue Hydrates → Loader manager plugin runs, scroll reset to top
-4. Resource Loading → Fonts, GSAP, ScrollSmoother, page content
-5. Minimum Time Enforced → Ensures consistent UX (default 800ms)
-6. Ready State → Fires 'app:ready' event
-7. Loader Fade Out → 500ms transition
-8. Content Fade In → Entrance animations start
-9. Complete → Normal page interaction
+1. SSR Response      → Loader HTML + CSS injected (Nitro plugin)
+2. Browser Loads     → Loader visible immediately (black screen + spinner)
+3. Vue Hydrates      → Client plugin runs, scroll reset to top
+4. Resources Load    → Fonts, GSAP, ScrollSmoother, page content
+5. Minimum Time Wait → Ensures consistent UX (configurable, default 800ms)
+6. Ready Event Fires → 'app:ready' event dispatched after minimum time
+7. Loader Fades Out  → 500ms opacity transition
+8. Content Fades In  → Main content appears with entrance animations
+9. Complete          → Normal page interaction enabled
 ```
+
+### Why This Architecture?
+
+This follows **Nuxt 4 best practices** for SSR applications:
+
+- **Nitro Plugin** → Only way to inject HTML before SSR response (app.html doesn't work in dev)
+- **Config CSS** → Immediate styling before JavaScript loads
+- **Media Query** → Theme detection without JavaScript (`prefers-color-scheme`)
+- **Client Plugin** → DOM manipulation after Vue hydrates
+- **Pinia Store** → Centralized state management
+- **Composable** → Reusable logic and timing orchestration
+- **Event System** → Decoupled component communication
 
 ## Key Files
 
@@ -41,7 +53,7 @@ app: {
   head: {
     style: [
       {
-        textContent: `/* Loader styles */`
+        textContent: `/* Loader styles with theme support */`
       }
     ]
   }
@@ -49,20 +61,26 @@ app: {
 ```
 
 **Key Styles**:
-- `#app-initial-loader` - Fixed overlay with dark background
-- `.app-loader-spinner` - 48px spinning circle (0.8s rotation)
+- `#app-initial-loader` - Fixed overlay with theme-aware background
+- `.app-loader-spinner` - 48px spinning circle (0.8s rotation) with theme colors
+- `@media (prefers-color-scheme: dark)` - Automatic dark theme detection
 - `.fade-out` - Opacity transition (0.5s)
 - `#__nuxt` - Hidden initially, fades in when loaded
+
+**Theme Colors**:
+- **Light theme**: `#fffaf5` background + `#090925` spinner (matches theme system)
+- **Dark theme**: `#090925` background + `#fffaf5` spinner (automatic via media query)
+- Colors match `--color-light-100` and `--color-dark-100` from theme tokens
 
 ### 3. `app/plugins/loader-manager.client.js` (Client Plugin)
 **Purpose**: Manages loader removal when app is ready
 
 **Key Functions**:
 - Resets scroll to top immediately (`window.scrollTo(0, 0)`)
-- Listens for `app:ready` event from loading store
+- Listens for `app:ready` event from loading sequence composable
 - Fades out loader and shows content
 - Removes loader from DOM after transition
-- 5-second fallback timeout for safety
+- 10-second fallback timeout for safety (prevents stuck loader if something breaks)
 
 ### 4. `app/stores/loading.js` (Pinia Store)
 **Purpose**: Central state management for loading process
@@ -121,12 +139,14 @@ if (remainingTime > 0) {
 ```javascript
 onMounted(() => {
   initializeLoading({
-    checkFonts: true,
-    minLoadTime: 800,
-    animateOnReady: true,
+    checkFonts: true,      // Wait for custom fonts to load
+    minLoadTime: 300,      // Minimum display time in ms
+    animateOnReady: true,  // Auto-start entrance animations
   });
 });
 ```
+
+**IMPORTANT**: Configure `minLoadTime` HERE in `app.vue`, not in the composable. The composable's default is just a fallback - explicit values in `app.vue` always take precedence.
 
 ## Timing Configuration
 
@@ -134,25 +154,39 @@ onMounted(() => {
 
 | Component | Value | Purpose |
 |-----------|-------|---------|
-| Minimum Display Time | 800ms | Ensures loader is visible, prevents flash |
+| Minimum Display Time | 300ms | Ensures loader is visible, prevents flash |
 | Loader Fade Out | 500ms | Smooth opacity transition |
 | Content Fade In | 400ms | Smooth appearance of content |
 | Animation Delay | 100ms | Small delay before entrance animations |
+| Fallback Timeout | 10000ms | Safety mechanism if event never fires |
 
 ### Adjusting Timing
 
-**To change minimum loader display time**, edit `app/app.vue`:
+**To change minimum loader display time** (recommended place):
 ```javascript
+// app/app.vue
 initializeLoading({
-  minLoadTime: 1200, // Show loader for at least 1.2 seconds
+  minLoadTime: 800, // Show loader for at least 800ms
 });
 ```
 
-**To change fade transitions**, edit `nuxt.config.ts`:
-```css
+**To change composable default fallback**:
+```javascript
+// app/composables/useLoadingSequence.js (line 46)
+minLoadTime = 800, // Default if not specified in app.vue
+```
+
+**To change fade transitions**:
+```javascript
+// nuxt.config.ts - in the style.textContent string
 #app-initial-loader {
   transition: opacity 0.6s ease-out; /* Longer fade out */
 }
+
+// AND update timeout in loader-manager.client.js (line 56)
+setTimeout(() => {
+  loader.remove();
+}, 600); // Match CSS transition duration
 ```
 
 ## Scroll Reset System
@@ -256,49 +290,144 @@ onMounted(() => {
 
 ## Console Output
 
-Expected logs during loading:
+Expected logs during loading (with `minLoadTime: 300`):
 
 ```
+🎨 [Nitro] Loader HTML injected into SSR response
 🎨 Loader manager plugin initialized
 📍 Initial scroll position reset to top
 🔄 Loading started
+✅ Page content ready
+✅ ScrollSmoother ready
+📍 ScrollSmoother scrolled to top
+✅ Page scroll position reset to top
 ✅ GSAP ready
 ✅ Fonts ready
-✅ ScrollSmoother ready
-✅ Page scroll position reset to top
-📍 ScrollSmoother scrolled to top
-✅ Page content ready
-🚀 App resources ready! Loading took 450ms
-⏱️ Loading took 450ms, waiting 350ms more (minLoadTime: 800ms)
-🎯 Loading sequence complete - ready to show content
-🚀 App ready event received: {duration: 800, isFirstLoad: true}
+✅ All resources loaded! Took 45ms
+ℹ️  Waiting for minimum display time before showing content...
+⏱️ Resources loaded in 45ms, waiting 255ms more (minLoadTime: 300ms)
+🎯 Minimum display time reached - ready to show content
+🚀 Fired 'app:ready' event after 302ms
+🚀 App ready event received: {duration: 302, isFirstLoad: true}
 🎭 Fading out loader...
+🎬 Initial animations started
 🎬 Header entrance animation started
 ✨ Loader removed from DOM
 ✨ Header entrance complete
 ```
 
+**Key Insight**: The `⏱️ Resources loaded...` log shows the timing enforcement working. If resources load in 45ms but `minLoadTime: 300`, it waits 255ms more to ensure consistent UX.
+
 ## Troubleshooting
 
 ### Loader not visible
-1. Check Nitro plugin is injecting HTML: `curl http://localhost:3000 | grep app-initial-loader`
-2. Check CSS is in `<head>`: View page source, look for styles
-3. Check console for errors
+
+**Check if HTML is injected**:
+```bash
+curl -s http://localhost:3000 | grep app-initial-loader
+```
+If no output, Nitro plugin isn't running. Check `server/plugins/inject-loader.ts` exists.
+
+**Check if CSS is in head**:
+View page source (Cmd+U), search for `#app-initial-loader`. If not found, check `nuxt.config.ts` style injection.
+
+**Check console for errors**: Look for plugin initialization logs.
+
+### Minimum time not working
+
+**Problem**: Changing `minLoadTime` has no effect
+
+**Solution**: Make sure you're changing it in `app.vue`, NOT just the composable:
+```javascript
+// ✅ CORRECT - app/app.vue
+initializeLoading({
+  minLoadTime: 1000, // This value is actually used
+});
+
+// ❌ WRONG - changing only the default in composable
+// app/composables/useLoadingSequence.js
+minLoadTime = 1000, // This is just a fallback
+```
+
+**Verify**: Check console for `⏱️ Resources loaded in Xms, waiting Yms more (minLoadTime: Zms)` - the Z value should match your setting.
 
 ### Scroll offset after loading
-1. Verify scroll reset logs: `📍 ScrollSmoother scrolled to top`
-2. Check ScrollSmoother is initialized before reset
-3. Try increasing delay before `scrollToTop()` call
 
-### Loader visible too long/short
-1. Check `minLoadTime` setting in `app.vue`
-2. Check console for timing logs: `⏱️ Loading took...`
-3. Adjust value based on needs (faster connections = longer minimum time)
+**Symptoms**: Page starts at scrollTop 20-40px instead of 0
+
+**Solution**: Already fixed with three-layer reset:
+1. Plugin level: `window.scrollTo(0, 0)`
+2. ScrollSmoother level: `scrollToTop()`
+3. Both should show in logs
+
+**Verify**: Check for these logs:
+- `📍 Initial scroll position reset to top`
+- `📍 ScrollSmoother scrolled to top`
+
+### Loader visible too long
+
+**Check current setting**:
+```javascript
+// app/app.vue - look at minLoadTime value
+```
+
+**Adjust timing**:
+- Fast connection: 300-500ms recommended
+- Slow connection: 800-1200ms recommended
+- Testing: Use higher values (2000+) to see loader clearly
 
 ### Animations not starting
-1. Check `app:start-animations` event is fired
-2. Verify components are listening for event
-3. Check `animateOnReady: true` in loading options
+
+**Check event is fired**: Look for `🚀 Fired 'app:ready' event`
+
+**Check components are listening**:
+```javascript
+window.addEventListener('app:start-animations', () => {
+  console.log('Component received animation event');
+}, { once: true });
+```
+
+**Check option**: Ensure `animateOnReady: true` in `app.vue`
+
+### Fallback timeout triggered
+
+**Warning**: `⚠️ Loader fallback timeout triggered`
+
+**Meaning**: Loader was forced to remove after 10 seconds because `app:ready` event never fired.
+
+**Common causes**:
+- Resource loading failed (check for JavaScript errors)
+- Store not marking resources as ready
+- Loading sequence not firing event
+
+**Debug**: Check which resources are stuck:
+```javascript
+// In browser console
+window.__loadingStore = useLoadingStore()
+console.log(window.__loadingStore.gsapReady) // Should be true
+console.log(window.__loadingStore.fontsReady) // Should be true
+```
+
+## Testing Theme-Aware Loader
+
+**To test light/dark theme loader**:
+
+1. **Test System Preference**:
+   - macOS: System Preferences → General → Appearance
+   - Toggle between Light/Dark
+   - Refresh page - loader should match system theme
+
+2. **Test with DevTools**:
+   - Open DevTools → Rendering tab
+   - Find "Emulate CSS media feature prefers-color-scheme"
+   - Toggle between light/dark
+   - Hard refresh (Cmd+Shift+R) - loader updates instantly
+
+3. **Expected Behavior**:
+   - Light mode: Light background (#fffaf5) + Dark spinner (#090925)
+   - Dark mode: Dark background (#090925) + Light spinner (#fffaf5)
+   - Loader matches theme BEFORE JavaScript loads
+   - Smooth transition when content appears
 
 ## Production Considerations
 
@@ -306,13 +435,65 @@ Expected logs during loading:
 - SSR compatible (no client-only hacks)
 - Nitro plugin ensures loader in initial HTML
 - No FOUC (Flash of Unstyled Content)
+- **Theme-aware** - respects `prefers-color-scheme` instantly
 - Smooth transitions on all browsers
 - Accessible (loader doesn't block screen readers after content loads)
+- Colors match theme system exactly (`--color-light-100`/`--color-dark-100`)
+
+## Quick Reference
+
+### Files You'll Edit
+
+| File | What to Change | Why |
+|------|---------------|-----|
+| `app/app.vue` | `minLoadTime` value | Control how long loader shows |
+| `nuxt.config.ts` | Loader CSS styles | Change appearance (color, size, animation) |
+| `app/components/*.vue` | Listen to `app:start-animations` | Trigger entrance animations |
+
+### Files You Probably Won't Edit
+
+| File | Purpose | Don't Touch Unless |
+|------|---------|-------------------|
+| `server/plugins/inject-loader.ts` | Inject HTML | Changing loader HTML structure |
+| `app/plugins/loader-manager.client.js` | Remove loader | Changing removal logic/timing |
+| `app/stores/loading.js` | Track state | Adding new resources to track |
+| `app/composables/useLoadingSequence.js` | Orchestrate | Changing loading logic/flow |
+
+### Common Tasks
+
+**Make loader show longer**:
+```javascript
+// app/app.vue
+minLoadTime: 1000, // 1 second
+```
+
+**Change loader colors**:
+```javascript
+// nuxt.config.ts (in style textContent)
+
+// Light theme
+background: #fffaf5;
+border-top-color: #090925;
+
+// Dark theme (inside @media query)
+background: #090925;
+border-top-color: #fffaf5;
+```
+
+**Add component entrance animation**:
+```javascript
+// your-component.vue
+onMounted(() => {
+  window.addEventListener('app:start-animations', () => {
+    // Your GSAP animation here
+  }, { once: true });
+});
+```
 
 ## Future Enhancements
 
 - Add loading progress indicator (percentage)
-- Support for image preloading
-- Add custom loader animations/graphics
-- Support for multiple themes (dark/light loader)
-- Lazy load non-critical resources after loader
+- Support for image preloading with progress
+- Multiple loader designs (light/dark themes)
+- Configurable loader graphics/animations
+- Per-route minimum loading times

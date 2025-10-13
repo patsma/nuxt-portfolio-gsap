@@ -43,7 +43,7 @@ export const useLoadingSequence = () => {
   const initializeLoading = async (options = {}) => {
     const {
       checkFonts = true,
-      minLoadTime = 800, // Default minimum display time (can be overridden)
+      minLoadTime = 800, // Default minimum display time (can be overridden in app.vue)
       animateOnReady = true,
     } = options;
 
@@ -53,7 +53,9 @@ export const useLoadingSequence = () => {
 
     // CRITICAL: Ensure loader is visible before continuing
     // Wait for next frame to ensure loader is painted
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
 
     // Check GSAP availability
     if ($gsap) {
@@ -69,7 +71,7 @@ export const useLoadingSequence = () => {
     }
 
     // Check font loading if needed
-    if (checkFonts && typeof document !== 'undefined') {
+    if (checkFonts && typeof document !== "undefined") {
       try {
         await document.fonts.ready;
         loadingStore.setFontsReady();
@@ -88,21 +90,30 @@ export const useLoadingSequence = () => {
     const remainingTime = Math.max(minLoadTime - elapsed, 0);
 
     if (remainingTime > 0) {
-      console.log(`⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`);
-      await new Promise(resolve => setTimeout(resolve, remainingTime));
+      console.log(
+        `⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`
+      );
+      await new Promise((resolve) => setTimeout(resolve, remainingTime));
     } else {
-      console.log(`⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`);
+      console.log(
+        `⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`
+      );
     }
 
-    console.log('🎯 Minimum display time reached - ready to show content');
+    console.log("🎯 Minimum display time reached - ready to show content");
 
     // CRITICAL: Fire app:ready event AFTER minimum time is enforced
     // This ensures loader stays visible for the full duration
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const totalDuration = Date.now() - startTime;
-      window.dispatchEvent(new CustomEvent('app:ready', {
-        detail: { duration: totalDuration, isFirstLoad: loadingStore.isFirstLoad }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("app:ready", {
+          detail: {
+            duration: totalDuration,
+            isFirstLoad: loadingStore.isFirstLoad,
+          },
+        })
+      );
       console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`);
     }
 
@@ -169,8 +180,8 @@ export const useLoadingSequence = () => {
     }
 
     // Dispatch event for components to start their animations
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('app:start-animations'));
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("app:start-animations"));
     }
 
     loadingStore.startAnimating();
@@ -191,16 +202,16 @@ export const useLoadingSequence = () => {
 
       // Listen for ready event
       const handler = () => {
-        window.removeEventListener('app:ready', handler);
+        window.removeEventListener("app:ready", handler);
         resolve();
       };
 
-      if (typeof window !== 'undefined') {
-        window.addEventListener('app:ready', handler);
+      if (typeof window !== "undefined") {
+        window.addEventListener("app:ready", handler);
 
         // Timeout fallback
         setTimeout(() => {
-          window.removeEventListener('app:ready', handler);
+          window.removeEventListener("app:ready", handler);
           loadingStore.forceReady();
           resolve();
         }, 5000);
@@ -217,7 +228,11 @@ export const useLoadingSequence = () => {
    * @param {Object} options - Stagger options
    * @returns {Object|null} GSAP timeline
    */
-  const createStaggerAnimation = (elements, animationProps = {}, options = {}) => {
+  const createStaggerAnimation = (
+    elements,
+    animationProps = {},
+    options = {}
+  ) => {
     if (!$gsap || !elements || elements.length === 0) return null;
 
     const {

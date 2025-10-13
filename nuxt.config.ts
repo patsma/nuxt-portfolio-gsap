@@ -23,11 +23,11 @@ export default defineNuxtConfig({
       style: [
         {
           textContent: `
-            /* Initial loader - shown before Vue hydrates */
+            /* Initial loader - theme-aware, shown before Vue hydrates */
             #app-initial-loader {
               position: fixed;
               inset: 0;
-              background: #0a0a0a;
+              background: #fffaf5; /* Light theme default (--color-light-100) */
               z-index: 99999;
               display: flex;
               align-items: center;
@@ -40,14 +40,26 @@ export default defineNuxtConfig({
               pointer-events: none;
             }
 
-            /* Spinner */
+            /* Spinner - light theme */
             .app-loader-spinner {
               width: 48px;
               height: 48px;
-              border: 2px solid rgba(0, 137, 208, 0.15);
-              border-top-color: #0089d0;
+              border: 2px solid rgba(9, 9, 37, 0.15); /* Dark with opacity */
+              border-top-color: #090925; /* Dark spinner (--color-dark-100) */
               border-radius: 50%;
               animation: app-spin 0.8s linear infinite;
+            }
+
+            /* Dark theme overrides - instant detection via media query */
+            @media (prefers-color-scheme: dark) {
+              #app-initial-loader {
+                background: #090925; /* Dark background (--color-dark-100) */
+              }
+
+              .app-loader-spinner {
+                border: 2px solid rgba(255, 250, 245, 0.15); /* Light with opacity */
+                border-top-color: #fffaf5; /* Light spinner (--color-light-100) */
+              }
             }
 
             @keyframes app-spin {
