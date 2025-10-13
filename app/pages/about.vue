@@ -4,9 +4,13 @@
     <h1 v-page-split:chars data-speed="0.7">About Page</h1>
 
     <!-- v-page-clip:bottom - Clip from bottom with lag effect -->
-    <p v-page-clip:bottom data-lag="0.15">
+    <p v-page-split:lines data-lag="0.15">
       Use different directives and configs on each page for variety in
-      animations.
+      animations. Use different directives and configs on each page for variety
+      in animations. Use different directives and configs on each page for
+      variety in animations. Use different directives and configs on each page
+      for variety in animations. Use different directives and configs on each
+      page for variety in animations.
     </p>
 
     <!-- v-page-fade:left - Fade from left with faster speed -->

@@ -97,7 +97,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       headerElement.classList.add("headroom--pinned");
       headerElement.classList.remove("headroom--unpinned");
     }
-    console.log("[Headroom] Paused - header pinned (no animation)");
+    // console.log("[Headroom] Paused - header pinned (no animation)");
   };
 
   /**
@@ -112,7 +112,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (headerElement) {
       headerElement.classList.remove("headroom--no-transition");
     }
-    console.log("[Headroom] Resumed - transitions restored");
+    // console.log("[Headroom] Resumed - transitions restored");
   };
 
   // Expose controller for ScrollSmoother plugin to call
@@ -125,7 +125,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Pause headroom at start of page transition
   nuxtApp.hook("page:start", () => {
-    console.log("[Headroom] page:start - pausing headroom");
+    // console.log("[Headroom] page:start - pausing headroom");
     pause();
   });
 
@@ -134,7 +134,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Initialize on app mount
   nuxtApp.hook("app:mounted", () => {
-    console.log("[Headroom] Ready for ScrollSmoother integration");
+    // console.log("[Headroom] Ready for ScrollSmoother integration");
     reset();
   });
 });

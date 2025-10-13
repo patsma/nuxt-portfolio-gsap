@@ -1,100 +1,93 @@
 # Page Transition System
 
-**Working directive-based page transitions with GSAP and ScrollSmoother**
+Directive-based GSAP page transitions with ScrollSmoother parallax and headroom integration.
 
-Based on the [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) reference implementation.
+Based on [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) reference implementation.
 
 ## Overview
 
-This system provides directive-based page transitions that work seamlessly with ScrollSmoother. Instead of auto-detecting elements, you explicitly mark which elements should animate using Vue directives.
-
-## Architecture
-
-### Key Principle: Manual Control
-
-**NO auto-detection** - You explicitly mark elements with directives:
+Manual control via Vue directives - **NO auto-detection**. Mark elements explicitly for animation.
 
 ```vue
 <h1 v-page-split:chars data-speed="0.7">Animated Title</h1>
 <p v-page-fade:up data-lag="0.15">Fades up with lag</p>
 ```
 
-### How It Works
+## How It Works
 
-1. **Directives Store Config** - When mounted, directives attach animation config to elements
-2. **Page Leaves** - `usePageTransition` finds elements and animates them OUT
-3. **DOM Swap** - Vue swaps old page for new page
-4. **Page Enters** - New page elements animate IN with opposite animations
-5. **ScrollSmoother Refresh** - Parallax effects recalculate for new content
+1. **Directives Store Config** - Mount → attach `el._pageAnimation`
+2. **Page Leaves** - `usePageTransition` animates elements OUT
+3. **Scroll to Top** - Instant scroll in `afterLeave` (content hidden)
+4. **Page Enters** - New elements animate IN (opposite direction)
+5. **Headroom Resumes** - Header reactivates after enter completes
+6. **ScrollSmoother Refresh** - Parallax effects recalculate
 
-### Component Structure
+## Architecture
 
 ```
 app/
 ├── composables/
-│   ├── usePageTransition.js          # Page transition logic
-│   └── useScrollSmootherManager.js   # ScrollSmoother lifecycle
+│   ├── usePageTransition.js           # Transition logic + headroom coordination
+│   └── useScrollSmootherManager.js    # ScrollSmoother lifecycle
 ├── directives/
 │   ├── v-page-split.js                # SplitText animations
-│   ├── v-page-fade.js                 # Fade animations
+│   ├── v-page-fade.js                 # Fade with movement
 │   ├── v-page-clip.js                 # Clip-path reveals
 │   └── v-page-stagger.js              # Stagger children
 ├── plugins/
-│   └── page-transitions.js            # Register directives
+│   ├── page-transitions.js            # Register directives
+│   └── headroom.client.js             # Header hide/show + pause/resume
 └── layouts/
-    └── default.vue                    # ScrollSmoother + transitions
+    └── default.vue                    # ScrollSmoother + transitions + headroom
 ```
 
 ## Directives
 
 ### v-page-split
 
-Animates text using GSAP SplitText with character, word, or line splitting.
+SplitText character/word/line animations.
 
 ```vue
-<!-- Arguments: :chars | :words | :lines -->
 <h1 v-page-split:chars>Character reveal</h1>
 <p v-page-split:words>Word by word</p>
 <div v-page-split:lines>Line by line</div>
 
-<!-- With custom config -->
+<!-- Custom config -->
 <h1 v-page-split:chars="{ stagger: 0.04, duration: 0.8, ease: 'back.out(1.5)' }">
   Custom timing
 </h1>
 ```
 
 **Options:**
-- `splitType` - 'chars', 'words', or 'lines'
-- `stagger` - Delay between each element (default: 0.025)
+- `splitType` - 'chars', 'words', 'lines'
+- `stagger` - Delay between elements (default: 0.025)
 - `duration` - Animation duration (default: 0.6)
 - `ease` - GSAP easing (default: 'back.out(1.5)')
 - `y` - Vertical movement (default: 35)
 
 ### v-page-fade
 
-Simple fade animation with optional directional movement.
+Fade with directional movement.
 
 ```vue
-<!-- Arguments: :up | :down | :left | :right -->
-<div v-page-fade>Fade in (defaults to up)</div>
+<div v-page-fade>Defaults to up</div>
 <p v-page-fade:up>Fade up</p>
-<div v-page-fade:left="{ distance: 40 }">Fade left with custom distance</div>
+<div v-page-fade:left="{ distance: 40 }">Custom distance</div>
 ```
 
 **Options:**
 - `direction` - 'up', 'down', 'left', 'right'
-- `distance` - Movement distance in pixels (default: 20)
+- `distance` - Movement in pixels (default: 20)
 - `duration` - Animation duration (default: 0.6)
 - `ease` - GSAP easing (default: 'power2.out')
 
 ### v-page-clip
 
-Modern clip-path reveal animations from any direction.
+Clip-path reveals from any direction.
 
 ```vue
-<!-- Arguments: :top | :bottom | :left | :right -->
-<div v-page-clip>Clip from top (default)</div>
-<div v-page-clip:bottom="{ duration: 0.8 }">Clip from bottom</div>
+<div v-page-clip>From top (default)</div>
+<div v-page-clip:bottom="{ duration: 0.8 }">From bottom</div>
 ```
 
 **Options:**
@@ -104,7 +97,7 @@ Modern clip-path reveal animations from any direction.
 
 ### v-page-stagger
 
-Stagger child elements with fade animation.
+Stagger child elements with fade.
 
 ```vue
 <ul v-page-stagger>
@@ -113,101 +106,73 @@ Stagger child elements with fade animation.
 </ul>
 
 <!-- Custom config -->
-<div v-page-stagger="{ stagger: 0.15, duration: 0.7 }">
-  <div>Card 1</div>
-  <div>Card 2</div>
-</div>
-
-<!-- Custom selector -->
-<nav v-page-stagger="{ selector: 'a' }">
+<nav v-page-stagger="{ selector: 'a', stagger: 0.15 }">
   <a href="#">Link 1</a>
   <a href="#">Link 2</a>
 </nav>
 ```
 
 **Options:**
-- `selector` - CSS selector for children (default: ':scope > *')
-- `stagger` - Delay between each child (default: 0.1)
-- `duration` - Animation duration per child (default: 0.5)
+- `selector` - CSS selector (default: ':scope > *')
+- `stagger` - Delay between children (default: 0.1)
+- `duration` - Animation duration (default: 0.5)
 - `ease` - GSAP easing (default: 'power2.out')
 
-## ScrollSmoother Parallax
-
-Add `data-speed` and `data-lag` attributes to any element for smooth parallax effects.
+## Parallax Effects
 
 ### data-speed
 
-Controls how fast elements move relative to scroll:
+Controls movement speed relative to scroll:
 
 ```vue
-<!-- Slower than scroll (background effect) -->
-<div data-speed="0.5">Moves at 50% scroll speed</div>
-<h1 data-speed="0.8">Moves at 80% scroll speed</h1>
-
-<!-- Normal speed -->
-<p data-speed="1.0">Moves at 100% scroll speed</p>
-
-<!-- Faster than scroll (foreground effect) -->
-<div data-speed="1.5">Moves at 150% scroll speed</div>
+<div data-speed="0.5">Background (50% speed)</div>
+<div data-speed="1.0">Normal speed</div>
+<div data-speed="1.5">Foreground (150% speed)</div>
 ```
 
-**Values:**
-- `< 1.0` - Background effect (slower)
-- `= 1.0` - Normal scroll speed (default)
-- `> 1.0` - Foreground effect (faster)
+- `< 1.0` = Background effect (slower)
+- `= 1.0` = Normal scroll speed
+- `> 1.0` = Foreground effect (faster)
 
 ### data-lag
 
-Creates smooth "catch up" effect with momentum:
+Creates smooth "catch up" trailing effect:
 
 ```vue
-<div data-lag="0.1">Slight trailing motion</div>
-<h2 data-lag="0.2">Smooth catch-up effect</h2>
-<img data-lag="0.3">Pronounced trailing</img>
+<div data-lag="0.15">Slight trailing</div>
+<h2 data-lag="0.25">More pronounced trailing</h2>
 ```
 
-**Values:**
-- Typical range: `0.1` to `0.3`
-- Higher values = more lag/trailing
+Typical range: `0.1` to `0.3`
 
-### Combining Directives + Parallax
-
-Use both page transitions AND parallax on the same elements:
+### Combined Usage
 
 ```vue
 <h1 v-page-split:chars data-speed="0.8">
-  Animated reveal + slow parallax
+  Animated reveal + parallax
 </h1>
 
 <p v-page-fade:up data-lag="0.15">
   Fade transition + lag effect
 </p>
-
-<div v-page-clip:top data-speed="1.2">
-  Clip animation + fast parallax
-</div>
 ```
 
 ## Implementation Details
 
-### Critical Fix: ScrollSmoother Jump Prevention
+### Three Critical Fixes
 
-**Problem:** Elements visibly "jump" during page transitions when ScrollSmoother is active.
+**1. ScrollSmoother Jump Prevention**
 
-**Cause:** ScrollSmoother applies transforms to elements with `data-speed`/`data-lag`. If these transforms are applied AFTER elements become visible, you see the jump.
-
-**Solution:** Three-step process in `usePageTransition.js` enter() function:
+Elements set to hidden state BEFORE ScrollSmoother refresh:
 
 ```javascript
-// STEP 1: Set initial states FIRST (elements hidden)
+// STEP 1: Set initial states (hidden)
 elements.forEach((element) => {
-  // Set to hidden/transformed state
-  $gsap.set(element, { opacity: 0, y: -20 })
+  gsap.set(element, { opacity: 0, y: -20 })
 })
 
-// STEP 2: Refresh ScrollSmoother with elements already hidden
-const { refreshSmoother } = useScrollSmootherManager()
-refreshSmoother() // Calculates positions with elements in initial state
+// STEP 2: Refresh ScrollSmoother with elements hidden
+refreshSmoother()
 
 // STEP 3: Animate from initial states (skipInitialState = true)
 elements.forEach((element) => {
@@ -215,17 +180,53 @@ elements.forEach((element) => {
 })
 ```
 
-This ensures ScrollSmoother sees elements in their hidden state and applies transforms before animation starts.
+**2. Manual Scroll Control**
 
-### Layout Integration
+Prevent automatic scroll, control timing manually:
 
-The layout coordinates ScrollSmoother with page transitions:
+```typescript
+// router.options.ts
+scrollBehavior() {
+  return false // Manual control
+}
+```
+
+```javascript
+// usePageTransition.js afterLeave()
+afterLeave(el) {
+  cleanup()
+  const smoother = getSmoother()
+  smoother?.scrollTop(0) // Scroll when content hidden
+}
+```
+
+**3. Headroom Pause/Resume**
+
+Prevent header jump during transitions:
+
+```javascript
+// Pause at page:start
+nuxtApp.hook('page:start', () => {
+  nuxtApp.$headroom.pause() // Adds headroom--no-transition class
+})
+
+// Resume in enter() onComplete
+const tl = gsap.timeline({
+  onComplete: () => {
+    done()
+    nuxtApp.$headroom?.resume() // Removes headroom--no-transition
+  }
+})
+```
+
+## Layout Integration
 
 ```vue
 <!-- app/layouts/default.vue -->
 <script setup>
 const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 const { createSmoother, killSmoother } = useScrollSmootherManager()
+const nuxtApp = useNuxtApp()
 
 onMounted(() => {
   nextTick(() => {
@@ -233,47 +234,40 @@ onMounted(() => {
       wrapper: '#smooth-wrapper',
       content: '#smooth-content',
       smooth: 2,
-      effects: true // Enable data-speed/data-lag
+      effects: true,
+      onUpdate: (self) => {
+        nuxtApp.$headroom?.updateHeader(self.scrollTop())
+      }
     })
   })
 })
+
+onUnmounted(() => killSmoother())
 </script>
 
 <template>
   <div id="smooth-wrapper">
     <HeaderGrid />
     <div id="smooth-content">
-      <div class="layout-wrapper">
-        <NuxtPage
-          :transition="{
-            name: 'page',
-            mode: 'out-in',
-            onBeforeEnter: beforeEnter,
-            onEnter: enter,
-            onLeave: leave,
-            onAfterLeave: afterLeave,
-          }"
-        />
-      </div>
+      <NuxtPage :transition="{
+        mode: 'out-in',
+        onBeforeEnter: beforeEnter,
+        onEnter: enter,
+        onLeave: leave,
+        onAfterLeave: afterLeave
+      }" />
     </div>
   </div>
 </template>
 ```
 
-**Key Points:**
-- ScrollSmoother created on mount
-- Page transitions use composable hooks
-- Simple lifecycle: create → use → destroy
-- No complex cleanup needed
-
 ## Page Structure
 
-Pages should wrap content in `.page-content`:
+Wrap content in `.page-content`:
 
 ```vue
 <template>
   <div class="page-content">
-    <!-- Directive-marked elements here -->
     <h1 v-page-split:chars data-speed="0.7">Title</h1>
     <p v-page-fade:up data-lag="0.15">Content</p>
   </div>
@@ -281,8 +275,6 @@ Pages should wrap content in `.page-content`:
 ```
 
 ## Configuration
-
-### Nuxt Config
 
 ```typescript
 // nuxt.config.ts
@@ -292,13 +284,10 @@ export default defineNuxtConfig({
   gsap: {
     composables: true,
     provide: true,
-
-    // Club GreenSock premium plugins (FREE as of 2025!)
     clubPlugins: {
       splitText: true,
       scrollSmoother: true,
     },
-
     extraPlugins: {
       scrollTrigger: true, // Required for ScrollSmoother
     },
@@ -311,31 +300,65 @@ export default defineNuxtConfig({
 })
 ```
 
-## Debugging
-
-### Console Logs
-
-Watch for these during navigation:
+## Transition Flow
 
 ```
-🚀 Page LEAVE
-🔍 Finding animated elements in: <div class="page-content">
-🔍 Found elements with directives: 5
-🎬 Page ENTER
-🔍 Finding animated elements in: <div class="page-content">
-🔍 Found elements with directives: 6
-🔄 ScrollSmoother effects recalculated
-🔄 ScrollSmoother refreshed
+User at scroll 500px → clicks link
+    ↓
+page:start → headroom.pause()
+    - Add headroom--no-transition
+    - Pin header instantly
+    ↓
+Leave animation → elements fade OUT at 500px
+    ↓
+afterLeave → smoother.scrollTop(0)
+    - Instant scroll to 0
+    - Content already hidden
+    ↓
+Enter animation → elements fade IN at 0
+    ↓
+onComplete → headroom.resume()
+    - Remove headroom--no-transition
+    - Headroom active again
 ```
 
-### Common Issues
+## Common Issues
 
-| Symptom | Cause | Solution |
-|---------|-------|----------|
-| Animations not running | Directives not registered | Check plugin loads in plugins/ |
-| Elements jump | ScrollSmoother not refreshed | Verify refreshSmoother() called |
-| SplitText not working | Plugin not enabled | Enable splitText in nuxt.config |
-| No parallax | effects: false | Set effects: true in createSmoother() |
+### Animations not running
+
+**Cause:** Directives not registered
+
+**Solution:** Check `plugins/page-transitions.js` loads
+
+### Elements jump during transition
+
+**Cause:** ScrollSmoother applies transforms after elements visible
+
+**Solution:** Three-step process (set states → refresh → animate)
+
+### Scroll jump visible to user
+
+**Cause:** Automatic scroll before animations complete
+
+**Solution:** Manual scroll in `afterLeave`, disabled in `router.options.ts`
+
+### Header jumps during transition
+
+**Cause:** CSS transitions animate class changes
+
+**Solution:** `headroom--no-transition` class during pause
+
+### SplitText not working
+
+**Cause:** Plugin not enabled
+
+**Solution:** Enable `splitText: true` in `nuxt.config.ts`
+
+### No parallax effects
+
+**Cause:** `effects: false`
+
+**Solution:** Set `effects: true` in `createSmoother()`
 
 ## Example Pages
 
@@ -371,10 +394,6 @@ Watch for these during navigation:
   <div class="page-content">
     <h1 v-page-split:chars data-speed="0.7">About Page</h1>
 
-    <p v-page-clip:bottom data-lag="0.15">
-      Different animations per page for variety.
-    </p>
-
     <div v-page-clip:left data-lag="0.25" class="content-box">
       <h2>How It Works</h2>
       <p>Directives store config, transitions read and animate.</p>
@@ -391,19 +410,40 @@ Watch for these during navigation:
 
 ## Benefits
 
-✅ **Manual Control** - No guessing, you decide what animates
-✅ **Simple & DRY** - 8 files total, easy to understand
-✅ **ScrollSmoother Compatible** - Works seamlessly with parallax
-✅ **Opposite Animations** - Elements animate OUT then IN with reverse effect
-✅ **Production Ready** - Battle-tested patterns from reference implementation
-✅ **Easy to Reuse** - Copy files to any Nuxt 4 project
+✅ **Manual Control** - Explicit directive marking
+✅ **No Jumps** - Perfect scroll and header coordination
+✅ **ScrollSmoother Compatible** - Seamless parallax integration
+✅ **Opposite Animations** - OUT then IN with reverse effect
+✅ **Simple & DRY** - 8 files, easy to understand
+✅ **Production Ready** - Battle-tested patterns
+✅ **Easy to Reuse** - Copy to any Nuxt 4 project
+
+## Files Reference
+
+**Composables:**
+- `app/composables/usePageTransition.js` - Transition logic + headroom coordination
+- `app/composables/useScrollSmootherManager.js` - ScrollSmoother lifecycle
+
+**Directives:**
+- `app/directives/v-page-split.js` - SplitText animations
+- `app/directives/v-page-fade.js` - Fade animations
+- `app/directives/v-page-clip.js` - Clip-path reveals
+- `app/directives/v-page-stagger.js` - Stagger children
+
+**Plugins:**
+- `app/plugins/page-transitions.js` - Register directives
+- `app/plugins/headroom.client.js` - Header visibility with pause/resume
+
+**Config:**
+- `app/router.options.ts` - Disable automatic scroll
+- `app/layouts/default.vue` - Integration layer
+
+**Styles:**
+- `app/assets/css/components/header-grid.scss` - headroom--no-transition class
 
 ## Reference
 
-This implementation is based on the working [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) demo.
-
-Key files copied from reference:
-- `app/composables/usePageTransition.js`
-- `app/composables/useScrollSmootherManager.js`
-- `app/directives/*.js`
-- `app/plugins/page-transitions.js`
+Based on [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) with enhancements:
+- Manual scroll control (no visible jump)
+- Headroom pause/resume integration
+- CSS transition disabling during page changes
