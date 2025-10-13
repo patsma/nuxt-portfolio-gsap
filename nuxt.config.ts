@@ -27,12 +27,12 @@ export default defineNuxtConfig({
             #app-initial-loader {
               position: fixed;
               inset: 0;
-              background: #ff0000 !important; /* DEBUG: Bright red to ensure visibility */
-              z-index: 999999 !important;
-              display: flex !important;
+              background: #0a0a0a;
+              z-index: 99999;
+              display: flex;
               align-items: center;
               justify-content: center;
-              transition: opacity 0.6s ease-out;
+              transition: opacity 0.5s ease-out;
             }
 
             #app-initial-loader.fade-out {
@@ -42,12 +42,12 @@ export default defineNuxtConfig({
 
             /* Spinner */
             .app-loader-spinner {
-              width: 96px !important; /* DEBUG: Bigger */
-              height: 96px !important;
-              border: 4px solid rgba(255, 255, 255, 0.2) !important;
-              border-top-color: #ffffff !important; /* DEBUG: White on red */
+              width: 48px;
+              height: 48px;
+              border: 2px solid rgba(0, 137, 208, 0.15);
+              border-top-color: #0089d0;
               border-radius: 50%;
-              animation: app-spin 1s linear infinite;
+              animation: app-spin 0.8s linear infinite;
             }
 
             @keyframes app-spin {

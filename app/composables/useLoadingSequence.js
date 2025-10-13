@@ -1,15 +1,24 @@
 /**
  * Loading Sequence Composable
  *
- * Orchestrates the application loading process and initial animations.
- * Ensures all critical resources are loaded before showing content
- * and manages the sequence of entrance animations.
+ * NUXT PATTERN: Composable for reusable logic and coordination
+ *
+ * Why this exists:
+ * - Orchestrates the loading process (timing, events, animations)
+ * - Enforces minimum display time for consistent UX
+ * - Fires 'app:ready' event AFTER minimum time is reached
+ * - Provides reusable loading utilities for components
+ *
+ * Why it's separate from the store:
+ * - Store = state (what's loaded)
+ * - Composable = logic (timing, events, coordination)
+ * - This follows Vue 3 Composition API best practices
  *
  * Works with:
- * - Loading store for state management
- * - ScrollSmoother for smooth scrolling readiness
- * - GSAP for animation capabilities
- * - Page transitions for non-conflicting integration
+ * - Loading store → State management
+ * - ScrollSmoother → Smooth scrolling readiness
+ * - GSAP → Animation capabilities
+ * - Page transitions → Non-conflicting integration
  */
 
 import { useLoadingStore } from "~/stores/loading";
@@ -34,7 +43,7 @@ export const useLoadingSequence = () => {
   const initializeLoading = async (options = {}) => {
     const {
       checkFonts = true,
-      minLoadTime = 1200, // Increased to ensure loader is visible
+      minLoadTime = 800, // Default minimum display time (can be overridden)
       animateOnReady = true,
     } = options;
 
@@ -74,18 +83,28 @@ export const useLoadingSequence = () => {
 
     // CRITICAL: Always enforce minimum display time
     // This ensures the loader is visible even on fast connections
-    // Note: Nuxt automatically removes the SPA loading template when the app is ready
+    // Provides consistent UX and prevents jarring flashes
     const elapsed = Date.now() - startTime;
     const remainingTime = Math.max(minLoadTime - elapsed, 0);
 
-    console.log(`⏱️ Loading took ${elapsed}ms, waiting ${remainingTime}ms more to reach minimum display time`);
-
     if (remainingTime > 0) {
+      console.log(`⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`);
       await new Promise(resolve => setTimeout(resolve, remainingTime));
+    } else {
+      console.log(`⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`);
     }
 
-    console.log('🎯 Minimum display time reached');
-    console.log('ℹ️  Nuxt will automatically remove the SPA loading template');
+    console.log('🎯 Minimum display time reached - ready to show content');
+
+    // CRITICAL: Fire app:ready event AFTER minimum time is enforced
+    // This ensures loader stays visible for the full duration
+    if (typeof window !== 'undefined') {
+      const totalDuration = Date.now() - startTime;
+      window.dispatchEvent(new CustomEvent('app:ready', {
+        detail: { duration: totalDuration, isFirstLoad: loadingStore.isFirstLoad }
+      }));
+      console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`);
+    }
 
     // Auto-start animations if configured
     if (animateOnReady && loadingStore.isReady) {

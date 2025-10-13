@@ -1,15 +1,28 @@
 /**
  * Nitro Plugin: Inject Initial Loader into SSR HTML
  *
- * This plugin hooks into the SSR rendering process and injects
- * the loader HTML directly into the response BEFORE it's sent to the browser.
+ * NUXT PATTERN: Nitro plugin for SSR HTML manipulation
  *
- * This ensures the loader is visible immediately, before Vue hydrates.
+ * Why this is needed:
+ * - In SSR mode, we need loader visible BEFORE Vue loads
+ * - Nitro's 'render:html' hook is the ONLY way to inject HTML into SSR response
+ * - This runs on the server, modifying HTML before it's sent to browser
+ *
+ * Alternative approaches that DON'T work:
+ * - app.html → Ignored in dev mode, only works in production
+ * - spa-loading-template.html → Only works when ssr: false
+ * - Client plugin → Runs too late (after Vue hydrates)
+ *
+ * This is the correct Nuxt 4 approach for SSR apps.
+ *
+ * @see https://nitro.unjs.io/guide/plugins
+ * @see https://nuxt.com/docs/guide/going-further/hooks#nitro-app-hooks
  */
 
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('render:html', (html, { event }) => {
-    // Inject loader HTML at the start of body
+  nitroApp.hooks.hook('render:html', (html) => {
+    // Inject loader HTML into body
+    // bodyAppend.unshift() puts it at the START of body (before #__nuxt)
     html.bodyAppend.unshift(`
       <div id="app-initial-loader">
         <div class="app-loader-spinner"></div>

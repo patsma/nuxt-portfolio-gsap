@@ -10,7 +10,7 @@
 const { leave, enter, beforeEnter, afterLeave } = usePageTransition();
 
 // ScrollSmoother manager for smooth scrolling
-const { createSmoother, killSmoother } = useScrollSmootherManager();
+const { createSmoother, killSmoother, scrollToTop } = useScrollSmootherManager();
 
 // Loading sequence manager
 const { markScrollSmootherReady, markPageReady, isFirstLoad } = useLoadingSequence();
@@ -48,6 +48,13 @@ onMounted(() => {
           nuxtApp.$headroom.updateHeader(currentScroll);
         }
       },
+    });
+
+    // CRITICAL: Scroll to top after creating ScrollSmoother
+    // This ensures the page starts at scrollTop 0, not at some random offset
+    nextTick(() => {
+      scrollToTop();
+      console.log('✅ Page scroll position reset to top');
     });
 
     // Mark ScrollSmoother as ready in loading sequence

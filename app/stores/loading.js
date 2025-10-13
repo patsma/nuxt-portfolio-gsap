@@ -1,9 +1,13 @@
 /**
  * Loading State Management Store
  *
- * Manages the application loading sequence and ready state.
- * Controls when components can start animating and ensures
- * all critical resources are loaded before showing content.
+ * NUXT PATTERN: Pinia store for centralized state management
+ *
+ * Why this exists:
+ * - Tracks loading progress across different resources (GSAP, fonts, ScrollSmoother, page)
+ * - Provides reactive state that components can watch
+ * - Coordinates when app is ready to show content
+ * - Manages animation sequence states
  *
  * States:
  * - initial: App just started, nothing loaded yet
@@ -11,6 +15,9 @@
  * - ready: Everything loaded, can start animations
  * - animating: Initial animations are running
  * - complete: All initial animations finished
+ *
+ * This store does NOT fire the 'app:ready' event - that's done by
+ * useLoadingSequence after enforcing minimum display time.
  */
 
 import { defineStore } from "pinia";
@@ -122,7 +129,7 @@ export const useLoadingStore = defineStore("loading", {
 
     /**
      * Check if all resources are ready and update status
-     * NOTE: Loader is automatically removed by Nuxt
+     * NOTE: This only marks as ready internally, event is fired later after minLoadTime
      */
     checkReadyState() {
       if (this.allResourcesReady && this.status === "loading") {
@@ -130,15 +137,11 @@ export const useLoadingStore = defineStore("loading", {
         this.readyTime = Date.now();
 
         const duration = this.loadingDuration;
-        console.log(`🚀 App resources ready! Loading took ${duration}ms`);
-        console.log(`ℹ️  Nuxt will automatically remove the SPA loading template`);
+        console.log(`✅ All resources loaded! Took ${duration}ms`);
+        console.log(`ℹ️  Waiting for minimum display time before showing content...`);
 
-        // Emit ready event for components to listen to
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('app:ready', {
-            detail: { duration, isFirstLoad: this.isFirstLoad }
-          }));
-        }
+        // NOTE: Do NOT emit app:ready event here!
+        // The loading sequence will emit it after enforcing minLoadTime
       }
     },
 

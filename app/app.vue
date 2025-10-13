@@ -14,9 +14,9 @@ const { initializeLoading } = useLoadingSequence();
 onMounted(() => {
   // Start the loading sequence with options
   initializeLoading({
-    checkFonts: true,      // Wait for custom fonts
-    minLoadTime: 5000,     // DEBUG: 5 seconds to ensure we can see the loader
-    animateOnReady: true,  // Auto-start animations when ready
+    checkFonts: true,      // Wait for custom fonts to load
+    minLoadTime: 800,      // Minimum time to display loader (ensures visibility)
+    animateOnReady: true,  // Auto-start entrance animations when ready
   });
 });
 </script>

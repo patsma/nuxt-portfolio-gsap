@@ -134,10 +134,27 @@ export const useScrollSmootherManager = () => {
     // console.log('🔄 ScrollSmoother refreshed')
   };
 
+  /**
+   * Scroll to top (0, 0) position
+   * Use this to reset scroll position after loading
+   */
+  const scrollToTop = () => {
+    if (!smootherInstance) {
+      // Fallback to native scroll if smoother not available
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // Use ScrollSmoother's scrollTo method for smooth scrolling
+    smootherInstance.scrollTo(0, false); // false = instant, no animation
+    console.log('📍 ScrollSmoother scrolled to top');
+  };
+
   return {
     createSmoother,
     killSmoother,
     getSmoother,
     refreshSmoother,
+    scrollToTop,
   };
 };
