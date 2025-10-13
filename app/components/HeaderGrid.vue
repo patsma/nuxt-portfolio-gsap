@@ -90,9 +90,15 @@
 // Import the provided SVG-based hamburger icon for mobile
 import HamburgerSVG from "./SVG/HamburgerSVG.vue";
 import ThemeToggleSVG from "./ThemeToggleSVG.vue";
+import { useLoadingStore } from "~/stores/loading";
+import { useLoadingSequence } from "~/composables/useLoadingSequence";
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const { $gsap, $DrawSVGPlugin } = useNuxtApp();
+
+// Loading system integration
+const loadingStore = useLoadingStore();
+const { isFirstLoad, createStaggerAnimation } = useLoadingSequence();
 
 /**
  * Shared menu state for consistent header behavior
@@ -147,6 +153,23 @@ onMounted(() => {
   if (!$gsap) return;
 
   const scopeEl = containerRef.value || undefined;
+
+  // If this is the first load, hide header initially
+  if (isFirstLoad()) {
+    $gsap.set(containerRef.value, { autoAlpha: 0 });
+
+    // Prepare elements for animation
+    const brandEl = containerRef.value?.querySelector('.header-grid__brand');
+    const navLinks = containerRef.value?.querySelectorAll('.header-grid__nav .nav-link');
+    const spacerEl = containerRef.value?.querySelector('.header-grid__spacer');
+    const hamburgerEl = containerRef.value?.querySelector('.header-grid__hamburger');
+
+    if (brandEl) $gsap.set(brandEl, { autoAlpha: 0, x: -20 });
+    if (navLinks) $gsap.set(navLinks, { autoAlpha: 0, y: -10 });
+    if (spacerEl) $gsap.set(spacerEl, { autoAlpha: 0, x: 20 });
+    if (hamburgerEl) $gsap.set(hamburgerEl, { autoAlpha: 0, scale: 0.8 });
+  }
+
   nextTick(() => {
     // Initialize theme switch
     const { initThemeSwitch } = useThemeSwitch();
@@ -288,6 +311,86 @@ onMounted(() => {
         });
 
         overlayTl = tl2;
+      }
+
+      // Create initial load animation if this is the first load
+      if (isFirstLoad()) {
+        // Listen for app ready signal to start animations
+        const startHeaderAnimation = () => {
+          if (!$gsap || !containerRef.value) return;
+
+          const tl = $gsap.timeline({
+            onStart: () => console.log("🎬 Header entrance animation started"),
+            onComplete: () => console.log("✨ Header entrance complete"),
+          });
+
+          // Animate container in first
+          tl.to(containerRef.value, {
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: "power2.out",
+          });
+
+          // Then animate individual elements
+          const brandEl = containerRef.value?.querySelector('.header-grid__brand');
+          const navLinks = containerRef.value?.querySelectorAll('.header-grid__nav .nav-link');
+          const spacerEl = containerRef.value?.querySelector('.header-grid__spacer');
+          const hamburgerEl = containerRef.value?.querySelector('.header-grid__hamburger');
+
+          // Animate logo
+          if (brandEl) {
+            tl.to(brandEl, {
+              autoAlpha: 1,
+              x: 0,
+              duration: 0.8,
+              ease: "power3.out",
+            }, "-=0.4");
+          }
+
+          // Animate nav links with stagger
+          if (navLinks && navLinks.length > 0) {
+            tl.to(navLinks, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              stagger: 0.08,
+            }, "-=0.5");
+          }
+
+          // Animate hamburger (mobile)
+          if (hamburgerEl) {
+            tl.to(hamburgerEl, {
+              autoAlpha: 1,
+              scale: 1,
+              duration: 0.5,
+              ease: "back.out(1.5)",
+            }, "-=0.6");
+          }
+
+          // Animate theme toggle
+          if (spacerEl) {
+            tl.to(spacerEl, {
+              autoAlpha: 1,
+              x: 0,
+              duration: 0.7,
+              ease: "power3.out",
+            }, "-=0.4");
+          }
+
+          tl.play();
+        };
+
+        // Listen for app start animations event
+        window.addEventListener('app:start-animations', startHeaderAnimation, { once: true });
+
+        // Fallback: start animation after a delay if app doesn't signal
+        setTimeout(() => {
+          if (containerRef.value && $gsap.getProperty(containerRef.value, 'autoAlpha') === 0) {
+            console.warn('Header animation fallback triggered');
+            startHeaderAnimation();
+          }
+        }, 2000);
       }
     }, scopeEl);
   });

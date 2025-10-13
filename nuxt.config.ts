@@ -3,7 +3,6 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-
   runtimeConfig: {
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "https://patryksmakosz.com",
@@ -19,6 +18,55 @@ export default defineNuxtConfig({
         "Creative Developer & Web Animator | Front-End Developer with Expertise in Interactive Motion Design",
       titleTemplate: "%s · Patryk Smakosz",
       htmlAttrs: { lang: "en" },
+
+      // Inject loader CSS that renders immediately (works in SSR dev mode)
+      style: [
+        {
+          textContent: `
+            /* Initial loader - shown before Vue hydrates */
+            #app-initial-loader {
+              position: fixed;
+              inset: 0;
+              background: #ff0000 !important; /* DEBUG: Bright red to ensure visibility */
+              z-index: 999999 !important;
+              display: flex !important;
+              align-items: center;
+              justify-content: center;
+              transition: opacity 0.6s ease-out;
+            }
+
+            #app-initial-loader.fade-out {
+              opacity: 0;
+              pointer-events: none;
+            }
+
+            /* Spinner */
+            .app-loader-spinner {
+              width: 96px !important; /* DEBUG: Bigger */
+              height: 96px !important;
+              border: 4px solid rgba(255, 255, 255, 0.2) !important;
+              border-top-color: #ffffff !important; /* DEBUG: White on red */
+              border-radius: 50%;
+              animation: app-spin 1s linear infinite;
+            }
+
+            @keyframes app-spin {
+              to { transform: rotate(360deg); }
+            }
+
+            /* Hide main content initially to prevent flash */
+            #__nuxt {
+              opacity: 0;
+              transition: opacity 0.4s ease-in;
+            }
+
+            #__nuxt.loaded {
+              opacity: 1;
+            }
+          `
+        },
+      ],
+
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },

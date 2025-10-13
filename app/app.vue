@@ -1,6 +1,29 @@
+<script setup>
+/**
+ * Main App Component
+ *
+ * Initializes the loading sequence and coordinates
+ * the app-wide ready state for animations.
+ */
+
+import { useLoadingSequence } from "~/composables/useLoadingSequence";
+
+// Initialize loading sequence
+const { initializeLoading } = useLoadingSequence();
+
+onMounted(() => {
+  // Start the loading sequence with options
+  initializeLoading({
+    checkFonts: true,      // Wait for custom fonts
+    minLoadTime: 5000,     // DEBUG: 5 seconds to ensure we can see the loader
+    animateOnReady: true,  // Auto-start animations when ready
+  });
+});
+</script>
+
 <template>
   <!-- Fluid gradient background (z-0, behind everything) -->
-  <FluidGradient />
+  <!-- <FluidGradient /> -->
 
   <NuxtLayout>
     <NuxtPage />
