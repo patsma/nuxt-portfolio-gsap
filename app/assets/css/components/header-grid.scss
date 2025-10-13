@@ -32,6 +32,13 @@
   transform: translateY(-100%);
 }
 
+/* Disable transitions during page transitions to prevent visible jumps
+   - Applied when headroom is paused
+   - Removed when headroom resumes */
+.header-grid.headroom--no-transition {
+  transition: none !important;
+}
+
 .header-grid__inner {
   display: grid;
   grid-template-rows: var(--size-header);

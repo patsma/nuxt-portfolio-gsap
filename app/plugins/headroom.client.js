@@ -89,10 +89,15 @@ export default defineNuxtPlugin((nuxtApp) => {
       headerElement = document.querySelector(".header-grid");
     }
     if (headerElement) {
+      // Disable CSS transitions FIRST to prevent animated slide
+      headerElement.classList.add("headroom--no-transition");
+      // Force browser reflow to apply no-transition immediately
+      void headerElement.offsetHeight;
+      // Now change state instantly (no animation)
       headerElement.classList.add("headroom--pinned");
       headerElement.classList.remove("headroom--unpinned");
     }
-    console.log("[Headroom] Paused - header pinned during transition");
+    console.log("[Headroom] Paused - header pinned (no animation)");
   };
 
   /**
@@ -103,7 +108,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Reset tracking state so headroom starts fresh
     lastScrollTop = 0;
     lastUpdateTime = 0;
-    console.log("[Headroom] Resumed - ready to react to scroll");
+    // Re-enable CSS transitions for smooth animations
+    if (headerElement) {
+      headerElement.classList.remove("headroom--no-transition");
+    }
+    console.log("[Headroom] Resumed - transitions restored");
   };
 
   // Expose controller for ScrollSmoother plugin to call
@@ -120,14 +129,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     pause();
   });
 
-  // Resume headroom after page transition completes
-  nuxtApp.hook("page:finish", () => {
-    console.log("[Headroom] page:finish - resuming headroom after delay");
-    // Small delay to ensure page is fully settled
-    setTimeout(() => {
-      resume();
-    }, 150);
-  });
+  // NOTE: Resume is now called from usePageTransition.js enter() onComplete
+  // This ensures headroom only resumes after visual transition is fully done
 
   // Initialize on app mount
   nuxtApp.hook("app:mounted", () => {
