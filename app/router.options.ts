@@ -1,17 +1,12 @@
 import type { RouterConfig } from "@nuxt/schema";
 
-// Force every navigation to land at the very top instantly.
-// This works in tandem with ScrollSmoother plugin which also
-// resets scroll to 0 and re-initializes smoother after page load.
+// Disable automatic scroll behavior - we handle scroll manually in page transitions
+// This prevents the visible "jump" during transitions by letting us control
+// WHEN the scroll happens (after OUT animation, before IN animation)
 export default <RouterConfig>{
   scrollBehavior(_to, _from, savedPosition) {
-    if (savedPosition) {
-      return {
-        left: savedPosition.left || 0,
-        top: savedPosition.top || 0,
-        behavior: "instant",
-      } as any;
-    }
-    return { left: 0, top: 0, behavior: "instant" } as any;
+    // Return false to prevent automatic scrolling
+    // usePageTransition composable will handle scroll timing manually
+    return false;
   },
 };

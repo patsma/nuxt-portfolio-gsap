@@ -374,7 +374,7 @@ export const usePageTransition = () => {
   }
 
   /**
-   * After leave hook - cleanup
+   * After leave hook - cleanup and scroll to top
    */
   const afterLeave = (el) => {
     // Cleanup SplitText instances and GSAP properties
@@ -383,6 +383,21 @@ export const usePageTransition = () => {
     if ($gsap && el) {
       $gsap.set(el, { clearProps: 'all' })
       $gsap.set(el.querySelectorAll('*'), { clearProps: 'all' })
+    }
+
+    // Manually scroll to top AFTER leave animation completes
+    // This happens between OUT and IN animations, so user doesn't see the jump
+    const { getSmoother } = useScrollSmootherManager()
+    const smoother = getSmoother()
+
+    if (smoother && typeof smoother.scrollTop === 'function') {
+      // Use ScrollSmoother's scrollTop method for instant scroll to 0
+      smoother.scrollTop(0)
+      console.log('📍 Scrolled to top after leave animation')
+    } else {
+      // Fallback to window.scrollTo if ScrollSmoother not available
+      window.scrollTo(0, 0)
+      console.log('📍 Fallback: Scrolled to top using window.scrollTo')
     }
   }
 

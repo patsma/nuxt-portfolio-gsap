@@ -12,6 +12,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   let lastScrollTop = 0;
   let lastUpdateTime = 0;
   let headerElement = null;
+  let isPaused = false; // Pause during page transitions to prevent flicker
 
   /**
    * Update header visibility based on scroll position and direction
@@ -19,6 +20,9 @@ export default defineNuxtPlugin((nuxtApp) => {
    * @param {number} currentScroll - Current scroll position
    */
   const updateHeader = (currentScroll) => {
+    // Skip updates when paused (during page transitions)
+    if (isPaused) return;
+
     // Throttle updates for performance
     const now = Date.now();
     if (now - lastUpdateTime < THROTTLE_DELAY) return;
@@ -74,16 +78,55 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   };
 
+  /**
+   * Pause headroom updates (used during page transitions)
+   * Pins header and stops reacting to scroll changes
+   */
+  const pause = () => {
+    isPaused = true;
+    // Ensure header is pinned during transitions
+    if (!headerElement) {
+      headerElement = document.querySelector(".header-grid");
+    }
+    if (headerElement) {
+      headerElement.classList.add("headroom--pinned");
+      headerElement.classList.remove("headroom--unpinned");
+    }
+    console.log("[Headroom] Paused - header pinned during transition");
+  };
+
+  /**
+   * Resume headroom updates after page transitions
+   */
+  const resume = () => {
+    isPaused = false;
+    // Reset tracking state so headroom starts fresh
+    lastScrollTop = 0;
+    lastUpdateTime = 0;
+    console.log("[Headroom] Resumed - ready to react to scroll");
+  };
+
   // Expose controller for ScrollSmoother plugin to call
   nuxtApp.provide("headroom", {
     updateHeader,
     reset,
+    pause,
+    resume,
   });
 
-  // Reset on page transitions
+  // Pause headroom at start of page transition
   nuxtApp.hook("page:start", () => {
-    console.log("[Headroom] page:start - resetting state");
-    reset();
+    console.log("[Headroom] page:start - pausing headroom");
+    pause();
+  });
+
+  // Resume headroom after page transition completes
+  nuxtApp.hook("page:finish", () => {
+    console.log("[Headroom] page:finish - resuming headroom after delay");
+    // Small delay to ensure page is fully settled
+    setTimeout(() => {
+      resume();
+    }, 150);
   });
 
   // Initialize on app mount
