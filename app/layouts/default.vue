@@ -1,9 +1,10 @@
 <script setup>
 /**
- * Default Layout - ScrollSmoother Integration (Simplified)
+ * Default Layout - ScrollSmoother Integration with Headroom
  *
  * Matches reference implementation structure for reliable page transitions.
  * ScrollSmoother is managed simply: create on mount, kill on unmount.
+ * Headroom integration: header hides on scroll down, shows on scroll up.
  */
 
 // Page transition composable for route changes
@@ -11,6 +12,9 @@ const { leave, enter, beforeEnter, afterLeave } = usePageTransition();
 
 // ScrollSmoother manager for smooth scrolling
 const { createSmoother, killSmoother } = useScrollSmootherManager();
+
+// Access Nuxt app for $headroom plugin
+const nuxtApp = useNuxtApp();
 
 onMounted(() => {
   // Wait for next tick to ensure DOM elements are ready
@@ -24,12 +28,20 @@ onMounted(() => {
       return;
     }
 
-    // Create ScrollSmoother instance using composable
+    // Create ScrollSmoother instance with headroom integration
     createSmoother({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
       smooth: 2,
       effects: true, // Enable data-speed and data-lag attributes
+
+      // Headroom integration: update header visibility on scroll
+      onUpdate: (self) => {
+        if (nuxtApp.$headroom?.updateHeader) {
+          const currentScroll = self.scrollTop();
+          nuxtApp.$headroom.updateHeader(currentScroll);
+        }
+      },
     });
   });
 });

@@ -18,7 +18,7 @@ export const useScrollSmootherManager = () => {
 
   /**
    * Create a new ScrollSmoother instance
-   * @param {Object} config - ScrollSmoother configuration
+   * @param {Object} config - ScrollSmoother configuration (supports all ScrollSmoother options including onUpdate)
    * @returns {Object} ScrollSmoother instance
    */
   const createSmoother = (config = {}) => {
@@ -33,11 +33,11 @@ export const useScrollSmootherManager = () => {
       killSmoother()
     }
 
-    // Default configuration
+    // Default configuration - all config options are passed through to ScrollSmoother.create()
     const defaultConfig = {
       smooth: 2, // seconds it takes to "catch up" to native scroll position
       effects: true, // look for data-speed and data-lag attributes
-      ...config
+      ...config // Includes onUpdate, smoothTouch, normalizeScroll, and any other ScrollSmoother options
     }
 
     console.log('🔍 Checking for ScrollSmoother...')
