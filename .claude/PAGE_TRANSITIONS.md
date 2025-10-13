@@ -159,7 +159,7 @@ Typical range: `0.1` to `0.3`
 
 ## Implementation Details
 
-### Four Critical Fixes
+### Five Critical Fixes
 
 **1. ScrollSmoother Refresh Timing**
 
@@ -231,6 +231,30 @@ gsap.set(el, { height: originalHeight })
 
 // Now create split - can't grow because height is locked
 const split = SplitText.create(el, { type: splitType, mask: splitType })
+```
+
+**5. Safari Enter Animation Timing**
+
+Prevent enter animations from appearing "half-done" on Safari:
+
+```javascript
+// Hide page in beforeEnter
+const beforeEnter = (el) => {
+  gsap.set(el, { visibility: 'hidden' })
+}
+
+// Wait for Safari to paint DOM before animating
+const enter = (el, done) => {
+  nextTick(() => {
+    // Double requestAnimationFrame ensures Safari is ready
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        gsap.set(el, { visibility: 'visible' })
+        // Now start animations...
+      })
+    })
+  })
+}
 ```
 
 ## Layout Integration
@@ -359,7 +383,44 @@ const split = $SplitText.create(el, { type: splitType, mask: splitType });
 
 This prevents the element from growing when masks are added. The locked height is automatically cleared in `afterLeave()` with `clearProps: 'all'`.
 
-### Issue 2: Slow Scrolling Performance (14fps drops)
+### Issue 2: Enter Animations Start Too Fast (Appear Half-Done)
+
+**Problem:** On Safari, enter animations appear to start "half-done" or already completed. Chrome works fine.
+
+**Cause:** Safari executes the enter animation before the new page DOM is fully painted/laid out, causing animations to start before elements are ready.
+
+**Solution:** Use visibility control + double requestAnimationFrame to ensure Safari has fully painted the DOM:
+
+```javascript
+// In beforeEnter - hide page immediately
+const beforeEnter = (el) => {
+  $gsap.set(el, { visibility: 'hidden' });
+};
+
+// In enter - wait for Safari to fully paint DOM
+const enter = (el, done) => {
+  nextTick(() => {
+    const elements = findAnimatedElements(el);
+
+    // Double requestAnimationFrame ensures Safari has fully painted DOM
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // Now Safari is ready - make page visible and animate
+        $gsap.set(el, { visibility: 'visible' });
+
+        refreshSmoother();
+
+        const tl = $gsap.timeline({ onComplete: done });
+        // ... animate elements
+      });
+    });
+  });
+};
+```
+
+The double `requestAnimationFrame` gives Safari TWO paint cycles to complete layout before animations start.
+
+### Issue 3: Slow Scrolling Performance (14fps drops)
 
 **Problem:** ScrollSmoother can drop to 14fps on Safari, especially with higher `smooth` values.
 
@@ -390,9 +451,10 @@ createSmoother({
 
 ✅ **Fixed Issues:**
 1. Content jump during transitions (SplitText height lock)
-2. Slow 14fps scrolling (optimized smooth value + normalizeScroll)
-3. Mobile resize jank (ignoreMobileResize setting)
-4. Parallax effects not working after route change (refreshSmoother timing)
+2. Enter animations starting too fast/appearing half-done (visibility + double requestAnimationFrame)
+3. Slow 14fps scrolling (optimized smooth value + normalizeScroll)
+4. Mobile resize jank (ignoreMobileResize setting)
+5. Parallax effects not working after route change (refreshSmoother timing)
 
 ## Common Issues
 

@@ -1,44 +1,145 @@
 # Morten 2025 - Codebase Guide
 
-Personal portfolio website for Patryk Smakosz built with Nuxt 4, featuring directive-based GSAP page transitions and ScrollSmoother integration.
+Personal portfolio for Patryk Smakosz built with Nuxt 4, featuring directive-based GSAP page transitions and ScrollSmoother integration.
 
-## Common Commands
+## Quick Start
 
-### Development
 ```bash
-# Start dev server with SCSS watch (http://localhost:3000)
-npm run dev
-
-# Build SCSS only (run manually if needed)
-npm run styles:build
-
-# Watch SCSS changes (already included in npm run dev)
-npm run styles:watch
+npm run dev              # Start dev server (http://localhost:3000)
+npm run build            # Production build
+npm run styles:build     # Build SCSS manually
+npm run styles:watch     # Watch SCSS changes
+npm run preview          # Preview production build
+npm run generate         # Generate static site
 ```
 
-### Production
-```bash
-# Build for production (automatically runs styles:build first)
-npm run build
+## Page Transitions
 
-# Preview production build locally
-npm run preview
+**Philosophy**: Manual control via directives - NO auto-detection.
 
-# Generate static site
-npm run generate
+### Usage Example
+
+```vue
+<template>
+  <div class="page-content">
+    <h1 v-page-split:chars data-speed="0.7">Animated Title</h1>
+    <p v-page-fade:up data-lag="0.15">Fades up with lag</p>
+    <div v-page-clip:top>Clip reveal</div>
+    <ul v-page-stagger>
+      <li>Item 1</li>
+      <li>Item 2</li>
+    </ul>
+  </div>
+</template>
 ```
 
-### Dependencies
-```bash
-# Install all dependencies
-npm install
+### Available Directives
 
-# Postinstall automatically runs nuxt prepare
+- **v-page-split:chars|words|lines** - SplitText animations with masking
+- **v-page-fade:up|down|left|right** - Fade with directional movement
+- **v-page-clip:top|bottom|left|right** - Modern clip-path reveals
+- **v-page-stagger** - Stagger child elements
+
+### ScrollSmoother Parallax
+
+- **data-speed** - Movement speed relative to scroll (0.5 = slower, 1.5 = faster)
+- **data-lag** - Smooth "catch up" trailing effect (0.1 to 0.3 typical)
+
+### Lifecycle
+
+1. **Directives Store Config** - When mounted, directives attach animation config to `element._pageAnimation`
+2. **Page Leaves** - `usePageTransition` finds marked elements and animates them OUT
+3. **DOM Swap** - Vue swaps old page for new page
+4. **Page Enters** - New page elements animate IN with opposite animations
+5. **ScrollSmoother Refresh** - Parallax effects recalculate for new content
+
+## Safari Fixes (CRITICAL)
+
+### Fix 1: SplitText Height Jump (~7px)
+
+**Problem**: SplitText masking adds height, causing visible layout jump on Safari.
+
+**Solution**: Lock height BEFORE SplitText runs in `animateSplit()`:
+```javascript
+const originalHeight = el.offsetHeight
+$gsap.set(el, { height: originalHeight })
+const split = $SplitText.create(el, { type: splitType, mask: splitType })
 ```
 
-## High-Level Architecture
+### Fix 2: Enter Animations Start Too Fast
+
+**Problem**: Safari executes animations before DOM is fully painted, appearing "half-done".
+
+**Solution**: Hide page + double requestAnimationFrame:
+```javascript
+// In beforeEnter
+const beforeEnter = (el) => {
+  $gsap.set(el, { visibility: 'hidden' })
+}
+
+// In enter - wait for Safari to paint DOM
+const enter = (el, done) => {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        $gsap.set(el, { visibility: 'visible' })
+        // Now animate...
+      })
+    })
+  })
+}
+```
+
+The double `requestAnimationFrame` gives Safari TWO paint cycles to complete layout before animations start.
+
+### Fix 3: ScrollSmoother Performance (14fps → 60fps)
+
+**Settings**:
+```javascript
+createSmoother({
+  smooth: 1,                    // Lower value = better Safari performance
+  effects: true,                // Enable data-speed and data-lag
+  normalizeScroll: true,        // Improves Safari performance
+  ignoreMobileResize: true      // Prevents mobile jank
+})
+```
+
+## Architecture
+
+### File Structure
+
+```
+app/
+├── assets/css/
+│   ├── main.css          # CSS orchestrator (pre → Tailwind → post)
+│   ├── pre.scss          # Tokens, base (BEFORE Tailwind)
+│   └── post.scss         # Components (AFTER Tailwind)
+├── composables/
+│   ├── usePageTransition.js           # Transition logic + Safari fixes
+│   ├── useScrollSmootherManager.js    # ScrollSmoother lifecycle
+│   ├── useThemeSwitch.js              # Dark/light theme
+│   └── useIsMobile.js                 # Mobile detection
+├── directives/
+│   ├── v-page-split.js       # SplitText animations
+│   ├── v-page-fade.js        # Fade animations
+│   ├── v-page-clip.js        # Clip-path reveals
+│   └── v-page-stagger.js     # Stagger children
+├── plugins/
+│   ├── page-transitions.js   # Register directives globally
+│   └── headroom.client.js    # Header show/hide behavior
+├── layouts/
+│   └── default.vue           # ScrollSmoother wrapper + page transitions
+├── pages/
+│   ├── index.vue             # Home page
+│   ├── about.vue             # About page
+│   └── contact.vue           # Contact page
+└── components/
+    ├── HeaderGrid.vue        # Fixed header with mobile overlay
+    └── ThemeToggleSVG.vue    # Theme switcher
+```
 
 ### Stack Overview
+
 - **Framework**: Nuxt 4 (Vue 3) with Composition API
 - **Styling**: TailwindCSS v4 via Vite + SCSS preprocessing
 - **Animation**: GSAP with premium Club GreenSock plugins (FREE as of 2025)
@@ -46,9 +147,8 @@ npm install
 - **State Management**: Pinia + Vue composables
 - **Content**: Nuxt Content module
 
-### Core Technologies
+### GSAP Integration (@hypernym/nuxt-gsap)
 
-#### GSAP Integration (@hypernym/nuxt-gsap)
 Premium plugins enabled via Club GreenSock (free since 2025):
 - **MorphSVG** - Morph between SVG shapes
 - **DrawSVG** - Animate SVG stroke drawing
@@ -63,7 +163,13 @@ Extra plugins:
 - **Flip** - First Last Invert Play technique
 - **MotionPath** - Animate along SVG paths
 
-#### CSS Architecture (Three-Layer System)
+Access in components:
+```javascript
+const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
+```
+
+### CSS Architecture (Three-Layer System)
+
 ```
 pre.scss → Tailwind → post.scss
 ```
@@ -85,93 +191,11 @@ pre.scss → Tailwind → post.scss
 
 **Critical**: Keep `main.css` as CSS file (not SCSS) for TailwindCSS v4 compatibility.
 
-### Page Transition System
-
-**Philosophy**: Directive-based manual control - NO auto-detection.
-
-#### How It Works
-```vue
-<!-- Mark elements explicitly with directives -->
-<h1 v-page-split:chars data-speed="0.7">Animated Title</h1>
-<p v-page-fade:up data-lag="0.15">Fades up with lag</p>
-```
-
-**Lifecycle**:
-1. **Directives Store Config** - When mounted, directives attach animation config to `element._pageAnimation`
-2. **Page Leaves** - `usePageTransition` finds marked elements and animates them OUT
-3. **DOM Swap** - Vue swaps old page for new page
-4. **Page Enters** - New page elements animate IN with opposite animations
-5. **ScrollSmoother Refresh** - Parallax effects recalculate for new content
-
-#### Available Directives
-- **v-page-split** - SplitText animations (chars/words/lines)
-- **v-page-fade** - Fade with directional movement (up/down/left/right)
-- **v-page-clip** - Modern clip-path reveals
-- **v-page-stagger** - Stagger child elements
-
-#### ScrollSmoother Parallax
-Add to any element for smooth parallax effects:
-- **data-speed** - Controls movement speed relative to scroll (0.5 = slower, 1.5 = faster)
-- **data-lag** - Creates "catch up" effect with momentum (0.1 to 0.3 typical)
-
-#### Safari Height Lock Fix
-**Problem**: On Safari, SplitText with masking adds ~7px to element height, causing visible layout jump.
-
-**Solution**: Lock element height BEFORE SplitText runs in `usePageTransition.js`:
-```javascript
-// In animateSplit() function
-const originalHeight = el.offsetHeight
-gsap.set(el, { height: originalHeight })
-
-// Now create split - can't grow because height is locked
-const split = SplitText.create(el, { type: splitType, mask: splitType })
-```
-
-The locked height is automatically cleared in `afterLeave()` with `clearProps: 'all'`.
-
-See `.claude/PAGE_TRANSITIONS.md` for comprehensive transition documentation.
-
-### File Structure
-
-```
-app/
-├── assets/
-│   └── css/
-│       ├── main.css          # CSS orchestrator (pre → Tailwind → post)
-│       ├── pre.scss          # Tokens, base (BEFORE Tailwind)
-│       └── post.scss         # Components (AFTER Tailwind)
-├── components/
-│   ├── HeaderGrid.vue        # Fixed header with mobile overlay
-│   ├── SVG/                  # SVG icon components
-│   └── ThemeToggleSVG.vue    # Theme switcher
-├── composables/
-│   ├── usePageTransition.js           # Page transition logic
-│   ├── useScrollSmootherManager.js    # ScrollSmoother lifecycle
-│   ├── useThemeSwitch.js              # Dark/light theme
-│   └── useIsMobile.js                 # Mobile detection
-├── directives/
-│   ├── v-page-split.js       # SplitText animations
-│   ├── v-page-fade.js        # Fade animations
-│   ├── v-page-clip.js        # Clip-path reveals
-│   └── v-page-stagger.js     # Stagger children
-├── layouts/
-│   └── default.vue           # ScrollSmoother wrapper + page transitions
-├── pages/
-│   ├── index.vue             # Home page (reference implementation)
-│   ├── about.vue             # About page (reference implementation)
-│   └── contact.vue           # Contact page (reference implementation)
-└── plugins/
-    ├── page-transitions.js   # Register directives globally
-    └── headroom.client.js    # Header show/hide behavior
-
-nuxt.config.ts                # Nuxt configuration
-tailwind.config.js            # TailwindCSS v4 config
-```
-
-## Key Concepts
+## Key Patterns
 
 ### Module-Level State for ScrollSmoother
-The `useScrollSmootherManager.js` composable uses module-level state to share a single ScrollSmoother instance across all components:
+
+The `useScrollSmootherManager.js` composable uses module-level state to share a single ScrollSmoother instance:
 
 ```javascript
 let smootherInstance = null // Module-level, persists across calls
@@ -190,7 +214,7 @@ export const useScrollSmootherManager = () => {
 
   const refreshSmoother = () => {
     if (smootherInstance) {
-      smootherInstance.effects('[data-speed], [data-lag]') // Recalculate parallax
+      smootherInstance.effects('[data-speed], [data-lag]')
       smootherInstance.refresh()
     }
   }
@@ -199,13 +223,14 @@ export const useScrollSmootherManager = () => {
 }
 ```
 
-This pattern ensures:
+This ensures:
 - Single source of truth for ScrollSmoother instance
 - Proper cleanup without stale references
 - Composables can refresh without circular dependencies
 
 ### Directive Config Storage Pattern
-Directives store animation configuration directly on DOM elements using `element._pageAnimation`:
+
+Directives store animation configuration directly on DOM elements:
 
 ```javascript
 // In v-page-fade.js directive
@@ -214,7 +239,6 @@ export default {
     const direction = binding.arg || 'up'
     const config = binding.value || {}
 
-    // Store config on element for usePageTransition to read
     el._pageAnimation = {
       type: 'fade',
       config: {
@@ -239,6 +263,7 @@ This pattern:
 - Clean separation of concerns
 
 ### Layout Structure for ScrollSmoother
+
 ScrollSmoother requires specific DOM structure:
 
 ```vue
@@ -275,23 +300,12 @@ SCSS files are compiled to CSS using Sass CLI:
 - Both are imported in `main.css`
 - Watch mode runs in parallel with Nuxt dev server
 
-### GSAP Premium Plugins
-All Club GreenSock plugins are FREE as of 2025:
-- No license key needed
-- Available via `@hypernym/nuxt-gsap` module
-- Auto-injected as Nuxt composables (`$gsap`, `$ScrollTrigger`, etc.)
-- Access in components via `useNuxtApp()`:
-  ```javascript
-  const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
-  ```
-
 ### Page Structure Requirements
 All pages must wrap content in `.page-content` for transitions:
 
 ```vue
 <template>
   <div class="page-content">
-    <!-- Directive-marked elements here -->
     <h1 v-page-split:chars data-speed="0.7">Title</h1>
     <p v-page-fade:up data-lag="0.15">Content</p>
   </div>
@@ -328,21 +342,33 @@ Missing logs indicate:
 
 ## Reference Implementation
 
-This page transition system is based on the working [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) demo.
+Based on [nuxt4page-transitions](https://github.com/user/nuxt4page-transitions) with Safari enhancements:
 
-Key files adapted from reference:
-- `app/composables/usePageTransition.js`
-- `app/composables/useScrollSmootherManager.js`
-- `app/directives/*.js`
-- `app/plugins/page-transitions.js`
-- `app/layouts/default.vue`
-- `app/pages/index.vue`, `about.vue`, `contact.vue`
+Key files:
+- `app/composables/usePageTransition.js` - Core transition logic (471 lines)
+- `app/composables/useScrollSmootherManager.js` - ScrollSmoother lifecycle
+- `app/directives/*.js` - Four animation directives
+- `app/plugins/page-transitions.js` - Register directives globally
+- `app/layouts/default.vue` - Integration layer
+- `app/router.options.ts` - Manual scroll control
 
-All implementations follow the reference patterns for:
-- Directive-based manual control
-- Safari height lock fix for SplitText
-- Module-level state management
-- Simple enter() timing (no pre-setting states)
-- ScrollSmoother lifecycle
+Safari enhancements:
+- Height lock fix for SplitText (prevents 7px jump)
+- Enter animation timing fix (double requestAnimationFrame)
+- Optimized ScrollSmoother settings (smooth: 1, normalizeScroll, ignoreMobileResize)
 
-For detailed transition documentation, see `.claude/PAGE_TRANSITIONS.md`.
+## Production Ready
+
+✅ Safari-optimized (height lock + timing fixes)
+✅ 60fps scrolling on all browsers
+✅ Manual control - NO auto-detection
+✅ Headroom integration with pause/resume
+✅ SSR-compatible directives
+✅ Reusable across Nuxt 4 projects
+
+## Documentation
+
+- **`.claude/PAGE_TRANSITIONS.md`** - Complete transition system documentation
+- **`.claude/SCROLL_SYSTEM.md`** - ScrollSmoother and Headroom integration
+- **`app/composables/usePageTransition.js`** - Inline code comments
+- **`app/directives/*.js`** - Directive usage documentation
