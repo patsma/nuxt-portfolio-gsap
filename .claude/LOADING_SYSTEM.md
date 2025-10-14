@@ -79,20 +79,19 @@ app: {
 **Key Styles**:
 - `#app-initial-loader` - Fixed overlay with theme-aware background
 - `.app-loader-spinner` - 48px spinning circle (0.8s rotation) with theme colors
-- `.theme-dark` - Class-based dark theme (manual toggle - priority)
-- `@media (prefers-color-scheme: dark)` - Media query dark theme (system preference - fallback)
+- `.theme-dark` - Class-based dark theme (applied by blocking script)
 - `.fade-out` - Opacity transition (0.5s)
 - `#__nuxt` - Hidden initially, fades in when loaded
 
 **Theme Colors**:
-- **Light theme**: `#fffaf5` background + `#090925` spinner (matches theme system)
-- **Dark theme**: `#090925` background + `#fffaf5` spinner
+- **Light theme** (default): `#fffaf5` background + `#090925` dark spinner
+- **Dark theme** (with `.theme-dark` class): `#090925` background + `#fffaf5` light spinner
 - Colors match `--color-light-100` and `--color-dark-100` from theme tokens
 
-**Theme Detection Priority**:
-1. `.theme-dark` class (manual user toggle stored in localStorage) - highest priority
-2. `@media (prefers-color-scheme: dark)` (system preference) - fallback
-3. Light theme (default)
+**Theme Detection**:
+- Blocking script checks localStorage → system preference → default light
+- Sets `.theme-dark` class if dark theme needed
+- CSS applies styles based on class presence only (no media query conflicts)
 
 ### 3. `app/plugins/loader-manager.client.js` (Client Plugin)
 **Purpose**: Manages loader removal when app is ready
@@ -447,18 +446,20 @@ console.log(window.__loadingStore.fontsReady) // Should be true
    - Toggle between Light/Dark
    - Hard refresh (Cmd+Shift+R) - loader matches system theme
 
-3. **Test with DevTools**:
-   - Open DevTools → Rendering tab
-   - Find "Emulate CSS media feature prefers-color-scheme"
-   - Toggle between light/dark
-   - Hard refresh (Cmd+Shift+R) - loader updates instantly
+3. **Test Class-Based Detection** (No Media Query Conflicts):
+   - Set system to dark mode
+   - Toggle app to light theme manually
+   - Hard refresh (Cmd+Shift+R)
+   - **Expected**: Loader shows LIGHT theme (manual choice wins)
+   - No CSS specificity conflicts
 
 4. **Expected Behavior**:
-   - Light mode: Light background (#fffaf5) + Dark spinner (#090925)
-   - Dark mode: Dark background (#090925) + Light spinner (#fffaf5)
+   - Light theme: Light background (#fffaf5) + Dark spinner (#090925)
+   - Dark theme: Dark background (#090925) + Light spinner (#fffaf5)
    - Loader matches theme BEFORE JavaScript loads
-   - Manual toggle overrides system preference
+   - Manual toggle always overrides system preference
    - No FOUC - correct theme from first pixel
+   - No media query conflicts - class-based only
    - Smooth transition when content appears
 
 ## Production Considerations
