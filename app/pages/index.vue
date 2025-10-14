@@ -1,5 +1,10 @@
+<script setup lang="ts">
+import HeroSection from "~/components/HeroSection.vue";
+</script>
+
 <template>
   <div class="page-content">
+    <HeroSection />
     <!-- v-page-split:chars - Character reveal with slower scroll speed -->
     <h1 v-page-split:chars data-speed="0.7">Home Page</h1>
 
@@ -34,7 +39,10 @@
 
     <div v-page-clip:top data-lag="0.2" class="content-box">
       <h2>Scroll Smoothing</h2>
-      <p>ScrollSmoother creates buttery smooth scrolling with momentum and effects.</p>
+      <p>
+        ScrollSmoother creates buttery smooth scrolling with momentum and
+        effects.
+      </p>
       <p>Try scrolling to feel the smooth animation!</p>
     </div>
 
@@ -42,8 +50,13 @@
 
     <div v-page-clip:left data-lag="0.25" class="content-box">
       <h2>How It Works</h2>
-      <p>ScrollSmoother wraps your content and creates a virtual scroll experience.</p>
-      <p>It transitions between pages seamlessly with our page transition system.</p>
+      <p>
+        ScrollSmoother wraps your content and creates a virtual scroll
+        experience.
+      </p>
+      <p>
+        It transitions between pages seamlessly with our page transition system.
+      </p>
     </div>
 
     <div class="spacer"></div>
