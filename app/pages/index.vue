@@ -20,7 +20,7 @@ const services = [
       <h1
         v-page-split:lines
         data-speed="0.8"
-        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] max-w-[1400px]"
+        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)]"
       >
         Welcome, I am <span class="pp-eiko-desktop-h1-bold">Morten</span> – a
         <em class="pp-eiko-desktop-h1-italic">Danish</em> designer based in
