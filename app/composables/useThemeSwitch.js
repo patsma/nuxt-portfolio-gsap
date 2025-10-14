@@ -75,10 +75,17 @@ export default function useThemeSwitch() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDarkInitially = stored ? stored === 'dark' : prefersDark;
 
+    // CRITICAL: Immediately sync Pinia store state with what we just read
+    // This prevents the double-click bug when starting with dark theme
+    // Without this, store might still have default isDark: false
+    // causing button logic to think it's light when timeline is actually dark
+    themeStore.isDark = isDarkInitially;
+
     console.log('🎬 [GSAP Timeline] Reading initial theme directly:',
       '| localStorage:', stored || 'null',
       '| system prefers:', prefersDark ? 'dark' : 'light',
-      '| isDark:', isDarkInitially);
+      '| isDark:', isDarkInitially,
+      '| Store synced:', themeStore.isDark);
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
