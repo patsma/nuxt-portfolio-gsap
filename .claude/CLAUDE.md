@@ -1,6 +1,18 @@
 # Morten 2025 - Codebase Guide
 
-Personal portfolio for Patryk Smakosz built with Nuxt 4, featuring directive-based GSAP page transitions and ScrollSmoother integration.
+Personal portfolio for Patryk Smakosz built with Nuxt 4, featuring directive-based GSAP page transitions, ScrollSmoother integration, theme-aware loading system, and smooth dark/light theme switching.
+
+## Overview
+
+This project implements several advanced systems working together:
+
+- **Loading System** - Theme-aware initial loader with SSR support (no FOUC)
+- **Theme System** - GSAP-animated dark/light theme toggle with localStorage persistence
+- **Page Transitions** - Directive-based GSAP animations with Safari optimizations
+- **Scroll System** - ScrollSmoother integration with Headroom header behavior
+- **Animation** - GSAP Club GreenSock premium plugins for professional motion
+
+All systems are fully documented in dedicated markdown files (see Documentation section below).
 
 ## Quick Start
 
@@ -12,6 +24,53 @@ npm run styles:watch     # Watch SCSS changes
 npm run preview          # Preview production build
 npm run generate         # Generate static site
 ```
+
+## Key Systems
+
+### Loading System
+Theme-aware initial loader with SSR support. Shows instantly on page load with correct theme (light/dark) before JavaScript loads. Prevents FOUC.
+
+**Features**:
+- Blocking script detects theme before loader renders
+- Respects manual toggle (localStorage) over system preference
+- Enforces minimum display time for consistent UX
+- Event-driven completion with resource tracking
+
+📖 **See** `.claude/LOADING_SYSTEM.md` for complete documentation.
+
+### Theme System
+GSAP-animated dark/light theme switching with localStorage persistence and SSR compatibility.
+
+**Features**:
+- Smooth color transitions using GSAP timeline
+- Manual toggle overrides system preference
+- SVG icon morphing animation
+- Pinia store for centralized state
+- No FOUC - theme detected before first paint
+
+📖 **See** `.claude/THEME_SYSTEM.md` for complete documentation.
+
+### Page Transitions
+Directive-based GSAP page transitions with manual control. NO auto-detection - mark exactly which elements animate.
+
+**Features**:
+- Four animation directives (split, fade, clip, stagger)
+- ScrollSmoother parallax support (data-speed, data-lag)
+- Safari optimizations (height lock, timing fixes)
+- SSR-compatible directives
+
+📖 **See** `.claude/PAGE_TRANSITIONS.md` for complete documentation.
+
+### Scroll System
+ScrollSmoother integration with Headroom header behavior for buttery smooth scrolling.
+
+**Features**:
+- 60fps smooth scrolling with momentum
+- Parallax effects with data attributes
+- Headroom auto-hide/show header
+- Module-level state management
+
+📖 **See** `.claude/SCROLL_SYSTEM.md` for complete documentation.
 
 ## Page Transitions
 
@@ -117,7 +176,8 @@ app/
 ├── composables/
 │   ├── usePageTransition.js           # Transition logic + Safari fixes
 │   ├── useScrollSmootherManager.js    # ScrollSmoother lifecycle
-│   ├── useThemeSwitch.js              # Dark/light theme
+│   ├── useThemeSwitch.js              # Dark/light theme GSAP timeline
+│   ├── useLoadingSequence.js          # Loading orchestrator with timing
 │   └── useIsMobile.js                 # Mobile detection
 ├── directives/
 │   ├── v-page-split.js       # SplitText animations
@@ -125,17 +185,25 @@ app/
 │   ├── v-page-clip.js        # Clip-path reveals
 │   └── v-page-stagger.js     # Stagger children
 ├── plugins/
-│   ├── page-transitions.js   # Register directives globally
-│   └── headroom.client.js    # Header show/hide behavior
+│   ├── page-transitions.js      # Register directives globally
+│   ├── theme.client.ts          # Theme initialization (SSR-safe)
+│   ├── loader-manager.client.js # Loader removal manager
+│   └── headroom.client.js       # Header show/hide behavior
+├── stores/
+│   ├── theme.js             # Theme state with Pinia hydration
+│   └── loading.js           # Loading state tracking
 ├── layouts/
-│   └── default.vue           # ScrollSmoother wrapper + page transitions
+│   └── default.vue          # ScrollSmoother wrapper + page transitions
 ├── pages/
-│   ├── index.vue             # Home page
-│   ├── about.vue             # About page
-│   └── contact.vue           # Contact page
-└── components/
-    ├── HeaderGrid.vue        # Fixed header with mobile overlay
-    └── ThemeToggleSVG.vue    # Theme switcher
+│   ├── index.vue            # Home page
+│   ├── about.vue            # About page
+│   └── contact.vue          # Contact page
+├── components/
+│   ├── HeaderGrid.vue       # Fixed header with mobile overlay
+│   └── ThemeToggleSVG.vue   # Theme switcher with SVG morphing
+└── server/
+    └── plugins/
+        └── inject-loader.ts # Nitro plugin: injects loader + theme script
 ```
 
 ### Stack Overview
@@ -359,16 +427,80 @@ Safari enhancements:
 
 ## Production Ready
 
+### Loading System
+✅ Theme-aware loader with no FOUC
+✅ SSR-compatible (Nitro plugin)
+✅ Respects localStorage + system preference
+✅ Enforces minimum display time for consistent UX
+✅ Event-driven resource tracking
+
+### Theme System
+✅ Smooth GSAP color transitions
+✅ localStorage persistence
+✅ SSR-safe initialization (Pinia hydration)
+✅ Manual toggle overrides system preference
+✅ No flash of wrong theme
+
+### Page Transitions
 ✅ Safari-optimized (height lock + timing fixes)
-✅ 60fps scrolling on all browsers
 ✅ Manual control - NO auto-detection
-✅ Headroom integration with pause/resume
 ✅ SSR-compatible directives
+✅ ScrollSmoother integration
+
+### Scroll System
+✅ 60fps scrolling on all browsers
+✅ Headroom integration with pause/resume
+✅ Module-level state management
+✅ Performance optimized
+
+### Overall
+✅ Fully documented with markdown files
 ✅ Reusable across Nuxt 4 projects
+✅ Production-tested patterns
 
 ## Documentation
 
-- **`.claude/PAGE_TRANSITIONS.md`** - Complete transition system documentation
-- **`.claude/SCROLL_SYSTEM.md`** - ScrollSmoother and Headroom integration
-- **`app/composables/usePageTransition.js`** - Inline code comments
-- **`app/directives/*.js`** - Directive usage documentation
+### System Documentation (Markdown Files)
+
+Complete documentation for each major system:
+
+- **`.claude/LOADING_SYSTEM.md`** - Loading system architecture
+  - SSR loader injection with Nitro plugin
+  - Theme detection (blocking script)
+  - Resource tracking and timing enforcement
+  - Event system (app:ready, app:complete)
+  - Troubleshooting guide
+
+- **`.claude/THEME_SYSTEM.md`** - Theme switching system
+  - GSAP color animation architecture
+  - SSR-safe initialization with Pinia
+  - localStorage persistence patterns
+  - SVG toggle button implementation
+  - CSS-based hover effects
+  - Breakpoint system
+
+- **`.claude/PAGE_TRANSITIONS.md`** - Page transition system
+  - Directive-based animation approach
+  - Safari optimizations (critical fixes)
+  - ScrollSmoother integration
+  - Lifecycle and timing
+  - Debugging guide
+
+- **`.claude/SCROLL_SYSTEM.md`** - Scroll system
+  - ScrollSmoother setup and configuration
+  - Headroom header behavior
+  - Parallax effects (data-speed, data-lag)
+  - Module-level state management
+  - Performance optimizations
+
+### Code Documentation
+
+Inline documentation in key files:
+
+- **`app/composables/usePageTransition.js`** - Transition logic (471 lines with comments)
+- **`app/composables/useThemeSwitch.js`** - Theme timeline setup
+- **`app/composables/useLoadingSequence.js`** - Loading orchestration
+- **`app/directives/*.js`** - Directive usage and configuration
+- **`server/plugins/inject-loader.ts`** - SSR loader injection
+- **`app/stores/theme.js`** - Theme state management
+- **`app/stores/loading.js`** - Loading state tracking
