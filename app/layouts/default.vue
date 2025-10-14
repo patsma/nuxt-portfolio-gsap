@@ -10,10 +10,12 @@
 const { leave, enter, beforeEnter, afterLeave } = usePageTransition();
 
 // ScrollSmoother manager for smooth scrolling
-const { createSmoother, killSmoother, scrollToTop } = useScrollSmootherManager();
+const { createSmoother, killSmoother, scrollToTop } =
+  useScrollSmootherManager();
 
 // Loading sequence manager
-const { markScrollSmootherReady, markPageReady, isFirstLoad } = useLoadingSequence();
+const { markScrollSmootherReady, markPageReady, isFirstLoad } =
+  useLoadingSequence();
 
 // Access Nuxt app for $headroom plugin
 const nuxtApp = useNuxtApp();
@@ -54,7 +56,7 @@ onMounted(() => {
     // This ensures the page starts at scrollTop 0, not at some random offset
     nextTick(() => {
       scrollToTop();
-      console.log('✅ Page scroll position reset to top');
+      console.log("✅ Page scroll position reset to top");
     });
 
     // Mark ScrollSmoother as ready in loading sequence
@@ -95,7 +97,7 @@ onUnmounted(() => {
     <div id="smooth-content">
       <div class="layout-wrapper">
         <!-- Page content - transitions on route change with GSAP -->
-        <div class="content-grid pt-[var(--size-header)]">
+        <div class="pt-[var(--size-header)]">
           <NuxtPage
             :transition="{
               name: 'page',

@@ -1,53 +1,51 @@
 <template>
-  <section class="hero-section min-h-screen flex items-center">
-    <div class="content-grid w-full">
-      <div class="breakout2 py-[var(--space-2xl)]">
-        <!-- Main Hero Text with line-by-line reveal animation -->
-        <h1
-          v-page-split:lines
-          data-speed="0.8"
-          class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] max-w-[1400px]"
-        >
-          Welcome, I am <span class="pp-eiko-desktop-h1-bold">Morten</span> –
-          a <em class="pp-eiko-desktop-h1-italic">Danish</em> designer based in
-          <em class="pp-eiko-desktop-h1-italic">Tokyo</em> approaching today's
-          challenges with a
-          <em class="pp-eiko-desktop-h1-italic">digital-first</em> and
-          <em class="pp-eiko-desktop-h1-italic">user-centred</em> mindset
-        </h1>
+  <section class="content-grid w-full min-h-screen">
+    <div class="breakout3 py-[var(--space-2xl)]">
+      <!-- Main Hero Text with line-by-line reveal animation -->
+      <h1
+        v-page-split:lines
+        data-speed="0.8"
+        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] max-w-[1400px]"
+      >
+        Welcome, I am <span class="pp-eiko-desktop-h1-bold">Morten</span> – a
+        <em class="pp-eiko-desktop-h1-italic">Danish</em> designer based in
+        <em class="pp-eiko-desktop-h1-italic">Tokyo</em> approaching today's
+        challenges with a
+        <em class="pp-eiko-desktop-h1-italic">digital-first</em> and
+        <em class="pp-eiko-desktop-h1-italic">user-centred</em> mindset
+      </h1>
 
-        <!-- Services List with stagger animation -->
-        <nav class="services-list" aria-label="Services">
-          <ul
-            v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
-            data-lag="0.2"
-            class="flex flex-wrap gap-[var(--space-s)] items-center"
+      <!-- Services List with stagger animation -->
+      <nav class="services-list" aria-label="Services">
+        <ul
+          v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
+          data-lag="0.2"
+          class="flex flex-wrap gap-[var(--space-s)] items-center"
+        >
+          <li
+            class="ibm-plex-sans-jp-desktop-custom-labels text-[var(--theme-text-60)] uppercase tracking-wider"
           >
-            <li
-              class="ibm-plex-sans-jp-desktop-custom-labels text-[var(--theme-text-60)] uppercase tracking-wider"
+            SERVICES
+          </li>
+          <li
+            v-for="(service, index) in services"
+            :key="service"
+            class="flex items-center gap-[var(--space-s)]"
+          >
+            <span
+              class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
             >
-              SERVICES
-            </li>
-            <li
-              v-for="(service, index) in services"
-              :key="service"
-              class="flex items-center gap-[var(--space-s)]"
+              {{ service }}
+            </span>
+            <span
+              v-if="index < services.length - 1"
+              class="text-[var(--theme-text-40)]"
             >
-              <span
-                class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
-              >
-                {{ service }}
-              </span>
-              <span
-                v-if="index < services.length - 1"
-                class="text-[var(--theme-text-40)]"
-              >
-                •
-              </span>
-            </li>
-          </ul>
-        </nav>
-      </div>
+              •
+            </span>
+          </li>
+        </ul>
+      </nav>
     </div>
   </section>
 </template>
@@ -68,15 +66,15 @@
  */
 
 const services = [
-  'ART DIRECTION',
-  'CREATIVE DIRECTION',
-  'CONCEPT DEVELOPMENT',
-  'CONSULTING & GUIDANCE',
-  'USER EXPERIENCE DESIGN (UX)',
-  'DIGITAL DESIGN (UI)',
-  'INTERACTIVE DESIGN',
-  'DESIGN SYSTEMS & TOKENS',
-]
+  "ART DIRECTION",
+  "CREATIVE DIRECTION",
+  "CONCEPT DEVELOPMENT",
+  "CONSULTING & GUIDANCE",
+  "USER EXPERIENCE DESIGN (UX)",
+  "DIGITAL DESIGN (UI)",
+  "INTERACTIVE DESIGN",
+  "DESIGN SYSTEMS & TOKENS",
+];
 </script>
 
 <style scoped>
