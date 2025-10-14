@@ -9,7 +9,7 @@ import HeroSection from "~/components/HeroSection.vue";
       <h1
         v-page-split:lines
         data-speed="0.8"
-        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)]"
+        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] leading-[1.3]"
       >
         Driven by a high <em class="pp-eiko-desktop-h1-italic">passion</em> for
         design, I craft compelling solutions backed by
