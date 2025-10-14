@@ -33,17 +33,33 @@ This follows **Nuxt 4 best practices** for SSR applications:
 ## Key Files
 
 ### 1. `server/plugins/inject-loader.ts` (Nitro Plugin)
-**Purpose**: Injects loader HTML into SSR response BEFORE it's sent to browser
+**Purpose**: Injects theme detection script + loader HTML into SSR response BEFORE it's sent to browser
 
 ```typescript
 nitroApp.hooks.hook('render:html', (html) => {
   html.bodyAppend.unshift(`
+    <script>
+      // Theme detection runs BEFORE loader is visible (prevents FOUC)
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = stored ? stored === 'dark' : prefersDark;
+      if (isDark) {
+        document.documentElement.classList.add('theme-dark');
+      }
+    </script>
     <div id="app-initial-loader">
       <div class="app-loader-spinner"></div>
     </div>
   `);
 });
 ```
+
+**Key Features**:
+- Blocking script runs IMMEDIATELY (before loader renders)
+- Checks localStorage first (respects manual theme toggle)
+- Falls back to `prefers-color-scheme` (system preference)
+- Sets `theme-dark` class on `<html>` instantly
+- No FOUC - loader shows correct theme from first pixel
 
 ### 2. `nuxt.config.ts` (CSS Injection)
 **Purpose**: Injects loader styles into `<head>` that render immediately
@@ -63,14 +79,20 @@ app: {
 **Key Styles**:
 - `#app-initial-loader` - Fixed overlay with theme-aware background
 - `.app-loader-spinner` - 48px spinning circle (0.8s rotation) with theme colors
-- `@media (prefers-color-scheme: dark)` - Automatic dark theme detection
+- `.theme-dark` - Class-based dark theme (manual toggle - priority)
+- `@media (prefers-color-scheme: dark)` - Media query dark theme (system preference - fallback)
 - `.fade-out` - Opacity transition (0.5s)
 - `#__nuxt` - Hidden initially, fades in when loaded
 
 **Theme Colors**:
 - **Light theme**: `#fffaf5` background + `#090925` spinner (matches theme system)
-- **Dark theme**: `#090925` background + `#fffaf5` spinner (automatic via media query)
+- **Dark theme**: `#090925` background + `#fffaf5` spinner
 - Colors match `--color-light-100` and `--color-dark-100` from theme tokens
+
+**Theme Detection Priority**:
+1. `.theme-dark` class (manual user toggle stored in localStorage) - highest priority
+2. `@media (prefers-color-scheme: dark)` (system preference) - fallback
+3. Light theme (default)
 
 ### 3. `app/plugins/loader-manager.client.js` (Client Plugin)
 **Purpose**: Manages loader removal when app is ready
@@ -412,21 +434,31 @@ console.log(window.__loadingStore.fontsReady) // Should be true
 
 **To test light/dark theme loader**:
 
-1. **Test System Preference**:
+1. **Test Manual Toggle (Priority)**:
+   - Toggle theme using theme switcher button
+   - localStorage stores 'theme: dark' or 'theme: light'
+   - Hard refresh page (Cmd+Shift+R)
+   - Loader should match your manual toggle choice
+   - NO flash of wrong theme (FOUC prevented)
+
+2. **Test System Preference (Fallback)**:
+   - Clear localStorage: `localStorage.removeItem('theme')` in console
    - macOS: System Preferences → General → Appearance
    - Toggle between Light/Dark
-   - Refresh page - loader should match system theme
+   - Hard refresh (Cmd+Shift+R) - loader matches system theme
 
-2. **Test with DevTools**:
+3. **Test with DevTools**:
    - Open DevTools → Rendering tab
    - Find "Emulate CSS media feature prefers-color-scheme"
    - Toggle between light/dark
    - Hard refresh (Cmd+Shift+R) - loader updates instantly
 
-3. **Expected Behavior**:
+4. **Expected Behavior**:
    - Light mode: Light background (#fffaf5) + Dark spinner (#090925)
    - Dark mode: Dark background (#090925) + Light spinner (#fffaf5)
    - Loader matches theme BEFORE JavaScript loads
+   - Manual toggle overrides system preference
+   - No FOUC - correct theme from first pixel
    - Smooth transition when content appears
 
 ## Production Considerations

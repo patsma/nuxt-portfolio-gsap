@@ -21,6 +21,11 @@ export const useThemeStore = defineStore('theme', {
       const stored = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       state.isDark = stored ? stored === 'dark' : prefersDark;
+
+      // Debug logging
+      console.log('🍍 [Pinia Store] Theme hydrated:', state.isDark ? 'DARK' : 'LIGHT',
+        '| localStorage:', stored || 'null',
+        '| system prefers:', prefersDark ? 'dark' : 'light');
     }
   },
 
@@ -38,6 +43,10 @@ export const useThemeStore = defineStore('theme', {
 
         // Sync with HTML class
         document.documentElement.classList.toggle('theme-dark', this.isDark);
+
+        // Debug logging
+        console.log('🔄 [Pinia Store] Theme toggled to:', this.isDark ? 'DARK' : 'LIGHT',
+          '| Saved to localStorage');
       }
     },
 

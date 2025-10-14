@@ -50,7 +50,17 @@ export default defineNuxtConfig({
               animation: app-spin 0.8s linear infinite;
             }
 
-            /* Dark theme overrides - instant detection via media query */
+            /* Dark theme overrides - class-based (manual toggle - priority) */
+            .theme-dark #app-initial-loader {
+              background: #090925; /* Dark background (--color-dark-100) */
+            }
+
+            .theme-dark .app-loader-spinner {
+              border: 2px solid rgba(255, 250, 245, 0.15); /* Light with opacity */
+              border-top-color: #fffaf5; /* Light spinner (--color-light-100) */
+            }
+
+            /* Dark theme overrides - media query (system preference - fallback) */
             @media (prefers-color-scheme: dark) {
               #app-initial-loader {
                 background: #090925; /* Dark background (--color-dark-100) */

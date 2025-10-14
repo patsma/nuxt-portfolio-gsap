@@ -65,10 +65,20 @@ export default function useThemeSwitch() {
       return;
     }
 
-    // Use theme store as single source of truth
+    // Use theme store as single source of truth for TOGGLING
     const themeStore = useThemeStore();
     const html = document.documentElement;
-    const isDarkInitially = themeStore.isDark;
+
+    // Read initial theme directly from same source as blocking script
+    // Can't rely on Pinia hydration timing - it may not have run yet
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDarkInitially = stored ? stored === 'dark' : prefersDark;
+
+    console.log('🎬 [GSAP Timeline] Reading initial theme directly:',
+      '| localStorage:', stored || 'null',
+      '| system prefers:', prefersDark ? 'dark' : 'light',
+      '| isDark:', isDarkInitially);
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
@@ -383,29 +393,34 @@ export default function useThemeSwitch() {
         "<"
       );
 
-      // Set initial timeline position based on store (source of truth)
+      // Set initial timeline position based on localStorage reading (not store)
+      // Store will eventually sync via hydration, but timeline needs correct state NOW
       tl.progress(isDarkInitially ? 1 : 0).pause();
-      // console.log("Initial timeline - isDark:", isDarkInitially, "progress:", tl.progress());
+      console.log('🎬 [GSAP Timeline] Timeline initialized:',
+        '| Progress set to:', tl.progress(),
+        '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT');
 
       // Button click ONLY toggles store - store is source of truth
       themeSwitch.addEventListener("click", function () {
         // Get current state BEFORE toggle
         const wasLight = !themeStore.isDark;
 
-        // console.log("=== Theme Toggle Clicked ===");
-        // console.log("Current theme:", wasLight ? "LIGHT" : "DARK");
+        console.log('🖱️ [Theme Toggle] Button clicked');
+        console.log('  → Was:', wasLight ? 'LIGHT' : 'DARK');
 
         // Toggle store ONCE
         themeStore.toggle();
 
+        console.log('  → Now:', themeStore.isDark ? 'DARK' : 'LIGHT');
+
         // Animate timeline based on NEW state (simple toggle)
         if (wasLight) {
           // Was light, now dark → animate forward
-          // console.log("Animating to DARK (progress → 1)");
+          console.log('  → Animating timeline: play() → progress 1');
           tl.play();
         } else {
           // Was dark, now light → animate backward
-          // console.log("Animating to LIGHT (progress → 0)");
+          console.log('  → Animating timeline: reverse() → progress 0');
           tl.reverse();
         }
       });

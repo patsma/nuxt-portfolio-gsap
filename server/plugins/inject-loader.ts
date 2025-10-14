@@ -21,14 +21,33 @@
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', (html) => {
-    // Inject loader HTML into body
-    // bodyAppend.unshift() puts it at the START of body (before #__nuxt)
+    // Inject blocking script BEFORE loader to detect theme instantly
+    // This prevents FOUC by setting theme class before loader renders
     html.bodyAppend.unshift(`
+      <script>
+        (function() {
+          // Check localStorage for manual theme toggle (priority)
+          var stored = localStorage.getItem('theme');
+          // Check system preference as fallback
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          // Determine theme: manual toggle > system preference
+          var isDark = stored ? stored === 'dark' : prefersDark;
+
+          // Set OR remove theme class IMMEDIATELY before loader appears
+          // Using toggle() ensures class is added if dark, removed if light
+          document.documentElement.classList.toggle('theme-dark', isDark);
+
+          // Debug logging (can be removed in production)
+          console.log('🎨 [Blocking Script] Theme detected:', isDark ? 'DARK' : 'LIGHT',
+            '| localStorage:', stored || 'null',
+            '| system prefers:', prefersDark ? 'dark' : 'light');
+        })();
+      </script>
       <div id="app-initial-loader">
         <div class="app-loader-spinner"></div>
       </div>
     `);
 
-    console.log('🎨 [Nitro] Loader HTML injected into SSR response');
+    console.log('🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response');
   });
 });

@@ -518,26 +518,37 @@ This fix is implemented in:
 ### Architecture Overview
 
 The theme system uses a modern, SSR-safe pattern with:
-1. **Nuxt Plugin** (`app/plugins/theme.client.ts`) - Runs BEFORE hydration to prevent FOUC
-2. **Pinia Store** (`app/stores/theme.js`) - Centralized state with hydration support
-3. **GSAP Timeline** (`app/composables/useThemeSwitch.js`) - Smooth color animations
-4. **FluidGradient** (`app/components/FluidGradient.vue`) - Self-contained gradient with theme sync
+1. **Nitro Plugin** (`server/plugins/inject-loader.ts`) - Injects blocking theme detection script (earliest)
+2. **Nuxt Plugin** (`app/plugins/theme.client.ts`) - Syncs theme with Pinia store
+3. **Pinia Store** (`app/stores/theme.js`) - Centralized state with hydration support
+4. **GSAP Timeline** (`app/composables/useThemeSwitch.js`) - Smooth color animations
+5. **FluidGradient** (`app/components/FluidGradient.vue`) - Self-contained gradient with theme sync
 
 ### Initialization Flow
 
 ```
 1. SERVER (SSR)
-   └─ HTML rendered with default state (no theme class)
+   ├─ Nitro plugin injects blocking <script> into HTML
+   │  └─ Script checks localStorage + prefers-color-scheme
+   │      └─ Adds 'theme-dark' class to <html> if dark
+   │
+   └─ HTML sent to browser with correct theme class
 
-2. CLIENT (Hydration)
-   ├─ Plugin runs FIRST (theme.client.ts)
-   │  ├─ Reads localStorage
-   │  ├─ Checks prefers-color-scheme
-   │  └─ Sets 'theme-dark' class on <html> IMMEDIATELY
+2. BROWSER (First Paint)
+   ├─ Blocking script executes BEFORE loader renders
+   │  └─ Loader CSS sees 'theme-dark' class → shows correct colors
+   │      └─ NO FOUC - loader matches user's theme from first pixel
+   │
+   └─ Initial loader visible with correct theme
+
+3. CLIENT (Hydration)
+   ├─ Plugin runs (theme.client.ts)
+   │  ├─ Re-reads localStorage (already synced by blocking script)
+   │  └─ Confirms 'theme-dark' class is correct
    │
    ├─ Pinia Store hydrates
    │  ├─ hydrate() method reads localStorage
-   │  └─ Syncs isDark state with plugin
+   │  └─ Syncs isDark state with HTML class
    │
    ├─ Vue App mounts
    │  └─ Components read themeStore.isDark (already correct)
@@ -546,7 +557,41 @@ The theme system uses a modern, SSR-safe pattern with:
       └─ Syncs with themeStore.isDark (single source of truth)
 ```
 
-### Plugin Pattern (SSR-Safe)
+**Theme Detection Priority (at all stages)**:
+1. localStorage `theme` value (manual toggle) - highest priority
+2. `prefers-color-scheme` media query (system) - fallback
+3. Light theme - default
+
+### Nitro Plugin Pattern (Blocking Script Injection)
+
+**File:** `server/plugins/inject-loader.ts`
+
+```typescript
+export default defineNitroPlugin((nitroApp) => {
+  nitroApp.hooks.hook('render:html', (html) => {
+    html.bodyAppend.unshift(`
+      <script>
+        // Blocking script - runs BEFORE loader renders
+        var stored = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = stored ? stored === 'dark' : prefersDark;
+        if (isDark) {
+          document.documentElement.classList.add('theme-dark');
+        }
+      </script>
+      <div id="app-initial-loader">...</div>
+    `);
+  });
+});
+```
+
+**Benefits:**
+- ✅ Runs BEFORE any pixels are painted (earliest possible timing)
+- ✅ Loader sees correct theme from first pixel
+- ✅ Manual toggle (localStorage) overrides system preference
+- ✅ No FOUC - correct theme instantly
+
+### Nuxt Plugin Pattern (State Sync)
 
 **File:** `app/plugins/theme.client.ts`
 
@@ -557,17 +602,16 @@ export default defineNuxtPlugin(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDark = stored ? stored === 'dark' : prefersDark;
 
-    // Set HTML class BEFORE hydration - prevents FOUC
+    // Syncs HTML class (already set by blocking script, but confirms it)
     document.documentElement.classList.toggle('theme-dark', isDark);
   }
 });
 ```
 
 **Benefits:**
-- ✅ Runs before Vue hydration (no flash of wrong theme)
-- ✅ Respects localStorage preference
-- ✅ Falls back to system preference (`prefers-color-scheme`)
-- ✅ No JavaScript required for initial render
+- ✅ Syncs theme state with Vue app
+- ✅ Works together with blocking script
+- ✅ Fallback if blocking script didn't run
 
 ### Pinia Store with Hydration
 
@@ -704,6 +748,9 @@ if (wasLight) {
 - ✅ localStorage persistence of theme preference
 - ✅ Respects `prefers-color-scheme` media query
 - ✅ SSR-safe initialization (no FOUC)
+- ✅ **Blocking script injection** - theme detected BEFORE loader renders
+- ✅ **Manual toggle priority** - localStorage overrides system preference
+- ✅ **Loader theme sync** - initial loader matches user's theme instantly
 - ✅ Pinia hydration pattern for state management
 - ✅ Self-contained FluidGradient with proper theme sync
 - ✅ SVG toggle button works in both directions on any initial theme
