@@ -575,9 +575,10 @@ export default defineNitroPlugin((nitroApp) => {
         var stored = localStorage.getItem('theme');
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         var isDark = stored ? stored === 'dark' : prefersDark;
-        if (isDark) {
-          document.documentElement.classList.add('theme-dark');
-        }
+
+        // CRITICAL: Use toggle() to SET or REMOVE class properly
+        // This ensures class is added when dark, removed when light
+        document.documentElement.classList.toggle('theme-dark', isDark);
       </script>
       <div id="app-initial-loader">...</div>
     `);
@@ -590,6 +591,7 @@ export default defineNitroPlugin((nitroApp) => {
 - ✅ Loader sees correct theme from first pixel
 - ✅ Manual toggle (localStorage) overrides system preference
 - ✅ No FOUC - correct theme instantly
+- ✅ Properly removes class when switching to light theme
 
 ### Nuxt Plugin Pattern (State Sync)
 
@@ -695,6 +697,16 @@ The SVG toggle button requires careful GSAP timeline setup to work in both direc
 
 **Key Pattern:**
 ```javascript
+// 0. Read theme from localStorage (not Pinia - timing issue!)
+const stored = localStorage.getItem('theme');
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const isDarkInitially = stored ? stored === 'dark' : prefersDark;
+
+// 0.5. CRITICAL: Immediately sync Pinia store state
+// This prevents double-click bug when starting with dark theme
+// Without this, store has default isDark: false while timeline is at progress: 1
+themeStore.isDark = isDarkInitially;
+
 // 1. ALWAYS initialize colorProxy from LIGHT theme (timeline start)
 const colorProxy = {
   bgR: colors.light["100"].r,
@@ -731,6 +743,8 @@ if (wasLight) {
 ```
 
 **Critical Rules:**
+- ⚠️ Read theme from localStorage directly (not Pinia store - timing issue!)
+- ⚠️ Immediately sync `themeStore.isDark` with localStorage value
 - ⚠️ colorProxy ALWAYS starts from light theme
 - ⚠️ Timeline ALWAYS animates TO dark (never conditional)
 - ⚠️ GSAP.set defines light state, timeline.progress() moves to dark if needed
@@ -749,8 +763,11 @@ if (wasLight) {
 - ✅ Respects `prefers-color-scheme` media query
 - ✅ SSR-safe initialization (no FOUC)
 - ✅ **Blocking script injection** - theme detected BEFORE loader renders
+- ✅ **classList.toggle() pattern** - properly adds/removes theme class
 - ✅ **Manual toggle priority** - localStorage overrides system preference
 - ✅ **Loader theme sync** - initial loader matches user's theme instantly
+- ✅ **No media query conflicts** - class-based detection only
+- ✅ **Store sync fix** - prevents double-click bug on dark theme start
 - ✅ Pinia hydration pattern for state management
 - ✅ Self-contained FluidGradient with proper theme sync
 - ✅ SVG toggle button works in both directions on any initial theme
