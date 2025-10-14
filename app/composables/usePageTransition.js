@@ -278,20 +278,29 @@ export const usePageTransition = () => {
 
   /**
    * Find all elements with page animation configs
+   * Recursively walks the entire DOM tree to find elements at any nesting level
    */
   const findAnimatedElements = (el) => {
     const elements = [];
 
     // console.log('🔍 Finding animated elements in:', el)
-    // console.log('🔍 Children count:', el.children.length)
 
-    // Check direct children for _pageAnimation property
-    Array.from(el.children).forEach((child) => {
-      // console.log('🔍 Child:', child.tagName, 'has _pageAnimation:', !!child._pageAnimation)
-      if (child._pageAnimation) {
-        elements.push(child);
+    // Recursively walk the entire tree to find all elements with _pageAnimation
+    const walk = (node) => {
+      // Check if this node has animation config
+      if (node._pageAnimation) {
+        elements.push(node);
+        // console.log('🔍 Found:', node.tagName, 'with type:', node._pageAnimation.type)
       }
-    });
+
+      // Walk all children recursively
+      Array.from(node.children).forEach((child) => {
+        walk(child);
+      });
+    };
+
+    // Start walking from root element
+    walk(el);
 
     // console.log('🔍 Found elements with directives:', elements.length)
     return elements;
