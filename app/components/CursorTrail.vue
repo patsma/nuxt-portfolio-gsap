@@ -61,21 +61,18 @@ onMounted(() => {
     const { setupEntrance } = useEntranceAnimation();
 
     setupEntrance(canvasRef.value, {
-      position: '+=0.1', // After hero (can be changed)
+      position: "+=0.25",
       animate: (el) => {
         const tl = $gsap.timeline();
 
-        // Element already hidden by CSS
-        // Animate to visible with opacity 0.3 (matching .cursor-trail class)
         tl.to(el, {
-          opacity: 0.3,
-          visibility: 'visible',
+          autoAlpha: 0.4,
           duration: 0.6,
-          ease: 'power2.out'
+          ease: "power2.out",
         });
 
         return tl;
-      }
+      },
     });
   }
 
@@ -241,9 +238,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.cursor-trail {
-  /* Initial opacity set via GSAP in original - you can animate this if needed */
-  opacity: 0.3;
-}
-</style>
+<style scoped></style>
