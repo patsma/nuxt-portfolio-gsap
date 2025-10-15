@@ -104,8 +104,9 @@ export const useEntranceAnimation = () => {
     // Add initial label for positioning
     masterTimeline.add('start', 0)
 
-    // Listen for entrance-ready event (fired by HeaderGrid after it animates)
-    window.addEventListener('app:entrance-ready', () => {
+    // Listen for app:start-animations event (fired by loading system)
+    // This triggers after loader completes, starting all entrance animations together
+    window.addEventListener('app:start-animations', () => {
       if (!isPlaying && animationQueue.length > 0) {
         playEntranceAnimations()
       }

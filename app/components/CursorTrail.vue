@@ -3,6 +3,7 @@
   <canvas
     ref="canvasRef"
     class="cursor-trail pointer-events-none fixed left-0 top-0 z-50 h-screen w-screen mix-blend-overlay"
+    data-entrance-animate="true"
   />
 </template>
 
@@ -54,6 +55,30 @@ function getCursorColor() {
 
 // Lifecycle: mount and initialize cursor trail animation
 onMounted(() => {
+  // Setup entrance animation for first load
+  const { isFirstLoad } = useLoadingSequence();
+  if (isFirstLoad()) {
+    const { setupEntrance } = useEntranceAnimation();
+
+    setupEntrance(canvasRef.value, {
+      position: '+=0.1', // After hero (can be changed)
+      animate: (el) => {
+        const tl = $gsap.timeline();
+
+        // Element already hidden by CSS
+        // Animate to visible with opacity 0.3 (matching .cursor-trail class)
+        tl.to(el, {
+          opacity: 0.3,
+          visibility: 'visible',
+          duration: 0.6,
+          ease: 'power2.out'
+        });
+
+        return tl;
+      }
+    });
+  }
+
   nextTick(() => {
     const canvas = canvasRef.value;
     if (!canvas) return;

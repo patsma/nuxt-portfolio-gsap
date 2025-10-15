@@ -7,6 +7,7 @@ Personal portfolio for Patryk Smakosz built with Nuxt 4, featuring directive-bas
 This project implements several advanced systems working together:
 
 - **Loading System** - Theme-aware initial loader with SSR support (no FOUC)
+- **Entrance Animation System** - Unified GSAP timeline sequencer for component entrance animations
 - **Theme System** - GSAP-animated dark/light theme toggle with localStorage persistence
 - **Page Transitions** - Directive-based GSAP animations with Safari optimizations
 - **Scroll System** - ScrollSmoother integration with Headroom header behavior
@@ -37,6 +38,32 @@ Theme-aware initial loader with SSR support. Shows instantly on page load with c
 - Event-driven completion with resource tracking
 
 📖 **See** `.claude/LOADING_SYSTEM.md` for complete documentation.
+
+### Entrance Animation System
+Unified GSAP timeline coordinator for component entrance animations on first page load. All components register with full position parameter control.
+
+**Features**:
+- Components use `setupEntrance()` with GSAP position parameters
+- HTML class scoping (`is-first-load`) prevents FOUC
+- Master timeline with full sequencing control
+- Automatic viewport detection
+- ScrollTrigger fallback for below-fold content
+
+**Example**:
+```javascript
+const { setupEntrance } = useEntranceAnimation()
+
+setupEntrance(elementRef.value, {
+  position: '<-0.2', // Overlap previous by 0.2s
+  animate: (el) => {
+    const tl = $gsap.timeline()
+    tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8 })
+    return tl
+  }
+})
+```
+
+📖 **See** `.claude/LOADING_SYSTEM.md` for complete documentation (Entrance Animation System section).
 
 ### Theme System
 GSAP-animated dark/light theme switching with localStorage persistence and SSR compatibility.
@@ -176,6 +203,7 @@ app/
 ├── composables/
 │   ├── usePageTransition.js           # Transition logic + Safari fixes
 │   ├── useScrollSmootherManager.js    # ScrollSmoother lifecycle
+│   ├── useEntranceAnimation.js        # Entrance animation timeline coordinator
 │   ├── useThemeSwitch.js              # Dark/light theme GSAP timeline
 │   ├── useLoadingSequence.js          # Loading orchestrator with timing
 │   └── useIsMobile.js                 # Mobile detection
@@ -330,6 +358,58 @@ This pattern:
 - SSR-compatible (no DOM manipulation during SSR)
 - Clean separation of concerns
 
+### Entrance Animation Registration Pattern
+
+Components register entrance animations with full GSAP position parameter control:
+
+```javascript
+// In component onMounted
+const { setupEntrance } = useEntranceAnimation()
+
+setupEntrance(containerRef.value, {
+  // GSAP position parameter - full flexibility
+  position: '<-0.2',  // Overlap previous by 0.2s
+  // position: '+=0.1',  // Gap of 0.1s after previous
+  // position: 'start',  // At timeline start
+
+  // Animation function - define timeline inside component
+  animate: (el) => {
+    const tl = $gsap.timeline()
+
+    // Element already hidden by CSS (html.is-first-load class)
+    // Just set transform offsets before animating
+    $gsap.set(el, { y: 40 })
+
+    // Animate to visible
+    tl.to(el, {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out'
+    })
+
+    return tl
+  }
+})
+```
+
+**HTML Class Scoping**: Elements with `data-entrance-animate="true"` are hidden only on first load:
+
+```css
+/* In base.scss - scoped to html.is-first-load class */
+html.is-first-load [data-entrance-animate="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+```
+
+The `is-first-load` class is:
+1. Injected by SSR (Nitro plugin) before page loads
+2. Removed after entrance animations complete
+3. Absent on subsequent navigations (page transitions control visibility)
+
+This prevents FOUC on first load while allowing page transitions to work normally.
+
 ### Layout Structure for ScrollSmoother
 
 ScrollSmoother requires specific DOM structure:
@@ -434,6 +514,14 @@ Safari enhancements:
 ✅ Enforces minimum display time for consistent UX
 ✅ Event-driven resource tracking
 
+### Entrance Animation System
+✅ Unified GSAP timeline coordinator
+✅ Full position parameter control
+✅ HTML class scoping prevents FOUC
+✅ Automatic viewport detection
+✅ ScrollTrigger fallback
+✅ Component-level animation definitions
+
 ### Theme System
 ✅ Smooth GSAP color transitions
 ✅ localStorage persistence
@@ -469,6 +557,7 @@ Complete documentation for each major system:
   - Theme detection (blocking script)
   - Resource tracking and timing enforcement
   - Event system (app:ready, app:complete)
+  - **Entrance Animation System** (unified timeline coordinator)
   - Troubleshooting guide
 
 - **`.claude/THEME_SYSTEM.md`** - Theme switching system
@@ -498,9 +587,10 @@ Complete documentation for each major system:
 Inline documentation in key files:
 
 - **`app/composables/usePageTransition.js`** - Transition logic (471 lines with comments)
+- **`app/composables/useEntranceAnimation.js`** - Entrance animation coordinator
 - **`app/composables/useThemeSwitch.js`** - Theme timeline setup
 - **`app/composables/useLoadingSequence.js`** - Loading orchestration
 - **`app/directives/*.js`** - Directive usage and configuration
-- **`server/plugins/inject-loader.ts`** - SSR loader injection
+- **`server/plugins/inject-loader.ts`** - SSR loader injection (includes is-first-load class)
 - **`app/stores/theme.js`** - Theme state management
 - **`app/stores/loading.js`** - Loading state tracking

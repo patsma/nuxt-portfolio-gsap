@@ -3,6 +3,7 @@
     ref="containerRef"
     class="fluid-gradient fixed left-0 top-0 z-0 w-full h-screen pointer-events-none"
     aria-hidden="true"
+    data-entrance-animate="true"
   >
     <!--
       TresJS scene with a fullscreen shader plane.
@@ -232,6 +233,29 @@ watch(
 
 // Lifecycle: mount and initialize fluid gradient animation
 onMounted(() => {
+  // Setup entrance animation for first load
+  const { isFirstLoad } = useLoadingSequence();
+  if (isFirstLoad()) {
+    const { setupEntrance } = useEntranceAnimation();
+
+    setupEntrance(containerRef.value, {
+      position: '<-0.2', // Overlap header by 0.2s (can be changed)
+      animate: (el) => {
+        const tl = $gsap.timeline();
+
+        // Element already hidden by CSS
+        // Animate to visible with opacity 1 (TresCanvas inside has opacity-50 class)
+        tl.to(el, {
+          autoAlpha: 1,
+          duration: 0.8,
+          ease: 'power2.out'
+        });
+
+        return tl;
+      }
+    });
+  }
+
   // Set mounted flag to allow TresCanvas to render
   isMounted.value = true;
 
