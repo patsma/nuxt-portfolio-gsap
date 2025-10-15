@@ -1,209 +1,136 @@
-# Scroll System Documentation
+# Scroll System
 
-## Overview
-
-GSAP ScrollSmoother with integrated headroom-style header that hides on scroll down and shows on scroll up. Coordinated with GSAP page transitions for smooth navigation without jumps.
+GSAP ScrollSmoother with headroom-style header integration.
 
 ## Architecture
 
-### Key Components
-
 ```
-ScrollSmoother (Composable-based)
-    ↓ onUpdate callback
-    ↓ provides: scrollTop()
-    ↓
+ScrollSmoother (Composable)
+  ↓ onUpdate callback
+  ↓
 Headroom (Plugin)
-    ↓ receives scroll position
-    ↓ calculates: direction, threshold
-    ↓ updates: CSS classes
-    ↓
+  ↓ updates CSS classes
+  ↓
 Page Transitions
-    ↓ pause/resume headroom
-    ↓ prevent header jump during navigation
+  ↓ pause/resume coordination
 ```
 
-### Critical Structure
+## Critical DOM Structure
 
-Fixed-position elements MUST be outside `#smooth-content`:
+**Fixed elements MUST be outside `#smooth-content`:**
 
 ```vue
 <div id="smooth-wrapper">
-  <!-- ✅ Header OUTSIDE smooth-content -->
-  <HeaderGrid />
+  <HeaderGrid />  <!-- ✅ Fixed, OUTSIDE smooth-content -->
 
   <div id="smooth-content">
-    <!-- Page content here -->
+    <!-- Page content -->
   </div>
 </div>
 ```
 
-**Why?** ScrollSmoother applies `transform` to `#smooth-content`, breaking `position: fixed`.
+**Why:** ScrollSmoother applies `transform` to `#smooth-content`, breaking `position: fixed`.
 
 ## Core Files
 
-### 1. ScrollSmoother Manager (`app/composables/useScrollSmootherManager.js`)
+| File | Purpose |
+|------|---------|
+| `app/composables/useScrollSmootherManager.js` | Module-level composable managing lifecycle |
+| `app/plugins/headroom.client.js` | Header visibility with pause/resume |
+| `app/composables/usePageTransition.js` | Coordinates headroom with transitions |
+| `app/assets/css/components/header-grid.scss` | Transform-based header animations |
 
-Module-level composable managing ScrollSmoother lifecycle.
+## ScrollSmoother Setup
 
-**Key Methods:**
+**File:** `app/layouts/default.vue`
+
 ```javascript
-const { createSmoother, killSmoother, getSmoother, refreshSmoother } = useScrollSmootherManager()
+const { createSmoother, killSmoother } = useScrollSmootherManager()
+const nuxtApp = useNuxtApp()
 
-// Create with onUpdate callback for headroom
-createSmoother({
-  wrapper: '#smooth-wrapper',
-  content: '#smooth-content',
-  smooth: 2,
-  effects: true,
-  onUpdate: (self) => {
-    nuxtApp.$headroom?.updateHeader(self.scrollTop())
-  }
+onMounted(() => {
+  nextTick(() => {
+    createSmoother({
+      wrapper: '#smooth-wrapper',
+      content: '#smooth-content',
+      smooth: 1,                     // Safari-optimized (2+ drops to 14fps)
+      effects: true,                 // Enable data-speed and data-lag
+      normalizeScroll: true,         // Improves Safari + touch
+      ignoreMobileResize: true,      // Prevents mobile jank
+      onUpdate: (self) => {
+        nuxtApp.$headroom?.updateHeader(self.scrollTop())
+      }
+    })
+  })
 })
-
-// Refresh after DOM changes (parallax recalculation)
-refreshSmoother()
 ```
 
-**Module-Level State:**
+## Headroom Configuration
+
+**File:** `app/plugins/headroom.client.js`
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `SCROLL_THRESHOLD` | 100px | Distance before hiding header |
+| `THROTTLE_DELAY` | 100ms | Update frequency (~10 times/sec) |
+
+### Behavior Zones
+
+| Zone | Scroll Position | Behavior |
+|------|----------------|----------|
+| Top | `scrollY ≤ 0` | Always visible |
+| Threshold | `0 < scrollY ≤ 100px` | Always visible (prevents flicker) |
+| Content | `scrollY > 100px` | Scroll down → hide, scroll up → show |
+
+### Pause/Resume Pattern
+
+**Used during page transitions to prevent header jump:**
+
 ```javascript
-let smootherInstance = null // Shared across all calls
-```
-
-### 2. Headroom Plugin (`app/plugins/headroom.client.js`)
-
-Throttled header visibility with pause/resume for page transitions.
-
-**Configuration:**
-```javascript
-const SCROLL_THRESHOLD = 100  // px before hiding header
-const THROTTLE_DELAY = 100    // ms between updates
-```
-
-**API:**
-```javascript
-nuxtApp.$headroom = {
-  updateHeader(scrollTop),  // Called by ScrollSmoother.onUpdate
-  reset(),                   // Show header, clear state
-  pause(),                   // Pause during transitions
-  resume()                   // Resume after transitions
-}
-```
-
-**Pause/Resume Pattern:**
-```javascript
+// Pause (on page:start)
 pause() {
   isPaused = true
-  // Disable CSS transitions to prevent animated slide
-  headerElement.classList.add('headroom--no-transition')
+  headerElement.classList.add('headroom--no-transition')  // Disable CSS transitions
   void headerElement.offsetHeight  // Force reflow
-  // Pin header instantly
-  headerElement.classList.add('headroom--pinned')
-  headerElement.classList.remove('headroom--unpinned')
+  headerElement.classList.add('headroom--pinned')  // Pin instantly
 }
 
+// Resume (in enter() onComplete)
 resume() {
   isPaused = false
   lastScrollTop = 0
-  lastUpdateTime = 0
-  // Re-enable CSS transitions
-  headerElement.classList.remove('headroom--no-transition')
+  headerElement.classList.remove('headroom--no-transition')  // Re-enable transitions
 }
 ```
 
-### 3. Page Transitions Integration (`app/composables/usePageTransition.js`)
+## Page Transition Coordination
 
-Coordinates headroom with page animations.
-
-**Lifecycle:**
-```javascript
-// page:start → pause headroom
-nuxtApp.hook('page:start', () => pause())
-
-// enter() onComplete → resume headroom
-const tl = gsap.timeline({
-  onComplete: () => {
-    done()
-    nuxtApp.$headroom?.resume()
-  }
-})
-```
-
-### 4. Header Styles (`app/assets/css/components/header-grid.scss`)
-
-Transform-based animations with transition disabling.
-
-```scss
-.header-grid {
-  position: fixed;
-  top: 0;
-  transition: transform var(--duration-hover) var(--ease-power2);
-  will-change: transform;
-}
-
-.header-grid.headroom--pinned {
-  transform: translateY(0%);
-}
-
-.header-grid.headroom--unpinned {
-  transform: translateY(-100%);
-}
-
-/* Disable transitions during page transitions */
-.header-grid.headroom--no-transition {
-  transition: none !important;
-}
-```
-
-## Page Transition Flow
-
-### Complete Navigation Cycle
+### Lifecycle
 
 ```
-User at scroll 500px → clicks link
-    ↓
-page:start → headroom.pause()
-    - Add headroom--no-transition
-    - Pin header instantly
-    - isPaused = true
-    ↓
-Leave animation → elements fade OUT at scroll 500px
-    ↓
-afterLeave → smoother.scrollTop(0)
-    - Scroll instantly to 0
-    - Content already hidden
-    - Headroom paused, no reaction
-    ↓
-Enter animation → elements fade IN at scroll 0
-    ↓
+User clicks link → page:start → headroom.pause()
+  ↓
+Leave animation (elements fade OUT)
+  ↓
+afterLeave → scroll to top (instant, content hidden)
+  ↓
+Enter animation (elements fade IN)
+  ↓
 onComplete → headroom.resume()
-    - Remove headroom--no-transition
-    - isPaused = false
-    - Headroom active again
 ```
 
-### Key Implementation Details
+### Integration
 
-**Manual Scroll Control** (`router.options.ts`):
-```typescript
-scrollBehavior() {
-  return false // Prevent automatic scroll
-}
-```
+**File:** `app/composables/usePageTransition.js`
 
-**Scroll in afterLeave** (`usePageTransition.js`):
 ```javascript
-afterLeave(el) {
-  cleanup()
-  // Scroll to top AFTER leave animation
-  const smoother = getSmoother()
-  smoother?.scrollTop(0)
-}
-```
+// Pause on navigation start
+nuxtApp.hook('page:start', () => {
+  nuxtApp.$headroom?.pause()
+})
 
-**Resume in enter onComplete** (`usePageTransition.js`):
-```javascript
-enter(el, done) {
+// Resume when enter animation completes
+const enter = (el, done) => {
   const tl = gsap.timeline({
     onComplete: () => {
       done()
@@ -213,218 +140,92 @@ enter(el, done) {
 }
 ```
 
-## Headroom Behavior
+## Header Styles
 
-### Three Zones
-
-1. **Top Zone** (`scrollY ≤ 0`)
-   - Header: Always visible
-
-2. **Threshold Zone** (`0 < scrollY ≤ 100px`)
-   - Header: Always visible
-   - Prevents flicker on tiny scrolls
-
-3. **Content Zone** (`scrollY > 100px`)
-   - Scroll down → Hide header
-   - Scroll up → Show header
-
-### Direction Detection
-
-```javascript
-const scrollDirection = currentScroll > lastScrollTop ? 1 : -1
-// 1 = scrolling down, -1 = scrolling up
-```
-
-### Throttling
-
-```javascript
-const now = Date.now()
-if (now - lastUpdateTime < THROTTLE_DELAY) return
-// Update only every 100ms (~10 times per second)
-```
-
-## Configuration
-
-### Layout Setup (`app/layouts/default.vue`)
-
-```vue
-<script setup>
-const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
-const { createSmoother, killSmoother } = useScrollSmootherManager()
-const nuxtApp = useNuxtApp()
-
-onMounted(() => {
-  nextTick(() => {
-    createSmoother({
-      wrapper: '#smooth-wrapper',
-      content: '#smooth-content',
-      smooth: 2,
-      effects: true,
-      onUpdate: (self) => {
-        nuxtApp.$headroom?.updateHeader(self.scrollTop())
-      }
-    })
-  })
-})
-
-onUnmounted(() => {
-  killSmoother()
-})
-</script>
-
-<template>
-  <div id="smooth-wrapper">
-    <HeaderGrid />
-    <div id="smooth-content">
-      <NuxtPage :transition="{
-        mode: 'out-in',
-        onBeforeEnter: beforeEnter,
-        onEnter: enter,
-        onLeave: leave,
-        onAfterLeave: afterLeave
-      }" />
-    </div>
-  </div>
-</template>
-```
-
-### Design Tokens
+**File:** `app/assets/css/components/header-grid.scss`
 
 ```scss
-// app/assets/css/tokens/theme.scss
---size-header: 80px;
---duration-hover: 300ms;
---ease-power2: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+.header-grid {
+  position: fixed;
+  top: 0;
+  transition: transform var(--duration-hover) var(--ease-power2);
+  will-change: transform;
+
+  &.headroom--pinned {
+    transform: translateY(0%);
+  }
+
+  &.headroom--unpinned {
+    transform: translateY(-100%);
+  }
+
+  // Disable transitions during page transitions
+  &.headroom--no-transition {
+    transition: none !important;
+  }
+}
 ```
+
+**Why transform:** GPU-accelerated, no layout reflow (unlike `top` property).
 
 ## Parallax Effects
 
-### data-speed
-
-Controls movement speed relative to scroll:
+**Usage in templates:**
 
 ```vue
 <div data-speed="0.5">Background (slower)</div>
-<div data-speed="1.0">Normal speed</div>
-<div data-speed="1.5">Foreground (faster)</div>
+<div data-lag="0.15">Trailing effect</div>
+<h1 v-page-split:chars data-speed="0.7">Combined</h1>
 ```
 
-### data-lag
+**Refresh after route change:**
 
-Creates smooth "catch up" effect:
-
-```vue
-<div data-lag="0.15">Slight trailing</div>
-<div data-lag="0.25">More pronounced trailing</div>
+```javascript
+// In enter() after directives mount
+refreshSmoother()  // Recalculates parallax for new content
 ```
 
-### Combined with Transitions
+## Troubleshooting
 
-```vue
-<h1 v-page-split:chars data-speed="0.7">
-  Animated reveal + parallax
-</h1>
-```
-
-## Common Issues & Solutions
-
-### Header Jumps During Transitions
-
-**Symptom:** Header slides down when page changes
-
-**Cause:** CSS transitions animate class changes
-
-**Solution:** `headroom--no-transition` class applied during pause
-
-### Scroll Jump Visible
-
-**Symptom:** User sees scroll to top
-
-**Cause:** Automatic scroll happens before animations complete
-
-**Solution:** Manual scroll in `afterLeave` (content already hidden)
-
-### Headroom Resumes Too Early
-
-**Symptom:** Header reacts to scroll during transition
-
-**Cause:** Resume triggered by `page:finish` (fires before animations)
-
-**Solution:** Resume in enter() `onComplete` (waits for visual completion)
-
-### Header Not Hiding on Scroll
-
-**Diagnosis:**
-1. Check ScrollSmoother created: `getSmoother()`
-2. Verify onUpdate callback registered
-3. Check headroom plugin loaded: `nuxtApp.$headroom`
-
-**Solution:** Ensure onUpdate callback includes `updateHeader()`
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| Header jumps during transition | CSS transitions active | Use `headroom--no-transition` during pause |
+| Scroll jump visible to user | Auto-scroll before animations | Scroll in `afterLeave()` when content hidden |
+| Headroom not hiding | onUpdate not called | Verify callback in createSmoother() |
+| Fixed elements broken | Inside smooth-content | Move outside (see DOM structure) |
+| Headroom resumes too early | Using page:finish hook | Resume in enter() `onComplete` instead |
+| 14fps on Safari | smooth value too high | Use `smooth: 1` (see setup) |
 
 ## Performance
 
-### Optimizations
+**Optimizations:**
+- Single scroll listener (ScrollSmoother's internal)
+- Throttled updates (100ms between header changes)
+- GPU-accelerated animations (transform-based)
+- No layout reflows
+- Cached DOM references
 
-- ✅ Single scroll listener (ScrollSmoother's internal)
-- ✅ Throttled updates (100ms between header changes)
-- ✅ GPU-accelerated animations (transform-based)
-- ✅ No layout reflows during header hide/show
-- ✅ Cached DOM references
-- ✅ will-change hints for browser optimization
-
-### Transform vs Top Animation
-
-```scss
-/* ❌ BAD: Forces layout recalculation */
-.header { top: -80px; }
-
-/* ✅ GOOD: GPU-accelerated, no reflow */
-.header { transform: translateY(-100%); }
-```
-
-## Testing Checklist
-
-**Desktop:**
-- [ ] Scroll down past 100px → Header hides
-- [ ] Scroll up → Header shows
-- [ ] Page navigation → No header jump
-- [ ] Fast navigation → Header stays pinned
-
-**Mobile:**
-- [ ] Touch scroll responsive
-- [ ] Address bar show/hide doesn't cause jumps
-- [ ] Headroom behavior works correctly
-
-**Performance:**
-- [ ] 60fps scroll (DevTools Performance)
-- [ ] No layout thrashing
-- [ ] Header animation smooth
-
-## Benefits
-
-✅ **No Scroll Jumps** - Manual scroll control during transitions
-✅ **No Header Jumps** - CSS transitions disabled during pause
-✅ **Perfect Timing** - Resume exactly when animations complete
-✅ **Smooth UX** - Fade out → instant cut → fade in
-✅ **Performant** - Single scroll listener, throttled updates
-✅ **Maintainable** - Clear separation of concerns
+**Safari Performance:**
+- `smooth: 1` maintains 60fps (2+ drops to 14fps)
+- `normalizeScroll: true` improves behavior
+- `ignoreMobileResize: true` prevents jank
 
 ## Files Reference
 
 **Composables:**
-- `app/composables/useScrollSmootherManager.js` - ScrollSmoother lifecycle
-- `app/composables/usePageTransition.js` - Page transitions with headroom coordination
+- `app/composables/useScrollSmootherManager.js` - Lifecycle management
+- `app/composables/usePageTransition.js` - Transition coordination
 
 **Plugins:**
-- `app/plugins/headroom.client.js` - Header visibility logic with pause/resume
+- `app/plugins/headroom.client.js` - Header visibility logic
 
 **Components:**
-- `app/components/HeaderGrid.vue` - Fixed header with headroom classes
+- `app/components/HeaderGrid.vue` - Fixed header
 
 **Styles:**
-- `app/assets/css/components/header-grid.scss` - Header animations and states
+- `app/assets/css/components/header-grid.scss` - Header animations
 - `app/assets/css/tokens/theme.scss` - Design tokens
 
 **Config:**
-- `app/router.options.ts` - Disable automatic scroll behavior
-- `app/layouts/default.vue` - ScrollSmoother + page transitions integration
+- `app/router.options.ts` - Disable automatic scroll
+- `app/layouts/default.vue` - ScrollSmoother + transitions integration
