@@ -24,8 +24,12 @@ export const usePageTransition = () => {
    * SPLIT TEXT ANIMATION
    * Animates text by splitting into chars/words/lines
    *
+   * Two animation modes:
+   * 1. Default (no animateFrom): Fade in/out with y offset (opacity-based)
+   * 2. Slide from mask (animateFrom: 'below'|'above'): Slide from outside mask area (position-based)
+   *
    * @param {HTMLElement} el - Element to animate
-   * @param {Object} config - Animation config { splitType, stagger, duration, ease, y }
+   * @param {Object} config - Animation config { splitType, stagger, duration, ease, y, animateFrom }
    * @param {string} direction - 'out' or 'in'
    * @param {Object} timeline - GSAP timeline to add animation to
    * @param {number} position - Timeline position
@@ -39,8 +43,9 @@ export const usePageTransition = () => {
     const splitType = config.splitType || "chars";
     const stagger = config.stagger || 0.025;
     const duration = config.duration || 0.6;
-    const ease = config.ease || "power2.out";
+    const ease = config.ease || "sine.out";
     const y = config.y || 35;
+    const animateFrom = config.animateFrom; // 'below' | 'above' | undefined
 
     // Lock height before SplitText to prevent Safari jump (~7px layout shift)
     // SplitText with masking wraps content in overflow:hidden containers which adds height
@@ -55,33 +60,74 @@ export const usePageTransition = () => {
     });
     splitInstances.push(split);
 
-    if (direction === "out") {
-      // Animate OUT: fade up and disappear
-      timeline.to(
-        split[splitType],
-        {
-          y: -y,
-          opacity: 0,
-          duration: duration * 0.7,
-          stagger: stagger,
-          ease: "power2.in",
-        },
-        position
-      );
-    } else {
-      // Animate IN: bounce down and appear
-      $gsap.set(split[splitType], { y: y, opacity: 0 });
-      timeline.to(
-        split[splitType],
-        {
-          y: 0,
-          opacity: 1,
-          duration: duration,
-          stagger: stagger,
-          ease: ease,
-        },
-        position
-      );
+    // SLIDE FROM MASK EFFECT - leverages SplitText masking for position-based reveals
+    if (animateFrom === "below" || animateFrom === "above") {
+      const yPercent = animateFrom === "below" ? 100 : -100;
+
+      if (direction === "out") {
+        // Animate OUT: slide away from center (opposite of entry)
+        timeline.to(
+          split[splitType],
+          {
+            yPercent: -yPercent, // Slide in opposite direction
+            duration: duration * 0.7,
+            stagger: stagger,
+            ease: "power2.in",
+            transformOrigin: "100% 0%",
+            rotate: 20,
+          },
+          position
+        );
+      } else {
+        // Animate IN: slide from outside mask to center
+        $gsap.set(split[splitType], {
+          yPercent: yPercent,
+          rotate: 20,
+          transformOrigin: "0% 0%",
+        });
+        timeline.to(
+          split[splitType],
+          {
+            yPercent: 0,
+            duration: duration,
+            stagger: stagger,
+            ease: ease,
+            rotate: 0,
+          },
+          position
+        );
+      }
+    }
+    // DEFAULT FADE EFFECT - traditional opacity-based animation
+    else {
+      if (direction === "out") {
+        // Animate OUT: fade up and disappear
+        timeline.to(
+          split[splitType],
+          {
+            y: -y,
+            opacity: 0,
+            duration: duration * 0.7,
+            stagger: stagger,
+            ease: "power2.in",
+          },
+          position
+        );
+      } else {
+        // Animate IN: bounce down and appear
+        $gsap.set(split[splitType], { y: y, opacity: 0 });
+        timeline.to(
+          split[splitType],
+          {
+            y: 0,
+            opacity: 1,
+            duration: duration,
+            stagger: stagger,
+            ease: ease,
+          },
+          position
+        );
+      }
     }
   };
 
@@ -361,7 +407,7 @@ export const usePageTransition = () => {
 
       if (elements.length === 0) {
         console.warn("⚠️ No elements with page animation directives found");
-        $gsap.set(el, { visibility: 'visible' }); // Show page even if no animations
+        $gsap.set(el, { visibility: "visible" }); // Show page even if no animations
         done();
         return;
       }
@@ -371,7 +417,7 @@ export const usePageTransition = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           // Now Safari is ready - make page visible
-          $gsap.set(el, { visibility: 'visible' });
+          $gsap.set(el, { visibility: "visible" });
 
           // Refresh ScrollSmoother to recalculate data-speed/data-lag for new page
           const { refreshSmoother } = useScrollSmootherManager();
@@ -425,7 +471,7 @@ export const usePageTransition = () => {
    */
   const beforeEnter = (el) => {
     // Hide page immediately to prevent flash while Safari paints DOM
-    $gsap.set(el, { visibility: 'hidden' });
+    $gsap.set(el, { visibility: "hidden" });
   };
 
   /**

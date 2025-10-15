@@ -7,7 +7,7 @@ import HeroSection from "~/components/HeroSection.vue";
     <!-- Hero section with different content, NO services -->
     <HeroSection>
       <h1
-        v-page-split:lines
+        v-page-split:lines="{ animateFrom: 'below' }"
         data-speed="0.8"
         class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] leading-[1.3]"
       >
