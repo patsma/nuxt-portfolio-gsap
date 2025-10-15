@@ -288,33 +288,162 @@ window.addEventListener('app:complete', () => {
 - Scroll position reset after creation
 - Entrance animations respect ScrollSmoother's parallax effects
 
-### HeaderGrid Entrance Animation
-Example integration in `app/components/HeaderGrid.vue`:
+### Entrance Animation System
+
+The loading system integrates with a powerful entrance animation sequencer that allows components in the initial viewport to play animations in sequence after the loader completes.
+
+**Flow**: Loader completes → Header animates → `app:entrance-ready` event → Queued component animations play
+
+#### How It Works
+
+1. **Components register animations** - Components call `setupEntrance()` with animation function
+2. **Automatic viewport detection** - System checks if component is visible on load
+3. **Queueing** - In-viewport components queue for entrance sequence
+4. **Sequential playback** - Animations play with GSAP position parameter control
+5. **ScrollTrigger fallback** - Below-fold components use ScrollTrigger automatically
+
+#### Using setupEntrance() in Components
+
+**IMPORTANT**: Add `data-entrance-animate="true"` attribute to elements that should hide on first load only.
+
+```vue
+<template>
+  <div ref="myElementRef" data-entrance-animate="true">
+    Your content
+  </div>
+</template>
+
+<script setup>
+import { useEntranceAnimation } from '~/composables/useEntranceAnimation'
+
+const { setupEntrance } = useEntranceAnimation()
+const { $gsap } = useNuxtApp()
+const myElementRef = ref(null)
+
+onMounted(() => {
+  setupEntrance(myElementRef.value, {
+    // GSAP position parameter - full flexibility
+    position: '<-0.3',  // Start 0.3s before previous animation ends (overlap)
+
+    // Animation function - define your timeline
+    animate: (el) => {
+      const tl = $gsap.timeline()
+
+      // Element already hidden by CSS via data-entrance-animate attribute + html.is-first-load class
+      // Just set transform offset before animating
+      $gsap.set(el, { y: 40 })
+
+      // Animate to visible with autoAlpha (opacity + visibility)
+      tl.to(el, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power2.out'
+      })
+
+      return tl
+    },
+
+    // Optional: ScrollTrigger config for below-fold fallback
+    scrollTrigger: {
+      start: 'top 80%',
+      once: true
+    }
+  })
+})
+</script>
+```
+
+**CSS-First Approach with HTML Class Scoping**:
+```css
+/* In app/assets/css/base/base.scss */
+/* Only hides elements on first load when html.is-first-load class exists */
+html.is-first-load [data-entrance-animate="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+```
+
+**How it works**:
+1. **SSR injects class**: Nitro plugin adds `is-first-load` class to `<html>` element before page loads
+2. **First load**: Class exists → CSS hides elements with `data-entrance-animate="true"` → Animations play
+3. **Class removed**: After entrance animations complete, `is-first-load` class is removed
+4. **Subsequent navigations**: No class → CSS doesn't apply → Elements visible → Page transitions work normally
+
+This prevents flash on first load while allowing page transitions to control visibility on subsequent navigations.
+
+#### GSAP Position Parameter Examples
+
+Full GSAP position parameter syntax is supported:
 
 ```javascript
-onMounted(() => {
-  const { isFirstLoad } = useLoadingSequence();
+// Overlap completely with previous animation
+position: '<'
 
-  if (isFirstLoad()) {
-    // Hide elements initially
-    $gsap.set(containerRef.value, { autoAlpha: 0 });
+// Start 0.3s before previous animation ends (smooth overlap)
+position: '<-0.3'
 
-    // Listen for animation start
-    window.addEventListener('app:start-animations', () => {
-      const tl = $gsap.timeline();
-      tl.to(containerRef.value, { autoAlpha: 1, duration: 0.6 });
-      // ... more animations
-    }, { once: true });
-  }
-});
+// Start 0.2s after previous animation ends (gap)
+position: '+=0.2'
+
+// Start with previous animation but delay 0.1s
+position: '<+0.1'
+
+// Start at timeline beginning
+position: 'start'
+
+// Start at header label
+position: 'header'
+
+// Start 0.5s after header label
+position: 'header+=0.5'
+
+// Start at exact time (2 seconds from timeline start)
+position: 2
 ```
+
+#### HeroSection Integration
+
+The `HeroSection` component has built-in entrance animation support:
+
+```vue
+<template>
+  <HeroSection
+    :animate-entrance="true"
+    position="<-0.3"
+  >
+    <h1>Your headline</h1>
+    <p>Your content</p>
+  </HeroSection>
+</template>
+```
+
+**Props**:
+- `animateEntrance` - Enable entrance animation (default: `true`)
+- `position` - GSAP position parameter (default: `'<-0.3'` - overlap header by 0.3s)
+
+#### HeaderGrid Integration
+
+HeaderGrid dispatches `app:entrance-ready` event when its animation completes:
+
+```javascript
+// In HeaderGrid.vue onComplete callback
+onComplete: () => {
+  console.log("✨ Header entrance complete")
+  window.dispatchEvent(new CustomEvent('app:entrance-ready'))
+  console.log("🚀 Fired 'app:entrance-ready' event")
+}
+```
+
+This signals the entrance animation system to play all queued component animations.
 
 ## Console Output
 
-Expected logs during loading (with `minLoadTime: 300`):
+Expected logs during loading with entrance animations (with `minLoadTime: 300`):
 
 ```
-🎨 [Nitro] Loader HTML injected into SSR response
+🎨 [Blocking Script] Theme detected: LIGHT | localStorage: null | system prefers: light
+🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response
 🎨 Loader manager plugin initialized
 📍 Initial scroll position reset to top
 🔄 Loading started
@@ -333,11 +462,23 @@ Expected logs during loading (with `minLoadTime: 300`):
 🎭 Fading out loader...
 🎬 Initial animations started
 🎬 Header entrance animation started
+🎬 Entrance animation system initialized
+📝 Queued entrance animation for element: <section class="content-grid">
 ✨ Loader removed from DOM
 ✨ Header entrance complete
+🚀 Fired 'app:entrance-ready' event - queued entrance animations can now play
+🎬 Playing 1 entrance animations
+✨ All entrance animations complete
+🔓 Removed is-first-load class - page transitions can now handle visibility
 ```
 
-**Key Insight**: The `⏱️ Resources loaded...` log shows the timing enforcement working. If resources load in 45ms but `minLoadTime: 300`, it waits 255ms more to ensure consistent UX.
+**Key Insights**:
+- The `⏱️ Resources loaded...` log shows timing enforcement working
+- `📝 Queued entrance animation` shows components registering for entrance sequence
+- `🚀 Fired 'app:entrance-ready'` is dispatched by HeaderGrid after it completes
+- `🎬 Playing N entrance animations` shows the master timeline starting
+- `🔓 Removed is-first-load class` happens after animations, enabling page transitions
+- Components animate in sequence based on their `position` parameters
 
 ## Troubleshooting
 
@@ -428,6 +569,78 @@ window.__loadingStore = useLoadingStore()
 console.log(window.__loadingStore.gsapReady) // Should be true
 console.log(window.__loadingStore.fontsReady) // Should be true
 ```
+
+### Entrance animations not playing
+
+**Symptoms**: Components don't animate after header completes
+
+**Check if system initialized**:
+Look for `🎬 Entrance animation system initialized` in console
+
+**Check if components queued**:
+Look for `📝 Queued entrance animation for element:` logs
+
+**Check if event fired**:
+Look for `🚀 Fired 'app:entrance-ready' event` from HeaderGrid
+
+**Common causes**:
+- Component not in viewport on load (check viewport detection)
+- `animateEntrance` prop set to `false`
+- Element ref not available in `onMounted`
+- HeaderGrid animation never completes
+
+**Debug**:
+```javascript
+// In component
+console.log('Element ref:', myElementRef.value)
+console.log('Is first load:', isFirstLoad())
+
+// Check if element is in viewport
+const rect = myElementRef.value?.getBoundingClientRect()
+const inViewport = rect && rect.top < window.innerHeight && rect.bottom > 0
+console.log('In viewport:', inViewport)
+```
+
+### Animations play in wrong order
+
+**Symptoms**: Components animate out of sequence
+
+**Cause**: Position parameters not configured correctly
+
+**Solution**: Review GSAP position parameter syntax:
+- Use `'<-0.3'` for overlap (starts before previous ends)
+- Use `'+=0.2'` for gap (starts after previous ends)
+- Use `'<'` to start with previous animation
+- Check that position parameters create logical sequence
+
+**Verify timing**:
+```javascript
+// Add logs in animate function
+animate: (el) => {
+  console.log('Animating element:', el, 'at position:', options.position)
+  // ... your animation
+}
+```
+
+### ScrollTrigger fallback not working
+
+**Symptoms**: Below-fold components don't animate on scroll
+
+**Check if ScrollTrigger provided**:
+```javascript
+setupEntrance(el, {
+  position: '+=0.2',
+  animate: (el) => { /* ... */ },
+  scrollTrigger: {  // Must provide this for fallback
+    start: 'top 80%',
+    once: true
+  }
+})
+```
+
+**Check console for errors**: Look for ScrollTrigger warnings
+
+**Verify ScrollTrigger plugin loaded**: Check `nuxt.config.ts` has `scrollTrigger: true`
 
 ## Testing Theme-Aware Loader
 

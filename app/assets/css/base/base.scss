@@ -135,3 +135,13 @@ body {
   inline-size: 1em;
   block-size: 1em;
 }
+
+/* Entrance animation - hide elements on first load only
+   - Prevents flash of visible content before GSAP animation starts on first load
+   - Scoped to html.is-first-load class (injected by SSR, removed after entrance completes)
+   - On subsequent page navigations, class is absent so CSS doesn't apply
+   - This allows page transitions to handle element visibility normally */
+html.is-first-load [data-entrance-animate="true"] {
+  opacity: 0;
+  visibility: hidden;
+}

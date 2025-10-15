@@ -321,7 +321,12 @@ onMounted(() => {
 
           const tl = $gsap.timeline({
             onStart: () => console.log("🎬 Header entrance animation started"),
-            onComplete: () => console.log("✨ Header entrance complete"),
+            onComplete: () => {
+              console.log("✨ Header entrance complete");
+              // Dispatch event to signal that other entrance animations can start
+              window.dispatchEvent(new CustomEvent('app:entrance-ready'));
+              console.log("🚀 Fired 'app:entrance-ready' event - queued entrance animations can now play");
+            },
           });
 
           // Animate container in first

@@ -37,6 +37,11 @@ export default defineNitroPlugin((nitroApp) => {
           // Using toggle() ensures class is added if dark, removed if light
           document.documentElement.classList.toggle('theme-dark', isDark);
 
+          // Add is-first-load class to enable entrance animation hiding
+          // This class will be removed after entrance animations complete
+          // It scopes CSS hiding to first load only (subsequent navigations won't hide elements)
+          document.documentElement.classList.add('is-first-load');
+
           // Debug logging (can be removed in production)
           console.log('🎨 [Blocking Script] Theme detected:', isDark ? 'DARK' : 'LIGHT',
             '| localStorage:', stored || 'null',
