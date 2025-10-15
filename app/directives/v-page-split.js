@@ -54,8 +54,8 @@ export default {
         splitType,
         stagger:
           config.stagger !== undefined ? config.stagger : typeDefaults.stagger,
-        duration: config.duration || 0.6,
-        ease: config.ease || "sine.out",
+        duration: config.duration || 0.9,
+        ease: config.ease || "back.out(1.2)",
         y: config.y !== undefined ? config.y : typeDefaults.y,
         animateFrom: config.animateFrom, // 'below' | 'above' | undefined
       },

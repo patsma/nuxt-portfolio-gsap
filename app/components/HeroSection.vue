@@ -66,45 +66,84 @@ const props = defineProps({
    */
   position: {
     type: String,
-    default: '<-0.3', // Overlap header by 0.3s for smooth flow
+    default: "<-0.3", // Overlap header by 0.3s for smooth flow
   },
-})
+});
 
 // Nuxt GSAP
-const { $gsap } = useNuxtApp()
+const { $gsap, $SplitText } = useNuxtApp();
 
 // Entrance animation system
-const { setupEntrance } = useEntranceAnimation()
+const { setupEntrance } = useEntranceAnimation();
 
 // Refs
-const heroRef = ref(null)
+const heroRef = ref(null);
+const splitInstance = ref(null);
 
 onMounted(() => {
-  if (!props.animateEntrance || !heroRef.value) return
+  if (!props.animateEntrance || !heroRef.value) return;
 
-  // Setup entrance animation
+  // Setup entrance animation with SplitText
   setupEntrance(heroRef.value, {
     position: props.position,
     animate: (el) => {
-      // Create timeline for hero entrance
-      const tl = $gsap.timeline()
+      // Find element to animate (e.g., h1 with text content)
+      const textElement = el.querySelector("h1");
+
+      if (!textElement || !$SplitText) {
+        // Fallback to simple fade if no text element or SplitText not available
+        const tl = $gsap.timeline();
+        $gsap.set(el, { y: 40 });
+        tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" });
+        return tl;
+      }
+
+      // Lock height before SplitText to prevent layout shift
+      const originalHeight = textElement.offsetHeight;
+      $gsap.set(textElement, { height: originalHeight });
+
+      // Apply SplitText with masking (split by lines)
+      const split = $SplitText.create(textElement, {
+        type: "lines",
+        mask: "lines", // Use masking for clean reveals
+      });
+      splitInstance.value = split;
+
+      // Create timeline
+      const tl = $gsap.timeline();
 
       // Element is already hidden by CSS (data-entrance-animate attribute)
-      // Just set the y position offset before animating
-      $gsap.set(el, { y: 40 })
+      // Set initial state: text positioned below mask with rotation
+      $gsap.set(split.lines, {
+        yPercent: 100,
+        rotate: 20,
+        transformOrigin: "0% 0%",
+      });
 
-      // Animate in with smooth fade and upward movement
-      tl.to(el, {
-        autoAlpha: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
-      })
+      // Make container visible
+      $gsap.set(el, { autoAlpha: 1 });
 
-      return tl
+      // Animate: slide up from below mask with rotation straightening
+      tl.to(split.lines, {
+        yPercent: 0,
+        rotate: 0,
+        duration: 1,
+        stagger: 0.08,
+        ease: "back.out(1.2)",
+      });
+
+      return tl;
     },
-  })
-})
+  });
+});
+
+onUnmounted(() => {
+  // Clean up SplitText instance
+  if (splitInstance.value) {
+    splitInstance.value.revert?.();
+    splitInstance.value = null;
+  }
+});
 </script>
 
 <style scoped>
