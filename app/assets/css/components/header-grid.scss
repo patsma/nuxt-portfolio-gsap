@@ -1,33 +1,48 @@
 @use "../tokens/breakpoints.scss" as bp;
 
-/* Header container - fixed positioning for headroom behavior
+/* Header container - fixed positioning with three-state headroom behavior
    - Fixed outside ScrollSmoother content (per GSAP docs)
-   - Transparent to reveal FluidGradient background
-   - Animates via transform for performance (GPU-accelerated) */
+   - Default: Full height, transparent (reveals FluidGradient)
+   - Compact: Reduced height with backdrop blur when scrolled
+   - Hidden: Translated out of view on scroll down */
 .header-grid {
   /* Fixed positioning - works properly outside #smooth-content */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: var(--size-header);
-  /* Transparent to reveal FluidGradient background - no backdrop-blur for performance */
+  height: var(--size-header); /* Full height by default */
+  /* Transparent by default to reveal FluidGradient background */
   background: transparent;
+  backdrop-filter: none;
   /* High z-index to stay above content and overlay */
   z-index: 50;
   isolation: isolate;
-  /* Smooth transform animation for headroom show/hide */
-  will-change: transform;
-  transition: transform var(--duration-hover) var(--ease-power2);
+  /* Smooth transitions for all headroom state changes */
+  will-change: transform, height, background-color, backdrop-filter;
+  transition:
+    transform var(--duration-hover) var(--ease-power2),
+    height var(--duration-hover) var(--ease-power2),
+    background-color var(--duration-hover) var(--ease-power2),
+    backdrop-filter var(--duration-hover) var(--ease-power2);
 }
 
-/* Headroom states - inspired by headroom.js
-   - Pinned: header is visible (scroll up or at top)
-   - Unpinned: header is hidden (scroll down) */
-.header-grid.headroom--pinned {
-  transform: translateY(0%);
+/* Headroom states - three-state system for adaptive header behavior
+   STATE 1: headroom--top - At viewport top
+   - Full height, transparent background
+   - This is the default state, no additional styles needed
+
+   STATE 2: headroom--not-top - Scrolled but visible
+   - Compact height with backdrop blur for glass effect
+   - Theme-aware semi-transparent background */
+.header-grid.headroom--not-top {
+  height: var(--size-header-compact); /* Compact height: 64px → 80px */
+  background-color: var(--theme-5); /* 5% opacity, adapts to theme */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); /* Safari support */
 }
 
+/* STATE 3: headroom--unpinned - Hidden when scrolling down */
 .header-grid.headroom--unpinned {
   transform: translateY(-100%);
 }
@@ -58,7 +73,8 @@
 
 .header-grid__inner {
   display: grid;
-  grid-template-rows: var(--size-header);
+  grid-template-rows: 100%; /* Inherit from parent header height */
+  height: 100%; /* Fill parent container */
 }
 
 .header-grid__row {
@@ -69,6 +85,12 @@
 
 .header-grid__row--top {
   height: var(--size-header);
+  transition: height var(--duration-hover) var(--ease-power2); /* Smooth height transition */
+}
+
+/* Compact row height when header is not at top */
+.headroom--not-top .header-grid__row--top {
+  height: var(--size-header-compact);
 }
 
 /* Hamburger button */

@@ -7,7 +7,7 @@
   -->
   <header
     ref="containerRef"
-    class="header-grid headroom--pinned"
+    class="header-grid headroom--top"
     data-entrance-animate="true"
   >
     <!-- Animated background - reveals from bottom to top when menu opens -->

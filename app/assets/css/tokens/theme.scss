@@ -114,7 +114,8 @@
   --tracking-body-wide-2: 0.143em; /* ~+2px @ 14px */
 
   /* Layout sizing */
-  --size-header: var(--space-3xl);
+  --size-header: var(--space-3xl); /* Full header height: 108px → 132px */
+  --size-header-compact: clamp(4rem, 3.8rem + 0.8vw, 5rem); /* Compact header when scrolled: 64px → 80px */
   --size-hero-reveal: 10vh;
 
   /* Border widths - standardized for consistency */

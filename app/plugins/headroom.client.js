@@ -5,7 +5,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   if (!process.client) return;
 
   // Headroom configuration
-  const SCROLL_THRESHOLD = 100; // px before hiding header
+  const AT_TOP_THRESHOLD = 10; // px to be considered "at top" (triggers full header)
+  const SCROLL_THRESHOLD = 100; // px before hiding header on scroll down
   const THROTTLE_DELAY = 100; // ms between updates
 
   // State tracking
@@ -37,44 +38,50 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Calculate scroll direction
     const scrollDirection = currentScroll > lastScrollTop ? 1 : -1; // 1 = down, -1 = up
 
-    // At the very top of the page, always show header
-    if (currentScroll <= 0) {
-      headerElement.classList.add("headroom--pinned");
-      headerElement.classList.remove("headroom--unpinned");
+    // Three-state system:
+    // 1. headroom--top: At viewport top (full height, transparent)
+    // 2. headroom--not-top: Scrolled but visible (compact, backdrop blur)
+    // 3. headroom--unpinned: Hidden (scrolled down past threshold)
+
+    // STATE 1: At the very top of the page
+    if (currentScroll <= AT_TOP_THRESHOLD) {
+      headerElement.classList.add("headroom--top");
+      headerElement.classList.remove("headroom--not-top", "headroom--unpinned");
       lastScrollTop = currentScroll;
       return;
     }
 
-    // Only apply headroom behavior after scrolling past threshold
+    // STATE 2 & 3: Past the "at top" threshold
+    // Only apply hide/show behavior after scrolling past scroll threshold
     if (currentScroll > SCROLL_THRESHOLD) {
       if (scrollDirection === 1) {
-        // Scrolling down - hide header
-        headerElement.classList.remove("headroom--pinned");
+        // Scrolling down - hide header (STATE 3)
+        headerElement.classList.remove("headroom--top", "headroom--not-top");
         headerElement.classList.add("headroom--unpinned");
       } else if (scrollDirection === -1) {
-        // Scrolling up - show header
-        headerElement.classList.add("headroom--pinned");
-        headerElement.classList.remove("headroom--unpinned");
+        // Scrolling up - show compact header (STATE 2)
+        headerElement.classList.remove("headroom--top", "headroom--unpinned");
+        headerElement.classList.add("headroom--not-top");
       }
     } else {
-      // Below threshold - always show header
-      headerElement.classList.add("headroom--pinned");
-      headerElement.classList.remove("headroom--unpinned");
+      // Between AT_TOP_THRESHOLD and SCROLL_THRESHOLD - show compact header (STATE 2)
+      headerElement.classList.remove("headroom--top", "headroom--unpinned");
+      headerElement.classList.add("headroom--not-top");
     }
 
     lastScrollTop = currentScroll;
   };
 
   /**
-   * Reset headroom state (show header)
+   * Reset headroom state (show header at top)
    */
   const reset = () => {
     lastScrollTop = 0;
     lastUpdateTime = 0;
     headerElement = document.querySelector(".header-grid");
     if (headerElement) {
-      headerElement.classList.add("headroom--pinned");
-      headerElement.classList.remove("headroom--unpinned");
+      headerElement.classList.add("headroom--top");
+      headerElement.classList.remove("headroom--not-top", "headroom--unpinned");
     }
   };
 
@@ -84,7 +91,7 @@ export default defineNuxtPlugin((nuxtApp) => {
    */
   const pause = () => {
     isPaused = true;
-    // Ensure header is pinned during transitions
+    // Ensure header is visible during transitions (use current state or default to top)
     if (!headerElement) {
       headerElement = document.querySelector(".header-grid");
     }
@@ -93,11 +100,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       headerElement.classList.add("headroom--no-transition");
       // Force browser reflow to apply no-transition immediately
       void headerElement.offsetHeight;
-      // Now change state instantly (no animation)
-      headerElement.classList.add("headroom--pinned");
-      headerElement.classList.remove("headroom--unpinned");
+      // Keep current state but ensure it's not unpinned
+      // If unpinned, switch to not-top state to show compact header during transition
+      if (headerElement.classList.contains("headroom--unpinned")) {
+        headerElement.classList.remove("headroom--unpinned");
+        headerElement.classList.add("headroom--not-top");
+      }
     }
-    // console.log("[Headroom] Paused - header pinned (no animation)");
+    // console.log("[Headroom] Paused - header visible (no animation)");
   };
 
   /**
