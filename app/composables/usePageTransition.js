@@ -500,6 +500,14 @@ export const usePageTransition = () => {
       window.scrollTo(0, 0);
       // console.log('📍 Fallback: Scrolled to top using window.scrollTo')
     }
+
+    // Reset headroom state to match scroll position (top of page)
+    // This ensures new page starts with full-height header, not compact header
+    const nuxtApp = useNuxtApp();
+    if (nuxtApp.$headroom?.reset) {
+      nuxtApp.$headroom.reset();
+      // console.log('🎯 Reset headroom state to top after scroll')
+    }
   };
 
   return { leave, enter, beforeEnter, afterLeave };
