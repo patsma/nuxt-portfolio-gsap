@@ -26,12 +26,12 @@ body {
 
   /* Active state: reduced opacity */
   &[data-active="true"] {
-    opacity: 0.5;
+    opacity: 0.5 !important;
   }
 
   /* Hover on non-active links */
   &:not([data-active="true"]):hover {
-    opacity: 0.5;
+    opacity: 0.5 !important;
   }
 }
 
