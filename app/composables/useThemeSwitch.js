@@ -48,27 +48,40 @@ export default function useThemeSwitch() {
   };
 
   // Helper function to initialize a single theme toggle button
-  const initButton = (button, themeStore, html, colors, gradientColors, themeDuration, tl) => {
+  const initButton = (
+    button,
+    themeStore,
+    html,
+    colors,
+    gradientColors,
+    themeDuration,
+    tl
+  ) => {
     if (!button) return;
 
     // Find SVG elements within this button's context using attribute selectors
     // Elements have unique IDs like "theme-toggle-X-bg", so we match by ID suffix
-    const svgRoot = button.querySelector('svg');
+    const svgRoot = button.querySelector("svg");
     if (!svgRoot) {
-      console.warn('useThemeSwitch: SVG not found in button', button.id);
+      console.warn("useThemeSwitch: SVG not found in button", button.id);
       return;
     }
 
     const sunDark = svgRoot.querySelector('[id$="-sun-dark"]');
     const sunLight = svgRoot.querySelector('[id$="-sun-light"]');
-    const sunLightBeams = svgRoot.querySelectorAll('[id$="-sun-light-beams"] path');
+    const sunLightBeams = svgRoot.querySelectorAll(
+      '[id$="-sun-light-beams"] path'
+    );
     const sunLightInner = svgRoot.querySelector('[id$="-sun-light-inner"]');
     const moonDark = svgRoot.querySelector('[id$="-moon-dark"]');
     const moonWhite = svgRoot.querySelector('[id$="-moon-white"]');
     const background = svgRoot.querySelector('[id$="-bg"]');
 
     if (!sunDark || !moonWhite || !sunLightInner || !moonDark) {
-      console.warn('useThemeSwitch: Required SVG elements not found in button', button.id);
+      console.warn(
+        "useThemeSwitch: Required SVG elements not found in button",
+        button.id
+      );
       return;
     }
 
@@ -133,22 +146,22 @@ export default function useThemeSwitch() {
       // Get current state BEFORE toggle
       const wasLight = !themeStore.isDark;
 
-      console.log('🖱️ [Theme Toggle] Button clicked:', button.id);
-      console.log('  → Was:', wasLight ? 'LIGHT' : 'DARK');
+      // console.log("🖱️ [Theme Toggle] Button clicked:", button.id);
+      // console.log("  → Was:", wasLight ? "LIGHT" : "DARK");
 
       // Toggle store ONCE
       themeStore.toggle();
 
-      console.log('  → Now:', themeStore.isDark ? 'DARK' : 'LIGHT');
+      // console.log("  → Now:", themeStore.isDark ? "DARK" : "LIGHT");
 
       // Animate timeline based on NEW state (simple toggle)
       if (wasLight) {
         // Was light, now dark → animate forward
-        console.log('  → Animating timeline: play() → progress 1');
+        // console.log("  → Animating timeline: play() → progress 1");
         tl.play();
       } else {
         // Was dark, now light → animate backward
-        console.log('  → Animating timeline: reverse() → progress 0');
+        // console.log("  → Animating timeline: reverse() → progress 0");
         tl.reverse();
       }
     });
@@ -179,9 +192,11 @@ export default function useThemeSwitch() {
 
     // Read initial theme directly from same source as blocking script
     // Can't rely on Pinia hydration timing - it may not have run yet
-    const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDarkInitially = stored ? stored === 'dark' : prefersDark;
+    const stored = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    const isDarkInitially = stored ? stored === "dark" : prefersDark;
 
     // CRITICAL: Immediately sync Pinia store state with what we just read
     // This prevents the double-click bug when starting with dark theme
@@ -189,11 +204,17 @@ export default function useThemeSwitch() {
     // causing button logic to think it's light when timeline is actually dark
     themeStore.isDark = isDarkInitially;
 
-    console.log('🎬 [GSAP Timeline] Reading initial theme directly:',
-      '| localStorage:', stored || 'null',
-      '| system prefers:', prefersDark ? 'dark' : 'light',
-      '| isDark:', isDarkInitially,
-      '| Store synced:', themeStore.isDark);
+    // console.log(
+    //   "🎬 [GSAP Timeline] Reading initial theme directly:",
+    //   "| localStorage:",
+    //   stored || "null",
+    //   "| system prefers:",
+    //   prefersDark ? "dark" : "light",
+    //   "| isDark:",
+    //   isDarkInitially,
+    //   "| Store synced:",
+    //   themeStore.isDark
+    // );
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ["100", "60", "50", "40", "30", "15", "5"];
@@ -243,7 +264,6 @@ export default function useThemeSwitch() {
 
     // Create GSAP context for proper cleanup
     const ctx = $gsap.context(() => {
-
       // Create a proxy object to animate ALL color values
       // ALWAYS initialize from LIGHT theme (timeline start position)
       // Timeline animates FROM light (progress 0) TO dark (progress 1)
@@ -438,19 +458,35 @@ export default function useThemeSwitch() {
 
       // Initialize both theme toggle buttons with the shared timeline
       // Each button's SVG elements will be animated by the same timeline
-      initButton(themeSwitchDesktop, themeStore, html, colors, gradientColors, themeDuration, tl);
-      initButton(themeSwitchMobile, themeStore, html, colors, gradientColors, themeDuration, tl);
+      initButton(
+        themeSwitchDesktop,
+        themeStore,
+        html,
+        colors,
+        gradientColors,
+        themeDuration,
+        tl
+      );
+      initButton(
+        themeSwitchMobile,
+        themeStore,
+        html,
+        colors,
+        gradientColors,
+        themeDuration,
+        tl
+      );
 
       // Set initial timeline position based on localStorage reading (not store)
       // Store will eventually sync via hydration, but timeline needs correct state NOW
       tl.progress(isDarkInitially ? 1 : 0).pause();
-      console.log('🎬 [GSAP Timeline] Timeline initialized:',
-        '| Progress set to:', tl.progress(),
-        '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT',
-        '| Buttons initialized:', {
-          desktop: !!themeSwitchDesktop,
-          mobile: !!themeSwitchMobile
-        });
+      // console.log('🎬 [GSAP Timeline] Timeline initialized:',
+      //   '| Progress set to:', tl.progress(),
+      //   '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT',
+      //   '| Buttons initialized:', {
+      //     desktop: !!themeSwitchDesktop,
+      //     mobile: !!themeSwitchMobile
+      //   });
     });
 
     // Return cleanup function

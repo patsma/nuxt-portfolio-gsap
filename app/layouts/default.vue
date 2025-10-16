@@ -56,7 +56,7 @@ onMounted(() => {
     // This ensures the page starts at scrollTop 0, not at some random offset
     nextTick(() => {
       scrollToTop();
-      console.log("✅ Page scroll position reset to top");
+      // console.log("✅ Page scroll position reset to top");
     });
 
     // Mark ScrollSmoother as ready in loading sequence

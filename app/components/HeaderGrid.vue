@@ -64,13 +64,15 @@
             </NuxtLink>
 
             <!-- Theme toggle in desktop nav -->
-            <button
-              id="themeSwitch"
-              class="cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              <ThemeToggleSVG class="w-12" />
-            </button>
+            <ClientOnly>
+              <button
+                id="themeSwitch"
+                class="cursor-pointer"
+                aria-label="Toggle theme"
+              >
+                <ThemeToggleSVG class="w-12" />
+              </button>
+            </ClientOnly>
 
             <NuxtLink
               to="/lab"
@@ -103,13 +105,15 @@
             </div>
 
             <!-- Mobile: Theme toggle -->
-            <button
-              id="themeSwitchMobile"
-              class="flex md:hidden cursor-pointer"
-              aria-label="Toggle theme"
-            >
-              <ThemeToggleSVG class="w-12" />
-            </button>
+            <ClientOnly>
+              <button
+                id="themeSwitchMobile"
+                class="flex md:hidden cursor-pointer"
+                aria-label="Toggle theme"
+              >
+                <ThemeToggleSVG class="w-12" />
+              </button>
+            </ClientOnly>
           </div>
         </div>
       </div>
@@ -362,9 +366,9 @@ onMounted(() => {
           position: "0.2", // First in the sequence (can be changed to reorder)
           animate: (el) => {
             const tl = $gsap.timeline({
-              onStart: () =>
-                console.log("🎬 Header entrance animation started"),
-              onComplete: () => console.log("✨ Header entrance complete"),
+              // onStart: () =>
+              //   console.log("🎬 Header entrance animation started"),
+              // onComplete: () => console.log("✨ Header entrance complete"),
             });
 
             // Elements are already hidden by CSS + is-first-load class

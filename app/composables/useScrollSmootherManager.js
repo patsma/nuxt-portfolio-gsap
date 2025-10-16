@@ -147,7 +147,7 @@ export const useScrollSmootherManager = () => {
 
     // Use ScrollSmoother's scrollTo method for smooth scrolling
     smootherInstance.scrollTo(0, false); // false = instant, no animation
-    console.log('📍 ScrollSmoother scrolled to top');
+    // console.log('📍 ScrollSmoother scrolled to top');
   };
 
   return {

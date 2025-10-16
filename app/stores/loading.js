@@ -35,23 +35,27 @@ import { defineStore } from "pinia";
  */
 
 export const useLoadingStore = defineStore("loading", {
-  state: () => /** @type {LoadingState} */ ({
-    status: "initial",
-    gsapReady: false,
-    scrollSmootherReady: false,
-    pageReady: false,
-    fontsReady: false,
-    isFirstLoad: true,
-    startTime: null,
-    readyTime: null,
-  }),
+  state: () =>
+    /** @type {LoadingState} */ ({
+      status: "initial",
+      gsapReady: false,
+      scrollSmootherReady: false,
+      pageReady: false,
+      fontsReady: false,
+      isFirstLoad: true,
+      startTime: null,
+      readyTime: null,
+    }),
 
   getters: {
     /**
      * Check if app is fully ready for animations
      * @returns {boolean}
      */
-    isReady: (state) => state.status === "ready" || state.status === "animating" || state.status === "complete",
+    isReady: (state) =>
+      state.status === "ready" ||
+      state.status === "animating" ||
+      state.status === "complete",
 
     /**
      * Check if initial load animations are complete
@@ -88,7 +92,7 @@ export const useLoadingStore = defineStore("loading", {
     startLoading() {
       this.status = "loading";
       this.startTime = Date.now();
-      console.log("🔄 Loading started");
+      // console.log("🔄 Loading started");
     },
 
     /**
@@ -96,7 +100,7 @@ export const useLoadingStore = defineStore("loading", {
      */
     setGsapReady() {
       this.gsapReady = true;
-      console.log("✅ GSAP ready");
+      // console.log("✅ GSAP ready");
       this.checkReadyState();
     },
 
@@ -105,7 +109,7 @@ export const useLoadingStore = defineStore("loading", {
      */
     setScrollSmootherReady() {
       this.scrollSmootherReady = true;
-      console.log("✅ ScrollSmoother ready");
+      // console.log("✅ ScrollSmoother ready");
       this.checkReadyState();
     },
 
@@ -114,7 +118,7 @@ export const useLoadingStore = defineStore("loading", {
      */
     setPageReady() {
       this.pageReady = true;
-      console.log("✅ Page content ready");
+      // console.log("✅ Page content ready");
       this.checkReadyState();
     },
 
@@ -123,7 +127,7 @@ export const useLoadingStore = defineStore("loading", {
      */
     setFontsReady() {
       this.fontsReady = true;
-      console.log("✅ Fonts ready");
+      // console.log("✅ Fonts ready");
       this.checkReadyState();
     },
 
@@ -137,8 +141,8 @@ export const useLoadingStore = defineStore("loading", {
         this.readyTime = Date.now();
 
         const duration = this.loadingDuration;
-        console.log(`✅ All resources loaded! Took ${duration}ms`);
-        console.log(`ℹ️  Waiting for minimum display time before showing content...`);
+        // console.log(`✅ All resources loaded! Took ${duration}ms`);
+        // console.log(`ℹ️  Waiting for minimum display time before showing content...`);
 
         // NOTE: Do NOT emit app:ready event here!
         // The loading sequence will emit it after enforcing minLoadTime
@@ -151,7 +155,7 @@ export const useLoadingStore = defineStore("loading", {
     startAnimating() {
       if (this.status === "ready") {
         this.status = "animating";
-        console.log("🎬 Initial animations started");
+        // console.log("🎬 Initial animations started");
       }
     },
 
@@ -162,11 +166,11 @@ export const useLoadingStore = defineStore("loading", {
       if (this.status === "animating") {
         this.status = "complete";
         this.isFirstLoad = false; // Next loads won't be first
-        console.log("✨ Initial animations complete");
+        // console.log("✨ Initial animations complete");
 
         // Emit complete event
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('app:complete'));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("app:complete"));
         }
       }
     },
@@ -182,7 +186,7 @@ export const useLoadingStore = defineStore("loading", {
       this.fontsReady = false;
       this.startTime = null;
       this.readyTime = null;
-      console.log("🔄 Loading state reset");
+      // console.log("🔄 Loading state reset");
     },
 
     /**

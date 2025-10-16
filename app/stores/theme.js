@@ -1,12 +1,12 @@
 // ~/stores/theme.js
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 /**
  * Theme store - centralized theme state management
  * Uses Pinia hydration for SSR-safe initialization
  * Plugin handles HTML class, store only manages state
  */
-export const useThemeStore = defineStore('theme', {
+export const useThemeStore = defineStore("theme", {
   state: () => ({
     isDark: false, // Default state, will be hydrated from localStorage
   }),
@@ -18,19 +18,20 @@ export const useThemeStore = defineStore('theme', {
    */
   hydrate(state, initialState) {
     if (process.client) {
-      const stored = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      state.isDark = stored ? stored === 'dark' : prefersDark;
+      const stored = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      state.isDark = stored ? stored === "dark" : prefersDark;
 
       // Debug logging
-      console.log('🍍 [Pinia Store] Theme hydrated:', state.isDark ? 'DARK' : 'LIGHT',
-        '| localStorage:', stored || 'null',
-        '| system prefers:', prefersDark ? 'dark' : 'light');
+      // console.log('🍍 [Pinia Store] Theme hydrated:', state.isDark ? 'DARK' : 'LIGHT',
+      //   '| localStorage:', stored || 'null',
+      //   '| system prefers:', prefersDark ? 'dark' : 'light');
     }
   },
 
   actions: {
-
     /**
      * Toggle theme between light and dark
      */
@@ -39,14 +40,17 @@ export const useThemeStore = defineStore('theme', {
 
       if (process.client) {
         // Persist to localStorage
-        localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
+        localStorage.setItem("theme", this.isDark ? "dark" : "light");
 
         // Sync with HTML class
-        document.documentElement.classList.toggle('theme-dark', this.isDark);
+        document.documentElement.classList.toggle("theme-dark", this.isDark);
 
         // Debug logging
-        console.log('🔄 [Pinia Store] Theme toggled to:', this.isDark ? 'DARK' : 'LIGHT',
-          '| Saved to localStorage');
+        // console.log(
+        //   "🔄 [Pinia Store] Theme toggled to:",
+        //   this.isDark ? "DARK" : "LIGHT",
+        //   "| Saved to localStorage"
+        // );
       }
     },
 
@@ -58,9 +62,9 @@ export const useThemeStore = defineStore('theme', {
       this.isDark = isDark;
 
       if (process.client) {
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        document.documentElement.classList.toggle('theme-dark', isDark);
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        document.documentElement.classList.toggle("theme-dark", isDark);
       }
-    }
-  }
+    },
+  },
 });

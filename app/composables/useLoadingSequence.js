@@ -90,17 +90,17 @@ export const useLoadingSequence = () => {
     const remainingTime = Math.max(minLoadTime - elapsed, 0);
 
     if (remainingTime > 0) {
-      console.log(
-        `⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`
-      );
+      // console.log(
+      //   `⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`
+      // );
       await new Promise((resolve) => setTimeout(resolve, remainingTime));
     } else {
-      console.log(
-        `⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`
-      );
+      // console.log(
+      //   `⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`
+      // );
     }
 
-    console.log("🎯 Minimum display time reached - ready to show content");
+    // console.log("🎯 Minimum display time reached - ready to show content");
 
     // CRITICAL: Fire app:ready event AFTER minimum time is enforced
     // This ensures loader stays visible for the full duration
