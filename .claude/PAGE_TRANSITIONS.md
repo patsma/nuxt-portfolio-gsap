@@ -195,8 +195,9 @@ page:start → headroom.pause()
   ↓
 Leave → elements fade OUT at 500px
   ↓
-afterLeave → smoother.scrollTop(0)
+afterLeave → smoother.scrollTop(0) + headroom.reset()
   - Instant scroll to 0
+  - Reset header to full-height state
   - Content hidden
   ↓
 Enter → elements fade IN at 0

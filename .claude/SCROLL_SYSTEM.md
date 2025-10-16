@@ -71,16 +71,17 @@ onMounted(() => {
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
+| `AT_TOP_THRESHOLD` | 10px | Distance to be considered "at top" |
 | `SCROLL_THRESHOLD` | 100px | Distance before hiding header |
 | `THROTTLE_DELAY` | 100ms | Update frequency (~10 times/sec) |
 
-### Behavior Zones
+### Three-State System
 
-| Zone | Scroll Position | Behavior |
-|------|----------------|----------|
-| Top | `scrollY ≤ 0` | Always visible |
-| Threshold | `0 < scrollY ≤ 100px` | Always visible (prevents flicker) |
-| Content | `scrollY > 100px` | Scroll down → hide, scroll up → show |
+| State | Class | Scroll Position | Appearance |
+|-------|-------|----------------|------------|
+| At Top | `headroom--top` | `scrollY ≤ 10px` | Full height, transparent background |
+| Not Top | `headroom--not-top` | `10px < scrollY ≤ 100px` OR scrolling up | Compact height, backdrop blur |
+| Hidden | `headroom--unpinned` | Scrolling down past 100px | Translated out of view |
 
 ### Pause/Resume Pattern
 
@@ -112,7 +113,7 @@ User clicks link → page:start → headroom.pause()
   ↓
 Leave animation (elements fade OUT)
   ↓
-afterLeave → scroll to top (instant, content hidden)
+afterLeave → scroll to top + reset headroom state (instant, content hidden)
   ↓
 Enter animation (elements fade IN)
   ↓
@@ -147,14 +148,20 @@ const enter = (el, done) => {
 ```scss
 .header-grid {
   position: fixed;
-  top: 0;
-  transition: transform var(--duration-hover) var(--ease-power2);
-  will-change: transform;
+  height: var(--size-header); // Full height by default
+  transition: transform, height, background-color, backdrop-filter;
 
-  &.headroom--pinned {
-    transform: translateY(0%);
+  // STATE 1: At top (default)
+  // Full height, transparent
+
+  // STATE 2: Not at top
+  &.headroom--not-top {
+    height: var(--size-header-compact); // Compact: 64-80px
+    background-color: var(--theme-5); // 5% opacity
+    backdrop-filter: blur(4px);
   }
 
+  // STATE 3: Hidden
   &.headroom--unpinned {
     transform: translateY(-100%);
   }
