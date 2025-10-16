@@ -166,7 +166,15 @@
   grid-column: 3;
 }
 
-/* Mobile overlay - full screen menu */
+/* Mobile overlay - full screen menu
+   - GSAP handles all animations (clip-path)
+   - No CSS transitions to avoid conflicts
+   - Initial clip-path prevents FOUC (flash of white background) */
 #mobile-overlay {
-  transition: opacity var(--duration-hover) var(--ease-power2);
+  z-index: -1;
+  will-change: clip-path;
+  clip-path: inset(
+    100% 0 0 0
+  ); /* Initially hidden at bottom - GSAP will animate from here */
+  /* Removed transition to let GSAP control everything */
 }

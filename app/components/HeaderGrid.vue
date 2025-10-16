@@ -157,7 +157,7 @@ import { useLoadingSequence } from "~/composables/useLoadingSequence";
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const nuxtApp = useNuxtApp();
-const { $gsap, $DrawSVGPlugin } = nuxtApp;
+const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp;
 
 // Loading system integration
 const loadingStore = useLoadingStore();
@@ -191,9 +191,9 @@ const hamburgerSvgComponent = ref(null);
 /** @type {any} */
 let hamburgerTl = null;
 /** @type {any} */
-let overlayTl = null;
+let menuTl = null; // Unified timeline for background + overlay + nav items
 /** @type {any} */
-let backgroundTl = null;
+let navSplitInstance = null; // SplitText instance for nav links
 /** @type {{ revert?: () => void } | null} */
 let gsapCtx = null;
 
@@ -316,86 +316,89 @@ onMounted(() => {
       }
       hamburgerTl = tl;
 
-      // Mobile overlay animation with clip-path reveal
-      if (overlayRef.value) {
-        const tl2 = $gsap.timeline({ paused: true });
+      // Unified menu animation - combines background, overlay, and nav items
+      if (overlayRef.value && backgroundRef.value) {
+        const menuTimeline = $gsap.timeline({ paused: true });
         const links = overlayRef.value.querySelectorAll("a");
 
-        // Prepare initial states for overlay and links
-        $gsap.set(overlayRef.value, {
-          opacity: 1,
-          clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 100% 0 round 0px)`,
+        // Set initial states for both backgrounds
+        $gsap.set(backgroundRef.value, {
+          clipPath: "inset(100% 0 0 0)", // Hidden at bottom
           willChange: "clip-path",
         });
-        $gsap.set(links, { y: 12, autoAlpha: 0 });
 
-        // Reveal overlay from header position, then animate links
-        tl2
+        $gsap.set(overlayRef.value, {
+          opacity: 1,
+          clipPath: "inset(100% 0 0 0)", // Hidden at bottom
+          willChange: "clip-path",
+        });
+
+        // Apply SplitText to nav links for masked reveal
+        if ($SplitText && links.length > 0) {
+          // Combine all link text for unified splitting
+          navSplitInstance = $SplitText.create(links, {
+            type: "lines",
+            mask: "lines", // Use masking for clean reveals
+          });
+
+          // Set initial state: text positioned below mask with rotation
+          $gsap.set(navSplitInstance.lines, {
+            yPercent: 100,
+            rotate: 20,
+            transformOrigin: "0% 0%",
+          });
+        }
+
+        // Animation sequence
+        // Phase 1: Both backgrounds clip up from bottom to top simultaneously
+        menuTimeline
+          .add("clipReveal") // Label for this phase
           .to(
-            overlayRef.value,
+            backgroundRef.value,
             {
-              clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 0% 0 round 0px)`,
+              clipPath: "inset(0% 0 0 0)",
               duration: hoverDuration * 1.17,
               ease: "power2.out",
             },
-            0
+            "clipReveal"
           )
           .to(
-            links,
+            overlayRef.value,
             {
-              autoAlpha: 1,
-              y: 0,
-              duration: hoverDuration,
+              clipPath: "inset(0% 0 0 0)", // Full reveal from bottom to top
+              duration: hoverDuration * 2.17,
               ease: "power2.out",
-              stagger: 0.06,
             },
-            "<+0.05"
+            "clipReveal" // Start at same time as background
           );
 
-        // On reverse complete, reset overlay
-        tl2.eventCallback("onReverseComplete", () => {
-          if (overlayRef.value) {
-            $gsap.set(overlayRef.value, {
-              clipPath: `inset(${getComputedStyle(document.documentElement).getPropertyValue("--size-header").trim()} 0 100% 0 round 0px)`,
-            });
-            $gsap.set(links, { y: 12, autoAlpha: 0 });
-          }
-        });
+        // Phase 2: Nav items reveal with SplitText (starts slightly before clips finish)
+        if (navSplitInstance && navSplitInstance.lines) {
+          menuTimeline
+            .add("itemsReveal", "-=0.25") // Overlap by 0.25s for smooth flow
+            .to(
+              navSplitInstance.lines,
+              {
+                yPercent: 0,
+                rotate: 0,
+                duration: hoverDuration * 1.2,
+                stagger: 0.08,
+                ease: "back.out(1.2)", // Bouncy, premium feel like HeroSection
+              },
+              "itemsReveal"
+            );
+        }
 
-        overlayTl = tl2;
-      }
+        // Store unified timeline
+        menuTl = menuTimeline;
 
-      // Header background animation - reveals from bottom to top when menu opens
-      if (backgroundRef.value) {
-        const tl3 = $gsap.timeline({ paused: true });
-
-        // Prepare initial state - hidden with clip-path from top
-        $gsap.set(backgroundRef.value, {
-          clipPath: "inset(100% 0 0 0)",
-          willChange: "clip-path",
-        });
-
-        // Reveal from bottom to top (opposite of overlay direction)
-        tl3.to(
-          backgroundRef.value,
-          {
-            clipPath: "inset(0% 0 0 0)",
-            duration: hoverDuration * 1.17,
-            ease: "power2.out",
-          },
-          0
-        );
-
-        // On reverse complete, reset background
-        tl3.eventCallback("onReverseComplete", () => {
-          if (backgroundRef.value) {
-            $gsap.set(backgroundRef.value, {
-              clipPath: "inset(100% 0 0 0)",
-            });
-          }
-        });
-
-        backgroundTl = tl3;
+        // Add GSDevTools for debugging in development
+        if (process.dev && $GSDevTools) {
+          // $GSDevTools.create({
+          //   animation: menuTimeline,
+          //   id: "menuTimeline",
+          // });
+        }
       }
 
       // Create initial load animation if this is the first load
@@ -501,16 +504,11 @@ watch(isOpen, (open) => {
     else hamburgerTl.reverse();
   }
 
-  // Animate mobile overlay (reveals downward from header)
-  if (overlayTl) {
-    if (open) overlayTl.play();
-    else overlayTl.reverse();
-  }
-
-  // Animate header background (reveals upward from bottom) - opposite direction for visual contrast
-  if (backgroundTl) {
-    if (open) backgroundTl.play();
-    else backgroundTl.reverse();
+  // Animate unified menu (background + overlay + nav items)
+  // Plays as one cohesive timeline, reverses smoothly
+  if (menuTl) {
+    if (open) menuTl.play();
+    else menuTl.reverse();
   }
 
   // Pause/resume headroom when menu toggles
@@ -535,8 +533,15 @@ function close() {
 }
 
 onUnmounted(() => {
+  // Clean up GSAP context
   if (gsapCtx && typeof gsapCtx.revert === "function") {
     gsapCtx.revert();
+  }
+
+  // Clean up SplitText instance for nav links
+  if (navSplitInstance) {
+    navSplitInstance.revert?.();
+    navSplitInstance = null;
   }
 });
 </script>
