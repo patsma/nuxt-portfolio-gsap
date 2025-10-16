@@ -20,7 +20,7 @@ const services = [
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
         data-speed="0.8"
-        class="font-display font-[100] text-4xl md:text-6xl leading-[120%] tracking-tighter"
+        class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
       >
         <span class="text-[var(--theme-text-60)]">Welcome, I am</span>
         <span class="text-[var(--theme-text-100)] font-[300]"> Morten</span>
@@ -52,7 +52,7 @@ const services = [
           <div
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
             data-lag="0.2"
-            class="flex flex-wrap gap-2 py-4 max-w-3xl"
+            class="flex flex-wrap gap-2 pt-6 max-w-3xl"
           >
             <div class="tag-label">Services</div>
             <div v-for="service in services" :key="service" class="tag">

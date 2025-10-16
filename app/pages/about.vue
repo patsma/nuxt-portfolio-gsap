@@ -9,14 +9,23 @@ import HeroSection from "~/components/HeroSection.vue";
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
         data-speed="0.8"
-        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] leading-[1.3]"
+        class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
       >
-        Driven by a high <em class="pp-eiko-desktop-h1-italic">passion</em> for
-        design, I craft compelling solutions backed by
-        <span class="pp-eiko-desktop-h1-bold">insights</span> and
-        <span class="pp-eiko-desktop-h1-bold">real data</span> to ensure a
-        meaningful <em class="pp-eiko-desktop-h1-italic">journey</em> and an
-        <span class="pp-eiko-desktop-h1-bold">engaging</span> end-product
+        <span class="text-[var(--theme-text-60)]">Driven by a high</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> passion</em>
+        <span class="text-[var(--theme-text-60)]"> for design, I craft</span>
+        <span class="text-[var(--theme-text-60)]">
+          compelling solutions backed by</span
+        >
+        <span class="text-[var(--theme-text-100)] font-[300]"> insights</span>
+        <span class="text-[var(--theme-text-60)]"> and</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> real data</span>
+        <span class="text-[var(--theme-text-60)]"> to ensure a</span>
+        <span class="text-[var(--theme-text-60)]"> meaningful</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> journey</em>
+        <span class="text-[var(--theme-text-60)]"> and an</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> engaging</span>
+        <span class="text-[var(--theme-text-60)]"> end-product</span>
       </h1>
       <!-- No services slot - showing optional nature -->
     </HeroSection>

@@ -1,10 +1,10 @@
 <template>
   <section
     ref="heroRef"
-    class="content-grid w-full h-screen grid content-end"
+    class="content-grid w-full min-h-[100dvh] grid items-center"
     data-entrance-animate="true"
   >
-    <div class="breakout3 pb-24">
+    <div class="breakout3 translate-y-12">
       <!-- Default slot for main hero content (h1, p, etc.) -->
       <slot />
 
@@ -84,6 +84,7 @@ onMounted(() => {
   if (!props.animateEntrance || !heroRef.value) return;
 
   // Setup entrance animation with SplitText
+  // This runs on FIRST LOAD only - v-page-split directive handles PAGE NAVIGATION
   setupEntrance(heroRef.value, {
     position: props.position,
     animate: (el) => {
