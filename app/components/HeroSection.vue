@@ -8,8 +8,15 @@
       <!-- Default slot for main hero content (h1, p, etc.) -->
       <slot />
 
-      <!-- Named slot for optional services list -->
-      <slot name="services" />
+      <!-- Horizontal layout container for services and button -->
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 
+      ">
+        <!-- Named slot for optional services list (left side on desktop) -->
+        <slot name="services" />
+
+        <!-- Named slot for optional scroll button (right side on desktop) -->
+        <slot name="button" />
+      </div>
     </div>
   </section>
 </template>
@@ -23,7 +30,8 @@
  *
  * Slots:
  * - default: Main hero content (h1, p, etc.)
- * - services: Optional services list or additional content
+ * - services: Optional services list or additional content (left side on desktop)
+ * - button: Optional scroll button or CTA (right side on desktop)
  *
  * Props:
  * - animateEntrance: Enable entrance animation (default: true)
@@ -32,6 +40,7 @@
  * Features:
  * - Responsive content-grid layout
  * - Vertical centering (flex items-center)
+ * - Horizontal layout for services and button on desktop (md:flex-row)
  * - Theme-aware (inherits theme colors)
  * - Entrance animation system integration
  * - Works with page transition directives (add to slot content)
@@ -41,6 +50,9 @@
  *   <h1 v-page-split:lines>Your headline</h1>
  *   <template #services>
  *     <nav>Your services</nav>
+ *   </template>
+ *   <template #button>
+ *     <ScrollDownSVG />
  *   </template>
  * </HeroSection>
  */

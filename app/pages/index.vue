@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
+import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
 
 const services = [
   "ART DIRECTION",
@@ -52,7 +53,7 @@ const services = [
           <div
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
             data-lag="0.2"
-            class="flex flex-wrap gap-2 pt-6 max-w-3xl"
+            class="flex flex-wrap gap-2 max-w-3xl"
           >
             <div class="tag-label">Services</div>
             <div v-for="service in services" :key="service" class="tag">
@@ -60,6 +61,11 @@ const services = [
             </div>
           </div>
         </nav>
+      </template>
+
+      <!-- Scroll down button (right side on desktop) -->
+      <template #button>
+        <ScrollDownSVG />
       </template>
     </HeroSection>
   </div>
