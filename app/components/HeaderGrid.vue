@@ -33,28 +33,79 @@
           </button>
 
           <!-- Single logo used for both desktop and mobile -->
-          <NuxtLink to="/" class="header-grid__brand text-[var(--color-ink)]">
-            LOGO
+          <NuxtLink to="/" class="header-grid__brand">
+            <div class="flex flex-col">
+              <span
+                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                >Morten Christensen</span
+              >
+              <span
+                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
+                >UX/UI designer</span
+              >
+            </div>
           </NuxtLink>
 
           <!-- Desktop nav centered (hidden on mobile) -->
           <nav class="header-grid__nav" aria-label="Primary">
             <NuxtLink
-              v-for="(item, idx) in items"
-              :key="item.href"
-              :to="item.href"
+              to="/"
               class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-active="isActive(item.href)"
+              :data-active="isActive('/')"
             >
-              {{ item.label }}
+              Work
             </NuxtLink>
-          </nav>
+            <NuxtLink
+              to="/about"
+              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+              :data-active="isActive('/about')"
+            >
+              About
+            </NuxtLink>
 
-          <!-- Right spacer with theme toggle -->
-          <div class="header-grid__spacer flex items-center justify-end">
+            <!-- Theme toggle in desktop nav -->
             <button
               id="themeSwitch"
               class="cursor-pointer"
+              aria-label="Toggle theme"
+            >
+              <ThemeToggleSVG class="w-12" />
+            </button>
+
+            <NuxtLink
+              to="/lab"
+              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+              :data-active="isActive('/lab')"
+            >
+              Lab
+            </NuxtLink>
+            <NuxtLink
+              to="/contact"
+              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+              :data-active="isActive('/contact')"
+            >
+              Contact
+            </NuxtLink>
+          </nav>
+
+          <!-- Right spacer: location/date on desktop, theme toggle on mobile -->
+          <div class="header-grid__spacer flex items-center justify-end">
+            <!-- Desktop: Location and date -->
+            <div class="hidden md:flex flex-col items-end">
+              <span
+                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                >Tokyo, JP</span
+              >
+              <span
+                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
+                >Jun 18, 20:00:23</span
+              >
+            </div>
+
+            <!-- Mobile: Theme toggle -->
+            <button
+              id="themeSwitchMobile"
+              class="flex md:hidden cursor-pointer"
               aria-label="Toggle theme"
             >
               <ThemeToggleSVG class="w-12" />
@@ -138,9 +189,10 @@ let gsapCtx = null;
 /** @typedef {{ label: string, href: string }} NavItem */
 /** @type {NavItem[]} */
 const items = [
-  { label: "home", href: "/" },
-  { label: "about", href: "/about" },
-  { label: "contact", href: "/contact" },
+  { label: "Work", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Lab", href: "/lab" },
+  { label: "Contact", href: "/contact" },
 ];
 
 // Active route highlighting

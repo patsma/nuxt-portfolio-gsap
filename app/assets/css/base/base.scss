@@ -18,6 +18,7 @@ body {
    - Inactive links fade to 50% on hover
    - Uses CSS variables for consistent timing with theme system */
 .nav-link {
+  align-content: center;
   /* Default state: full opacity */
   opacity: 1;
   /* Smooth opacity transition for hover effects */

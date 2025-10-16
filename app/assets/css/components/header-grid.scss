@@ -120,13 +120,12 @@
    - Syncs with text opacity transition */
 .header-grid__nav .nav-link {
   position: relative;
-  padding-bottom: 0.5em; /* space for underline */
 
   /* Underline using ::after pseudo-element */
   &::after {
     content: "";
     position: absolute;
-    bottom: 0;
+    bottom: -0.25em;
     left: 50%;
     transform: translateX(-50%); /* center the line */
     width: 0%;
