@@ -7,6 +7,7 @@
 /* Component styles */
 @use "./components/content-grid.scss";
 @use "./components/header-grid.scss";
+@use "./components/service-tags.scss";
 
 /* Additional utilities that can safely come after Tailwind */
 @use "./utilities/layout.scss";

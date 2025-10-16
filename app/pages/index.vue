@@ -16,51 +16,49 @@ const services = [
 <template>
   <div>
     <HeroSection>
-      <!-- Main hero text with line-by-line reveal animation -->
+      <!-- Main hero text with mixed opacity and font styling -->
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
         data-speed="0.8"
-        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] leading-[1.3]"
+        class="font-display font-[100] text-4xl md:text-6xl leading-[120%] tracking-tighter"
       >
-        Welcome, I am <span class="pp-eiko-desktop-h1-bold">Morten</span> – a
-        <em class="pp-eiko-desktop-h1-italic">Danish</em> designer based in
-        <em class="pp-eiko-desktop-h1-italic">Tokyo</em> approaching today's
-        challenges with a
-        <em class="pp-eiko-desktop-h1-italic">digital-first</em> and
-        <em class="pp-eiko-desktop-h1-italic">user-centred</em> mindset
+        <span class="text-[var(--theme-text-60)]">Welcome, I am</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> Morten</span>
+        <span class="text-[var(--theme-text-60)]"> – a</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> Danish</em>
+        <span class="text-[var(--theme-text-100)] font-body font-[300]">
+          designer</span
+        >
+        <span class="text-[var(--theme-text-60)]"> based in</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> Tokyo</span>
+        <span class="text-[var(--theme-text-60)]">
+          approaching today's challenges with a</span
+        >
+        <span class="text-[var(--theme-text-100)] font-body font-[300]">
+          digital</span
+        >
+        <em class="text-[var(--theme-text-100)] italic font-[300]">-first</em>
+        <span class="text-[var(--theme-text-60)]"> and</span>
+        <span class="text-[var(--theme-text-100)] font-body font-[300]">
+          user</span
+        >
+        <em class="text-[var(--theme-text-100)] italic font-[300]">-centred</em>
+        <span class="text-[var(--theme-text-60)]"> mindset</span>
       </h1>
 
-      <!-- Services list with stagger animation -->
+      <!-- Services list with tag styling -->
       <template #services>
         <nav class="services-list" aria-label="Services">
-          <ul
+          <div
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
             data-lag="0.2"
-            class="flex flex-wrap gap-[var(--space-s)] items-center"
+            class="flex flex-wrap gap-2 py-4 max-w-3xl"
           >
-            <li
-              class="ibm-plex-sans-jp-desktop-custom-labels text-[var(--theme-text-60)] uppercase tracking-wider"
-            >
-              SERVICES
-            </li>
-            <li
-              v-for="(service, index) in services"
-              :key="service"
-              class="flex items-center gap-[var(--space-s)]"
-            >
-              <span
-                class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
-              >
-                {{ service }}
-              </span>
-              <span
-                v-if="index < services.length - 1"
-                class="text-[var(--theme-text-40)]"
-              >
-                •
-              </span>
-            </li>
-          </ul>
+            <div class="tag-label">Services</div>
+            <div v-for="service in services" :key="service" class="tag">
+              {{ service }}
+            </div>
+          </div>
         </nav>
       </template>
     </HeroSection>

@@ -1,10 +1,10 @@
 <template>
   <section
     ref="heroRef"
-    class="content-grid w-full min-h-screen flex items-center"
+    class="content-grid w-full h-screen grid content-end"
     data-entrance-animate="true"
   >
-    <div class="breakout3 py-[var(--space-2xl)]">
+    <div class="breakout3 pb-24">
       <!-- Default slot for main hero content (h1, p, etc.) -->
       <slot />
 

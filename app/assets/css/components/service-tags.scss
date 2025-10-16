@@ -1,0 +1,42 @@
+/*
+  Service Tags Component
+  - Small inline tags for services display
+  - Theme-aware with 5% background opacity
+  - Used in hero section and standalone services component
+*/
+
+.tag-label {
+  // "Services" label - no background, just text
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---custom---labels); // 10px
+  line-height: 110%;
+  letter-spacing: var(--tracking-body-wide-1);
+  text-transform: uppercase;
+  color: var(--theme-text-60); // 60% opacity muted text
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.tag {
+  // Service tags with subtle 5% background
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--i-b-m--plex--sans--j-p---mobile---custom---labels); // 10px
+  line-height: 110%;
+  letter-spacing: var(--tracking-body-wide-1);
+  text-transform: uppercase;
+  color: var(--theme-text-60); // 60% opacity muted text
+
+  // 5% background - adapts to theme
+  // In light theme: dark text on light background
+  // In dark theme: light text on dark background
+  background-color: rgba(9, 9, 37, 0.05); // Default light theme
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+
+  // Dark theme override
+  html.theme-dark & {
+    background-color: rgba(255, 250, 245, 0.05);
+  }
+}
