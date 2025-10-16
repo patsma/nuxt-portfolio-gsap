@@ -10,6 +10,9 @@
     class="header-grid headroom--pinned"
     data-entrance-animate="true"
   >
+    <!-- Animated background - reveals from bottom to top when menu opens -->
+    <div ref="backgroundRef" class="header-grid__background"></div>
+
     <div class="content-grid">
       <div class="breakout3 header-grid__inner">
         <!-- Top row: shared row for both desktop and mobile -->
@@ -40,7 +43,7 @@
                 >Morten Christensen</span
               >
               <span
-                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
+                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
                 >UX/UI designer</span
               >
             </div>
@@ -153,7 +156,8 @@ import { useLoadingStore } from "~/stores/loading";
 import { useLoadingSequence } from "~/composables/useLoadingSequence";
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
-const { $gsap, $DrawSVGPlugin } = useNuxtApp();
+const nuxtApp = useNuxtApp();
+const { $gsap, $DrawSVGPlugin } = nuxtApp;
 
 // Loading system integration
 const loadingStore = useLoadingStore();
@@ -172,6 +176,8 @@ const containerRef = ref(null);
 const hamburgerBtn = ref(null);
 /** @type {import('vue').Ref<HTMLElement|null>} */
 const overlayRef = ref(null);
+/** @type {import('vue').Ref<HTMLElement|null>} */
+const backgroundRef = ref(null);
 
 // Reference to child SVG component to access its root SVG via exposed ref
 /**
@@ -186,6 +192,8 @@ const hamburgerSvgComponent = ref(null);
 let hamburgerTl = null;
 /** @type {any} */
 let overlayTl = null;
+/** @type {any} */
+let backgroundTl = null;
 /** @type {{ revert?: () => void } | null} */
 let gsapCtx = null;
 
@@ -357,6 +365,39 @@ onMounted(() => {
         overlayTl = tl2;
       }
 
+      // Header background animation - reveals from bottom to top when menu opens
+      if (backgroundRef.value) {
+        const tl3 = $gsap.timeline({ paused: true });
+
+        // Prepare initial state - hidden with clip-path from top
+        $gsap.set(backgroundRef.value, {
+          clipPath: "inset(100% 0 0 0)",
+          willChange: "clip-path",
+        });
+
+        // Reveal from bottom to top (opposite of overlay direction)
+        tl3.to(
+          backgroundRef.value,
+          {
+            clipPath: "inset(0% 0 0 0)",
+            duration: hoverDuration * 1.17,
+            ease: "power2.out",
+          },
+          0
+        );
+
+        // On reverse complete, reset background
+        tl3.eventCallback("onReverseComplete", () => {
+          if (backgroundRef.value) {
+            $gsap.set(backgroundRef.value, {
+              clipPath: "inset(100% 0 0 0)",
+            });
+          }
+        });
+
+        backgroundTl = tl3;
+      }
+
       // Create initial load animation if this is the first load
       if (isFirstLoad()) {
         // Use entrance animation system for unified control
@@ -454,13 +495,33 @@ onMounted(() => {
 });
 
 watch(isOpen, (open) => {
+  // Animate hamburger icon
   if (hamburgerTl) {
     if (open) hamburgerTl.play();
     else hamburgerTl.reverse();
   }
+
+  // Animate mobile overlay (reveals downward from header)
   if (overlayTl) {
     if (open) overlayTl.play();
     else overlayTl.reverse();
+  }
+
+  // Animate header background (reveals upward from bottom) - opposite direction for visual contrast
+  if (backgroundTl) {
+    if (open) backgroundTl.play();
+    else backgroundTl.reverse();
+  }
+
+  // Pause/resume headroom when menu toggles
+  if (nuxtApp.$headroom) {
+    if (open) {
+      // Menu opening: pause headroom so header stays visible and stable
+      nuxtApp.$headroom.pause();
+    } else {
+      // Menu closing: resume headroom for normal scroll behavior
+      nuxtApp.$headroom.resume();
+    }
   }
 });
 

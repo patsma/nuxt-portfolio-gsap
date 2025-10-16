@@ -39,6 +39,23 @@
   transition: none !important;
 }
 
+/* Animated background - reveals when mobile menu opens
+   - Positioned absolutely to fill entire header
+   - Solid theme color (light or dark)
+   - Animated via clip-path from bottom to top
+   - Sits behind content but above body */
+.header-grid__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--theme-100);
+  z-index: -1; /* Behind header content */
+  will-change: clip-path;
+  clip-path: inset(100% 0 0 0); /* Initial state - hidden from top */
+}
+
 .header-grid__inner {
   display: grid;
   grid-template-rows: var(--size-header);
