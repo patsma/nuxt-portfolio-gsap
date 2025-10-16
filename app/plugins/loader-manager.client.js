@@ -30,29 +30,29 @@ export default defineNuxtPlugin(() => {
     // Prevents ~20px offset issue caused by early scroll state
     window.scrollTo(0, 0);
 
-    console.log('🎨 Loader manager plugin initialized');
-    console.log('📍 Initial scroll position reset to top');
+    // console.log('🎨 Loader manager plugin initialized');
+    // console.log('📍 Initial scroll position reset to top');
 
     /**
      * Remove loader with smooth fade transition
      */
     const removeLoader = () => {
-      const loader = document.getElementById('app-initial-loader');
-      const nuxtApp = document.getElementById('__nuxt');
+      const loader = document.getElementById("app-initial-loader");
+      const nuxtApp = document.getElementById("__nuxt");
 
       if (loader && nuxtApp) {
-        console.log('🎭 Fading out loader...');
+        // console.log('🎭 Fading out loader...');
 
         // Start fade out transition
-        loader.classList.add('fade-out');
+        loader.classList.add("fade-out");
 
         // Show main content with fade in
-        nuxtApp.classList.add('loaded');
+        nuxtApp.classList.add("loaded");
 
         // Remove from DOM after transition completes
         setTimeout(() => {
           loader.remove();
-          console.log('✨ Loader removed from DOM');
+          // console.log('✨ Loader removed from DOM');
         }, 500); // Match CSS transition duration in nuxt.config.ts
       }
     };
@@ -61,7 +61,7 @@ export default defineNuxtPlugin(() => {
      * Handle app:ready event from loading sequence
      */
     const handleAppReady = (event) => {
-      console.log('🚀 App ready event received:', event.detail);
+      // console.log('🚀 App ready event received:', event.detail);
 
       // Double RAF ensures Safari has painted DOM before we manipulate it
       requestAnimationFrame(() => {
@@ -72,15 +72,15 @@ export default defineNuxtPlugin(() => {
     };
 
     // Listen for ready event (fired after minLoadTime in useLoadingSequence)
-    window.addEventListener('app:ready', handleAppReady, { once: true });
+    window.addEventListener("app:ready", handleAppReady, { once: true });
 
     // Safety mechanism: Force remove after 10 seconds if event never fires
     // This prevents users from being stuck with loader if something breaks
     const FALLBACK_TIMEOUT = 10000;
     setTimeout(() => {
-      const loader = document.getElementById('app-initial-loader');
+      const loader = document.getElementById("app-initial-loader");
       if (loader) {
-        console.warn('⚠️ Loader fallback timeout triggered - forcing removal');
+        console.warn("⚠️ Loader fallback timeout triggered - forcing removal");
         removeLoader();
       }
     }, FALLBACK_TIMEOUT);

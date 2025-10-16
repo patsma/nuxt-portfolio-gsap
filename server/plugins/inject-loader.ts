@@ -20,7 +20,7 @@
  */
 
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook('render:html', (html) => {
+  nitroApp.hooks.hook("render:html", (html) => {
     // Inject blocking script BEFORE loader to detect theme instantly
     // This prevents FOUC by setting theme class before loader renders
     html.bodyAppend.unshift(`
@@ -43,9 +43,9 @@ export default defineNitroPlugin((nitroApp) => {
           document.documentElement.classList.add('is-first-load');
 
           // Debug logging (can be removed in production)
-          console.log('🎨 [Blocking Script] Theme detected:', isDark ? 'DARK' : 'LIGHT',
-            '| localStorage:', stored || 'null',
-            '| system prefers:', prefersDark ? 'dark' : 'light');
+          // console.log('🎨 [Blocking Script] Theme detected:', isDark ? 'DARK' : 'LIGHT',
+          //   '| localStorage:', stored || 'null',
+          //   '| system prefers:', prefersDark ? 'dark' : 'light');
         })();
       </script>
       <div id="app-initial-loader">
@@ -53,6 +53,8 @@ export default defineNitroPlugin((nitroApp) => {
       </div>
     `);
 
-    console.log('🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response');
+    console.log(
+      "🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response"
+    );
   });
 });

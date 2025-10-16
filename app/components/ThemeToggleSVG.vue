@@ -1,33 +1,46 @@
+<script>
+// Module-level counter (shared across all instances)
+// This ensures consistent ID generation during SSR and client hydration
+let instanceCounter = 0;
+</script>
+
+<script setup>
+// Generate unique ID for this instance to avoid conflicts when multiple instances exist
+// Counter increments in the same order on both server and client, preventing hydration mismatches
+const uid = `theme-toggle-${++instanceCounter}`;
+</script>
+
 <template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.28 21.83">
-    <g id="Layer_2" data-name="Layer 2">
-      <g id="toggle-theme">
+    <g :id="`${uid}-Layer_2`" data-name="Layer 2">
+      <g :id="`${uid}-toggle-theme`">
         <!-- Background pill shape - GSAP controls fill -->
         <path
-          id="bg"
+          :id="`${uid}-bg`"
           fill="var(--theme-100)"
           d="M11.14.91h20a10,10,0,0,1,10,10h0a10,10,0,0,1-10,10h-20a10,10,0,0,1-10-10h0A10,10,0,0,1,11.14.91Z"
         />
 
         <!-- Moon (right side) - light circle -->
-        <circle id="moon-white" cx="31.14" cy="10.91" r="8" />
+        <circle :id="`${uid}-moon-white`" cx="31.14" cy="10.91" r="8" />
 
         <!-- Moon crescent (dark) - will morph to sun-dark -->
         <path
-          id="moon-dark"
+          :id="`${uid}-moon-dark`"
+          class="moon-dark-element"
           d="M30.54,4.91a6,6,0,1,0,6.6,6.7.64.64,0,0,0-1-.6,3.29,3.29,0,0,1-1.9.6A3.59,3.59,0,0,1,30.64,8a3.08,3.08,0,0,1,.6-1.9A.88.88,0,0,0,30.54,4.91Z"
         />
 
         <!-- Sun (left side) -->
-        <g id="sun-light">
+        <g :id="`${uid}-sun-light`">
           <!-- Sun center - will morph to sun-dark -->
           <path
-            id="sun-light-inner"
+            :id="`${uid}-sun-light-inner`"
             d="M11.14,8.19a2.73,2.73,0,0,0,0,5.45,2.73,2.73,0,0,0,0-5.45Z"
           />
 
           <!-- Sun beams - will fade out -->
-          <g id="sun-light-beams">
+          <g :id="`${uid}-sun-light-beams`">
             <path
               d="M5.69,11.46H6.78a.55.55,0,0,0,.54-.55.54.54,0,0,0-.54-.54H5.69a.55.55,0,0,0-.55.54A.55.55,0,0,0,5.69,11.46Z"
             />
@@ -56,10 +69,10 @@
         </g>
 
         <!-- Sun dark circle (hidden initially) -->
-        <circle id="sun-dark" cx="11.14" cy="10.91" r="8" />
+        <circle :id="`${uid}-sun-dark`" class="sun-dark-element" cx="11.14" cy="10.91" r="8" />
 
         <!-- Invisible rect for consistent viewBox -->
-        <rect id="dummy" width="42.28" height="21.83" fill="none" opacity="0" />
+        <rect :id="`${uid}-dummy`" width="42.28" height="21.83" fill="none" opacity="0" />
       </g>
     </g>
   </svg>
@@ -67,8 +80,8 @@
 
 <style scoped>
 /* Hide elements that will be animated on init to prevent flash */
-#sun-dark,
-#moon-dark {
+.sun-dark-element,
+.moon-dark-element {
   opacity: 0;
   visibility: hidden;
 }

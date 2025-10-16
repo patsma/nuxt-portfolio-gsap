@@ -47,6 +47,113 @@ export default function useThemeSwitch() {
     return { r: 0, g: 0, b: 0 };
   };
 
+  // Helper function to initialize a single theme toggle button
+  const initButton = (button, themeStore, html, colors, gradientColors, themeDuration, tl) => {
+    if (!button) return;
+
+    // Find SVG elements within this button's context using attribute selectors
+    // Elements have unique IDs like "theme-toggle-X-bg", so we match by ID suffix
+    const svgRoot = button.querySelector('svg');
+    if (!svgRoot) {
+      console.warn('useThemeSwitch: SVG not found in button', button.id);
+      return;
+    }
+
+    const sunDark = svgRoot.querySelector('[id$="-sun-dark"]');
+    const sunLight = svgRoot.querySelector('[id$="-sun-light"]');
+    const sunLightBeams = svgRoot.querySelectorAll('[id$="-sun-light-beams"] path');
+    const sunLightInner = svgRoot.querySelector('[id$="-sun-light-inner"]');
+    const moonDark = svgRoot.querySelector('[id$="-moon-dark"]');
+    const moonWhite = svgRoot.querySelector('[id$="-moon-white"]');
+    const background = svgRoot.querySelector('[id$="-bg"]');
+
+    if (!sunDark || !moonWhite || !sunLightInner || !moonDark) {
+      console.warn('useThemeSwitch: Required SVG elements not found in button', button.id);
+      return;
+    }
+
+    // Convert specific circle elements to paths BEFORE morphing
+    const convertedMoonWhite = $MorphSVGPlugin.convertToPath(moonWhite)[0];
+    const convertedSunDark = $MorphSVGPlugin.convertToPath(sunDark)[0];
+
+    // Use the converted elements for setting initial state
+    $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
+
+    // SVG icon animations - sync with theme colors
+    const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
+    const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
+
+    // Always set to light (start state), timeline.progress() will move to dark if needed
+    $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
+    $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
+    $gsap.set(convertedMoonWhite, { fill: lightHex });
+    $gsap.set(sunLightInner, { fill: lightHex });
+    $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
+
+    // Add animations to the shared timeline for this button's SVG
+    // These will be added to the timeline that already handles color transitions
+    tl.to(
+      background,
+      {
+        duration: themeDuration,
+        fill: lightHex,
+        fillOpacity: 0.6,
+        ease: "power2.inOut",
+      },
+      0
+    );
+    tl.to(
+      sunLightBeams,
+      { duration: themeDuration, autoAlpha: 0, ease: "power2.inOut" },
+      0
+    );
+    tl.to(
+      convertedMoonWhite,
+      {
+        duration: themeDuration,
+        morphSVG: moonDark,
+        fill: darkHex,
+        ease: "power2.inOut",
+      },
+      0
+    );
+    tl.to(
+      sunLightInner,
+      {
+        duration: themeDuration,
+        morphSVG: convertedSunDark,
+        fill: darkHex,
+        ease: "power2.inOut",
+      },
+      0
+    );
+
+    // Button click ONLY toggles store - store is source of truth
+    button.addEventListener("click", function () {
+      // Get current state BEFORE toggle
+      const wasLight = !themeStore.isDark;
+
+      console.log('🖱️ [Theme Toggle] Button clicked:', button.id);
+      console.log('  → Was:', wasLight ? 'LIGHT' : 'DARK');
+
+      // Toggle store ONCE
+      themeStore.toggle();
+
+      console.log('  → Now:', themeStore.isDark ? 'DARK' : 'LIGHT');
+
+      // Animate timeline based on NEW state (simple toggle)
+      if (wasLight) {
+        // Was light, now dark → animate forward
+        console.log('  → Animating timeline: play() → progress 1');
+        tl.play();
+      } else {
+        // Was dark, now light → animate backward
+        console.log('  → Animating timeline: reverse() → progress 0');
+        tl.reverse();
+      }
+    });
+  };
+
   // Function to initialize theme switching
   const initThemeSwitch = () => {
     // console.log("🎨 initThemeSwitch called!");
@@ -57,11 +164,12 @@ export default function useThemeSwitch() {
       return;
     }
 
-    const themeSwitch = document.querySelector("#themeSwitch");
-    // console.log("Theme switch button found:", !!themeSwitch);
+    // Query for both desktop and mobile theme toggle buttons
+    const themeSwitchDesktop = document.querySelector("#themeSwitch");
+    const themeSwitchMobile = document.querySelector("#themeSwitchMobile");
 
-    if (!themeSwitch) {
-      console.warn("useThemeSwitch: #themeSwitch button not found");
+    if (!themeSwitchDesktop && !themeSwitchMobile) {
+      console.warn("useThemeSwitch: No theme switch buttons found");
       return;
     }
 
@@ -132,28 +240,9 @@ export default function useThemeSwitch() {
 
     // console.log("🎨 Colors from CSS:", colors);
     // console.log("🌈 Gradient colors from CSS:", gradientColors);
-    const sunDark = document.querySelector("#sun-dark");
-    const sunLight = document.querySelector("#sun-light");
-    const sunLightBeams = document.querySelectorAll("#sun-light-beams path");
-    const sunLightInner = document.querySelector("#sun-light-inner");
-    const moonDark = document.querySelector("#moon-dark");
-    const moonWhite = document.querySelector("#moon-white");
-    const background = document.querySelector("#bg");
-
-    if (!sunDark || !moonWhite || !sunLightInner || !moonDark) {
-      console.warn("useThemeSwitch: Required SVG elements not found");
-      return;
-    }
-
-    // Convert specific circle elements to paths BEFORE morphing
-    // This must happen before any morph animations are created
-    const convertedMoonWhite = $MorphSVGPlugin.convertToPath(moonWhite)[0];
-    const convertedSunDark = $MorphSVGPlugin.convertToPath(sunDark)[0];
 
     // Create GSAP context for proper cleanup
     const ctx = $gsap.context(() => {
-      // Use the converted elements for setting initial state
-      $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
 
       // Create a proxy object to animate ALL color values
       // ALWAYS initialize from LIGHT theme (timeline start position)
@@ -347,91 +436,22 @@ export default function useThemeSwitch() {
         0
       );
 
-      // SVG icon animations - sync with color theme using same duration
-      const lightHex = `#${((1 << 24) + (colors.light["100"].r << 16) + (colors.light["100"].g << 8) + colors.light["100"].b).toString(16).slice(1)}`;
-      const darkHex = `#${((1 << 24) + (colors.dark["100"].r << 16) + (colors.dark["100"].g << 8) + colors.dark["100"].b).toString(16).slice(1)}`;
-
-      // Set LIGHT theme state (timeline START at progress 0)
-      // Timeline will move to correct position based on isDarkInitially
-      // console.log("🌙 SVG init - isDark:", isDarkInitially);
-      // console.log("🎨 lightHex:", lightHex, "darkHex:", darkHex);
-
-      // Always set to light (start state), timeline.progress() will move to dark if needed
-      $gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
-      $gsap.set(sunLightBeams, { autoAlpha: 1, fill: lightHex });
-      $gsap.set(convertedMoonWhite, { fill: lightHex });
-      $gsap.set(sunLightInner, { fill: lightHex });
-      $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 });
-
-      // Animate TO dark theme state
-      tl.to(
-        background,
-        {
-          duration: themeDuration,
-          fill: lightHex,
-          fillOpacity: 0.6,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
-      tl.to(
-        sunLightBeams,
-        { duration: themeDuration, autoAlpha: 0, ease: "power2.inOut" },
-        "<"
-      );
-      tl.to(
-        convertedMoonWhite,
-        {
-          duration: themeDuration,
-          morphSVG: moonDark,
-          fill: darkHex,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
-      tl.to(
-        sunLightInner,
-        {
-          duration: themeDuration,
-          morphSVG: convertedSunDark,
-          fill: darkHex,
-          ease: "power2.inOut",
-        },
-        "<"
-      );
+      // Initialize both theme toggle buttons with the shared timeline
+      // Each button's SVG elements will be animated by the same timeline
+      initButton(themeSwitchDesktop, themeStore, html, colors, gradientColors, themeDuration, tl);
+      initButton(themeSwitchMobile, themeStore, html, colors, gradientColors, themeDuration, tl);
 
       // Set initial timeline position based on localStorage reading (not store)
       // Store will eventually sync via hydration, but timeline needs correct state NOW
       tl.progress(isDarkInitially ? 1 : 0).pause();
       console.log('🎬 [GSAP Timeline] Timeline initialized:',
         '| Progress set to:', tl.progress(),
-        '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT');
-
-      // Button click ONLY toggles store - store is source of truth
-      themeSwitch.addEventListener("click", function () {
-        // Get current state BEFORE toggle
-        const wasLight = !themeStore.isDark;
-
-        console.log('🖱️ [Theme Toggle] Button clicked');
-        console.log('  → Was:', wasLight ? 'LIGHT' : 'DARK');
-
-        // Toggle store ONCE
-        themeStore.toggle();
-
-        console.log('  → Now:', themeStore.isDark ? 'DARK' : 'LIGHT');
-
-        // Animate timeline based on NEW state (simple toggle)
-        if (wasLight) {
-          // Was light, now dark → animate forward
-          console.log('  → Animating timeline: play() → progress 1');
-          tl.play();
-        } else {
-          // Was dark, now light → animate backward
-          console.log('  → Animating timeline: reverse() → progress 0');
-          tl.reverse();
-        }
-      });
-    }, themeSwitch);
+        '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT',
+        '| Buttons initialized:', {
+          desktop: !!themeSwitchDesktop,
+          mobile: !!themeSwitchMobile
+        });
+    });
 
     // Return cleanup function
     return () => {
