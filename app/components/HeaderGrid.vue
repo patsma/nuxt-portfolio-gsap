@@ -43,8 +43,9 @@
                 >Morten Christensen</span
               >
               <span
+                ref="titleElementRef"
                 class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
-                >UX/UI designer</span
+                >{{ titleStore.currentText }}</span
               >
             </div>
           </NuxtLink>
@@ -95,15 +96,16 @@
 
           <!-- Right spacer: location/date on desktop, theme toggle on mobile -->
           <div class="header-grid__spacer flex items-center justify-end">
-            <!-- Desktop: Location and date -->
+            <!-- Desktop: Location and date (dynamic time updated every second) -->
             <div class="hidden md:flex flex-col items-end">
               <span
                 class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
                 >Tokyo, JP</span
               >
               <span
+                v-if="isClient"
                 class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
-                >Jun 18, 20:00:23</span
+                >{{ tokyoTime }}</span
               >
             </div>
 
@@ -154,6 +156,8 @@ import HamburgerSVG from "./SVG/HamburgerSVG.vue";
 import ThemeToggleSVG from "./ThemeToggleSVG.vue";
 import { useLoadingStore } from "~/stores/loading";
 import { useLoadingSequence } from "~/composables/useLoadingSequence";
+import { useTokyoTime } from "~/composables/useTokyoTime";
+import { useTitleRotationStore } from "~/stores/title-rotation";
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const nuxtApp = useNuxtApp();
@@ -162,6 +166,15 @@ const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp;
 // Loading system integration
 const loadingStore = useLoadingStore();
 const { isFirstLoad, createStaggerAnimation } = useLoadingSequence();
+
+// Dynamic time display for Tokyo
+const { tokyoTime } = useTokyoTime();
+
+// Animated title rotation system
+const titleStore = useTitleRotationStore();
+
+// Client-side only flag for SSR safety
+const isClient = ref(false);
 
 /**
  * Shared menu state for consistent header behavior
@@ -178,6 +191,8 @@ const hamburgerBtn = ref(null);
 const overlayRef = ref(null);
 /** @type {import('vue').Ref<HTMLElement|null>} */
 const backgroundRef = ref(null);
+/** @type {import('vue').Ref<HTMLElement|null>} */
+const titleElementRef = ref(null);
 
 // Reference to child SVG component to access its root SVG via exposed ref
 /**
@@ -194,6 +209,10 @@ let hamburgerTl = null;
 let menuTl = null; // Unified timeline for background + overlay + nav items
 /** @type {any} */
 let navSplitInstance = null; // SplitText instance for nav links
+/** @type {any} */
+let titleTl = null; // Timeline for animated title rotation
+/** @type {any} */
+let titleSplitInstance = null; // SplitText instance for title text
 /** @type {{ revert?: () => void } | null} */
 let gsapCtx = null;
 
@@ -217,7 +236,58 @@ function isActive(href) {
   return route.path === href;
 }
 
+/**
+ * Set up SplitText animation for the title element
+ * Creates a timeline that fades characters in and out, then cycles to next title
+ */
+function setupTitleAnimation() {
+  if (!titleElementRef.value || !$SplitText || !$gsap) return;
+
+  // Clean up previous SplitText instance
+  if (titleSplitInstance) {
+    titleSplitInstance.revert?.();
+  }
+
+  // Create new SplitText instance
+  titleSplitInstance = new $SplitText(titleElementRef.value, {
+    type: "chars"
+  });
+
+  // Create animation timeline with infinite repeat
+  if (titleTl) {
+    titleTl.kill();
+  }
+
+  titleTl = $gsap.timeline({
+    repeat: -1,
+    repeatDelay: 1
+  });
+
+  // Fade in characters with stagger
+  titleTl.from(titleSplitInstance.chars, {
+    duration: 2,
+    opacity: 0,
+    stagger: 0.1,
+    ease: "power2.out"
+  });
+
+  // Fade out characters with stagger, then update to next title
+  titleTl.to(titleSplitInstance.chars, {
+    duration: 2,
+    opacity: 0,
+    stagger: 0.1,
+    ease: "power2.in",
+    onComplete: () => {
+      // Advance to next title in rotation
+      titleStore.updateText();
+    }
+  });
+}
+
 onMounted(() => {
+  // Set client flag for SSR safety
+  isClient.value = true;
+
   if (!$gsap) return;
 
   const scopeEl = containerRef.value || undefined;
@@ -493,6 +563,12 @@ onMounted(() => {
           },
         });
       }
+
+      // Set up title animation (runs after entrance animation completes on first load)
+      // Use nextTick to ensure DOM is ready after entrance animation
+      nextTick(() => {
+        setupTitleAnimation();
+      });
     }, scopeEl);
   });
 });
@@ -523,6 +599,17 @@ watch(isOpen, (open) => {
   }
 });
 
+// Watch for title text changes and re-animate
+// This is triggered by the animation timeline's onComplete callback
+watch(() => titleStore.currentText, (newVal, oldVal) => {
+  // Only re-animate if this is not the initial setup
+  if (oldVal !== undefined) {
+    nextTick(() => {
+      setupTitleAnimation();
+    });
+  }
+});
+
 // Menu interactions
 function toggle() {
   isOpen.value = !isOpen.value;
@@ -542,6 +629,16 @@ onUnmounted(() => {
   if (navSplitInstance) {
     navSplitInstance.revert?.();
     navSplitInstance = null;
+  }
+
+  // Clean up title animation timeline and SplitText
+  if (titleTl) {
+    titleTl.kill();
+    titleTl = null;
+  }
+  if (titleSplitInstance) {
+    titleSplitInstance.revert?.();
+    titleSplitInstance = null;
   }
 });
 </script>
