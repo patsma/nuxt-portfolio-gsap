@@ -11,7 +11,7 @@
     -->
     <TresCanvas
       v-if="isMounted"
-      class="w-full h-full opacity-50"
+      class="w-full h-full opacity-100"
       clearColor="#0b0b10"
       :antialias="true"
       :renderMode="'always'"
@@ -33,6 +33,9 @@
         />
       </TresMesh>
     </TresCanvas>
+
+    <!-- Theme-aware overlay to add subtle neutral tones -->
+    <div class="gradient-overlay"></div>
   </div>
 </template>
 
@@ -239,7 +242,7 @@ onMounted(() => {
     const { setupEntrance } = useEntranceAnimation();
 
     setupEntrance(containerRef.value, {
-      position: '<-0.2', // Overlap header by 0.2s (can be changed)
+      position: "<-0.2", // Overlap header by 0.2s (can be changed)
       animate: (el) => {
         const tl = $gsap.timeline();
 
@@ -248,11 +251,11 @@ onMounted(() => {
         tl.to(el, {
           autoAlpha: 1,
           duration: 0.8,
-          ease: 'power2.out'
+          ease: "power2.out",
         });
 
         return tl;
-      }
+      },
     });
   }
 
@@ -325,5 +328,18 @@ defineExpose({
   height: 100vh;
   z-index: 0;
   pointer-events: none;
+}
+
+.gradient-overlay {
+  /* Theme-aware overlay to neutralize colorful gradient */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--theme-100);
+  opacity: 0.35;
+  pointer-events: none;
+  transition: opacity var(--duration-theme) var(--ease-power2);
 }
 </style>
