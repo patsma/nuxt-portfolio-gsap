@@ -70,6 +70,7 @@
             <!-- Theme toggle in desktop nav -->
             <ClientOnly>
               <button
+                ref="themeToggleDesktopRef"
                 id="themeSwitch"
                 class="cursor-pointer"
                 aria-label="Toggle theme"
@@ -112,6 +113,7 @@
             <!-- Mobile: Theme toggle -->
             <ClientOnly>
               <button
+                ref="themeToggleMobileRef"
                 id="themeSwitchMobile"
                 class="flex md:hidden cursor-pointer"
                 aria-label="Toggle theme"
@@ -193,6 +195,10 @@ const overlayRef = ref(null);
 const backgroundRef = ref(null);
 /** @type {import('vue').Ref<HTMLElement|null>} */
 const titleElementRef = ref(null);
+/** @type {import('vue').Ref<HTMLElement|null>} */
+const themeToggleDesktopRef = ref(null);
+/** @type {import('vue').Ref<HTMLElement|null>} */
+const themeToggleMobileRef = ref(null);
 
 // Reference to child SVG component to access its root SVG via exposed ref
 /**
@@ -250,7 +256,7 @@ function setupTitleAnimation() {
 
   // Create new SplitText instance
   titleSplitInstance = new $SplitText(titleElementRef.value, {
-    type: "chars"
+    type: "chars",
   });
 
   // Create animation timeline with infinite repeat
@@ -260,7 +266,7 @@ function setupTitleAnimation() {
 
   titleTl = $gsap.timeline({
     repeat: -1,
-    repeatDelay: 1
+    repeatDelay: 1,
   });
 
   // Fade in characters with stagger
@@ -268,7 +274,7 @@ function setupTitleAnimation() {
     duration: 2,
     opacity: 0,
     stagger: 0.1,
-    ease: "power2.out"
+    ease: "power2.out",
   });
 
   // Fade out characters with stagger, then update to next title
@@ -280,7 +286,7 @@ function setupTitleAnimation() {
     onComplete: () => {
       // Advance to next title in rotation
       titleStore.updateText();
-    }
+    },
   });
 }
 
@@ -498,6 +504,13 @@ onMounted(() => {
             if (hamburgerEl)
               $gsap.set(hamburgerEl, { scale: 0.8, autoAlpha: 0 });
 
+            // Desktop theme toggle (separate from nav links for proper animation)
+            if (themeToggleDesktopRef.value)
+              $gsap.set(themeToggleDesktopRef.value, {
+                scale: 0.8,
+                autoAlpha: 0,
+              });
+
             // Animate container in first
             tl.to(el, {
               autoAlpha: 1,
@@ -530,6 +543,20 @@ onMounted(() => {
                   stagger: 0.08,
                 },
                 "-=0.5"
+              );
+            }
+
+            // Desktop theme toggle animates with nav links (cohesive sequence)
+            if (themeToggleDesktopRef.value) {
+              tl.to(
+                themeToggleDesktopRef.value,
+                {
+                  autoAlpha: 1,
+                  scale: 1,
+                  duration: 0.6,
+                  ease: "power2.out",
+                },
+                "-=0.4"
               );
             }
 
@@ -601,14 +628,17 @@ watch(isOpen, (open) => {
 
 // Watch for title text changes and re-animate
 // This is triggered by the animation timeline's onComplete callback
-watch(() => titleStore.currentText, (newVal, oldVal) => {
-  // Only re-animate if this is not the initial setup
-  if (oldVal !== undefined) {
-    nextTick(() => {
-      setupTitleAnimation();
-    });
+watch(
+  () => titleStore.currentText,
+  (newVal, oldVal) => {
+    // Only re-animate if this is not the initial setup
+    if (oldVal !== undefined) {
+      nextTick(() => {
+        setupTitleAnimation();
+      });
+    }
   }
-});
+);
 
 // Menu interactions
 function toggle() {
