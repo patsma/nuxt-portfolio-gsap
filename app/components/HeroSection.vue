@@ -197,7 +197,7 @@ onMounted(() => {
               duration: 0.6,
               ease: "back.out(1.5)",
             },
-            "<+0.2" // Start 0.2s after services animation begins
+            "<+0.8" // Start 0.2s after services animation begins
           );
         }
       }

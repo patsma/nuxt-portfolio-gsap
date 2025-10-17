@@ -249,6 +249,64 @@ Timeline adapts automatically if services or button slots are empty.
 
 See setup pattern above. Add `data-entrance-animate="true"` and call `setupEntrance()` in `onMounted`.
 
+### Infinite Animations (Viewport-Aware)
+
+For components with infinite/looping animations (like rotating elements), use ScrollTrigger to pause when out of viewport:
+
+```javascript
+<script setup>
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+
+const containerRef = ref(null)
+const elementRef = ref(null)
+
+let animation = null
+let scrollTrigger = null
+
+onMounted(() => {
+  // Create infinite animation (paused initially)
+  animation = $gsap.to(elementRef.value, {
+    rotation: 360,
+    duration: 20,
+    repeat: -1,
+    ease: 'none',
+    paused: true,
+    transformOrigin: 'center center'
+  })
+
+  // ScrollTrigger: pause/resume based on viewport
+  scrollTrigger = $ScrollTrigger.create({
+    trigger: containerRef.value,
+    start: 'top bottom',
+    end: 'bottom top',
+    onEnter: () => animation.resume(),
+    onLeave: () => animation.pause(),
+    onEnterBack: () => animation.resume(),
+    onLeaveBack: () => animation.pause(),
+  })
+
+  // Start after entrance/transition completes
+  if (loadingStore.isFirstLoad) {
+    window.addEventListener('app:complete', () => animation.play(), { once: true })
+  } else {
+    setTimeout(() => animation.play(), 600) // Page transition delay
+  }
+})
+
+onUnmounted(() => {
+  animation?.kill()
+  scrollTrigger?.kill()
+})
+</script>
+```
+
+**Benefits:**
+- Saves CPU/GPU when element not visible
+- Integrates with both entrance and page transition systems
+- Proper cleanup prevents memory leaks
+- Works anywhere on page (hero or mid-page)
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |

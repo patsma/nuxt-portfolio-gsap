@@ -207,6 +207,40 @@ onComplete → headroom.resume()
   - Reactivate headroom
 ```
 
+## Infinite Animations During Transitions
+
+For components with infinite/looping animations (e.g., rotating elements), coordinate with page transitions:
+
+```javascript
+const loadingStore = useLoadingStore()
+let animation = null
+
+onMounted(() => {
+  animation = $gsap.to(element, {
+    rotation: 360,
+    duration: 20,
+    repeat: -1,
+    ease: 'none',
+    paused: true
+  })
+
+  // Start after transition completes
+  if (loadingStore.isFirstLoad) {
+    // First load: wait for entrance animations
+    window.addEventListener('app:complete', () => animation.play(), { once: true })
+  } else {
+    // Navigation: delay for transition
+    setTimeout(() => animation.play(), 600)
+  }
+})
+```
+
+**Important:**
+- Avoid CSS transitions on elements with GSAP animations (conflicts)
+- Use ScrollTrigger to pause when out of viewport (performance)
+- Always kill animations in `onUnmounted()` (prevent leaks)
+- See LOADING_SYSTEM.md for full viewport-aware pattern
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |
