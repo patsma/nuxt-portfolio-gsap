@@ -5,7 +5,7 @@
     data-hover-text="Scroll"
   >
     <svg
-      class="w-24 h-24 md:-mt-10 md:w-28 md:h-28 lg:w-32 lg:h-32"
+      class="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32"
       viewBox="0 0 120 120"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
