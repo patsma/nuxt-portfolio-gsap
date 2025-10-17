@@ -19,7 +19,7 @@
 }
 
 .tag {
-  // Service tags with subtle 5% background
+  // Service tags with subtle 10% background
   font-family: var(--font-body);
   font-weight: 500;
   font-size: var(--i-b-m--plex--sans--j-p---mobile---custom---labels); // 10px
@@ -28,15 +28,10 @@
   text-transform: uppercase;
   color: var(--theme-text-60); // 60% opacity muted text
 
-  // 10% background - adapts to theme (more visible than 5%)
-  // In light theme: dark text on light background
-  // In dark theme: light text on dark background
-  background-color: rgba(9, 9, 37, 0.1); // Default light theme - 10% opacity
+  // 10% background using GSAP-animated theme variable
+  // --theme-10 is updated on every GSAP frame for smooth transitions
+  // Uses inverted text color at 10% opacity (dark in light theme, light in dark theme)
+  background-color: var(--theme-10);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-
-  // Dark theme override
-  html.theme-dark & {
-    background-color: rgba(255, 250, 245, 0.1); // 10% opacity
-  }
 }

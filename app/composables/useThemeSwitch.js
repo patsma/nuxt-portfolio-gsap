@@ -339,6 +339,10 @@ export default function useThemeSwitch() {
             toRgba(textR, textG, textB, 0.15)
           );
           html.style.setProperty(
+            "--theme-10",
+            toRgba(textR, textG, textB, 0.10)
+          );
+          html.style.setProperty(
             "--theme-5",
             toRgba(textR, textG, textB, 0.05)
           );

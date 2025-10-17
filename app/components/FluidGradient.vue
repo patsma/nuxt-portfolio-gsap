@@ -338,7 +338,7 @@ defineExpose({
   width: 100%;
   height: 100%;
   background-color: var(--theme-100);
-  opacity: 0.35;
+  opacity: 0.4;
   pointer-events: none;
   transition: opacity var(--duration-theme) var(--ease-power2);
 }
