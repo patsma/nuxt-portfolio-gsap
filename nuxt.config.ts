@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   runtimeConfig: {
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "https://patryksmakosz.com",
+      siteUrl: "https://mortenchristensen.com",
     },
   },
 
@@ -15,8 +15,8 @@ export default defineNuxtConfig({
 
     head: {
       title:
-        "Creative Developer & Web Animator | Front-End Developer with Expertise in Interactive Motion Design",
-      titleTemplate: "%s · Patryk Smakosz",
+        "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
+      titleTemplate: "%s · Morten Christensen",
       htmlAttrs: { lang: "en" },
 
       // Inject loader CSS that renders immediately (works in SSR dev mode)
@@ -85,40 +85,38 @@ export default defineNuxtConfig({
         {
           name: "description",
           content:
-            "Expertise in Interactive Motion Design,immersive user experiences. With over 10 years of experience building Vue.js/Nuxt.js apps, custom WordPress themes, and animated web banners using GreenSock, SVG, and Canvas technologies, Patryk crafts dynamic digital products that engage and inspire worldwide brands and agencies.",
+            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
         },
         // Open Graph Basics
         { property: "og:type", content: "website" },
-        { property: "og:site_name", content: "Patryk Smakosz" },
+        { property: "og:site_name", content: "Morten Christensen" },
         {
           property: "og:title",
           content:
-            "Creative Developer & Web Animator | Front-End Developer with Expertise in Interactive Motion Design",
+            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
         },
         {
           property: "og:description",
           content:
-            "Expertise in Interactive Motion Design,immersive user experiences. With over 10 years of experience building Vue.js/Nuxt.js apps, custom WordPress themes, and animated web banners using GreenSock, SVG, and Canvas technologies, Patryk crafts dynamic digital products that engage and inspire worldwide brands and agencies.",
+            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
         },
         // Absolute URLs are required by some scrapers (e.g., Facebook)
         {
           property: "og:url",
-          content:
-            process.env.NUXT_PUBLIC_SITE_URL ||
-            "https://patryksmakosz.com/.local",
+          content: "https://mortenchristensen.com",
         },
         {
           property: "og:image",
-          content: `${process.env.NUXT_PUBLIC_SITE_URL || "https://patryksmakosz.com/.local"}/og.jpg`,
+          content: "https://mortenchristensen.com/og.jpg",
         },
         {
           property: "og:image:secure_url",
-          content: `${process.env.NUXT_PUBLIC_SITE_URL || "https://patryksmakosz.com/.local"}/og.jpg`,
+          content: "https://mortenchristensen.com/og.jpg",
         },
         {
           property: "og:image:alt",
           content:
-            "Creative Developer & Web Animator | Front-End Developer with Expertise in Interactive Motion Design",
+            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
         },
         { property: "og:image:type", content: "image/png" },
         { property: "og:image:width", content: "1200" },
@@ -128,16 +126,16 @@ export default defineNuxtConfig({
         {
           name: "twitter:title",
           content:
-            "Creative Developer & Web Animator | Front-End Developer with Expertise in Interactive Motion Design",
+            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
         },
         {
           name: "twitter:description",
           content:
-            "Expertise in Interactive Motion Design,immersive user experiences. With over 10 years of experience building Vue.js/Nuxt.js apps, custom WordPress themes, and animated web banners using GreenSock, SVG, and Canvas technologies, Patryk crafts dynamic digital products that engage and inspire worldwide brands and agencies.",
+            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
         },
         {
           name: "twitter:image",
-          content: `${process.env.NUXT_PUBLIC_SITE_URL || "https://patryksmakosz.com/.local"}/og.jpg`,
+          content: "https://mortenchristensen.com/og.jpg",
         },
       ],
       link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
