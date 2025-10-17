@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
+import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
 </script>
 
 <template>
