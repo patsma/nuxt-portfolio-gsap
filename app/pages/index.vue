@@ -20,7 +20,6 @@ const services = [
       <!-- Main hero text with mixed opacity and font styling -->
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
-        data-speed="0.8"
         class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
       >
         <span class="text-[var(--theme-text-60)]">Welcome, I am</span>
@@ -49,10 +48,10 @@ const services = [
 
       <!-- Services list with tag styling -->
       <template #services>
-        <nav class="services-list" aria-label="Services">
+        <nav class="services-list pt-10 md:pt-0" aria-label="Services">
           <div
+            data-speed="0.95"
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
-            data-lag="0.2"
             class="flex flex-wrap gap-2 max-w-3xl"
           >
             <div class="tag-label">Services</div>
@@ -65,7 +64,7 @@ const services = [
 
       <!-- Scroll down button (right side on desktop) -->
       <template #button>
-        <ScrollDownSVG v-page-fade:left />
+        <ScrollDownSVG data-speed="1" v-page-fade:left />
       </template>
     </HeroSection>
   </div>

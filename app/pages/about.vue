@@ -9,7 +9,6 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
     <HeroSection>
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
-        data-speed="0.8"
         class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
       >
         <span class="text-[var(--theme-text-60)]">Driven by a high</span>
