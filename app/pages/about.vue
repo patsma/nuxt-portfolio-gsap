@@ -29,7 +29,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         <span class="text-[var(--theme-text-60)]"> end-product</span>
       </h1>
       <template #button>
-        <ScrollDownSVG />
+        <ScrollDownSVG v-page-fade:left />
       </template>
     </HeroSection>
   </div>

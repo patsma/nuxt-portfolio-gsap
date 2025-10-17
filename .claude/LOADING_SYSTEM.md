@@ -45,7 +45,7 @@ document.documentElement.classList.toggle('theme-dark', isDark);
 
 Components register animations that play in sequence after loader completes.
 
-### Setup Pattern
+### Setup Pattern (Single Element)
 
 ```vue
 <template>
@@ -80,6 +80,89 @@ onMounted(() => {
 })
 </script>
 ```
+
+### Multi-Element Pattern (Slots with Refs)
+
+For components with multiple optional elements (like HeroSection with services + button slots):
+
+```vue
+<template>
+  <section ref="containerRef" data-entrance-animate="true">
+    <slot /> <!-- h1 text -->
+
+    <div ref="servicesRef">
+      <slot name="services" /> <!-- optional tags -->
+    </div>
+
+    <div ref="buttonRef">
+      <slot name="button" /> <!-- optional button -->
+    </div>
+  </section>
+</template>
+
+<script setup>
+const { $gsap } = useNuxtApp()
+const { setupEntrance } = useEntranceAnimation()
+
+const containerRef = ref(null)
+const servicesRef = ref(null)
+const buttonRef = ref(null)
+
+onMounted(() => {
+  setupEntrance(containerRef.value, {
+    position: '<-0.3',
+    animate: (el) => {
+      const tl = $gsap.timeline()
+
+      // 1. Animate h1 text (always present)
+      const h1 = el.querySelector('h1')
+      if (h1) {
+        $gsap.set(h1, { opacity: 0, y: 40 })
+        tl.to(h1, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' })
+      }
+
+      // 2. Animate services (if slot filled)
+      if (servicesRef.value?.children.length > 0) {
+        const tags = servicesRef.value.querySelectorAll('.tag')
+        if (tags.length > 0) {
+          $gsap.set(tags, { opacity: 0, y: 20 })
+          tl.to(tags, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out'
+          }, '<+0.3')  // Start 0.3s after h1
+        }
+      }
+
+      // 3. Animate button (if slot filled)
+      if (buttonRef.value?.children.length > 0) {
+        const button = buttonRef.value.querySelector('.button')
+        if (button) {
+          $gsap.set(button, { opacity: 0, scale: 0.9 })
+          tl.to(button, {
+            opacity: 1,
+            scale: 1,
+            duration: 0.6,
+            ease: 'back.out(1.5)'
+          }, '<+0.2')  // Start 0.2s after services
+        }
+      }
+
+      return tl
+    }
+  })
+})
+</script>
+```
+
+**Key Points:**
+- Use template refs for slot wrappers (not slot elements directly)
+- Check `ref.value?.children.length > 0` to detect filled slots
+- Query within refs for specific elements (`.querySelectorAll()`)
+- Timeline auto-adjusts if elements missing
+- Use relative position params (`'<+0.3'`) for smooth sequencing
 
 ### GSAP Position Parameters
 
@@ -133,14 +216,34 @@ initializeLoading({
 
 ### HeroSection Built-in Support
 
+HeroSection has built-in multi-element entrance animations using the slot refs pattern:
+
 ```vue
 <HeroSection
   :animate-entrance="true"
   position="<-0.3"
 >
-  <h1>Your content</h1>
+  <h1>Your headline</h1>
+
+  <template #services>
+    <nav class="services-list">
+      <div class="tag">Service 1</div>
+      <div class="tag">Service 2</div>
+    </nav>
+  </template>
+
+  <template #button>
+    <ScrollDownSVG />
+  </template>
 </HeroSection>
 ```
+
+**Animation Sequence:**
+1. h1 text with SplitText (1s, stagger 0.08s)
+2. Service tags fade + slide up (0.5s, stagger 0.08s) - if slot filled
+3. Button fade + scale (0.6s) - if slot filled
+
+Timeline adapts automatically if services or button slots are empty.
 
 ### Custom Components
 

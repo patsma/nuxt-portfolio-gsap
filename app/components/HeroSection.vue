@@ -11,11 +11,13 @@
       <!-- Horizontal layout container for services and button -->
       <div class="flex flex-col md:flex-row md:items-center gap-4">
         <!-- Named slot for optional services list (left side on desktop) -->
-        <slot name="services" />
+        <div ref="servicesSlotRef">
+          <slot name="services" />
+        </div>
 
         <!-- Named slot for optional scroll button (right side on desktop) -->
         <!-- ml-auto pushes button to the right, works with or without services -->
-        <div class="md:ml-auto">
+        <div class="md:ml-auto" ref="buttonSlotRef">
           <slot name="button" />
         </div>
       </div>
@@ -45,7 +47,15 @@
  * - Horizontal layout for services and button on desktop (md:flex-row)
  * - Theme-aware (inherits theme colors)
  * - Entrance animation system integration
+ * - Multi-element sequenced animations: h1 → services (stagger) → button (fade/scale)
+ * - Smart timeline: adapts to filled/empty slots
  * - Works with page transition directives (add to slot content)
+ *
+ * Animation Sequence (FIRST LOAD only):
+ * 1. h1 text: SplitText lines with rotation (1s, stagger 0.08s)
+ * 2. Services tags: Fade + slide up (0.5s, stagger 0.08s) - starts 0.3s after h1
+ * 3. Button: Fade + scale (0.6s) - starts 0.2s after services
+ * Timeline auto-adjusts if slots are empty.
  *
  * Usage:
  * <HeroSection :animate-entrance="true" position="<-0.3">
@@ -92,6 +102,8 @@ const { setupEntrance } = useEntranceAnimation();
 
 // Refs
 const heroRef = ref(null);
+const servicesSlotRef = ref(null);
+const buttonSlotRef = ref(null);
 const splitInstance = ref(null);
 
 onMounted(() => {
@@ -146,6 +158,49 @@ onMounted(() => {
         stagger: 0.08,
         ease: "back.out(1.2)",
       });
+
+      // Services animation (if slot is filled)
+      if (servicesSlotRef.value && servicesSlotRef.value.children.length > 0) {
+        const tags = servicesSlotRef.value.querySelectorAll(".tag, .tag-label");
+        if (tags.length > 0) {
+          // Set initial state for tags
+          $gsap.set(tags, { opacity: 0, y: 20 });
+
+          // Animate tags with stagger (similar to page transitions)
+          tl.to(
+            tags,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.5,
+              stagger: 0.08,
+              ease: "power2.out",
+            },
+            "<+0.3" // Start 0.3s after h1 animation begins
+          );
+        }
+      }
+
+      // Button animation (if slot is filled)
+      if (buttonSlotRef.value && buttonSlotRef.value.children.length > 0) {
+        const button = buttonSlotRef.value.querySelector(".scroll-down");
+        if (button) {
+          // Set initial state for button
+          $gsap.set(button, { opacity: 0, scale: 0.9 });
+
+          // Animate button with subtle scale
+          tl.to(
+            button,
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.6,
+              ease: "back.out(1.5)",
+            },
+            "<+0.2" // Start 0.2s after services animation begins
+          );
+        }
+      }
 
       return tl;
     },

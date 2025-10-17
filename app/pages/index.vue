@@ -65,7 +65,7 @@ const services = [
 
       <!-- Scroll down button (right side on desktop) -->
       <template #button>
-        <ScrollDownSVG />
+        <ScrollDownSVG v-page-fade:left />
       </template>
     </HeroSection>
   </div>
