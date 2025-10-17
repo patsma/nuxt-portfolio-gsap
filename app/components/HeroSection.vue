@@ -9,8 +9,9 @@
       <slot />
 
       <!-- Horizontal layout container for services and button -->
-      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 
-      ">
+      <div
+        class="flex flex-col md:flex-row md:justify-between md:items-center gap-4"
+      >
         <!-- Named slot for optional services list (left side on desktop) -->
         <slot name="services" />
 
