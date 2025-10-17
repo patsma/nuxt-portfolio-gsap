@@ -26,6 +26,7 @@
   --color-dark-40: rgba(9, 9, 37, 0.4);
   --color-dark-30: rgba(9, 9, 37, 0.3);
   --color-dark-15: rgba(9, 9, 37, 0.15);
+  --color-dark-10: rgba(9, 9, 37, 0.1);
   --color-dark-5: rgba(9, 9, 37, 0.05);
 
   --color-light-100: rgba(255, 250, 245, 1);
@@ -34,6 +35,7 @@
   --color-light-40: rgba(255, 250, 245, 0.4);
   --color-light-30: rgba(255, 250, 245, 0.3);
   --color-light-15: rgba(255, 250, 245, 0.15);
+  --color-light-10: rgba(255, 250, 245, 0.1);
   --color-light-5: rgba(255, 250, 245, 0.05);
 
   /* Fluid gradient palette - Light theme (bright pastels for light UI) */
@@ -115,7 +117,11 @@
 
   /* Layout sizing */
   --size-header: var(--space-3xl); /* Full header height: 108px → 132px */
-  --size-header-compact: clamp(4rem, 3.8rem + 0.8vw, 5rem); /* Compact header when scrolled: 64px → 80px */
+  --size-header-compact: clamp(
+    4rem,
+    3.8rem + 0.8vw,
+    5rem
+  ); /* Compact header when scrolled: 64px → 80px */
   --size-hero-reveal: 10vh;
 
   /* Border widths - standardized for consistency */
@@ -146,7 +152,12 @@
     0.515,
     0.955
   ); /* GSAP power2.inOut exact match (easeInOutQuad) */
-  --ease-sine-out: cubic-bezier(0.39, 0.575, 0.565, 1); /* GSAP sine.out - organic page transitions */
+  --ease-sine-out: cubic-bezier(
+    0.39,
+    0.575,
+    0.565,
+    1
+  ); /* GSAP sine.out - organic page transitions */
   --ease-out: cubic-bezier(0, 0, 0.2, 1); /* Deceleration */
   --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Acceleration */
   --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Bounce effect */
@@ -168,6 +179,7 @@
   --theme-40: var(--color-dark-40);
   --theme-30: var(--color-dark-30);
   --theme-15: var(--color-dark-15);
+  --theme-10: var(--color-dark-10);
   --theme-5: var(--color-dark-5);
 
   --theme-text-100: var(--color-dark-100);
@@ -176,6 +188,7 @@
   --theme-text-40: var(--color-dark-40);
   --theme-text-30: var(--color-dark-30);
   --theme-text-15: var(--color-dark-15);
+  --theme-text-10: var(--color-dark-10);
   --theme-text-5: var(--color-dark-5);
 
   /* Fluid gradient palette - Dark theme (extremely subtle) */
