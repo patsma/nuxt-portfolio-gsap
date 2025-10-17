@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
+import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
 </script>
 
 <template>
@@ -9,16 +10,29 @@ import HeroSection from "~/components/HeroSection.vue";
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
         data-speed="0.8"
-        class="pp-eiko-desktop-h1 text-[var(--theme-text-100)] mb-[var(--space-xl)] leading-[1.3]"
+        class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
       >
-        Driven by a high <em class="pp-eiko-desktop-h1-italic">passion</em> for
-        design, I craft compelling solutions backed by
-        <span class="pp-eiko-desktop-h1-bold">insights</span> and
-        <span class="pp-eiko-desktop-h1-bold">real data</span> to ensure a
-        meaningful <em class="pp-eiko-desktop-h1-italic">journey</em> and an
-        <span class="pp-eiko-desktop-h1-bold">engaging</span> end-product
+        <span class="text-[var(--theme-text-60)]">Feel</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
+        <span class="text-[var(--theme-text-60)]">
+          to use my lab projects as your own. They are</span
+        >
+        <span class="text-[var(--theme-text-100)] font-body font-[300]">
+          based</span
+        >
+        <span class="text-[var(--theme-text-60)]"> on Morten</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> logic</em>
+        <span class="text-[var(--theme-text-60)]"> and</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]">
+          experience</em
+        >
+        <span class="text-[var(--theme-text-60)]"
+          >, but still experimental and always evolving</span
+        >
       </h1>
-      <!-- No services slot - showing optional nature -->
+      <template #button>
+        <ScrollDownSVG v-page-fade:left />
+      </template>
     </HeroSection>
 
     <!-- Additional page content below hero -->
