@@ -140,7 +140,7 @@
             v-for="item in items"
             :key="'m-' + item.href"
             :to="item.href"
-            class="block pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+            class="block pp-eiko-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
             :data-active="isActive(item.href)"
             @click="close()"
           >
