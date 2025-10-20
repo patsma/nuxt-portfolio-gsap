@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
 import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
+import VideoScalingSection from "~/components/VideoScalingSection.vue";
 </script>
 
 <template>
@@ -31,5 +32,8 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         <ScrollDownSVG v-page-fade:left />
       </template>
     </HeroSection>
+
+    <!-- Video Scaling Section -->
+    <VideoScalingSection />
   </div>
 </template>
