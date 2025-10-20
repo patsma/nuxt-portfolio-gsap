@@ -67,5 +67,11 @@ const services = [
         <ScrollDownSVG data-speed="1" v-page-fade:left />
       </template>
     </HeroSection>
+    <VideoScalingSection
+      video-src="/assets/dummy/sample1.mp4"
+      :start-scale="0.25"
+      :end-scale="1"
+      scroll-amount="100%"
+    />
   </div>
 </template>
