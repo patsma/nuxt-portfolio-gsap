@@ -43,13 +43,19 @@
  * ScrollTrigger. Section pins during the animation and remains pinned until
  * user scrolls past the threshold.
  *
- * Animation Flow:
+ * Animation Flow (Professional GSAP Pattern):
  * 1. Video starts at 25% scale in top-left corner
- * 2. As user scrolls, video scales up and moves to center
- * 3. At ~90% scaled, play button fades in (separate from video, doesn't scale)
- * 4. Video reaches 100% scale, centered in viewport
- * 5. Section stays pinned - user must scroll past threshold to unpin
- * 6. Play button visible when paused/ended, hidden when playing
+ * 2. As user scrolls, video scales up and moves to center (first ~40% of scroll)
+ * 3. At ~35% scroll (~90% video scaled), play button smoothly fades in
+ * 4. Video reaches 100% scale at ~40% scroll, centered in viewport
+ * 5. Section STAYS PINNED for remaining ~60% of scroll (viewing time!)
+ * 6. User can watch/interact with full-size video while pinned
+ * 7. Play button visible when paused/ended, hidden when playing
+ *
+ * Scroll Distribution (default 300vh with 2.5 timeline units):
+ * - 0-120vh (1 unit): Video scaling animation (25% → 100%)
+ * - ~108vh: Button appears smoothly (when video ~90% scaled)
+ * - 120-300vh (1.5 units): Video at 100%, pinned for viewing (180vh interaction time)
  *
  * Features:
  * - Scroll-triggered scaling animation (25% → 100%)
@@ -72,6 +78,8 @@
  * - Final position: scale 100%, centered (translate 0, 0)
  * - ScrollTrigger scrub: 1 for smooth scroll-tied animation
  * - Video muted by default (browsers require muted for autoplay)
+ * - Button timing: onUpdate callback monitors scroll progress (professional GSAP pattern)
+ * - Triggers button at progress > 0.35 (35% through timeline = ~105vh = video ~90% scaled)
  *
  * Usage:
  * <VideoScalingSection video-src="/assets/dummy/sample1.mp4" />
@@ -104,13 +112,15 @@ const props = defineProps({
     default: 1,
   },
   /**
-   * Scroll distance to complete animation
-   * Examples: "100%", "200%", "50%"
+   * Scroll distance to complete animation and pin duration
+   * Examples: "300%", "250%", "200%"
+   * Video scales in first ~40%, stays pinned for remaining ~60%
+   * Longer values = more viewing time at full size
    * @type {string}
    */
   scrollAmount: {
     type: String,
-    default: "100%",
+    default: "300%",
   },
 });
 
@@ -128,7 +138,13 @@ const isPlaying = ref(false);
 const hasEnded = ref(false);
 
 // ScrollTrigger instance (for cleanup)
-let scrollTriggerInstance = null;
+let videoScrollTrigger = null;
+
+// Button timeline (created once, reused)
+let buttonTimeline = null;
+
+// Button animation state (for onUpdate callback)
+let buttonAnimated = false;
 
 /**
  * Handle play/pause toggle
@@ -188,61 +204,88 @@ onMounted(() => {
     transformOrigin: "center center",
   });
 
-  // Set initial state for play button (hidden, scaled down)
-  $gsap.set(playButtonRef.value, {
-    opacity: 0,
-    scale: 0.8,
+  // Create button animation timeline ONCE (paused, reusable)
+  // Button is already hidden by CSS - GSAP will take control
+  buttonTimeline = $gsap.timeline({ paused: true });
+  buttonTimeline.to(playButtonRef.value, {
+    opacity: 1,
+    visibility: "visible",
+    scale: 1,
+    duration: 0.6,
+    ease: "back.out(1.5)",
   });
 
-  // Create timeline for scaling animation
+  // Create timeline with SEPARATED phases (professional GSAP pattern)
+  // Phase 1 (0-40%): Video scales from 25% to 100%
+  // Phase 2 (40-100%): Video stays at 100%, section pinned for viewing
   const tl = $gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
       start: "top top", // Start when section top hits viewport top
-      end: `+=${props.scrollAmount}`, // End after scrolling this amount
+      end: `+=${props.scrollAmount}`, // End after scrolling this amount (default: 300vh)
       pin: true, // Pin the section
       scrub: 1, // Smooth scrubbing (1 second smoothing)
       anticipatePin: 1, // Prevent jumpiness
       markers: false, // Set to true for debugging
       invalidateOnRefresh: true, // Recalculate on resize
+      onUpdate: (self) => {
+        // Professional pattern: control existing timeline based on scroll progress
+        // self.progress ranges from 0 to 1 (0% to 100% through the timeline)
+        // At 0.35 progress = ~105vh scrolled = video ~90% scaled
+        // NO new animations created - just play/reverse existing timeline
+        if (self.progress > 0.35 && !buttonAnimated) {
+          // Play button timeline (animates to visible)
+          buttonTimeline.play();
+          buttonAnimated = true;
+        } else if (self.progress < 0.35 && buttonAnimated) {
+          // Reverse button timeline (animates to hidden)
+          buttonTimeline.reverse();
+          buttonAnimated = false;
+        }
+      },
     },
   });
 
-  // Animate video to center (100% scale)
+  // PHASE 1: Video scales in FIRST 40% of scroll
+  // Using absolute duration: 1 unit out of 2.5 total = 40%
+  // With 300vh scroll: 1/2.5 * 300vh = 120vh of scrolling
   tl.to(
     containerRef.value,
     {
       scale: props.endScale,
       xPercent: 0, // Center horizontally
       yPercent: 0, // Center vertically
-      ease: "none", // Linear for scrubbing
+      ease: "power2.out", // Smooth easing (better than linear)
+      duration: 1, // 1 "unit" of timeline (out of 2.5 total)
     },
-    0 // Start at beginning of timeline
+    0 // Start at beginning
   );
 
-  // Animate play button in at 90% of video scaling
-  // Button appears when video is almost fully scaled, indicating interactivity
-  tl.to(
-    playButtonRef.value,
-    {
-      opacity: 1,
-      scale: 1,
-      ease: "back.out(1.5)", // Bouncy entrance
-      duration: 0.1, // Quick reveal (relative to timeline)
-    },
-    0.9 // Start at 90% of timeline (when video is almost 100%)
-  );
+  // PHASE 2: Extend timeline for remaining 60% (keeps section pinned)
+  // This creates viewing time - video stays at 100% while pinned
+  // Using absolute duration: 1.5 units = 60% of 2.5 total
+  // With 300vh scroll: 1.5/2.5 * 300vh = 180vh of "hold" time
+  tl.to({}, { duration: 1.5 }, 1); // Dummy animation extends timeline
 
-  // Store instance for cleanup
-  scrollTriggerInstance = tl.scrollTrigger;
+  // Store video ScrollTrigger for cleanup
+  videoScrollTrigger = tl.scrollTrigger;
 });
 
 onUnmounted(() => {
   // Clean up ScrollTrigger
-  if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+  if (videoScrollTrigger) {
+    videoScrollTrigger.kill();
+    videoScrollTrigger = null;
   }
+
+  // Clean up button timeline
+  if (buttonTimeline) {
+    buttonTimeline.kill();
+    buttonTimeline = null;
+  }
+
+  // Reset button animation state
+  buttonAnimated = false;
 
   // Pause video
   if (videoRef.value) {
@@ -260,6 +303,9 @@ onUnmounted(() => {
 }
 
 .play-button-overlay {
+  /* Hidden by default - GSAP will take control and animate */
+  opacity: 0;
+  visibility: hidden;
   /* Ensure button is above video */
   z-index: 10;
 }
