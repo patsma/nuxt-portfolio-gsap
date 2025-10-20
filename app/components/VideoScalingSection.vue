@@ -22,12 +22,19 @@
       />
     </div>
 
+    <!-- Wrapper for page transitions (prevents animation conflicts) -->
     <div
-      ref="playButtonRef"
-      class="play-button-overlay absolute inset-0 grid place-items-center pointer-events-none"
+      v-page-fade="{ duration: 0.6 }"
+      class="play-button-wrapper absolute inset-0 grid place-items-center pointer-events-none"
     >
-      <div class="pointer-events-auto" @click="handlePlayPause">
-        <CursorPlaySVG />
+      <!-- Inner element for scroll-triggered animation -->
+      <div
+        ref="playButtonRef"
+        class="play-button-overlay grid place-items-center pointer-events-none"
+      >
+        <div class="pointer-events-auto" @click="handlePlayPause">
+          <CursorPlaySVG />
+        </div>
       </div>
     </div>
   </section>
