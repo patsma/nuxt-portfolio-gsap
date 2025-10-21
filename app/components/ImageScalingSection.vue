@@ -26,7 +26,7 @@
  * ImageScalingSection Component - ScrollTrigger Image Reveal
  *
  * Scroll-driven image growth with manual parallax effect.
- * Image container grows from small size (top-left) to full viewport (centered) as user scrolls.
+ * Image container grows from small size (configurable corner) to full viewport (centered) as user scrolls.
  * Uses dimension animation instead of scale with synchronized parallax animation.
  *
  * Animation Timeline:
@@ -40,11 +40,13 @@
  * - startWidth: Initial width in vw (default: 25)
  * - startHeight: Initial height in vh (default: 25)
  * - scrollAmount: Scroll distance for animation (default: '120%')
+ * - startPosition: Starting corner - 'left' or 'right' (default: 'left')
  *
  * Features:
  * - NuxtImg for optimized image loading
  * - Manual parallax via ScrollTrigger timeline (works in pinned sections)
  * - Dimension-based animation (not scale) for consistent sizing
+ * - Configurable start position (left or right corner)
  * - Grid-aware layout (breakout3)
  * - Performance-optimized (single timeline, scrubbed)
  *
@@ -52,6 +54,7 @@
  * - Parallax is manual (not data-speed) because section is pinned
  * - Image is 140% height with overflow:hidden for parallax range (40% extra space)
  * - Container overflow:hidden prevents image cutoff issues
+ * - Start position uses left/xPercent for consistent animation path
  *
  * Usage:
  * <ImageScalingSection
@@ -59,6 +62,14 @@
  *   image-alt="Description of image"
  *   :start-width="25"
  *   :start-height="25"
+ *   start-position="left"
+ * />
+ *
+ * <!-- Start from right corner -->
+ * <ImageScalingSection
+ *   image-src="/path/to/image2.jpg"
+ *   image-alt="Description"
+ *   start-position="right"
  * />
  */
 
@@ -104,6 +115,15 @@ const props = defineProps({
     type: String,
     default: "120%",
   },
+  /**
+   * Starting position of the image (left or right side)
+   * @type {string}
+   */
+  startPosition: {
+    type: String,
+    default: "left",
+    validator: (value) => ["left", "right"].includes(value),
+  },
 });
 
 const { $gsap, $ScrollTrigger } = useNuxtApp();
@@ -117,12 +137,16 @@ let imageScrollTrigger = null;
 onMounted(() => {
   if (!sectionRef.value || !containerRef.value || !imageRef.value || !$ScrollTrigger) return;
 
-  // Set initial state: small size positioned in top-left
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === "right"
+    ? { left: "100%", top: 0, xPercent: -100 } // Align to right edge
+    : { left: 0, top: 0 }; // Align to left edge
+
+  // Set initial state: small size positioned at chosen corner
   $gsap.set(containerRef.value, {
     width: `${props.startWidth}vw`,
     height: `${props.startHeight}vh`,
-    left: 0,
-    top: 0,
+    ...initialPosition,
     position: "absolute",
   });
 

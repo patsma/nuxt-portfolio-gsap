@@ -73,6 +73,7 @@ const services = [
       :start-scale="0.25"
       :end-scale="1"
       scroll-amount="120%"
+      start-position="right"
     />
     <VideoScalingSection
       video-src="/assets/dummy/sample1.mp4"
