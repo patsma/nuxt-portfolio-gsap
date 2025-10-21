@@ -14,8 +14,7 @@ export default defineNuxtConfig({
     layoutTransition: false, // No layout transitions needed
 
     head: {
-      title:
-        "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
+      title: "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
       titleTemplate: "%s · Morten Christensen",
       htmlAttrs: { lang: "en" },
 
@@ -75,7 +74,7 @@ export default defineNuxtConfig({
             #__nuxt.loaded {
               opacity: 1;
             }
-          `
+          `,
         },
       ],
 
@@ -159,6 +158,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@nuxt/content",
     "@maz-ui/nuxt",
+    "nuxt-mcp",
     "@tresjs/nuxt",
   ],
 

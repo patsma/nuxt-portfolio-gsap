@@ -10,7 +10,6 @@ import { useLoadingSequence } from "~/composables/useLoadingSequence";
 
 // Initialize loading sequence
 const { initializeLoading } = useLoadingSequence();
-
 onMounted(() => {
   // Start the loading sequence with options
   initializeLoading({
