@@ -39,14 +39,20 @@ export default defineNuxtConfig({
               pointer-events: none;
             }
 
-            /* Spinner - light theme */
-            .app-loader-spinner {
-              width: 48px;
-              height: 48px;
-              border: 2px solid rgba(9, 9, 37, 0.15); /* Dark with opacity */
-              border-top-color: #090925; /* Dark spinner (--color-dark-100) */
-              border-radius: 50%;
-              animation: app-spin 0.8s linear infinite;
+            /* Gradient loader - light theme */
+            .app-loader-gradient {
+              position: fixed;
+              inset: 0;
+              width: 100vw;
+              height: 100vh;
+              background-image: radial-gradient(
+                circle,
+                rgba(255, 200, 196, 0.6),
+                rgba(255, 250, 245, 0.3),
+                rgba(255, 250, 245, 0.1)
+              );
+              animation: app-gradient-pulse 2s infinite linear;
+              transform: scale(1);
             }
 
             /* Dark theme overrides - class-based only */
@@ -56,13 +62,19 @@ export default defineNuxtConfig({
               background: #090925; /* Dark background (--color-dark-100) */
             }
 
-            .theme-dark .app-loader-spinner {
-              border: 2px solid rgba(255, 250, 245, 0.15); /* Light with opacity */
-              border-top-color: #fffaf5; /* Light spinner (--color-light-100) */
+            .theme-dark .app-loader-gradient {
+              background-image: radial-gradient(
+                circle,
+                rgba(45, 28, 70, 0.4),
+                rgba(28, 45, 80, 0.2),
+                rgba(9, 9, 37, 0.05)
+              );
             }
 
-            @keyframes app-spin {
-              to { transform: rotate(360deg); }
+            @keyframes app-gradient-pulse {
+              0% { transform: scale(1.8); }
+              50% { transform: scale(1); }
+              100% { transform: scale(1.8); }
             }
 
             /* Hide main content initially to prevent flash */

@@ -49,7 +49,7 @@ export default defineNitroPlugin((nitroApp) => {
         })();
       </script>
       <div id="app-initial-loader">
-        <div class="app-loader-spinner"></div>
+        <div class="app-loader-gradient"></div>
       </div>
     `);
 
