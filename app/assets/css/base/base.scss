@@ -12,7 +12,11 @@ body {
   /* Smooth CSS transition for text color only (background is FluidGradient) */
   transition: color var(--duration-theme) ease;
 }
-
+img,
+video {
+  width: 100%;
+  height: 100%;
+}
 /* Navigation link hover styles - CSS-based for simplicity and performance
    - Active links stay at 50% opacity
    - Inactive links fade to 50% on hover
@@ -145,4 +149,39 @@ body {
 html.is-first-load [data-entrance-animate="true"] {
   opacity: 0;
   visibility: hidden;
+}
+
+/* Parallax utilities - GSAP ScrollSmoother integration
+   - Works with data-speed="auto" attribute
+   - Fully responsive with no fixed values
+   - Container fills parent, element is 120% for movement range */
+
+/* Container for parallax elements
+   - Fills parent (100% height)
+   - Provides overflow: hidden for parallax effect
+   - Wrapper element controls actual height */
+.parallax-container {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+/* Media (image/video) with parallax effect
+   - 120% height (20% larger than container)
+   - Provides room for parallax movement
+   - Use with data-speed="auto" */
+.parallax-media {
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Semantic z-index layers for depth control */
+.parallax-background {
+  z-index: 1;
+}
+
+.parallax-foreground {
+  z-index: 10;
 }

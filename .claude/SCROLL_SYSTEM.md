@@ -177,18 +177,64 @@ const enter = (el, done) => {
 
 ## Parallax Effects
 
-**Usage in templates:**
+### System (Tested & Working)
 
-```vue
-<div data-speed="0.5">Background (slower)</div>
-<div data-lag="0.15">Trailing effect</div>
-<h1 v-page-split:chars data-speed="0.7">Combined</h1>
+**File:** `app/assets/css/base/base.scss`
+
+```scss
+.parallax-container {
+  overflow: hidden;
+  position: relative;
+  height: 100%;  // Fills parent
+}
+
+.parallax-media {
+  width: 100%;
+  height: 120%;  // 20% larger for movement
+  object-fit: cover;
+  display: block;
+}
 ```
 
-**Refresh after route change:**
+### Usage Pattern
+
+**Three-layer structure:**
+1. Wrapper controls height (vh, %, Tailwind, etc.)
+2. Container fills wrapper (100%)
+3. Media is 120% of container for parallax movement
+
+```vue
+<!-- Image parallax -->
+<div class="h-[60vh]">
+  <div class="parallax-container">
+    <img src="..." data-speed="auto" class="parallax-media" />
+  </div>
+</div>
+
+<!-- Video parallax -->
+<div class="h-[60vh]">
+  <div class="parallax-container">
+    <video src="..." data-speed="auto" class="parallax-media" autoplay loop muted />
+  </div>
+</div>
+```
+
+### Data Attributes
+
+**data-speed="auto"** - GSAP calculates parallax automatically
+**data-lag** - Smooth trailing effect (0.1-0.3 range)
+
+### Combined with Page Transitions
+
+```vue
+<h1 v-page-split:chars data-speed="0.7">
+  Text with parallax + animation
+</h1>
+```
+
+### Refresh After Route Change
 
 ```javascript
-// In enter() after directives mount
 refreshSmoother()  // Recalculates parallax for new content
 ```
 
