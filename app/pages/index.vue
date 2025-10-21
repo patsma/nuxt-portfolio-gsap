@@ -69,6 +69,7 @@ const services = [
     </HeroSection>
     <VideoScalingSection
       video-src="/assets/dummy/sample1.mp4"
+      poster-src="/assets/dummy/placeholder.jpg"
       :start-scale="0.25"
       :end-scale="1"
       scroll-amount="100%"

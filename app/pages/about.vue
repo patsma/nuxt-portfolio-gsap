@@ -34,6 +34,6 @@ import VideoScalingSection from "~/components/VideoScalingSection.vue";
     </HeroSection>
 
     <!-- Video Scaling Section -->
-    <VideoScalingSection />
+    <VideoScalingSection poster-src="/assets/dummy/placeholder.jpg" />
   </div>
 </template>

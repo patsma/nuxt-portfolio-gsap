@@ -11,6 +11,7 @@
       <video
         ref="videoRef"
         :src="videoSrc"
+        :poster="posterSrc"
         class="w-full h-full object-cover cursor-pointer"
         playsinline
         preload="auto"
@@ -55,18 +56,23 @@
  *
  * Props:
  * - videoSrc: Video path (default: '/assets/dummy/sample1.mp4')
+ * - posterSrc: Poster image (native browser placeholder)
  * - startScale: Initial scale (default: 0.25)
  * - endScale: Final scale (default: 1)
  * - scrollAmount: Pin duration (default: '300%')
  *
  * Features:
+ * - Native video poster support (browser-managed loading state)
  * - Custom play/pause button with replay
- * - Theme-aware background
+ * - Scroll-triggered animations
  * - Grid-aware layout (breakout3)
  * - Performance-optimized (single timeline, play/reverse control)
  *
  * Usage:
- * <VideoScalingSection video-src="/path/to/video.mp4" />
+ * <VideoScalingSection
+ *   video-src="/path/to/video.mp4"
+ *   poster-src="/path/to/poster.jpg"
+ * />
  */
 
 const props = defineProps({
@@ -77,6 +83,14 @@ const props = defineProps({
   videoSrc: {
     type: String,
     default: "/assets/dummy/sample1.mp4",
+  },
+  /**
+   * Poster image (native HTML5 placeholder shown while loading)
+   * @type {string}
+   */
+  posterSrc: {
+    type: String,
+    default: "",
   },
   /**
    * Starting scale (0.25 = 25%)
