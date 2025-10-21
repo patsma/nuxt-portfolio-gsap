@@ -8,19 +8,21 @@
       v-page-clip:bottom="{ duration: 0.8 }"
       class="video-container breakout3 relative will-change-transform"
     >
-      <video
-        ref="videoRef"
-        :src="videoSrc"
-        :poster="posterSrc"
-        class="w-full h-full object-cover cursor-pointer"
-        playsinline
-        preload="auto"
-        muted
-        @click="handlePlayPause"
-        @play="isPlaying = true"
-        @pause="isPlaying = false"
-        @ended="handleVideoEnded"
-      />
+      <div class="parallax-container">
+        <video
+          ref="videoRef"
+          :src="videoSrc"
+          :poster="posterSrc"
+          class="parallax-media w-full h-full object-cover cursor-pointer"
+          playsinline
+          preload="auto"
+          muted
+          @click="handlePlayPause"
+          @play="isPlaying = true"
+          @pause="isPlaying = false"
+          @ended="handleVideoEnded"
+        />
+      </div>
     </div>
 
     <!-- Wrapper for page transitions (prevents animation conflicts) -->
@@ -45,33 +47,55 @@
 /**
  * VideoScalingSection Component - ScrollTrigger Video Reveal
  *
- * Scroll-driven video scaling with pinned section for extended viewing.
- * Video scales from 25% (top-left) to 100% (centered) over first 40% of scroll,
- * then remains pinned for remaining 60% for user interaction.
+ * Scroll-driven video growth with manual parallax and pinned section for extended viewing.
+ * Video container grows from small size (configurable corner) to full viewport (centered)
+ * over first 40% of scroll, then remains pinned for remaining 60% for user interaction.
+ * Uses dimension animation instead of scale with synchronized parallax animation.
  *
  * Animation Timeline:
- * - 0-120vh (40%): Video scales and centers
- * - ~105vh: Play button appears (triggered by scroll progress)
- * - 120-300vh (60%): Video pinned at 100% for viewing
+ * - 0-120vh (40%): Container grows from startWidth×startHeight to 100vw×100vh
+ * - Simultaneous: Video moves UP (yPercent: 0 to -28.57) revealing bottom portion
+ * - ~105vh: Play button appears (triggered by scroll progress at 35%)
+ * - 120-300vh (60%): Video pinned at 100% for viewing and interaction
  *
  * Props:
  * - videoSrc: Video path (default: '/assets/dummy/sample1.mp4')
  * - posterSrc: Poster image (native browser placeholder)
- * - startScale: Initial scale (default: 0.25)
- * - endScale: Final scale (default: 1)
+ * - startWidth: Initial width in vw (default: 25)
+ * - startHeight: Initial height in vh (default: 25)
  * - scrollAmount: Pin duration (default: '300%')
+ * - startPosition: Starting corner - 'left' or 'right' (default: 'left')
  *
  * Features:
  * - Native video poster support (browser-managed loading state)
  * - Custom play/pause button with replay
- * - Scroll-triggered animations
+ * - Manual parallax via ScrollTrigger timeline (works in pinned sections)
+ * - Dimension-based animation (not scale) for consistent sizing
+ * - Configurable start position (left or right corner)
+ * - Scroll-triggered animations with pinning
  * - Grid-aware layout (breakout3)
  * - Performance-optimized (single timeline, play/reverse control)
+ *
+ * Technical Notes:
+ * - Parallax is manual (not data-speed) because section is pinned
+ * - Video is 140% height with overflow:hidden for parallax range (40% extra space)
+ * - Container overflow:hidden prevents video cutoff issues
+ * - Start position uses left/xPercent for consistent animation path
  *
  * Usage:
  * <VideoScalingSection
  *   video-src="/path/to/video.mp4"
  *   poster-src="/path/to/poster.jpg"
+ *   :start-width="25"
+ *   :start-height="25"
+ *   start-position="left"
+ * />
+ *
+ * <!-- Start from right corner -->
+ * <VideoScalingSection
+ *   video-src="/path/to/video2.mp4"
+ *   poster-src="/path/to/poster2.jpg"
+ *   start-position="right"
  * />
  */
 
@@ -93,29 +117,38 @@ const props = defineProps({
     default: "",
   },
   /**
-   * Starting scale (0.25 = 25%)
+   * Starting width in viewport units (vw)
    * @type {number}
    */
-  startScale: {
+  startWidth: {
     type: Number,
-    default: 0.25,
+    default: 25,
   },
   /**
-   * Ending scale (1 = 100%)
+   * Starting height in viewport units (vh)
    * @type {number}
    */
-  endScale: {
+  startHeight: {
     type: Number,
-    default: 1,
+    default: 25,
   },
   /**
    * Scroll distance for animation and pin duration
-   * Video scales in first ~40%, stays pinned for remaining ~60%
+   * Video grows in first ~40%, stays pinned for remaining ~60%
    * @type {string}
    */
   scrollAmount: {
     type: String,
     default: "300%",
+  },
+  /**
+   * Starting position of the video (left or right side)
+   * @type {string}
+   */
+  startPosition: {
+    type: String,
+    default: "left",
+    validator: (value) => ["left", "right"].includes(value),
   },
 });
 
@@ -186,17 +219,25 @@ watch(isPlaying, () => {
 });
 
 onMounted(() => {
-  if (!sectionRef.value || !containerRef.value || !$ScrollTrigger) return;
+  if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return;
 
-  // Calculate offset to position scaled video in top-left
-  // Formula: -(100 - (100 * scale)) / 2
-  const startOffset = -((100 - 100 * props.startScale) / 2);
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === "right"
+    ? { left: "100%", top: 0, xPercent: -100 } // Align to right edge
+    : { left: 0, top: 0 }; // Align to left edge
 
+  // Set initial state: small size positioned at chosen corner
   $gsap.set(containerRef.value, {
-    scale: props.startScale,
-    xPercent: startOffset,
-    yPercent: startOffset,
-    transformOrigin: "center center",
+    width: `${props.startWidth}vw`,
+    height: `${props.startHeight}vh`,
+    ...initialPosition,
+    position: "absolute",
+  });
+
+  // Set initial video position for parallax
+  // Start at 0 (top aligned) to prevent clipping
+  $gsap.set(videoRef.value, {
+    yPercent: 0,
   });
 
   // Button timeline: created once, controlled via play/reverse
@@ -240,20 +281,38 @@ onMounted(() => {
     },
   });
 
-  // Phase 1: Video scales (1 unit = 40% of 2.5 total)
+  // Phase 1: Container dimension animation (1 unit = 40% of 2.5 total)
   tl.to(
     containerRef.value,
     {
-      scale: props.endScale,
-      xPercent: 0,
-      yPercent: 0,
+      width: "100vw",
+      height: "100vh",
+      left: "50%",
+      top: "50%",
+      xPercent: -50,
+      yPercent: -50,
       ease: "power2.out",
       duration: 1,
     },
     0
   );
 
-  // Phase 2: Extend timeline to keep pinned (1.5 units = 60%)
+  // Phase 1: Video parallax animation (synchronized with container growth)
+  // Video is 140% tall, so 40% extra space = 28.57% of video height
+  // Move UP (negative) to reveal bottom portion of video
+  tl.to(
+    videoRef.value,
+    {
+      yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% video = 28.57%)
+      ease: "power2.out",
+      duration: 1,
+    },
+    0
+  );
+
+  // Phase 2: Extend timeline to keep pinned (1.5 units = 60% of 2.5 total)
+  // This ensures Phase 1 (duration 1) takes 40% of scroll (120vh of 300vh)
+  // and Phase 2 (duration 1.5) takes 60% of scroll (180vh of 300vh)
   tl.to({}, { duration: 1.5 }, 1);
 
   videoScrollTrigger = tl.scrollTrigger;
@@ -280,9 +339,25 @@ onUnmounted(() => {
 
 <style scoped>
 .video-container {
+  /* Dimensions set via GSAP (starts small, grows to 100vw×100vh) */
+  /* Position set via GSAP (starts at corner, centers on completion) */
+  position: absolute;
+  overflow: hidden; /* Prevent video overflow */
+}
+
+/* Parallax container structure (from SCROLL_SYSTEM.md) */
+.parallax-container {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
   width: 100%;
-  height: 100vh;
-  min-height: 100dvh;
+}
+
+.parallax-media {
+  width: 100%;
+  height: 140%; /* 40% larger for parallax movement */
+  object-fit: cover;
+  display: block;
 }
 
 .play-button-overlay {
