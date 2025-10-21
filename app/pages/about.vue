@@ -34,6 +34,13 @@ import VideoScalingSection from "~/components/VideoScalingSection.vue";
     </HeroSection>
 
     <!-- Video Scaling Section -->
-    <VideoScalingSection poster-src="/assets/dummy/placeholder.jpg" />
+    <VideoScalingSection
+      video-src="/assets/dummy/sample1.mp4"
+      poster-src="/assets/dummy/placeholder.jpg"
+      :start-scale="0.25"
+      :end-scale="1"
+      scroll-amount="180%"
+      start-position="left"
+    />
   </div>
 </template>

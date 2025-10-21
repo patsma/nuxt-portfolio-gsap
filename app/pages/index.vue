@@ -80,7 +80,8 @@ const services = [
       poster-src="/assets/dummy/placeholder.jpg"
       :start-scale="0.25"
       :end-scale="1"
-      scroll-amount="100%"
+      scroll-amount="180%"
+      start-position="left"
     />
   </div>
 </template>

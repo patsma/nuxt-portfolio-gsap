@@ -49,21 +49,22 @@
  *
  * Scroll-driven video growth with manual parallax and pinned section for extended viewing.
  * Video container grows from small size (configurable corner) to full viewport (centered)
- * over first 40% of scroll, then remains pinned for remaining 60% for user interaction.
+ * over first 72% of scroll, then remains pinned for remaining 28% for user interaction.
  * Uses dimension animation instead of scale with synchronized parallax animation.
+ * Much slower animation (360vh = 3x image speed) provides natural, gradual reveal.
  *
  * Animation Timeline:
- * - 0-120vh (40%): Container grows from startWidth×startHeight to 100vw×100vh
+ * - 0-360vh (72%): Container grows from startWidth×startHeight to 100vw×100vh
  * - Simultaneous: Video moves UP (yPercent: 0 to -28.57) revealing bottom portion
- * - ~105vh: Play button appears (triggered by scroll progress at 35%)
- * - 120-300vh (60%): Video pinned at 100% for viewing and interaction
+ * - ~175vh: Play button appears (triggered by scroll progress at 35%)
+ * - 360-500vh (28%): Video pinned at 100% for comfortable viewing and interaction
  *
  * Props:
  * - videoSrc: Video path (default: '/assets/dummy/sample1.mp4')
  * - posterSrc: Poster image (native browser placeholder)
  * - startWidth: Initial width in vw (default: 25)
  * - startHeight: Initial height in vh (default: 25)
- * - scrollAmount: Pin duration (default: '300%')
+ * - scrollAmount: Pin duration (default: '500%' for gradual reveal + interaction time)
  * - startPosition: Starting corner - 'left' or 'right' (default: 'left')
  *
  * Features:
@@ -134,12 +135,13 @@ const props = defineProps({
   },
   /**
    * Scroll distance for animation and pin duration
-   * Video grows in first ~40%, stays pinned for remaining ~60%
+   * Video grows in first ~72%, stays pinned for remaining ~28%
+   * Much slower animation (360vh = 3x image speed) for natural, gradual reveal
    * @type {string}
    */
   scrollAmount: {
     type: String,
-    default: "300%",
+    default: "500%",
   },
   /**
    * Starting position of the video (left or right side)
@@ -281,7 +283,8 @@ onMounted(() => {
     },
   });
 
-  // Phase 1: Container dimension animation (1 unit = 40% of 2.5 total)
+  // Phase 1: Container dimension animation (1.8 units = 72% of 2.5 total)
+  // This takes 360vh of scroll (3x slower than ImageScalingSection for gradual reveal)
   tl.to(
     containerRef.value,
     {
@@ -292,7 +295,7 @@ onMounted(() => {
       xPercent: -50,
       yPercent: -50,
       ease: "power2.out",
-      duration: 1,
+      duration: 1.8,
     },
     0
   );
@@ -305,15 +308,16 @@ onMounted(() => {
     {
       yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% video = 28.57%)
       ease: "power2.out",
-      duration: 1,
+      duration: 1.8,
     },
     0
   );
 
-  // Phase 2: Extend timeline to keep pinned (1.5 units = 60% of 2.5 total)
-  // This ensures Phase 1 (duration 1) takes 40% of scroll (120vh of 300vh)
-  // and Phase 2 (duration 1.5) takes 60% of scroll (180vh of 300vh)
-  tl.to({}, { duration: 1.5 }, 1);
+  // Phase 2: Extend timeline to keep pinned (0.7 units = 28% of 2.5 total)
+  // This ensures Phase 1 (duration 1.8) takes 72% of scroll (360vh of 500vh)
+  // and Phase 2 (duration 0.7) takes 28% of scroll (140vh of 500vh)
+  // Much slower animation provides natural, gradual reveal matching image feel
+  tl.to({}, { duration: 0.7 }, 1.8);
 
   videoScrollTrigger = tl.scrollTrigger;
 });
