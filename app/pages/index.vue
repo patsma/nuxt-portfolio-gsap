@@ -67,6 +67,34 @@ const services = [
         <ScrollDownSVG data-speed="1" v-page-fade:left />
       </template>
     </HeroSection>
+    <InteractiveCaseStudySection>
+      <InteractiveCaseStudyItem
+        title="Recommendating"
+        tag="APP"
+        description="Art direction & UI"
+        image="/assets/dummy/placeholder.jpg"
+        image-alt="Recommendating preview"
+      />
+      <InteractiveCaseStudyItem
+        title="Maj"
+        description="Art direction & UI"
+        image="/assets/dummy/placeholder2.jpg"
+        image-alt="Maj project preview"
+      />
+      <InteractiveCaseStudyItem
+        title="BioInnovation Institute"
+        tag="INTRANET"
+        description="Art direction, UI & UX"
+        image="/assets/dummy/placeholder3.jpg"
+        image-alt="BioInnovation Institute preview"
+      />
+      <InteractiveCaseStudyItem
+        title="Mælt"
+        description="Art direction, Interactive design & UI"
+        image="/assets/dummy/placeholder4.jpg"
+        image-alt="Mælt project preview"
+      />
+    </InteractiveCaseStudySection>
     <ImageScalingSection
       image-src="/assets/dummy/placeholder.jpg"
       image-alt="Hero image showcasing the product"
