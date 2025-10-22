@@ -262,6 +262,7 @@ Missing logs indicate:
 - `.claude/THEME_SYSTEM.md` - Theme switching system
 - `.claude/PAGE_TRANSITIONS.md` - Page transition system
 - `.claude/SCROLL_SYSTEM.md` - Scroll system
+- `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
 
 ### Code Documentation
 
