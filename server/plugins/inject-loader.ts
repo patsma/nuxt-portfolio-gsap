@@ -53,8 +53,8 @@ export default defineNitroPlugin((nitroApp) => {
       </div>
     `);
 
-    console.log(
-      "🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response"
-    );
+    // console.log(
+    //   "🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response"
+    // );
   });
 });
