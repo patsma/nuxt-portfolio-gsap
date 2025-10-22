@@ -61,7 +61,7 @@
 
 /* Default content placement */
 .content-grid > :not(.breakout, .full-width),
-.full-width-content > :not(.breakout, .full-width-content) {
+.full-width-content > :not(.breakout, .full-width, .full-width-content) {
   grid-column: content;
 }
 
@@ -81,6 +81,20 @@
   grid-column: breakout-start3 / breakout-end3;
 }
 .content-grid > .breakout4 {
+  grid-column: breakout-start4 / breakout-end4;
+}
+
+/* Breakout variants for nested grids (children of .full-width-content) */
+.full-width-content > .breakout1 {
+  grid-column: breakout-start1 / breakout-end1;
+}
+.full-width-content > .breakout2 {
+  grid-column: breakout-start2 / breakout-end2;
+}
+.full-width-content > .breakout3 {
+  grid-column: breakout-start3 / breakout-end3;
+}
+.full-width-content > .breakout4 {
   grid-column: breakout-start4 / breakout-end4;
 }
 

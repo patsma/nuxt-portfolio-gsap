@@ -37,7 +37,7 @@
 /* Section title */
 .section-title {
   color: var(--theme-text-60);
-  font-size: 1rem;
+  font-size: var(--step-1); /* Fluid 12-16px */
   font-weight: 400;
   letter-spacing: 0.02em;
 }
@@ -99,10 +99,13 @@
 
 /* Items are nested full-width-content (inside list which is also full-width-content) */
 /* Need explicit rule since content-grid.scss only handles direct children */
-.full-width-content > .case-study-item.full-width-content {
-  grid-column: full-width;
-  display: grid !important; /* Override Tailwind md:block */
-  grid-template-columns: inherit;
+/* IMPORTANT: Only apply on desktop to respect Tailwind's 'hidden' class on mobile */
+@include bp.up(bp.$bp-md) {
+  .full-width-content > .case-study-item.full-width-content {
+    grid-column: full-width;
+    display: grid !important; /* Override Tailwind md:block */
+    grid-template-columns: inherit;
+  }
 }
 
 .case-study-item {
@@ -110,7 +113,7 @@
   text-decoration: none;
 
   /* Vertical spacing - only bottom padding so border line is at top */
-  padding: 0 0 1.5rem 0;
+  padding: 0 0 var(--space-s) 0; /* Fluid 18-22px */
 
   /* Smooth background transition on hover */
   background: transparent;
@@ -124,14 +127,14 @@
 }
 
 /* Border line element - uses full-width class within sub-grid */
-/* Higher specificity selector to override content-grid.scss default rule */
-.case-study-item > .item-border-line {
+.item-border-line {
   grid-column: full-width;
   height: 1px;
   background-color: color-mix(in srgb, var(--theme-text-100) 10%, transparent);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-s); /* Fluid 18-22px */
   /* Will be animated with bouncy effect later */
 }
+/* Note: Already hidden on mobile via parent's "hidden md:block" Tailwind class */
 
 /* Content wrapper - uses breakout3 class within sub-grid */
 .item-content {
@@ -139,14 +142,14 @@
   /* Manual grid for internal two-column layout */
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: var(--space-m); /* Fluid 27-33px */
 }
 
 /* Left column: Title + Tag */
 .item-title-col {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
+  gap: var(--space-2xs); /* Fluid 9-11px */
   flex-wrap: wrap;
 }
 
@@ -178,17 +181,16 @@
 
 .case-study-card {
   flex-direction: column;
-  gap: 0.75rem; /* Reduced from 1rem */
-  margin-bottom: 1.5rem; /* Reduced from 2rem */
+  gap: var(--space-2xs); /* Fluid 9-11px */
+  margin-bottom: var(--space-s); /* Fluid 18-22px */
   text-decoration: none;
   overflow: hidden;
 }
 
-/* Card image container - more compact */
+/* Card image container - square (1:1) for mobile */
 .card-image-container {
   width: 100%;
-  aspect-ratio: 16 / 10; /* Changed from 4/3 to 16/10 for more compact look */
-  max-height: 200px; /* Limit image height on mobile */
+  aspect-ratio: 1 / 1; /* Square aspect ratio (320x320 in design, scales responsively) */
   overflow: hidden;
   border-radius: 0.5rem;
 }
@@ -210,14 +212,14 @@
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem; /* Reduced from 0.5rem for more compact look */
+  gap: var(--space-3xs); /* Fluid 5-6px */
 }
 
 /* Card header: Title + Tag */
 .card-header {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
+  gap: var(--space-3xs-2xs); /* Fluid 5-11px */
   flex-wrap: wrap;
 }
 
@@ -249,17 +251,17 @@
 
   /* More generous spacing */
   .case-study-item {
-    padding: 0 0 2rem 0;
+    padding: 0 0 var(--space-m) 0; /* Fluid 27-33px */
   }
 
   .item-content {
-    gap: 3rem;
+    gap: var(--space-l); /* Fluid 36-44px */
   }
 }
 
 /* Extra large screens */
 @include bp.up(bp.$bp-2xl) {
   .item-content {
-    gap: 4rem;
+    gap: var(--space-xl); /* Fluid 54-66px */
   }
 }
