@@ -169,8 +169,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     gsap.set(refs.previewContainerRef, {
       x: position.x,
       y: position.y,
-      xPercent: 0,
-      yPercent: 0,
+      xPercent: 100,
+      yPercent: 15,
     });
 
     log.position({ x: position.x, y: position.y });
