@@ -33,9 +33,12 @@
  * @returns {Object} Preview state and methods
  */
 
-import { ref, nextTick } from 'vue';
-import { createPreviewLogger } from '~/utils/logger';
-import { calculatePreviewPosition, validateElements } from '~/utils/previewPosition';
+import { ref, nextTick } from "vue";
+import { createPreviewLogger } from "~/utils/logger";
+import {
+  calculatePreviewPosition,
+  validateElements,
+} from "~/utils/previewPosition";
 
 /**
  * Animation configuration constants
@@ -44,20 +47,20 @@ import { calculatePreviewPosition, validateElements } from '~/utils/previewPosit
  */
 const ANIMATION_CONFIG = {
   clipReveal: {
-    duration: 250, // ms - faster for smooth gallery feel
-    ease: 'power2.out',
+    duration: 350, // ms - faster for smooth gallery feel
+    ease: "power2.out",
   },
   clipClose: {
-    duration: 250, // ms - faster for smooth gallery feel
-    ease: 'power2.in',
+    duration: 350, // ms - faster for smooth gallery feel
+    ease: "power2.in",
   },
   dualClip: {
-    duration: 250, // ms - faster for smooth gallery feel
-    ease: 'power2.inOut',
+    duration: 350, // ms - faster for smooth gallery feel
+    ease: "power2.inOut",
   },
   clipPath: {
-    closed: 'inset(50% 50% 50% 50%)',
-    open: 'inset(0% 0% 0% 0%)',
+    closed: "inset(50% 50% 50% 50%)",
+    open: "inset(0% 0% 0% 0%)",
   },
   position: {
     offsetX: 30, // px to the right
@@ -91,23 +94,23 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     return new Promise((resolve, reject) => {
       // Check if already preloaded
       if (preloadedImages.has(src)) {
-        log.preload('cached', src);
+        log.preload("cached", src);
         resolve();
         return;
       }
 
-      log.preload('loading', src);
+      log.preload("loading", src);
 
       // Create new image and preload
       const img = new Image();
       img.onload = () => {
         const duration = Math.round(performance.now() - startTime);
         preloadedImages.set(src, img);
-        log.preload('cached', src, duration);
+        log.preload("cached", src, duration);
         resolve();
       };
       img.onerror = () => {
-        log.preload('failed', src);
+        log.preload("failed", src);
         reject(new Error(`Failed to preload image: ${src}`));
       };
       img.src = src;
@@ -152,9 +155,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const setInitialPosition = (refs, cursor) => {
     if (!refs.previewContainerRef || !refs.sectionRef) {
-      log.warn('Missing refs for initial position', {
+      log.warn("Missing refs for initial position", {
         hasPreview: !!refs.previewContainerRef,
-        hasSection: !!refs.sectionRef
+        hasSection: !!refs.sectionRef,
       });
       return;
     }
@@ -180,11 +183,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateClipReveal = (target, onComplete) => {
     if (!target) {
-      log.error('animateClipReveal: target is null');
+      log.error("animateClipReveal: target is null");
       return;
     }
 
-    log.animationStart('clip-reveal', ANIMATION_CONFIG.clipReveal.duration);
+    log.animationStart("clip-reveal", ANIMATION_CONFIG.clipReveal.duration);
 
     gsap.fromTo(
       target,
@@ -195,7 +198,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         ease: ANIMATION_CONFIG.clipReveal.ease,
         overwrite: true, // Kill all tweens on target for smooth interruption
         onComplete: () => {
-          log.animationComplete('clip-reveal', ANIMATION_CONFIG.clipReveal.duration);
+          log.animationComplete(
+            "clip-reveal",
+            ANIMATION_CONFIG.clipReveal.duration
+          );
           if (onComplete) onComplete();
         },
       }
@@ -209,11 +215,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateClipClose = (target, onComplete) => {
     if (!target) {
-      log.error('animateClipClose: target is null');
+      log.error("animateClipClose: target is null");
       return;
     }
 
-    log.animationStart('clip-close', ANIMATION_CONFIG.clipClose.duration);
+    log.animationStart("clip-close", ANIMATION_CONFIG.clipClose.duration);
 
     gsap.to(target, {
       clipPath: ANIMATION_CONFIG.clipPath.closed,
@@ -221,7 +227,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       ease: ANIMATION_CONFIG.clipClose.ease,
       overwrite: true, // Kill all tweens on target for smooth interruption
       onComplete: () => {
-        log.animationComplete('clip-close', ANIMATION_CONFIG.clipClose.duration);
+        log.animationComplete(
+          "clip-close",
+          ANIMATION_CONFIG.clipClose.duration
+        );
         if (onComplete) onComplete();
       },
     });
@@ -235,16 +244,16 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateDualClip = (clipOutTarget, clipInTarget, onComplete) => {
     if (!clipOutTarget || !clipInTarget) {
-      log.error('animateDualClip: missing targets', {
+      log.error("animateDualClip: missing targets", {
         clipOut: !!clipOutTarget,
         clipIn: !!clipInTarget,
       });
       return;
     }
 
-    log.animationStart('dual-clip', ANIMATION_CONFIG.dualClip.duration, {
-      clipOut: 'closing',
-      clipIn: 'opening',
+    log.animationStart("dual-clip", ANIMATION_CONFIG.dualClip.duration, {
+      clipOut: "closing",
+      clipIn: "opening",
     });
 
     // Ensure new image wrapper is visible
@@ -253,7 +262,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     // Create timeline for dual clip-path transition
     const tl = gsap.timeline({
       onComplete: () => {
-        log.animationComplete('dual-clip', ANIMATION_CONFIG.dualClip.duration);
+        log.animationComplete("dual-clip", ANIMATION_CONFIG.dualClip.duration);
         // Hide old wrapper after transition
         gsap.set(clipOutTarget, { opacity: 0 });
         if (onComplete) onComplete();
@@ -294,8 +303,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {Object} cursor - Cursor position { x, y }
    */
   const handleFirstHover = async (preview, cursor) => {
-    log.route('FIRST_HOVER', { image: preview.image });
-    log.state('IDLE', 'REVEALING', { image: preview.image });
+    log.route("FIRST_HOVER", { image: preview.image });
+    log.state("IDLE", "REVEALING", { image: preview.image });
 
     // Set state
     currentImage.value = preview;
@@ -326,7 +335,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
 
     if (!validation.valid) {
-      log.error('Missing refs after mount, aborting animation', {
+      log.error("Missing refs after mount, aborting animation", {
         missing: validation.missing,
       });
       return;
@@ -341,7 +350,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
     // Animate clip-path reveal
     animateClipReveal(refs.currentImageWrapperRef, () => {
-      log.state('REVEALING', 'VISIBLE');
+      log.state("REVEALING", "VISIBLE");
     });
   };
 
@@ -351,8 +360,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {boolean} sameImage - Whether this is the same image as before
    */
   const handleReentry = async (preview, sameImage) => {
-    log.route('RE_ENTRY', { image: preview.image, sameImage });
-    log.state('IDLE', 'REVEALING', { image: preview.image, reentry: true });
+    log.route("RE_ENTRY", { image: preview.image, sameImage });
+    log.state("IDLE", "REVEALING", { image: preview.image, reentry: true });
 
     showPreview.value = true;
     isTransitioning.value = true;
@@ -375,19 +384,27 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
 
     if (!validation.valid) {
-      log.error('Missing refs on re-entry', { missing: validation.missing });
+      log.error("Missing refs on re-entry", { missing: validation.missing });
       isTransitioning.value = false;
       return;
     }
 
     // Get target wrapper (same if same image, opposite if different)
     const revealTarget = sameImage
-      ? (currentImageActive.value ? refs.currentImageWrapperRef : refs.nextImageWrapperRef)
-      : (currentImageActive.value ? refs.nextImageWrapperRef : refs.currentImageWrapperRef);
+      ? currentImageActive.value
+        ? refs.currentImageWrapperRef
+        : refs.nextImageWrapperRef
+      : currentImageActive.value
+        ? refs.nextImageWrapperRef
+        : refs.currentImageWrapperRef;
 
     const hideTarget = sameImage
-      ? (currentImageActive.value ? refs.nextImageWrapperRef : refs.currentImageWrapperRef)
-      : (currentImageActive.value ? refs.currentImageWrapperRef : refs.nextImageWrapperRef);
+      ? currentImageActive.value
+        ? refs.nextImageWrapperRef
+        : refs.currentImageWrapperRef
+      : currentImageActive.value
+        ? refs.currentImageWrapperRef
+        : refs.nextImageWrapperRef;
 
     // Set visibility
     gsap.set(hideTarget, { opacity: 0 });
@@ -398,10 +415,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       // Toggle active state if different image
       if (!sameImage) {
         currentImageActive.value = !currentImageActive.value;
-        log.debug('Toggled active image', { newActive: currentImageActive.value });
+        log.debug("Toggled active image", {
+          newActive: currentImageActive.value,
+        });
       }
       isTransitioning.value = false;
-      log.state('REVEALING', 'VISIBLE');
+      log.state("REVEALING", "VISIBLE");
     });
   };
 
@@ -410,24 +429,29 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {Object} preview - Preview data { image, imageAlt }
    */
   const handleItemSwitch = async (preview) => {
-    log.route('ITEM_SWITCH', {
-      from: currentImageActive.value ? currentImage.value?.image : nextImage.value?.image,
+    log.route("ITEM_SWITCH", {
+      from: currentImageActive.value
+        ? currentImage.value?.image
+        : nextImage.value?.image,
       to: preview.image,
     });
-    log.state('VISIBLE', 'TRANSITIONING', { image: preview.image });
+    log.state("VISIBLE", "TRANSITIONING", { image: preview.image });
 
     // Get current refs for cleanup
     let refs = getRefs();
 
     // Kill all running tweens to prevent conflicts
     if (refs.currentImageWrapperRef && refs.nextImageWrapperRef) {
-      log.debug('Killing active tweens');
-      gsap.killTweensOf([refs.currentImageWrapperRef, refs.nextImageWrapperRef]);
+      log.debug("Killing active tweens");
+      gsap.killTweensOf([
+        refs.currentImageWrapperRef,
+        refs.nextImageWrapperRef,
+      ]);
     }
 
     // Check for race condition
     if (isTransitioning.value) {
-      log.raceCondition('Transition already in progress, forcing reset', {
+      log.raceCondition("Transition already in progress, forcing reset", {
         currentState: isTransitioning.value,
       });
       isTransitioning.value = false;
@@ -453,7 +477,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
 
     if (!validation.valid) {
-      log.error('Missing refs for item switch', { missing: validation.missing });
+      log.error("Missing refs for item switch", {
+        missing: validation.missing,
+      });
       isTransitioning.value = false;
       return;
     }
@@ -471,8 +497,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       // Toggle active state
       currentImageActive.value = !currentImageActive.value;
       isTransitioning.value = false;
-      log.debug('Toggled active image', { newActive: currentImageActive.value });
-      log.state('TRANSITIONING', 'VISIBLE');
+      log.debug("Toggled active image", {
+        newActive: currentImageActive.value,
+      });
+      log.state("TRANSITIONING", "VISIBLE");
     });
   };
 
@@ -486,7 +514,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const setActivePreview = async (preview, cursor) => {
     if (!preview) {
-      log.warn('setActivePreview called with null preview');
+      log.warn("setActivePreview called with null preview");
       return;
     }
 
@@ -494,7 +522,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
     // Cancel pending clear timer (rapid item switching)
     if (clearTimer.value) {
-      log.debug('Cancelled pending clear timer', { wasScheduled: true });
+      log.debug("Cancelled pending clear timer", { wasScheduled: true });
       clearTimeout(clearTimer.value);
       clearTimer.value = null;
     }
@@ -503,7 +531,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     try {
       await preloadImage(preview.image);
     } catch (error) {
-      log.error('Image preload failed', { image: preview.image, error: error.message });
+      log.error("Image preload failed", {
+        image: preview.image,
+        error: error.message,
+      });
       // Continue anyway - browser will load on-demand
     }
 
@@ -513,18 +544,23 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     }
 
     // Get currently active image
-    const currentActiveImage = currentImageActive.value ? currentImage.value : nextImage.value;
+    const currentActiveImage = currentImageActive.value
+      ? currentImage.value
+      : nextImage.value;
     const sameImage = currentActiveImage?.image === preview.image;
 
     // Same image check
     if (sameImage) {
       // If preview was hidden, re-show it
       if (!showPreview.value) {
-        log.route('SKIP', { reason: 'same image, re-entry', image: preview.image });
+        log.route("SKIP", {
+          reason: "same image, re-entry",
+          image: preview.image,
+        });
         return handleReentry(preview, true);
       }
       // Already showing same image, do nothing
-      log.route('SKIP', { reason: 'already showing', image: preview.image });
+      log.route("SKIP", { reason: "already showing", image: preview.image });
       return;
     }
 
@@ -545,7 +581,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * NOTE: Don't clear image data - keep it so toggle state persists
    */
   const clearActivePreview = () => {
-    log.separator('CLEAR');
+    log.separator("CLEAR");
 
     // Clear any existing timer
     if (clearTimer.value) {
@@ -554,11 +590,13 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
     // Set debounced timer
     clearTimer.value = setTimeout(() => {
-      log.debug('Executing debounced clear', { delay: ANIMATION_CONFIG.debounce.clearDelay });
+      log.debug("Executing debounced clear", {
+        delay: ANIMATION_CONFIG.debounce.clearDelay,
+      });
 
       // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
       isTransitioning.value = true;
-      log.state('VISIBLE', 'CLOSING');
+      log.state("VISIBLE", "CLOSING");
 
       // Get currently visible wrapper
       const refs = getRefs();
@@ -567,11 +605,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         : refs.nextImageWrapperRef;
 
       if (!activeWrapper) {
-        log.warn('No active wrapper for clear, instant hide');
+        log.warn("No active wrapper for clear, instant hide");
         showPreview.value = false;
         isTransitioning.value = false;
         clearTimer.value = null;
-        log.state('CLOSING', 'IDLE');
+        log.state("CLOSING", "IDLE");
         return;
       }
 
@@ -580,11 +618,13 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         showPreview.value = false;
         isTransitioning.value = false;
         clearTimer.value = null;
-        log.state('CLOSING', 'IDLE');
+        log.state("CLOSING", "IDLE");
       });
     }, ANIMATION_CONFIG.debounce.clearDelay);
 
-    log.debug('Clear scheduled', { delay: ANIMATION_CONFIG.debounce.clearDelay });
+    log.debug("Clear scheduled", {
+      delay: ANIMATION_CONFIG.debounce.clearDelay,
+    });
   };
 
   // RETURN PUBLIC API
