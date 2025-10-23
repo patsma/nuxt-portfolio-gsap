@@ -40,18 +40,19 @@ import { calculatePreviewPosition, validateElements } from '~/utils/previewPosit
 /**
  * Animation configuration constants
  * Single source of truth for all animation timings and easings
+ * Reduced durations for smooth gallery-like rapid switching
  */
 const ANIMATION_CONFIG = {
   clipReveal: {
-    duration: 500, // ms
+    duration: 250, // ms - faster for smooth gallery feel
     ease: 'power2.out',
   },
   clipClose: {
-    duration: 400, // ms
+    duration: 250, // ms - faster for smooth gallery feel
     ease: 'power2.in',
   },
   dualClip: {
-    duration: 400, // ms
+    duration: 250, // ms - faster for smooth gallery feel
     ease: 'power2.inOut',
   },
   clipPath: {
@@ -214,7 +215,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         clipPath: ANIMATION_CONFIG.clipPath.open,
         duration: ANIMATION_CONFIG.clipReveal.duration / 1000, // Convert to seconds
         ease: ANIMATION_CONFIG.clipReveal.ease,
-        overwrite: 'auto',
+        overwrite: true, // Kill all tweens on target for smooth interruption
         onComplete: () => {
           log.animationComplete('clip-reveal', ANIMATION_CONFIG.clipReveal.duration);
           if (onComplete) onComplete();
@@ -240,7 +241,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       clipPath: ANIMATION_CONFIG.clipPath.closed,
       duration: ANIMATION_CONFIG.clipClose.duration / 1000,
       ease: ANIMATION_CONFIG.clipClose.ease,
-      overwrite: 'auto',
+      overwrite: true, // Kill all tweens on target for smooth interruption
       onComplete: () => {
         log.animationComplete('clip-close', ANIMATION_CONFIG.clipClose.duration);
         if (onComplete) onComplete();
@@ -288,7 +289,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         clipPath: ANIMATION_CONFIG.clipPath.closed,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: 'auto',
+        overwrite: true, // Kill all tweens on target for smooth interruption
       },
       0 // Position 0 - start immediately
     );
@@ -301,7 +302,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         clipPath: ANIMATION_CONFIG.clipPath.open,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: 'auto',
+        overwrite: true, // Kill all tweens on target for smooth interruption
       },
       0 // Position 0 - start at same time as clip-out
     );
@@ -559,15 +560,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       return handleReentry(preview, false);
     }
 
-    // If currently transitioning, skip (don't queue)
-    if (isTransitioning.value) {
-      log.warn('Transition in progress, skipping hover', {
-        requestedImage: preview.image,
-      });
-      return;
-    }
-
-    // Normal item switch
+    // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
+    // Always allow item switch for smooth gallery-like flow
     return handleItemSwitch(preview);
   };
 
@@ -588,13 +582,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     clearTimer.value = setTimeout(() => {
       log.debug('Executing debounced clear', { delay: ANIMATION_CONFIG.debounce.clearDelay });
 
-      // Prevent clear if currently transitioning
-      if (isTransitioning.value) {
-        log.warn('Cannot clear - transition in progress, skipping');
-        clearTimer.value = null;
-        return;
-      }
-
+      // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
       isTransitioning.value = true;
       log.state('VISIBLE', 'CLOSING');
 

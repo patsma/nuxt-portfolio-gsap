@@ -5,15 +5,15 @@
     @mousemove="handleMouseMove"
   >
     <!-- Section title with page transition animation (direct child of content-grid) -->
-    <h2
-      class="section-title breakout3 mb-8 md:mb-12"
-      v-page-split:lines
-    >
+    <h2 class="section-title breakout3 mb-8 md:mb-12" v-page-split:lines>
       <slot name="title">Work</slot>
     </h2>
 
     <!-- Case study list (full-width-content creates sub-grid for items) -->
-    <div class="case-study-list full-width-content" v-page-stagger="{ stagger: 0.08 }">
+    <div
+      class="case-study-list full-width-content"
+      v-page-stagger="{ stagger: 0.08 }"
+    >
       <slot />
     </div>
 
@@ -29,10 +29,7 @@
         :class="{ active: showPreview }"
       >
         <!-- Current image (fades out during transition) -->
-        <div
-          ref="currentImageWrapperRef"
-          class="preview-image-wrapper"
-        >
+        <div ref="currentImageWrapperRef" class="preview-image-wrapper">
           <NuxtImg
             v-if="currentImage"
             :src="currentImage.image"
@@ -44,10 +41,7 @@
         </div>
 
         <!-- Next image (fades in during transition) -->
-        <div
-          ref="nextImageWrapperRef"
-          class="preview-image-wrapper"
-        >
+        <div ref="nextImageWrapperRef" class="preview-image-wrapper">
           <NuxtImg
             v-if="nextImage"
             :src="nextImage.image"
@@ -110,8 +104,8 @@
  * </InteractiveCaseStudySection>
  */
 
-import { useInteractiveCaseStudyPreview } from '~/composables/useInteractiveCaseStudyPreview';
-import { calculatePreviewPosition } from '~/utils/previewPosition';
+import { useInteractiveCaseStudyPreview } from "~/composables/useInteractiveCaseStudyPreview";
+import { calculatePreviewPosition } from "~/utils/previewPosition";
 
 const { $gsap } = useNuxtApp();
 
@@ -174,7 +168,8 @@ const handleMouseMove = (event) => {
   cursorY.value = event.clientY;
 
   // Only animate if preview is visible and refs are ready
-  if (!showPreview.value || !previewContainerRef.value || !sectionRef.value) return;
+  if (!showPreview.value || !previewContainerRef.value || !sectionRef.value)
+    return;
 
   // Get rects for position calculation
   // sectionRect accounts for ScrollSmoother's transform
@@ -199,8 +194,8 @@ const handleMouseMove = (event) => {
     xPercent: 0,
     yPercent: 0,
     duration: 0.6,
-    ease: 'power2.out',
-    overwrite: 'auto',
+    ease: "power2.out",
+    overwrite: "auto",
   });
 };
 
@@ -232,8 +227,8 @@ const clearActivePreview = () => {
 };
 
 // Provide methods for child items to update preview
-provide('setActivePreview', setActivePreview);
-provide('clearActivePreview', clearActivePreview);
+provide("setActivePreview", setActivePreview);
+provide("clearActivePreview", clearActivePreview);
 
 // ============================================
 // SCROLL FAILSAFE
@@ -254,7 +249,7 @@ onMounted(() => {
         if (showPreview.value && Math.abs(self.getVelocity()) > 50) {
           clearActivePreview();
         }
-      }
+      },
     });
   }
 });
