@@ -214,6 +214,7 @@ provide("clearActivePreview", clearActivePreview);
 
 /**
  * Hide preview during fast scrolling to prevent it being left on screen
+ * Only hides if cursor is actually outside the section bounds
  * Uses ScrollTrigger's onUpdate to detect scroll movement
  */
 onMounted(() => {
@@ -223,7 +224,23 @@ onMounted(() => {
     $ScrollTrigger.create({
       onUpdate: (self) => {
         if (showPreview.value && Math.abs(self.getVelocity()) > 50) {
-          clearActivePreview();
+          // Check if cursor is within section bounds before hiding
+          // This prevents hiding when user stops scrolling with cursor over an item
+          if (sectionRef.value && cursorX.value && cursorY.value) {
+            const sectionRect = sectionRef.value.getBoundingClientRect();
+
+            // Check if cursor is outside section bounds
+            const isCursorOutsideSection =
+              cursorX.value < sectionRect.left ||
+              cursorX.value > sectionRect.right ||
+              cursorY.value < sectionRect.top ||
+              cursorY.value > sectionRect.bottom;
+
+            // Only clear if cursor is outside the section
+            if (isCursorOutsideSection) {
+              clearActivePreview();
+            }
+          }
         }
       },
     });
