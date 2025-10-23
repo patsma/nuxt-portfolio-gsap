@@ -54,13 +54,14 @@
 }
 
 /* ============================================
-   DESKTOP HOVER PREVIEW (Phase 2: Cursor-Following)
+   DESKTOP HOVER PREVIEW (Phase 2.1: Scroll Support)
    ============================================ */
 
 /* Preview container - positioned by GSAP, follows cursor */
 .preview-container {
-  /* GSAP handles positioning (absolute instead of fixed to avoid ScrollSmoother transform issues) */
-  position: absolute;
+  /* Fixed positioning + Teleport to body for scroll support */
+  /* Works with ScrollSmoother since it's outside smooth-content */
+  position: fixed;
   top: 0;
   left: 0;
 
@@ -68,6 +69,10 @@
   width: 50vw;
   max-width: 700px;
   aspect-ratio: 4 / 3;
+
+  /* Transform from top-left corner (not center) */
+  /* CRITICAL: Without this, GSAP's default 50% 50% origin positions center instead of top-left */
+  transform-origin: 0 0;
 
   /* Non-interactive (allows clicks to pass through to list) */
   pointer-events: none;

@@ -139,7 +139,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * Calculate preview position using utility
    * Wrapper around calculatePreviewPosition with logging
    * @param {Object} cursor - Cursor position { x, y }
-   * @param {DOMRect} sectionRect - Section bounding rect
    * @param {DOMRect} previewRect - Preview bounding rect
    * @returns {Object} Position { x, y, clamped, clampReason }
    */
@@ -151,7 +150,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       previewRect,
       offsetX: ANIMATION_CONFIG.position.offsetX,
       padding: ANIMATION_CONFIG.position.padding,
-      centerY: true,
+      centerY: true, // Center preview on cursor (accounts for ScrollSmoother transform)
     });
 
     // Log if position was clamped
@@ -168,21 +167,21 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
   /**
    * Set initial position without animation
+   * Uses section-relative coords converted to viewport (accounts for ScrollSmoother transform)
    * @param {Object} refs - Template refs
    * @param {Object} cursor - Cursor position { x, y }
    */
   const setInitialPosition = (refs, cursor) => {
     if (!refs.previewContainerRef || !refs.sectionRef) {
       log.warn('Missing refs for initial position', {
-        previewContainer: !!refs.previewContainerRef,
-        section: !!refs.sectionRef,
+        hasPreview: !!refs.previewContainerRef,
+        hasSection: !!refs.sectionRef
       });
       return;
     }
 
     const sectionRect = refs.sectionRef.getBoundingClientRect();
     const previewRect = refs.previewContainerRef.getBoundingClientRect();
-
     const position = calculatePosition(cursor, sectionRect, previewRect);
 
     gsap.set(refs.previewContainerRef, {

@@ -27,16 +27,15 @@
 /**
  * Calculate preview position with bounds checking
  *
- * Converts viewport cursor coordinates to section-relative coordinates,
- * applies offset, and clamps to viewport bounds to prevent overflow.
+ * Calculates section-relative position then converts to viewport coordinates.
+ * This accounts for ScrollSmoother's transform on the section.
  *
  * @param {Object} params - Position calculation parameters
  * @param {number} params.cursorX - Cursor X position (viewport coords)
  * @param {number} params.cursorY - Cursor Y position (viewport coords)
- * @param {DOMRect} params.sectionRect - Section bounding rect
+ * @param {DOMRect} params.sectionRect - Section bounding rect (accounts for ScrollSmoother transform)
  * @param {DOMRect} params.previewRect - Preview bounding rect
  * @param {number} [params.offsetX=30] - Horizontal offset in pixels (default: 30)
- * @param {number} [params.offsetY=0] - Vertical offset in pixels (default: 0)
  * @param {number} [params.padding=20] - Edge padding in pixels (default: 20)
  * @param {boolean} [params.centerY=true] - Center preview vertically on cursor (default: true)
  * @returns {Object} Position object { x, y, clamped, clampReason }
@@ -47,7 +46,6 @@ export const calculatePreviewPosition = ({
   sectionRect,
   previewRect,
   offsetX = 30,
-  offsetY = 0,
   padding = 20,
   centerY = true,
 }) => {
@@ -55,14 +53,23 @@ export const calculatePreviewPosition = ({
   const previewWidth = previewRect.width;
   const previewHeight = previewRect.height;
 
-  // Convert viewport coordinates to section-relative coordinates
-  let targetX = (cursorX - sectionRect.left) + offsetX;
-  let targetY = (cursorY - sectionRect.top) + offsetY;
+  // Convert cursor from viewport coords to section-relative coords
+  // This accounts for ScrollSmoother's transform on the section
+  const sectionRelativeX = cursorX - sectionRect.left;
+  const sectionRelativeY = cursorY - sectionRect.top;
+
+  // Calculate position relative to section
+  let relativeX = sectionRelativeX + offsetX;
+  let relativeY = sectionRelativeY;
 
   // Center preview vertically on cursor if requested
   if (centerY) {
-    targetY -= previewHeight / 2;
+    relativeY -= previewHeight / 2;
   }
+
+  // Convert back to viewport coordinates (for fixed positioning)
+  let targetX = sectionRect.left + relativeX;
+  let targetY = sectionRect.top + relativeY;
 
   // Store original position for clamping detection
   const originalX = targetX;
@@ -74,32 +81,32 @@ export const calculatePreviewPosition = ({
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  // Bounds checking - keep preview on screen (viewport-relative)
+  // Bounds checking - keep preview on screen
 
-  // Check right edge (convert back to viewport coords for check)
-  if (sectionRect.left + targetX + previewWidth > viewportWidth - padding) {
-    targetX = viewportWidth - sectionRect.left - previewWidth - padding;
+  // Check right edge
+  if (targetX + previewWidth > viewportWidth - padding) {
+    targetX = viewportWidth - previewWidth - padding;
     clamped = true;
     clampReasons.push('viewport right edge');
   }
 
   // Check left edge
-  if (sectionRect.left + targetX < padding) {
-    targetX = padding - sectionRect.left;
+  if (targetX < padding) {
+    targetX = padding;
     clamped = true;
     clampReasons.push('viewport left edge');
   }
 
   // Check top edge
-  if (sectionRect.top + targetY < padding) {
-    targetY = padding - sectionRect.top;
+  if (targetY < padding) {
+    targetY = padding;
     clamped = true;
     clampReasons.push('viewport top edge');
   }
 
   // Check bottom edge
-  if (sectionRect.top + targetY + previewHeight > viewportHeight - padding) {
-    targetY = viewportHeight - sectionRect.top - previewHeight - padding;
+  if (targetY + previewHeight > viewportHeight - padding) {
+    targetY = viewportHeight - previewHeight - padding;
     clamped = true;
     clampReasons.push('viewport bottom edge');
   }
@@ -156,19 +163,18 @@ export const getViewportConstraints = (padding = 20) => {
 /**
  * Check if a position is within viewport bounds
  *
- * @param {Object} position - Position { x, y }
+ * @param {Object} position - Position { x, y } (viewport coords)
  * @param {DOMRect} previewRect - Preview bounding rect
- * @param {DOMRect} sectionRect - Section bounding rect
  * @param {number} [padding=20] - Edge padding in pixels
  * @returns {boolean} True if position is valid
  */
-export const isPositionValid = (position, previewRect, sectionRect, padding = 20) => {
+export const isPositionValid = (position, previewRect, padding = 20) => {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  // Convert section-relative to viewport coords
-  const viewportX = sectionRect.left + position.x;
-  const viewportY = sectionRect.top + position.y;
+  // Position is already in viewport coords (fixed positioning)
+  const viewportX = position.x;
+  const viewportY = position.y;
 
   // Check all edges
   const rightEdge = viewportX + previewRect.width;

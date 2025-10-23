@@ -18,45 +18,47 @@
     </div>
 
     <!-- Desktop hover preview (cursor-following with dual-image crossfade) -->
-    <!-- NO Teleport - using absolute positioning to avoid ref issues -->
+    <!-- Teleport to body + fixed positioning for scroll support -->
     <!-- Keep mounted once shown to preserve refs -->
-    <div
-      v-if="previewMounted"
-      v-show="showPreview"
-      ref="previewContainerRef"
-      class="preview-container hidden md:block"
-      :class="{ active: showPreview }"
-    >
-      <!-- Current image (fades out during transition) -->
+    <Teleport to="body">
       <div
-        ref="currentImageWrapperRef"
-        class="preview-image-wrapper"
+        v-if="previewMounted"
+        v-show="showPreview"
+        ref="previewContainerRef"
+        class="preview-container hidden md:block"
+        :class="{ active: showPreview }"
       >
-        <NuxtImg
-          v-if="currentImage"
-          :src="currentImage.image"
-          :alt="currentImage.imageAlt"
-          class="preview-image"
-          loading="eager"
-          data-speed="0.95"
-        />
-      </div>
+        <!-- Current image (fades out during transition) -->
+        <div
+          ref="currentImageWrapperRef"
+          class="preview-image-wrapper"
+        >
+          <NuxtImg
+            v-if="currentImage"
+            :src="currentImage.image"
+            :alt="currentImage.imageAlt"
+            class="preview-image"
+            loading="eager"
+            data-speed="0.95"
+          />
+        </div>
 
-      <!-- Next image (fades in during transition) -->
-      <div
-        ref="nextImageWrapperRef"
-        class="preview-image-wrapper"
-      >
-        <NuxtImg
-          v-if="nextImage"
-          :src="nextImage.image"
-          :alt="nextImage.imageAlt"
-          class="preview-image"
-          loading="eager"
-          data-speed="0.95"
-        />
+        <!-- Next image (fades in during transition) -->
+        <div
+          ref="nextImageWrapperRef"
+          class="preview-image-wrapper"
+        >
+          <NuxtImg
+            v-if="nextImage"
+            :src="nextImage.image"
+            :alt="nextImage.imageAlt"
+            class="preview-image"
+            loading="eager"
+            data-speed="0.95"
+          />
+        </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>
 
@@ -163,6 +165,7 @@ const {
 /**
  * Handle mouse move - track cursor position for preview following
  * Updates cursor position and animates preview position with GSAP
+ * Uses section-relative coords converted to viewport (accounts for ScrollSmoother transform)
  * @param {MouseEvent} event - Mouse move event
  */
 const handleMouseMove = (event) => {
@@ -174,10 +177,11 @@ const handleMouseMove = (event) => {
   if (!showPreview.value || !previewContainerRef.value || !sectionRef.value) return;
 
   // Get rects for position calculation
+  // sectionRect accounts for ScrollSmoother's transform
   const sectionRect = sectionRef.value.getBoundingClientRect();
   const previewRect = previewContainerRef.value.getBoundingClientRect();
 
-  // Calculate position using utility (handles bounds checking)
+  // Calculate position using utility (section-relative → viewport coords)
   const position = calculatePreviewPosition({
     cursorX: cursorX.value,
     cursorY: cursorY.value,
@@ -185,7 +189,7 @@ const handleMouseMove = (event) => {
     previewRect,
     offsetX: animationConfig.position.offsetX,
     padding: animationConfig.position.padding,
-    centerY: true,
+    centerY: true, // Center preview on cursor (accounts for ScrollSmoother transform)
   });
 
   // Animate preview position with GSAP for smooth lag effect
@@ -230,4 +234,28 @@ const clearActivePreview = () => {
 // Provide methods for child items to update preview
 provide('setActivePreview', setActivePreview);
 provide('clearActivePreview', clearActivePreview);
+
+// ============================================
+// SCROLL FAILSAFE
+// ============================================
+
+/**
+ * Hide preview during fast scrolling to prevent it being left on screen
+ * Uses ScrollTrigger's onUpdate to detect scroll movement
+ */
+onMounted(() => {
+  const { $ScrollTrigger } = useNuxtApp();
+
+  if ($ScrollTrigger) {
+    // Create a ScrollTrigger that watches for any scroll movement
+    $ScrollTrigger.create({
+      onUpdate: (self) => {
+        // If scrolling and preview is visible, hide it
+        if (showPreview.value && Math.abs(self.getVelocity()) > 50) {
+          clearActivePreview();
+        }
+      }
+    });
+  }
+});
 </script>
