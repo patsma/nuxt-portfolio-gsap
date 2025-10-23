@@ -34,10 +34,10 @@ const LogLevel = {
 };
 
 /**
- * Current log level (set to DEBUG to see all logs)
+ * Current log level (set to INFO for normal use, DEBUG for troubleshooting)
  * Can be changed via setLogLevel()
  */
-let currentLogLevel = LogLevel.DEBUG;
+let currentLogLevel = LogLevel.INFO;
 
 /**
  * Set the minimum log level for output
