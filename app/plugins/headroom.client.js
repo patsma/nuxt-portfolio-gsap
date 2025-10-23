@@ -87,27 +87,44 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /**
    * Pause headroom updates (used during page transitions)
-   * Pins header and stops reacting to scroll changes
+   * Smoothly animates header to top state, then locks it in place
    */
   const pause = () => {
+    // Stop scroll updates immediately
     isPaused = true;
-    // Ensure header is visible during transitions (use current state or default to top)
+
     if (!headerElement) {
       headerElement = document.querySelector(".header-grid");
     }
+
     if (headerElement) {
-      // Disable CSS transitions FIRST to prevent animated slide
-      headerElement.classList.add("headroom--no-transition");
-      // Force browser reflow to apply no-transition immediately
-      void headerElement.offsetHeight;
-      // Keep current state but ensure it's not unpinned
-      // If unpinned, switch to not-top state to show compact header during transition
-      if (headerElement.classList.contains("headroom--unpinned")) {
-        headerElement.classList.remove("headroom--unpinned");
-        headerElement.classList.add("headroom--not-top");
+      // Smoothly animate header to top state with transitions enabled
+      // This prevents visual jumps when navigating with header hidden
+      headerElement.classList.remove("headroom--unpinned", "headroom--not-top");
+      headerElement.classList.add("headroom--top");
+
+      // Read transition duration from CSS variable (same as hover animations)
+      const durationRaw = getComputedStyle(document.documentElement)
+        .getPropertyValue("--duration-hover")
+        .trim();
+
+      let duration = 300; // Default fallback (ms)
+      if (durationRaw.endsWith("ms")) {
+        duration = parseFloat(durationRaw);
+      } else if (durationRaw.endsWith("s")) {
+        duration = parseFloat(durationRaw) * 1000;
       }
+
+      // After animation completes, disable transitions for scroll reset
+      setTimeout(() => {
+        if (headerElement) {
+          headerElement.classList.add("headroom--no-transition");
+          // Force browser reflow to apply no-transition immediately
+          void headerElement.offsetHeight;
+        }
+      }, duration);
     }
-    // console.log("[Headroom] Paused - header visible (no animation)");
+    // console.log("[Headroom] Paused - header animating to top state");
   };
 
   /**
