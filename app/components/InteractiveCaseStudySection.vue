@@ -109,25 +109,19 @@ import { calculatePreviewPosition } from "~/utils/previewPosition";
 
 const { $gsap } = useNuxtApp();
 
-// ============================================
 // TEMPLATE REFS (DOM ELEMENTS)
-// ============================================
 
 const sectionRef = ref(null);
 const previewContainerRef = ref(null);
 const currentImageWrapperRef = ref(null);
 const nextImageWrapperRef = ref(null);
 
-// ============================================
 // CURSOR TRACKING (UI CONCERN)
-// ============================================
 
 const cursorX = ref(0);
 const cursorY = ref(0);
 
-// ============================================
 // PREVIEW COMPOSABLE (LOGIC)
-// ============================================
 
 // Function to get fresh refs (passed to composable)
 const getRefs = () => ({
@@ -152,9 +146,7 @@ const {
   getRefs,
 });
 
-// ============================================
 // MOUSE MOVE HANDLER (CURSOR FOLLOWING)
-// ============================================
 
 /**
  * Handle mouse move - track cursor position for preview following
@@ -163,20 +155,16 @@ const {
  * @param {MouseEvent} event - Mouse move event
  */
 const handleMouseMove = (event) => {
-  // Always update cursor position (viewport coordinates)
   cursorX.value = event.clientX;
   cursorY.value = event.clientY;
 
-  // Only animate if preview is visible and refs are ready
   if (!showPreview.value || !previewContainerRef.value || !sectionRef.value)
     return;
 
-  // Get rects for position calculation
   // sectionRect accounts for ScrollSmoother's transform
   const sectionRect = sectionRef.value.getBoundingClientRect();
   const previewRect = previewContainerRef.value.getBoundingClientRect();
 
-  // Calculate position using utility (section-relative → viewport coords)
   const position = calculatePreviewPosition({
     cursorX: cursorX.value,
     cursorY: cursorY.value,
@@ -187,7 +175,6 @@ const handleMouseMove = (event) => {
     centerY: true, // Center preview on cursor (accounts for ScrollSmoother transform)
   });
 
-  // Animate preview position with GSAP for smooth lag effect
   $gsap.to(previewContainerRef.value, {
     x: position.x,
     y: position.y,
@@ -199,9 +186,7 @@ const handleMouseMove = (event) => {
   });
 };
 
-// ============================================
 // PROVIDE METHODS TO CHILDREN
-// ============================================
 
 /**
  * Wrapper for setActivePreview that adds cursor position
@@ -210,7 +195,6 @@ const handleMouseMove = (event) => {
 const setActivePreview = (preview) => {
   if (!preview) return;
 
-  // Pass current cursor position to composable
   const cursor = {
     x: cursorX.value,
     y: cursorY.value,
@@ -219,20 +203,14 @@ const setActivePreview = (preview) => {
   setActivePreviewComposable(preview, cursor);
 };
 
-/**
- * Wrapper for clearActivePreview
- */
 const clearActivePreview = () => {
   clearActivePreviewComposable();
 };
 
-// Provide methods for child items to update preview
 provide("setActivePreview", setActivePreview);
 provide("clearActivePreview", clearActivePreview);
 
-// ============================================
 // SCROLL FAILSAFE
-// ============================================
 
 /**
  * Hide preview during fast scrolling to prevent it being left on screen
@@ -242,10 +220,8 @@ onMounted(() => {
   const { $ScrollTrigger } = useNuxtApp();
 
   if ($ScrollTrigger) {
-    // Create a ScrollTrigger that watches for any scroll movement
     $ScrollTrigger.create({
       onUpdate: (self) => {
-        // If scrolling and preview is visible, hide it
         if (showPreview.value && Math.abs(self.getVelocity()) > 50) {
           clearActivePreview();
         }

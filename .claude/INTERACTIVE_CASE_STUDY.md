@@ -393,12 +393,84 @@ const targetY = cursorY - (previewHeight / 2);
 
 ### Testing Checklist
 
-- [ ] Scroll page while hovering items
-- [ ] Preview follows cursor position exactly
-- [ ] No visual glitches or jumping
-- [ ] Bounds checking still works (viewport edges)
-- [ ] Works in light and dark theme
-- [ ] Mobile not affected (preview hidden on mobile)
+- [x] Scroll page while hovering items
+- [x] Preview follows cursor position exactly
+- [x] No visual glitches or jumping
+- [x] Bounds checking still works (viewport edges)
+- [x] Works in light and dark theme
+- [x] Mobile not affected (preview hidden on mobile)
+
+### Final Implementation
+
+**Actual solution used section-relative coordinates** (not pure viewport as originally planned):
+
+```javascript
+// Convert viewport coords → section-relative → back to viewport
+const sectionRelativeY = cursorY - sectionRect.top;
+const targetY = sectionRect.top + sectionRelativeY;
+```
+
+**Why:** `getBoundingClientRect()` accounts for ScrollSmoother's transform automatically, giving correct visual positions.
+
+**Added features:**
+- `transform-origin: 0 0` for correct top-left positioning
+- Scroll failsafe using ScrollTrigger velocity detection
+- Debounced clear (100ms) for smooth item switching
+
+---
+
+## Phase 2.2: Smooth Gallery - No Blocking ✅
+
+### Status: **COMPLETED**
+
+**Completed:** Removed blocking logic, added aggressive overwrite, reduced durations for smooth gallery-like flow.
+
+### Problem
+
+**Blocking Logic Created Bad UX:**
+- Items skipped when hovering fast
+- Warning: "Transition in progress, skipping hover"
+- Wrong image shown (item 3's image on item 4)
+- Binary approach: show one image OR another, never smooth flow
+
+**Root Cause:**
+```javascript
+// BLOCKING = BAD UX
+if (isTransitioning.value) {
+  return; // Skip hover entirely!
+}
+```
+
+### Solution - GSAP Best Practice
+
+**Remove blocking, use `overwrite: true`:**
+
+From GSAP docs: Let animations interrupt smoothly with proper overwrite settings, don't block them.
+
+**Changes Made:**
+1. **Removed all blocking checks** - No more skipped hovers
+2. **Changed `overwrite: 'auto'` → `overwrite: true`** - More aggressive interruption
+3. **Reduced durations** - 500ms/400ms → 250ms for faster switching
+4. **Kept state for logging** - `isTransitioning` exists but doesn't block
+
+### Results
+
+**Before:**
+- ❌ Skipped images during fast hovering
+- ❌ Locked states with no preview
+- ❌ Binary transitions
+
+**After:**
+- ✅ Every image shows, even briefly
+- ✅ Smooth crossfades through all images
+- ✅ True gallery feel
+- ✅ 2.5x faster transitions (250ms)
+
+---
+
+## Phase 3: Morph Clipping (Planned)
+
+**Next:** Organic blob-shaped clip-path morphing between images for even smoother, more natural transitions.
 
 ---
 

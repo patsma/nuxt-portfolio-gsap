@@ -69,37 +69,19 @@ const ANIMATION_CONFIG = {
 };
 
 export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
-  // Create logger instance
   const log = createPreviewLogger();
 
-  // ============================================
-  // STATE MANAGEMENT
-  // ============================================
-
-  // Dual-image state for crossfade
   const currentImage = ref(null);
   const nextImage = ref(null);
-  const currentImageActive = ref(true); // Toggle between current/next
-
-  // Show/hide preview (keep mounted, control visibility)
+  const currentImageActive = ref(true);
   const showPreview = ref(false);
-  const previewMounted = ref(false); // Track if preview has ever been shown
-
-  // Track if we're currently animating a transition
+  const previewMounted = ref(false);
   const isTransitioning = ref(false);
-
-  // Debounce timer for clearActivePreview
   const clearTimer = ref(null);
-
-  // Image preloading cache
   const preloadedImages = new Map();
 
-  // ============================================
-  // IMAGE PRELOADING
-  // ============================================
-
   /**
-   * Preload an image to ensure instant display on hover
+   * Preload image for instant display on hover
    * @param {string} src - Image source URL
    * @returns {Promise<void>}
    */
@@ -132,9 +114,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
   };
 
-  // ============================================
   // POSITION CALCULATION
-  // ============================================
 
   /**
    * Calculate preview position using utility
@@ -162,9 +142,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     return position;
   };
 
-  // ============================================
   // ANIMATION HELPERS
-  // ============================================
 
   /**
    * Set initial position without animation
@@ -308,9 +286,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     );
   };
 
-  // ============================================
   // TRANSITION HANDLERS
-  // ============================================
 
   /**
    * Handle first hover - Initialize and reveal preview
@@ -500,9 +476,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
   };
 
-  // ============================================
   // PUBLIC API
-  // ============================================
 
   /**
    * Set active preview with smart routing
@@ -613,9 +587,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     log.debug('Clear scheduled', { delay: ANIMATION_CONFIG.debounce.clearDelay });
   };
 
-  // ============================================
   // RETURN PUBLIC API
-  // ============================================
 
   return {
     // State (reactive)
