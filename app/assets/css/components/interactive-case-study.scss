@@ -67,8 +67,9 @@
 
   /* Size constraints */
   width: 50vw;
-  max-width: 700px;
-  aspect-ratio: 4 / 3;
+  height: 100%;
+  max-width: 30em;
+  // aspect-ratio: 1/1;
 
   /* Transform from top-left corner (not center) */
   /* CRITICAL: Without this, GSAP's default 50% 50% origin positions center instead of top-left */
@@ -260,7 +261,7 @@
   /* Larger preview on bigger screens */
   .preview-container {
     width: 45vw;
-    max-width: 800px;
+    max-width: 40em;
   }
 
   /* More generous spacing */

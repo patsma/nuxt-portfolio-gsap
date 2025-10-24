@@ -85,22 +85,35 @@ onMounted(() => {
 
 ### Pause/Resume Pattern
 
-**Used during page transitions to prevent header jump:**
+**Used during page transitions for smooth header animation:**
 
 ```javascript
 // Pause (on page:start)
+// Freezes header in current state - no animation, no class changes
 pause() {
-  isPaused = true
-  headerElement.classList.add('headroom--no-transition')  // Disable CSS transitions
-  void headerElement.offsetHeight  // Force reflow
-  headerElement.classList.add('headroom--pinned')  // Pin instantly
+  isPaused = true  // Header stays frozen in current visual state
 }
 
 // Resume (in enter() onComplete)
+// Re-enables headroom and smoothly animates to top state
 resume() {
   isPaused = false
   lastScrollTop = 0
-  headerElement.classList.remove('headroom--no-transition')  // Re-enable transitions
+  lastUpdateTime = 0
+  headerElement.classList.remove('headroom--no-transition')  // Ensure transitions enabled
+  headerElement.classList.add('headroom--top')  // Smoothly animate to top state
+  headerElement.classList.remove('headroom--not-top', 'headroom--unpinned')
+}
+
+// Reset (on app:mounted only)
+// Instantly sets header to top state during initialization
+reset() {
+  lastScrollTop = 0
+  lastUpdateTime = 0
+  headerElement.classList.add('headroom--no-transition')  // Disable transitions
+  void headerElement.offsetHeight  // Force reflow
+  headerElement.classList.add('headroom--top')  // Set to top state (instant)
+  headerElement.classList.remove('headroom--not-top', 'headroom--unpinned')
 }
 ```
 
@@ -110,14 +123,20 @@ resume() {
 
 ```
 User clicks link → page:start → headroom.pause()
+  - Header freezes in current state (no visual change)
   ↓
 Leave animation (elements fade OUT)
+  - Header stays frozen in current visual state (may be hidden/not-top/top)
   ↓
-afterLeave → scroll to top + reset headroom state (instant, content hidden)
+afterLeave → scroll to top
+  - Header stays frozen in current state (NOT changed)
   ↓
 Enter animation (elements fade IN)
+  - Header still frozen in previous state
   ↓
 onComplete → headroom.resume()
+  - Re-enables headroom updates
+  - Smoothly animates header to top state (with CSS transitions)
 ```
 
 ### Integration
@@ -125,16 +144,29 @@ onComplete → headroom.resume()
 **File:** `app/composables/usePageTransition.js`
 
 ```javascript
-// Pause on navigation start
+// Pause on navigation start (freezes header in current state)
 nuxtApp.hook('page:start', () => {
   nuxtApp.$headroom?.pause()
 })
 
+// After leave animation - scroll to top (header stays frozen)
+const afterLeave = (el) => {
+  // ... cleanup code ...
+
+  // Scroll to top
+  smoother.scrollTop(0)
+
+  // NOTE: Header stays frozen in current state (NOT reset here)
+  // It will smoothly animate to top state in resume()
+}
+
 // Resume when enter animation completes
+// Smoothly animates header to top state
 const enter = (el, done) => {
   const tl = gsap.timeline({
     onComplete: () => {
       done()
+      // Resume headroom - smoothly animates to top state with CSS transitions
       nuxtApp.$headroom?.resume()
     }
   })
@@ -242,7 +274,8 @@ refreshSmoother()  // Recalculates parallax for new content
 
 | Issue | Cause | Fix |
 |-------|-------|-----|
-| Header jumps during transition | CSS transitions active | Use `headroom--no-transition` during pause |
+| Header snaps when clicking link | pause() changes header state | pause() should only set isPaused = true (freeze in place) |
+| Header doesn't animate after transition | resume() doesn't change classes | resume() must add headroom--top and remove others (with transitions enabled) |
 | Scroll jump visible to user | Auto-scroll before animations | Scroll in `afterLeave()` when content hidden |
 | Headroom not hiding | onUpdate not called | Verify callback in createSmoother() |
 | Fixed elements broken | Inside smooth-content | Move outside (see DOM structure) |

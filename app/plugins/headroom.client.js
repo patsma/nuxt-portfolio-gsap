@@ -74,12 +74,18 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /**
    * Reset headroom state (show header at top)
+   * Called in afterLeave when content is hidden - uses instant state change (no animation)
    */
   const reset = () => {
     lastScrollTop = 0;
     lastUpdateTime = 0;
     headerElement = document.querySelector(".header-grid");
     if (headerElement) {
+      // Disable transitions for instant state change
+      headerElement.classList.add("headroom--no-transition");
+      // Force browser reflow to apply no-transition immediately
+      void headerElement.offsetHeight;
+      // Now change state instantly (no animation)
       headerElement.classList.add("headroom--top");
       headerElement.classList.remove("headroom--not-top", "headroom--unpinned");
     }
@@ -87,59 +93,40 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /**
    * Pause headroom updates (used during page transitions)
-   * Smoothly animates header to top state, then locks it in place
+   * Freezes header in current state - no animation, no class changes
+   * This prevents visual jumps when user clicks a navigation link
    */
   const pause = () => {
     // Stop scroll updates immediately
+    // Header stays frozen in current visual state (unpinned/not-top/top)
     isPaused = true;
-
-    if (!headerElement) {
-      headerElement = document.querySelector(".header-grid");
-    }
-
-    if (headerElement) {
-      // Smoothly animate header to top state with transitions enabled
-      // This prevents visual jumps when navigating with header hidden
-      headerElement.classList.remove("headroom--unpinned", "headroom--not-top");
-      headerElement.classList.add("headroom--top");
-
-      // Read transition duration from CSS variable (same as hover animations)
-      const durationRaw = getComputedStyle(document.documentElement)
-        .getPropertyValue("--duration-hover")
-        .trim();
-
-      let duration = 300; // Default fallback (ms)
-      if (durationRaw.endsWith("ms")) {
-        duration = parseFloat(durationRaw);
-      } else if (durationRaw.endsWith("s")) {
-        duration = parseFloat(durationRaw) * 1000;
-      }
-
-      // After animation completes, disable transitions for scroll reset
-      setTimeout(() => {
-        if (headerElement) {
-          headerElement.classList.add("headroom--no-transition");
-          // Force browser reflow to apply no-transition immediately
-          void headerElement.offsetHeight;
-        }
-      }, duration);
-    }
-    // console.log("[Headroom] Paused - header animating to top state");
+    // console.log("[Headroom] Paused - header frozen in current state");
   };
 
   /**
    * Resume headroom updates after page transitions
+   * Smoothly animates header to top state (regardless of previous state)
    */
   const resume = () => {
     isPaused = false;
     // Reset tracking state so headroom starts fresh
     lastScrollTop = 0;
     lastUpdateTime = 0;
-    // Re-enable CSS transitions for smooth animations
-    if (headerElement) {
-      headerElement.classList.remove("headroom--no-transition");
+
+    if (!headerElement) {
+      headerElement = document.querySelector(".header-grid");
     }
-    // console.log("[Headroom] Resumed - transitions restored");
+
+    if (headerElement) {
+      // Re-enable CSS transitions for smooth animations
+      headerElement.classList.remove("headroom--no-transition");
+
+      // Smoothly animate to top state (with transitions enabled)
+      // This animates from whatever state it was frozen in (unpinned/not-top/top)
+      headerElement.classList.add("headroom--top");
+      headerElement.classList.remove("headroom--not-top", "headroom--unpinned");
+    }
+    // console.log("[Headroom] Resumed - smoothly animating to top state");
   };
 
   // Expose controller for ScrollSmoother plugin to call
