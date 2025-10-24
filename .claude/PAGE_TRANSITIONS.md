@@ -81,8 +81,12 @@ Smooth "catch up" trailing effect (typical: 0.1 to 0.3):
 **Location:** `router.options.ts` → `scrollBehavior() { return false }`
 
 ### 3. Headroom Pause/Resume
-**Issue:** Header jumps during transition
-**Fix:** Pause on `page:start` (adds `headroom--no-transition` class), resume in enter `onComplete`
+**Issue:** Header jumps or animates when clicking navigation link
+**Fix:** Pause freezes header in place (no class changes), resume smoothly animates to top with 800ms transition
+**Details:**
+- `pause()`: Sets `isPaused = true` only - header freezes in current visual state
+- `resume()`: Adds `headroom--smooth-transition` class, animates to top state (800ms), then restores fast transitions
+- See `.claude/SCROLL_SYSTEM.md` for full implementation details
 **Location:** `usePageTransition.js` + `headroom.client.js`
 
 ### 4. Safari SplitText Height Lock
@@ -190,21 +194,25 @@ export default defineNuxtConfig({
 User at scroll 500px → clicks link
   ↓
 page:start → headroom.pause()
-  - Add headroom--no-transition
-  - Pin header instantly
+  - Freeze header in current state (no visual change)
+  - Header may be hidden, compact, or full-height
   ↓
 Leave → elements fade OUT at 500px
+  - Header stays frozen in same state
   ↓
-afterLeave → smoother.scrollTop(0) + headroom.reset()
+afterLeave → smoother.scrollTop(0)
   - Instant scroll to 0
-  - Reset header to full-height state
-  - Content hidden
+  - Header stays frozen (NOT changed)
+  - Content hidden from user
   ↓
 Enter → elements fade IN at 0
+  - Header still frozen in previous state
   ↓
 onComplete → headroom.resume()
-  - Remove headroom--no-transition
-  - Reactivate headroom
+  - Add headroom--smooth-transition (800ms)
+  - Smoothly animate to top state (full-height, transparent)
+  - Remove smooth-transition class after animation completes
+  - Restore fast transitions (300ms) for scroll behavior
 ```
 
 ## Infinite Animations During Transitions
@@ -248,7 +256,9 @@ onMounted(() => {
 | Animations not running | Directives not registered | Check `plugins/page-transitions.js` loads |
 | Elements jump during transition | ScrollSmoother not refreshed | Verify `refreshSmoother()` in enter() |
 | Scroll jump visible | Auto-scroll before animations | Set `scrollBehavior() { return false }` in router.options.ts |
-| Header jumps | CSS transitions during pause | Use `headroom--no-transition` class |
+| Header animates on link click | pause() changes header state | Ensure pause() only sets `isPaused = true` (see Fix #3) |
+| Header doesn't animate after transition | resume() doesn't add smooth-transition | Verify resume() adds `headroom--smooth-transition` class (see SCROLL_SYSTEM.md) |
+| Header animation too fast/slow | Wrong transition duration | Adjust `--duration-slow` in theme.scss (default: 800ms) |
 | SplitText not working | Plugin not enabled | Enable `splitText: true` in nuxt.config |
 | No parallax | effects: false | Set `effects: true` in createSmoother() |
 | Safari height jump | SplitText adds height | Lock height before SplitText (see Fix #4) |
