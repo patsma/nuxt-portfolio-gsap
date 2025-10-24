@@ -54,6 +54,18 @@
   transition: none !important;
 }
 
+/* Slow transitions for dramatic post-transition animations
+   - Applied when header animates to top state after page transition
+   - Uses --duration-slow (800ms) for smooth, elegant reveal
+   - Automatically removed after animation completes */
+.header-grid.headroom--smooth-transition {
+  transition:
+    transform var(--duration-slow) var(--ease-power2),
+    height var(--duration-slow) var(--ease-power2),
+    background-color var(--duration-slow) var(--ease-power2),
+    backdrop-filter var(--duration-slow) var(--ease-power2);
+}
+
 /* Animated background - reveals when mobile menu opens
    - Positioned absolutely to fill entire header
    - Solid theme color (light or dark)

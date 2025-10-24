@@ -105,7 +105,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   /**
    * Resume headroom updates after page transitions
-   * Smoothly animates header to top state (regardless of previous state)
+   * Smoothly animates header to top state with slow, dramatic transition
    */
   const resume = () => {
     isPaused = false;
@@ -118,15 +118,24 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     if (headerElement) {
-      // Re-enable CSS transitions for smooth animations
+      // Remove no-transition class and add smooth-transition for slow animation
       headerElement.classList.remove("headroom--no-transition");
+      headerElement.classList.add("headroom--smooth-transition");
 
-      // Smoothly animate to top state (with transitions enabled)
+      // Smoothly animate to top state (800ms duration from --duration-slow)
       // This animates from whatever state it was frozen in (unpinned/not-top/top)
       headerElement.classList.add("headroom--top");
       headerElement.classList.remove("headroom--not-top", "headroom--unpinned");
+
+      // Remove smooth-transition class after animation completes
+      // This restores normal fast transitions (300ms) for scroll behavior
+      setTimeout(() => {
+        if (headerElement) {
+          headerElement.classList.remove("headroom--smooth-transition");
+        }
+      }, 800); // Match --duration-slow
     }
-    // console.log("[Headroom] Resumed - smoothly animating to top state");
+    // console.log("[Headroom] Resumed - smoothly animating to top state (800ms)");
   };
 
   // Expose controller for ScrollSmoother plugin to call

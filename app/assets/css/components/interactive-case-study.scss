@@ -67,9 +67,9 @@
 
   /* Size constraints */
   width: 50vw;
-  height: 100%;
+  // height: 100%;
   max-width: 30em;
-  // aspect-ratio: 1/1;
+  aspect-ratio: 4/3;
 
   /* Transform from top-left corner (not center) */
   /* CRITICAL: Without this, GSAP's default 50% 50% origin positions center instead of top-left */

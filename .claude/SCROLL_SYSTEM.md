@@ -95,14 +95,21 @@ pause() {
 }
 
 // Resume (in enter() onComplete)
-// Re-enables headroom and smoothly animates to top state
+// Re-enables headroom and smoothly animates to top state with slow transition
 resume() {
   isPaused = false
   lastScrollTop = 0
   lastUpdateTime = 0
-  headerElement.classList.remove('headroom--no-transition')  // Ensure transitions enabled
+  headerElement.classList.remove('headroom--no-transition')
+  headerElement.classList.add('headroom--smooth-transition')  // 800ms slow transition
   headerElement.classList.add('headroom--top')  // Smoothly animate to top state
   headerElement.classList.remove('headroom--not-top', 'headroom--unpinned')
+
+  // Remove smooth-transition after animation completes
+  // This restores normal fast transitions (300ms) for scroll behavior
+  setTimeout(() => {
+    headerElement.classList.remove('headroom--smooth-transition')
+  }, 800)
 }
 
 // Reset (on app:mounted only)
@@ -136,7 +143,8 @@ Enter animation (elements fade IN)
   ↓
 onComplete → headroom.resume()
   - Re-enables headroom updates
-  - Smoothly animates header to top state (with CSS transitions)
+  - Smoothly animates header to top state (800ms smooth transition)
+  - Restores fast transitions (300ms) after animation completes
 ```
 
 ### Integration
@@ -181,7 +189,11 @@ const enter = (el, done) => {
 .header-grid {
   position: fixed;
   height: var(--size-header); // Full height by default
-  transition: transform, height, background-color, backdrop-filter;
+  // Normal scroll transitions: 300ms (--duration-hover)
+  transition: transform var(--duration-hover) var(--ease-power2),
+              height var(--duration-hover) var(--ease-power2),
+              background-color var(--duration-hover) var(--ease-power2),
+              backdrop-filter var(--duration-hover) var(--ease-power2);
 
   // STATE 1: At top (default)
   // Full height, transparent
@@ -202,10 +214,23 @@ const enter = (el, done) => {
   &.headroom--no-transition {
     transition: none !important;
   }
+
+  // Slow transitions for post-transition animations
+  // Applied by resume() for smooth 800ms reveal after page transitions
+  &.headroom--smooth-transition {
+    transition: transform var(--duration-slow) var(--ease-power2),
+                height var(--duration-slow) var(--ease-power2),
+                background-color var(--duration-slow) var(--ease-power2),
+                backdrop-filter var(--duration-slow) var(--ease-power2);
+  }
 }
 ```
 
 **Why transform:** GPU-accelerated, no layout reflow (unlike `top` property).
+
+**Transition timing:**
+- Normal scroll behavior: 300ms (`--duration-hover`) - responsive and snappy
+- Page transition animation: 800ms (`--duration-slow`) - smooth and dramatic
 
 ## Parallax Effects
 
