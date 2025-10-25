@@ -27,6 +27,7 @@
         ref="previewContainerRef"
         class="preview-container hidden md:block"
         :class="{ active: showPreview }"
+        :style="{ aspectRatio: currentAspectRatio }"
       >
         <!-- Current image (fades out during transition) -->
         <div ref="currentImageWrapperRef" class="preview-image-wrapper">
@@ -138,6 +139,7 @@ const {
   showPreview,
   previewMounted,
   currentImageActive,
+  currentAspectRatio,
   setActivePreview: setActivePreviewComposable,
   clearActivePreview: clearActivePreviewComposable,
   animationConfig,

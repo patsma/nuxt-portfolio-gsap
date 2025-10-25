@@ -91,7 +91,7 @@ const services = [
       <InteractiveCaseStudyItem
         title="Mælt"
         description="Art direction, Interactive design & UI"
-        image="/assets/dummy/placeholder4.jpg"
+        image="/assets/dummy/placeholder1.jpg"
         image-alt="Mælt project preview"
       />
     </InteractiveCaseStudySection>

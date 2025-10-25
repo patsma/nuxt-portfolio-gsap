@@ -58,6 +58,10 @@ const ANIMATION_CONFIG = {
     duration: 350, // ms - faster for smooth gallery feel
     ease: "power2.inOut",
   },
+  aspectRatio: {
+    duration: 400, // ms - slightly slower for smooth size morphing
+    ease: "power2.inOut", // Smooth in-out for size changes
+  },
   clipPath: {
     closed: "inset(50% 50% 50% 50%)",
     open: "inset(0% 0% 0% 0%)",
@@ -81,12 +85,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const previewMounted = ref(false);
   const isTransitioning = ref(false);
   const clearTimer = ref(null);
-  const preloadedImages = new Map();
+  const preloadedImages = new Map(); // Stores { img, aspectRatio }
+  const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
 
   /**
    * Preload image for instant display on hover
+   * Captures natural aspect ratio from loaded image for dynamic sizing
    * @param {string} src - Image source URL
-   * @returns {Promise<void>}
+   * @returns {Promise<number>} Resolves with aspect ratio (width/height)
    */
   const preloadImage = (src) => {
     const startTime = performance.now();
@@ -94,8 +100,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     return new Promise((resolve, reject) => {
       // Check if already preloaded
       if (preloadedImages.has(src)) {
+        const cached = preloadedImages.get(src);
         log.preload("cached", src);
-        resolve();
+        resolve(cached.aspectRatio);
         return;
       }
 
@@ -105,9 +112,20 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       const img = new Image();
       img.onload = () => {
         const duration = Math.round(performance.now() - startTime);
-        preloadedImages.set(src, img);
+
+        // Calculate aspect ratio from natural dimensions
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+
+        // Store image and aspect ratio
+        preloadedImages.set(src, {
+          img,
+          aspectRatio,
+        });
+
         log.preload("cached", src, duration);
-        resolve();
+        log.debug(`Aspect ratio detected: ${aspectRatio.toFixed(2)} (${img.naturalWidth}x${img.naturalHeight})`);
+
+        resolve(aspectRatio);
       };
       img.onerror = () => {
         log.preload("failed", src);
@@ -295,14 +313,49 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     );
   };
 
+  /**
+   * Animate aspect ratio change
+   * Smoothly morphs the preview container size based on new image aspect ratio
+   * @param {number} newAspectRatio - Target aspect ratio (width/height)
+   */
+  const animateAspectRatio = (newAspectRatio) => {
+    const oldRatio = currentAspectRatio.value;
+
+    // Skip if same ratio (avoid unnecessary animations)
+    if (Math.abs(oldRatio - newAspectRatio) < 0.01) {
+      log.debug("Aspect ratio unchanged, skipping animation");
+      return;
+    }
+
+    log.animationStart("aspect-ratio", ANIMATION_CONFIG.aspectRatio.duration, {
+      from: oldRatio.toFixed(2),
+      to: newAspectRatio.toFixed(2),
+    });
+
+    // Animate the reactive ref (component will react to changes)
+    gsap.to(currentAspectRatio, {
+      value: newAspectRatio,
+      duration: ANIMATION_CONFIG.aspectRatio.duration / 1000,
+      ease: ANIMATION_CONFIG.aspectRatio.ease,
+      overwrite: true, // Kill any existing aspect ratio tweens
+      onComplete: () => {
+        log.animationComplete(
+          "aspect-ratio",
+          ANIMATION_CONFIG.aspectRatio.duration
+        );
+      },
+    });
+  };
+
   // TRANSITION HANDLERS
 
   /**
    * Handle first hover - Initialize and reveal preview
    * @param {Object} preview - Preview data { image, imageAlt }
    * @param {Object} cursor - Cursor position { x, y }
+   * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
-  const handleFirstHover = async (preview, cursor) => {
+  const handleFirstHover = async (preview, cursor, aspectRatio) => {
     log.route("FIRST_HOVER", { image: preview.image });
     log.state("IDLE", "REVEALING", { image: preview.image });
 
@@ -312,6 +365,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     currentImageActive.value = true;
     previewMounted.value = true;
     showPreview.value = true;
+
+    // Set initial aspect ratio (no animation on first hover)
+    currentAspectRatio.value = aspectRatio;
 
     // Wait for DOM update
     await nextTick();
@@ -358,21 +414,24 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * Handle re-entry after leaving section
    * @param {Object} preview - Preview data { image, imageAlt }
    * @param {boolean} sameImage - Whether this is the same image as before
+   * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
-  const handleReentry = async (preview, sameImage) => {
+  const handleReentry = async (preview, sameImage, aspectRatio) => {
     log.route("RE_ENTRY", { image: preview.image, sameImage });
     log.state("IDLE", "REVEALING", { image: preview.image, reentry: true });
 
     showPreview.value = true;
     isTransitioning.value = true;
 
-    // If different image, update the inactive wrapper
+    // If different image, update the inactive wrapper and animate aspect ratio
     if (!sameImage) {
       if (currentImageActive.value) {
         nextImage.value = preview;
       } else {
         currentImage.value = preview;
       }
+      // Animate to new aspect ratio
+      animateAspectRatio(aspectRatio);
     }
 
     await nextTick();
@@ -427,8 +486,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   /**
    * Handle item switch with dual clip-path transition
    * @param {Object} preview - Preview data { image, imageAlt }
+   * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
-  const handleItemSwitch = async (preview) => {
+  const handleItemSwitch = async (preview, aspectRatio) => {
     log.route("ITEM_SWITCH", {
       from: currentImageActive.value
         ? currentImage.value?.image
@@ -465,6 +525,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     } else {
       currentImage.value = preview;
     }
+
+    // Animate to new aspect ratio
+    animateAspectRatio(aspectRatio);
 
     await nextTick();
 
@@ -527,20 +590,21 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       clearTimer.value = null;
     }
 
-    // Preload image first
+    // Preload image first and get aspect ratio
+    let aspectRatio = 4 / 3; // Fallback
     try {
-      await preloadImage(preview.image);
+      aspectRatio = await preloadImage(preview.image);
     } catch (error) {
       log.error("Image preload failed", {
         image: preview.image,
         error: error.message,
       });
-      // Continue anyway - browser will load on-demand
+      // Continue anyway - browser will load on-demand with fallback aspect ratio
     }
 
     // First hover - initialize
     if (!currentImage.value && !nextImage.value) {
-      return handleFirstHover(preview, cursor);
+      return handleFirstHover(preview, cursor, aspectRatio);
     }
 
     // Get currently active image
@@ -557,7 +621,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
           reason: "same image, re-entry",
           image: preview.image,
         });
-        return handleReentry(preview, true);
+        return handleReentry(preview, true, aspectRatio);
       }
       // Already showing same image, do nothing
       log.route("SKIP", { reason: "already showing", image: preview.image });
@@ -567,12 +631,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     // Different image
     // If preview was hidden, show with reveal
     if (!showPreview.value) {
-      return handleReentry(preview, false);
+      return handleReentry(preview, false, aspectRatio);
     }
 
     // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
     // Always allow item switch for smooth gallery-like flow
-    return handleItemSwitch(preview);
+    return handleItemSwitch(preview, aspectRatio);
   };
 
   /**
@@ -636,6 +700,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     showPreview,
     previewMounted,
     currentImageActive,
+    currentAspectRatio, // Dynamic aspect ratio for preview container
 
     // Methods
     setActivePreview,
