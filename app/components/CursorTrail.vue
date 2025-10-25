@@ -66,9 +66,10 @@ onMounted(() => {
         const tl = $gsap.timeline();
 
         tl.to(el, {
+          delay: 1.6,
           autoAlpha: 0.4,
-          duration: 0.6,
-          ease: "power2.out",
+          duration: 2,
+          ease: "sine.out",
         });
 
         return tl;

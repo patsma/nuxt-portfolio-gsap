@@ -166,8 +166,7 @@ const nuxtApp = useNuxtApp();
 const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp;
 
 // Loading system integration
-const loadingStore = useLoadingStore();
-const { isFirstLoad, createStaggerAnimation } = useLoadingSequence();
+const { isFirstLoad } = useLoadingSequence();
 
 // Dynamic time display for Tokyo
 const { tokyoTime } = useTokyoTime();
@@ -483,7 +482,7 @@ onMounted(() => {
         const { setupEntrance } = useEntranceAnimation();
 
         setupEntrance(containerRef.value, {
-          position: "0.2", // First in the sequence (can be changed to reorder)
+          position: "1.5",
           animate: (el) => {
             const tl = $gsap.timeline({
               // onStart: () =>
@@ -494,7 +493,7 @@ onMounted(() => {
             // Elements are already hidden by CSS + is-first-load class
             // Just set initial transform states
             const brandEl = el.querySelector(".header-grid__brand");
-            const navLinks = el.querySelectorAll(".header-grid__nav .nav-link");
+            const navLinks = el.querySelectorAll(".header-grid__nav");
             const spacerEl = el.querySelector(".header-grid__spacer");
             const hamburgerEl = el.querySelector(".header-grid__hamburger");
 
@@ -532,7 +531,7 @@ onMounted(() => {
               );
             }
 
-            if (navLinks && navLinks.length > 0) {
+            if (navLinks) {
               tl.to(
                 navLinks,
                 {
@@ -556,7 +555,7 @@ onMounted(() => {
                   duration: 0.6,
                   ease: "power2.out",
                 },
-                "-=0.4"
+                "-=0.6"
               );
             }
 
