@@ -20,10 +20,9 @@
     <!-- Desktop hover preview (cursor-following with dual-image crossfade) -->
     <!-- Teleport to body + fixed positioning for scroll support -->
     <!-- Keep mounted once shown to preserve refs -->
-    <Teleport to="body">
+    <!-- Always in DOM once mounted - visibility controlled by clip-path animations -->
+    <Teleport to="body" v-if="previewMounted">
       <div
-        v-if="previewMounted"
-        v-show="showPreview"
         ref="previewContainerRef"
         class="preview-container hidden md:block"
         :class="{ active: showPreview }"
@@ -59,21 +58,23 @@
 
 <script setup>
 /**
- * InteractiveCaseStudySection Component - Interactive Case Study Gallery (Phase 2 Refactored)
+ * InteractiveCaseStudySection Component - Interactive Case Study Gallery
  *
  * Displays case studies in a list format (desktop) or card format (mobile).
- * Desktop shows cursor-following preview with smooth image crossfades.
+ * Desktop shows cursor-following preview with smooth image crossfades and dynamic aspect ratios.
  *
- * Phase 2 Features (Refactored):
+ * Features:
  * - Modular architecture with composables
+ * - Dynamic aspect ratios (morphs between image sizes)
  * - Comprehensive logging for debugging
  * - DRY position calculations
  * - Smart transition routing
  * - Race condition prevention
+ * - Page transition integration (smooth exit on navigation)
  *
  * Architecture:
  * - Component handles: Template refs, mousemove tracking, provide/inject
- * - Composable handles: State management, animations, transitions
+ * - Composable handles: State management, animations, transitions, aspect ratio detection
  * - Utils handle: Position calculations, logging
  *
  * Slots:
@@ -84,7 +85,9 @@
  * - List layout with two columns (title left, description right)
  * - Preview follows cursor with lag effect (0.6s, power2.out)
  * - Cursor offset: 30px right, centered vertically
- * - Clip-path transitions: 400-500ms
+ * - Clip-path transitions: 350ms
+ * - Aspect ratio morphing: 400ms (smooth size changes between images)
+ * - Page transition exit: v-page-clip:center directive
  *
  * Mobile:
  * - Card layout with images
@@ -142,6 +145,7 @@ const {
   currentAspectRatio,
   setActivePreview: setActivePreviewComposable,
   clearActivePreview: clearActivePreviewComposable,
+  clearActivePreviewImmediate,
   animationConfig,
 } = useInteractiveCaseStudyPreview({
   gsap: $gsap,
@@ -187,6 +191,28 @@ const handleMouseMove = (event) => {
     overwrite: "auto",
   });
 };
+
+// NAVIGATION GUARD (SMOOTH PREVIEW EXIT)
+
+/**
+ * Route leave guard - delays navigation until preview clip animation completes
+ * This ensures the preview animates out smoothly before page transition starts
+ */
+onBeforeRouteLeave((to, from, next) => {
+  // If preview is visible, animate it out first
+  if (showPreview.value) {
+    // Hide preview with immediate clip animation
+    clearActivePreviewImmediate();
+
+    // Wait for clip animation to complete, then allow navigation
+    setTimeout(() => {
+      next(); // Allow navigation to proceed
+    }, 350); // Match clip-close animation duration
+  } else {
+    // No preview visible, allow immediate navigation
+    next();
+  }
+});
 
 // PROVIDE METHODS TO CHILDREN
 

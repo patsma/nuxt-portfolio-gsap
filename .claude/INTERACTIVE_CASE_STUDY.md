@@ -625,6 +625,162 @@ max-height: 80vh;      // Prevent tall images overflowing
 
 ---
 
+## Phase 2.4: Page Transition Integration ✅
+
+### Status: **COMPLETED**
+
+**Completed:** Integrated preview with page transition system using navigation guard for smooth exit animations during navigation.
+
+### Problem
+
+**Previous Issue:**
+- Preview instantly disappeared when clicking links to navigate
+- Page transition animations played smoothly on case study items
+- But preview just vanished with no animation - jarring visual discontinuity
+- Created glitchy, unprofessional exit experience
+
+**User Feedback:**
+- "Sometimes we get a glitchy hide animations of the preview image"
+- "If we click a link in the section all of the items do a nice page transition and the preview just ugly vanishes instantly"
+
+**Root Cause (Discovered via Chrome DevTools console):**
+- When navigation started, component began unmounting immediately
+- Image wrapper refs became `null` before clip animation could run
+- Console warning: `⚠️ [PREVIEW:WARN] No active wrapper for clear, instant hide`
+- Composable skipped animation and did instant hide due to missing refs
+
+### Solution - Navigation Guard
+
+**Approach:** Use `onBeforeRouteLeave` to delay navigation until clip animation completes, keeping component mounted with refs available.
+
+**Implementation:**
+```vue
+<script setup>
+// NAVIGATION GUARD (SMOOTH PREVIEW EXIT)
+
+/**
+ * Route leave guard - delays navigation until preview clip animation completes
+ * This ensures the preview animates out smoothly before page transition starts
+ */
+onBeforeRouteLeave((to, from, next) => {
+  // If preview is visible, animate it out first
+  if (showPreview.value) {
+    // Hide preview with immediate clip animation
+    clearActivePreviewImmediate();
+
+    // Wait for clip animation to complete, then allow navigation
+    setTimeout(() => {
+      next(); // Allow navigation to proceed
+    }, 350); // Match clip-close animation duration
+  } else {
+    // No preview visible, allow immediate navigation
+    next();
+  }
+});
+</script>
+```
+
+**Template Change:**
+```vue
+<!-- Moved v-if to Teleport to keep container structure consistent -->
+<Teleport to="body" v-if="previewMounted">
+  <div
+    ref="previewContainerRef"
+    class="preview-container hidden md:block"
+    :class="{ active: showPreview }"
+    :style="{ aspectRatio: currentAspectRatio }"
+  >
+    <!-- Removed v-show - visibility controlled by clip-path only -->
+```
+
+### How It Works
+
+**Navigation Flow:**
+1. User clicks a case study link to navigate
+2. Vue Router triggers `onBeforeRouteLeave` guard
+3. Guard checks if preview is visible (`showPreview.value`)
+4. If visible:
+   - Calls `clearActivePreviewImmediate()` to start clip-close animation
+   - Waits 350ms for animation to complete
+   - Calls `next()` to allow navigation to proceed
+   - Component stays mounted during delay, keeping refs available
+5. If not visible: Calls `next()` immediately
+6. Page transition continues as normal
+
+**Console Log Success:**
+```
+🔄 [PREVIEW:STATE] VISIBLE → CLOSING (immediate: true)
+🔄 [PREVIEW:STATE] CLOSING → IDLE
+```
+No warnings, animation completes smoothly.
+
+**Hover Interactions (Unchanged):**
+- Existing composable logic continues to work
+- `animateClipReveal()` handles hover in
+- `animateClipClose()` handles hover out
+- Navigation guard only affects link clicks
+
+### Animation Details
+
+**Clip Animation:**
+- Uses composable's existing `animateClipClose()` function
+- Clips from open (inset 0%) → closed (inset 50%)
+- Duration: 350ms
+- Ease: power2.inOut
+- Smooth, professional exit
+
+**Timing:**
+- Navigation delay matches animation duration (350ms)
+- Ensures complete visual transition before page unloads
+- No glitches or instant disappearances
+
+### Benefits
+
+✅ **Smooth exit**: Preview clips out instead of instant disappear
+✅ **Refs available**: Component stays mounted during animation
+✅ **No console warnings**: "No active wrapper" error eliminated
+✅ **Visual consistency**: Clean professional transitions
+✅ **Tested & verified**: Confirmed working via Chrome DevTools
+
+### Failed Approaches (For Reference)
+
+**❌ Attempt 1: v-page-clip directive**
+- Issue: `v-show="showPreview"` set `display: none` before directive could animate
+- Removed directive, didn't solve core issue
+
+**❌ Attempt 2: Click handler with debounced clear**
+- Issue: 100ms debounce too slow, navigation started before animation
+- Created race conditions with hover events
+
+**❌ Attempt 3: Immediate clear + navigation flag**
+- Issue: Component unmounting during navigation made refs null
+- Added `isNavigating` flag to prevent re-show (kept in final solution)
+
+**❌ Attempt 4: event.preventDefault() + setTimeout + navigateTo**
+- Issue: Component still began unmounting, refs still became null
+- Close but not quite - timing wasn't the only issue
+
+**✅ Final Solution: onBeforeRouteLeave guard**
+- Blocks navigation at router level, keeping component mounted
+- Refs remain available for full animation duration
+- Clean, declarative, proper Vue Router integration
+
+### Technical Notes
+
+**Why This Works:**
+- `onBeforeRouteLeave` blocks navigation until `next()` is called
+- Component stays fully mounted during the 350ms delay
+- Image wrapper refs (`currentImageWrapperRef`, `nextImageWrapperRef`) stay available
+- GSAP can animate the clip-path without "No active wrapper" errors
+
+**Key Insight:**
+- The problem wasn't timing - it was component lifecycle
+- Previous attempts tried to delay navigation with setTimeout/preventDefault
+- But Vue started component teardown anyway
+- Navigation guard blocks at router level, preventing teardown
+
+---
+
 ## Phase 3: Morph Clipping (Planned)
 
 **Next:** Organic blob-shaped clip-path morphing between images for even smoother, more natural transitions.

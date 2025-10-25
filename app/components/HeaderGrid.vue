@@ -5,151 +5,145 @@
     - Mobile: hamburger (left), logo (center), empty (right), nav hidden
     - Mobile overlay: appears below header, fills viewport minus header height
   -->
-  <header
-    ref="containerRef"
-    class="header-grid headroom--top"
-    data-entrance-animate="true"
-  >
-    <!-- Animated background - reveals from bottom to top when menu opens -->
-    <div ref="backgroundRef" class="header-grid__background"></div>
-
-    <div class="content-grid">
-      <div class="breakout3 header-grid__inner">
-        <!-- Top row: shared row for both desktop and mobile -->
-        <div class="header-grid__row header-grid__row--top">
-          <!-- Hamburger: visible only on mobile, animates lines (no icon swap) -->
-          <button
-            ref="hamburgerBtn"
-            class="header-grid__hamburger"
-            :aria-expanded="Boolean(isOpen)"
-            aria-controls="mobile-overlay"
-            aria-label="Toggle main menu"
-            @click="toggle()"
-          >
-            <span class="sr-only">{{
-              isOpen ? "Close menu" : "Open menu"
-            }}</span>
-            <HamburgerSVG
-              ref="hamburgerSvgComponent"
-              class="header-grid__hamburgerIcon"
-            />
-          </button>
-
-          <!-- Single logo used for both desktop and mobile -->
-          <NuxtLink to="/" class="header-grid__brand">
-            <div class="flex flex-col">
-              <span
-                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                >Morten Christensen</span
+  <ClientOnly>
+    <header
+      ref="containerRef"
+      class="header-grid headroom--top"
+      data-entrance-animate="true"
+    >
+      <!-- Animated background - reveals from bottom to top when menu opens -->
+      <div ref="backgroundRef" class="header-grid__background"></div>
+      <div class="content-grid">
+        <div class="breakout3 header-grid__inner">
+          <!-- Top row: shared row for both desktop and mobile -->
+          <div class="header-grid__row header-grid__row--top">
+            <!-- Hamburger: visible only on mobile, animates lines (no icon swap) -->
+            <button
+              ref="hamburgerBtn"
+              class="header-grid__hamburger"
+              :aria-expanded="Boolean(isOpen)"
+              aria-controls="mobile-overlay"
+              aria-label="Toggle main menu"
+              @click="toggle()"
+            >
+              <span class="sr-only">{{
+                isOpen ? "Close menu" : "Open menu"
+              }}</span>
+              <HamburgerSVG
+                ref="hamburgerSvgComponent"
+                class="header-grid__hamburgerIcon"
+              />
+            </button>
+            <!-- Single logo used for both desktop and mobile -->
+            <NuxtLink to="/" class="header-grid__brand">
+              <div class="flex flex-col">
+                <span
+                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                  >Morten Christensen</span
+                >
+                <span
+                  ref="titleElementRef"
+                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
+                  >{{ titleStore.currentText }}</span
+                >
+              </div>
+            </NuxtLink>
+            <!-- Desktop nav centered (hidden on mobile) -->
+            <nav class="header-grid__nav" aria-label="Primary">
+              <NuxtLink
+                to="/"
+                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                :data-active="isActive('/')"
               >
-              <span
-                ref="titleElementRef"
-                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
-                >{{ titleStore.currentText }}</span
+                Work
+              </NuxtLink>
+              <NuxtLink
+                to="/about"
+                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                :data-active="isActive('/about')"
               >
+                About
+              </NuxtLink>
+              <!-- Theme toggle in desktop nav -->
+              <ClientOnly>
+                <button
+                  ref="themeToggleDesktopRef"
+                  id="themeSwitch"
+                  class="cursor-pointer"
+                  aria-label="Toggle theme"
+                >
+                  <ThemeToggleSVG class="w-12" />
+                </button>
+              </ClientOnly>
+              <NuxtLink
+                to="/lab"
+                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                :data-active="isActive('/lab')"
+              >
+                Lab
+              </NuxtLink>
+              <NuxtLink
+                to="/contact"
+                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                :data-active="isActive('/contact')"
+              >
+                Contact
+              </NuxtLink>
+            </nav>
+            <!-- Right spacer: location/date on desktop, theme toggle on mobile -->
+            <div class="header-grid__spacer flex items-center justify-end">
+              <!-- Desktop: Location and date (dynamic time updated every second) -->
+              <div class="hidden md:flex flex-col items-end">
+                <span
+                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                  >Tokyo, JP</span
+                >
+                <span
+                  v-if="isClient"
+                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
+                  >{{ tokyoTime }}</span
+                >
+              </div>
+              <!-- Mobile: Theme toggle -->
+              <ClientOnly>
+                <button
+                  ref="themeToggleMobileRef"
+                  id="themeSwitchMobile"
+                  class="flex md:hidden cursor-pointer"
+                  aria-label="Toggle theme"
+                >
+                  <ThemeToggleSVG class="w-12" />
+                </button>
+              </ClientOnly>
             </div>
-          </NuxtLink>
-
-          <!-- Desktop nav centered (hidden on mobile) -->
-          <nav class="header-grid__nav" aria-label="Primary">
-            <NuxtLink
-              to="/"
-              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-active="isActive('/')"
-            >
-              Work
-            </NuxtLink>
-            <NuxtLink
-              to="/about"
-              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-active="isActive('/about')"
-            >
-              About
-            </NuxtLink>
-
-            <!-- Theme toggle in desktop nav -->
-            <ClientOnly>
-              <button
-                ref="themeToggleDesktopRef"
-                id="themeSwitch"
-                class="cursor-pointer"
-                aria-label="Toggle theme"
-              >
-                <ThemeToggleSVG class="w-12" />
-              </button>
-            </ClientOnly>
-
-            <NuxtLink
-              to="/lab"
-              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-active="isActive('/lab')"
-            >
-              Lab
-            </NuxtLink>
-            <NuxtLink
-              to="/contact"
-              class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-              :data-active="isActive('/contact')"
-            >
-              Contact
-            </NuxtLink>
-          </nav>
-
-          <!-- Right spacer: location/date on desktop, theme toggle on mobile -->
-          <div class="header-grid__spacer flex items-center justify-end">
-            <!-- Desktop: Location and date (dynamic time updated every second) -->
-            <div class="hidden md:flex flex-col items-end">
-              <span
-                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                >Tokyo, JP</span
-              >
-              <span
-                v-if="isClient"
-                class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
-                >{{ tokyoTime }}</span
-              >
-            </div>
-
-            <!-- Mobile: Theme toggle -->
-            <ClientOnly>
-              <button
-                ref="themeToggleMobileRef"
-                id="themeSwitchMobile"
-                class="flex md:hidden cursor-pointer"
-                aria-label="Toggle theme"
-              >
-                <ThemeToggleSVG class="w-12" />
-              </button>
-            </ClientOnly>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Mobile overlay: full height with clip-path reveal -->
-    <div
-      id="mobile-overlay"
-      ref="overlayRef"
-      class="fixed inset-x-0 top-0 h-[100dvh] pt-20 bg-[var(--theme-100)] md:hidden z-40"
-    >
-      <div class="content-grid h-full">
-        <div
-          class="breakout1 pt-[var(--size-header)] pb-[var(--space-m)] flex flex-col gap-[var(--space-s)]"
-        >
-          <NuxtLink
-            v-for="item in items"
-            :key="'m-' + item.href"
-            :to="item.href"
-            class="block pp-eiko-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
-            :data-active="isActive(item.href)"
-            @click="close()"
+      <!-- Mobile overlay: full height with clip-path reveal -->
+      <div
+        id="mobile-overlay"
+        ref="overlayRef"
+        class="fixed inset-x-0 top-0 h-[100dvh] pt-20 bg-[var(--theme-100)] md:hidden z-40"
+      >
+        <div class="content-grid h-full">
+          <div
+            class="breakout1 pt-[var(--size-header)] pb-[var(--space-m)] flex flex-col gap-[var(--space-s)]"
           >
-            {{ item.label }}
-          </NuxtLink>
+            <NuxtLink
+              v-for="item in items"
+              :key="'m-' + item.href"
+              :to="item.href"
+              class="block pp-eiko-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
+              :data-active="isActive(item.href)"
+              @click="close()"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
+  </ClientOnly>
 </template>
 
 <script setup lang="js">

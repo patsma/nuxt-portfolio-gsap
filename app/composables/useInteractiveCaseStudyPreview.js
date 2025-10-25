@@ -87,6 +87,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const clearTimer = ref(null);
   const preloadedImages = new Map(); // Stores { img, aspectRatio }
   const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
+  const isNavigating = ref(false); // Prevents re-showing preview during navigation
 
   /**
    * Preload image for instant display on hover
@@ -400,8 +401,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     // Set initial position at cursor
     setInitialPosition(refs, cursor);
 
-    // Set initial opacity
-    gsap.set(refs.currentImageWrapperRef, { opacity: 1 });
+    // Set initial opacity and clip-path
+    gsap.set(refs.currentImageWrapperRef, {
+      opacity: 1,
+      clipPath: ANIMATION_CONFIG.clipPath.closed, // Start closed
+    });
     gsap.set(refs.nextImageWrapperRef, { opacity: 0 });
 
     // Animate clip-path reveal
@@ -581,6 +585,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       return;
     }
 
+    // Prevent showing preview during navigation
+    if (isNavigating.value) {
+      log.debug("Navigation in progress, skipping hover");
+      return;
+    }
+
     log.separator(`HOVER: ${preview.image}`);
 
     // Cancel pending clear timer (rapid item switching)
@@ -691,6 +701,57 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
   };
 
+  /**
+   * Clear active preview immediately - no debounce
+   * Used for navigation clicks to ensure smooth exit animation plays before page transition
+   * Immediately triggers clip-close animation, then hides preview
+   * Sets isNavigating flag to prevent hover events from re-showing preview
+   */
+  const clearActivePreviewImmediate = () => {
+    log.separator("CLEAR IMMEDIATE (Navigation)");
+
+    // Set navigation flag to prevent hover events from re-showing preview
+    isNavigating.value = true;
+
+    // Cancel any pending debounced clear
+    if (clearTimer.value) {
+      clearTimeout(clearTimer.value);
+      clearTimer.value = null;
+    }
+
+    // Skip if already hidden
+    if (!showPreview.value) {
+      log.debug("Preview already hidden, skipping");
+      return;
+    }
+
+    isTransitioning.value = true;
+    log.state("VISIBLE", "CLOSING", { immediate: true });
+
+    // Get currently visible wrapper
+    const refs = getRefs();
+    const activeWrapper = currentImageActive.value
+      ? refs.currentImageWrapperRef
+      : refs.nextImageWrapperRef;
+
+    if (!activeWrapper) {
+      log.warn("No active wrapper for immediate clear, instant hide");
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+      // Keep isNavigating true - will be reset on page unload
+      return;
+    }
+
+    // Animate clip-path close immediately
+    animateClipClose(activeWrapper, () => {
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+      // Keep isNavigating true - will be reset on page unload
+    });
+  };
+
   // RETURN PUBLIC API
 
   return {
@@ -705,6 +766,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     // Methods
     setActivePreview,
     clearActivePreview,
+    clearActivePreviewImmediate, // Immediate clear for navigation clicks
     calculatePosition,
 
     // Animation config (for external use if needed)
