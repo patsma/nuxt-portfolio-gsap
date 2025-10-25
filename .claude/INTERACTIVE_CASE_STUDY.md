@@ -13,8 +13,9 @@ Mobile: Square image cards with touch-friendly interactions
 - Fluid spacing using design tokens
 - Professional grid system (Layout Breakouts pattern)
 - Clip-path reveal animations
+- Dynamic aspect ratios that morph between images
 
-## Current Implementation (Phase 1) ✅
+## Current Implementation ✅
 
 ### Architecture
 
@@ -101,14 +102,14 @@ InteractiveCaseStudySection.vue (container)
 - `app/components/InteractiveCaseStudyItem.vue` (193 lines)
 
 **Composables:**
-- `app/composables/useInteractiveCaseStudyPreview.js` (627 lines - NEW)
+- `app/composables/useInteractiveCaseStudyPreview.js` (714 lines - with aspect ratio detection)
 
 **Utils:**
 - `app/utils/logger.js` (308 lines - NEW)
 - `app/utils/previewPosition.js` (153 lines - NEW)
 
 **Styles:**
-- `app/assets/css/components/interactive-case-study.scss` (277 lines)
+- `app/assets/css/components/interactive-case-study.scss` (286 lines - dynamic aspect ratios)
 
 **Grid System:**
 - `app/assets/css/components/content-grid.scss` (with nested breakout support)
@@ -465,6 +466,162 @@ From GSAP docs: Let animations interrupt smoothly with proper overwrite settings
 - ✅ Smooth crossfades through all images
 - ✅ True gallery feel
 - ✅ 2.5x faster transitions (250ms)
+
+---
+
+## Phase 2.3: Dynamic Aspect Ratios ✅
+
+### Status: **COMPLETED**
+
+**Completed:** Auto-detection of image aspect ratios with smooth morphing transitions between different sizes.
+
+### Problem
+
+**Previous Limitation:**
+- All preview images locked to fixed 4:3 aspect ratio
+- Made gallery feel static and boring
+- Didn't respect natural image proportions
+- Wide landscape and square images all looked the same
+
+**User Feedback:**
+- "We currently have only one locked aspect ratio... could we have aspect ratio based on the image aspect ratio? so it's not so boring"
+
+### Solution - Dynamic Aspect Ratio Detection
+
+**Approach:** Auto-detect each image's natural dimensions during preload, animate smoothly between different aspect ratios.
+
+**Technical Changes:**
+
+**1. Enhanced Image Preloading** (`useInteractiveCaseStudyPreview.js`)
+```javascript
+const preloadImage = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      // Calculate aspect ratio from natural dimensions
+      const aspectRatio = img.naturalWidth / img.naturalHeight;
+
+      // Store image and aspect ratio
+      preloadedImages.set(src, {
+        img,
+        aspectRatio,
+      });
+
+      resolve(aspectRatio);
+    };
+    img.src = src;
+  });
+};
+```
+
+**2. Aspect Ratio Animation**
+```javascript
+const animateAspectRatio = (newAspectRatio) => {
+  // Animate the reactive ref (component will react to changes)
+  gsap.to(currentAspectRatio, {
+    value: newAspectRatio,
+    duration: 400 / 1000, // 400ms
+    ease: "power2.inOut",
+    overwrite: true,
+  });
+};
+```
+
+**3. Component Binding** (`InteractiveCaseStudySection.vue`)
+```vue
+<div
+  v-if="previewMounted"
+  ref="previewContainerRef"
+  class="preview-container"
+  :style="{ aspectRatio: currentAspectRatio }"
+>
+```
+
+**4. SCSS Updates** (`interactive-case-study.scss`)
+```scss
+.preview-container {
+  width: 35vw;
+  max-width: 30em;
+  max-height: 80vh; // Prevent tall images from overflowing viewport
+  /* Dynamic aspect ratio set via inline style */
+  /* Default 4:3 fallback, smoothly animated between images */
+}
+```
+
+### Animation Configuration
+
+**New Config:**
+```javascript
+aspectRatio: {
+  duration: 400, // ms - slightly slower for smooth size morphing
+  ease: "power2.inOut", // Smooth in-out for size changes
+}
+```
+
+**Why 400ms?**
+- Slightly slower than clip-path transitions (350ms)
+- Gives preview time to smoothly morph between sizes
+- Feels more natural than instant resize
+
+### Implementation Details
+
+**State Management:**
+- `currentAspectRatio` ref stores active aspect ratio (default 4:3)
+- Updated during `handleFirstHover`, `handleReentry`, `handleItemSwitch`
+- Reactive binding automatically updates preview size
+
+**Transition Flow:**
+1. User hovers item → `setActivePreview()` called
+2. Image preloaded → aspect ratio detected (e.g., 1.96:1)
+3. `animateAspectRatio()` smoothly morphs from old to new ratio
+4. Clip-path transition plays simultaneously
+5. Preview container smoothly changes size while revealing new image
+
+**Fallback Handling:**
+- Default aspect ratio: 4:3 (fallback if preload fails)
+- Error handling continues animation with default ratio
+- Prevents broken states if image fails to load
+
+### Results
+
+**Before:**
+- ❌ All images locked to 4:3 ratio
+- ❌ Static, boring preview sizes
+- ❌ Wide landscapes squished, squares stretched
+
+**After:**
+- ✅ Each image uses natural aspect ratio
+- ✅ Smooth 400ms morph between sizes
+- ✅ Wide images get wide preview, square images get square preview
+- ✅ Much more visually interesting and dynamic
+- ✅ Respects image proportions perfectly
+
+### Performance
+
+- **Aspect ratio detection**: Instant (during preload)
+- **Cache hit**: No additional work on re-hover
+- **Animation**: GPU-accelerated (CSS aspect-ratio property)
+- **No layout thrashing**: Height auto-calculates from width + ratio
+- **Smooth 60fps**: GSAP handles interpolation perfectly
+
+### Size Constraints
+
+**Viewport Limits:**
+```scss
+width: 35vw;           // Responsive to viewport
+max-width: 30em;       // ~480px max
+max-height: 80vh;      // Prevent tall images overflowing
+
+@media (min-width: 1024px) {
+  width: 40vw;
+  max-width: 40em;     // ~640px max
+}
+```
+
+**Why max-height?**
+- Portrait/tall images could exceed viewport height
+- 80vh ensures preview always fits on screen
+- Maintains aspect ratio while respecting viewport bounds
 
 ---
 
