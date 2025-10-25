@@ -32,7 +32,7 @@
 .interactive-case-study-section {
   /* Transparent - allows FluidGradient or other backgrounds to show through */
   background: transparent;
-
+  align-content: start;
   /* Position relative for absolute-positioned preview */
   position: relative;
 }
@@ -40,7 +40,7 @@
 /* Section title */
 .section-title {
   color: var(--theme-text-60);
-  font-size: var(--step-1); /* Fluid 12-16px */
+  font-size: var(--step-2); /* Fluid 12-16px */
   font-weight: 400;
   letter-spacing: 0.02em;
 }
@@ -164,7 +164,7 @@
 .item-title-col {
   display: flex;
   align-items: baseline;
-  gap: var(--space-2xs); /* Fluid 9-11px */
+  gap: var(--space-m); /* Fluid 9-11px */
   flex-wrap: wrap;
 }
 
@@ -176,6 +176,8 @@
   color: var(--theme-text-60);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  align-self: center;
+  margin-bottom: 1em;
 }
 
 /* Right column: Description */
@@ -187,7 +189,7 @@
 }
 
 .item-description {
-  color: var(--theme-text-100);
+  color: var(--theme-text-40);
 }
 
 /* ============================================
@@ -234,7 +236,7 @@
 .card-header {
   display: flex;
   align-items: baseline;
-  gap: var(--space-3xs-2xs); /* Fluid 5-11px */
+  gap: var(--space-s-m); /* Fluid 5-11px */
   flex-wrap: wrap;
 }
 
@@ -246,10 +248,11 @@
   color: var(--theme-text-60);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  align-self: center;
 }
 
 .card-description {
-  color: var(--theme-text-100);
+  color: var(--theme-text-40);
 }
 
 /* ============================================
