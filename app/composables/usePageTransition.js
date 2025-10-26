@@ -442,6 +442,27 @@ export const usePageTransition = () => {
             const { type, config } = element._pageAnimation;
             const position = index * 0.08; // Stagger start times (slightly slower than leave)
 
+            // Check if element should skip enter animation (only animate on leave)
+            // Used for scroll-triggered elements that should only transition OUT
+            if (config.leaveOnly) {
+              // Set initial hidden state but don't animate
+              // This prevents flash of visible content
+              // ScrollTrigger or other systems will handle the IN animation
+              if (type === "stagger") {
+                const selector = config.selector || ":scope > *";
+                const children = element.querySelectorAll(selector);
+                $gsap.set(children, { y: 15, opacity: 0 });
+              } else if (type === "fade") {
+                // Set fade initial state if needed in future
+                const direction = config.direction || "up";
+                const distance = config.distance || 20;
+                const axis = direction === "up" || direction === "down" ? "y" : "x";
+                const value = direction === "up" || direction === "left" ? distance : -distance;
+                $gsap.set(element, { [axis]: value, opacity: 0 });
+              }
+              return; // Skip animation
+            }
+
             // Call appropriate animation function
             // Animation functions will set their own initial states
             switch (type) {

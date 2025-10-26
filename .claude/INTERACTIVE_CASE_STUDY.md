@@ -290,50 +290,134 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
    - Check console logs for resolved direction
    - Ensure GSAP is available
 
-## Next Steps (Upcoming Features)
+## Entrance & Scroll Animations
 
-### Entrance Animations on Scroll
+### Dual Animation Modes
 
-Similar to HeroSection.vue but triggered when scrolling into view:
+The section supports two animation modes controlled by props:
 
-**Goal:** Smooth stagger animation for all items when section enters viewport
+**Props:**
+- `animateEntrance` (Boolean, default: false) - Use entrance animation system (first load only, via setupEntrance)
+- `animateOnScroll` (Boolean, default: true) - Use ScrollTrigger animation when scrolling into viewport
+- `position` (String, default: '<-0.5') - GSAP position parameter for entrance timeline timing
 
-**Approach:**
+### Scroll Animation (Default Mode)
+
+**Goal:** Smooth stagger animation for title and items when section enters viewport, with bidirectional playback on scroll.
+
+**Implementation:**
 ```javascript
-// InteractiveCaseStudySection.vue
-onMounted(() => {
-  if (!$ScrollTrigger) return;
+// Creates timeline with fromTo() for explicit start/end states
+const createSectionAnimation = () => {
+  const tl = $gsap.timeline();
 
-  const items = sectionRef.value.querySelectorAll('.case-study-item');
+  // Title animation
+  if (titleRef.value) {
+    tl.fromTo(
+      titleRef.value,
+      { opacity: 0, y: 40 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    );
+  }
 
-  $ScrollTrigger.create({
-    trigger: sectionRef.value,
-    start: 'top 80%', // When section is 80% down viewport
-    once: true,       // Only animate once
-    onEnter: () => {
-      $gsap.from(items, {
-        opacity: 0,
-        y: 40,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out'
-      });
+  // Items animation - targets .case-study-item selector (desktop only)
+  if (itemsListRef.value) {
+    const items = itemsListRef.value.querySelectorAll(".case-study-item");
+    if (items.length > 0) {
+      tl.fromTo(
+        items,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out",
+        },
+        "<+0.2" // Start 0.2s after title animation begins
+      );
     }
-  });
+  }
+
+  return tl;
+};
+
+// ScrollTrigger with scrub for bidirectional playback
+$ScrollTrigger.create({
+  trigger: sectionRef.value,
+  start: "top 80%",
+  end: "bottom top+=25%",
+  animation: scrollTimeline,
+  scrub: 0.5,
+  invalidateOnRefresh: true,
 });
 ```
 
-**Integration Points:**
-- Works alongside existing hover/preview system
-- Respects `html.is-first-load` for first load vs navigation
-- Uses existing design tokens for timing
-- No conflicts with page transition directives
+**Integration with Page Transitions:**
 
-**Design Decisions:**
-- Stagger timing: 0.1s (similar to services in HeroSection)
-- Animation duration: 0.6s (matches button animation)
-- Y offset: 40px (consistent with other entrance animations)
-- Trigger point: 80% (items visible before animating)
+The scroll animation system works seamlessly with page transitions by:
+
+1. **Kill-and-Recreate Pattern**: ScrollTrigger instance is killed and recreated after page transitions for fresh DOM queries
+2. **Store-Based Timing**: Uses `pageTransitionStore.isTransitioning` and `loadingStore.isFirstLoad` for proper coordination (NO setTimeout hacks)
+3. **Clearing Stale Styles**: `gsap.set()` with `clearProps: "all"` removes inline styles from page transition directives before creating timeline
+4. **Explicit State Definition**: `.fromTo()` defines both start and end states, ensuring reliable animation regardless of current element state
+
+**Critical Fix for Page Transitions:**
+```javascript
+// Clear inline GSAP styles from page transitions
+// The v-page-stagger directive leaves inline styles (opacity, transform)
+// These stale styles prevent scroll animations from working after transitions
+if (titleRef.value) {
+  $gsap.set(titleRef.value, { clearProps: "all" });
+}
+if (itemsListRef.value) {
+  const items = itemsListRef.value.querySelectorAll(".case-study-item");
+  if (items.length > 0) {
+    $gsap.set(items, { clearProps: "all" });
+  }
+}
+```
+
+### Entrance Animation (Opt-In Mode)
+
+When `animateEntrance: true`, the section uses the entrance animation system (InteractiveCaseStudySection.vue:258-266):
+
+```vue
+<InteractiveCaseStudySection animate-entrance :position="'<-0.3'">
+  <!-- items -->
+</InteractiveCaseStudySection>
+```
+
+**How it works:**
+- Only runs on first load (via `html.is-first-load` class scoping)
+- Uses `setupEntrance()` from entrance animation system
+- Same `createSectionAnimation()` function as scroll mode
+- CSS hides elements until animation plays (no FOUC)
+
+### Design Decisions
+
+- **Stagger timing**: 0.1s (similar to services in HeroSection)
+- **Animation duration**: 0.6s (matches other entrance animations)
+- **Y offset**: 40px (consistent with page transition system)
+- **Trigger point**: 80% (items visible before animating)
+- **Scrub**: 0.5s (smooth bidirectional playback)
+- **End point**: "bottom top+=25%" (animation completes before section leaves viewport)
+
+### Selector Specificity
+
+**Critical**: Use `.case-study-item` selector, NOT `:scope > *`
+
+**Why:**
+- `.case-study-list` contains BOTH desktop (`.case-study-item`) AND mobile (`.case-study-card`) items
+- Using `:scope > *` would query all 8 children (4 desktop + 4 mobile)
+- Mobile items have `display: none` on desktop - can't animate hidden elements!
+
+### Works With
+
+- Page transition directives (`v-page-split:lines`, `v-page-stagger`)
+- ScrollSmoother parallax effects
+- Preview hover system
+- Theme switching
 
 ---
 

@@ -39,7 +39,8 @@ export default {
         selector: config.selector || ':scope > *', // Default to direct children
         stagger: config.stagger !== undefined ? config.stagger : 0.1,
         duration: config.duration || 0.5,
-        ease: config.ease || 'power2.out'
+        ease: config.ease || 'power2.out',
+        leaveOnly: config.leaveOnly || false // Only animate on page leave, skip enter
       }
     }
   },

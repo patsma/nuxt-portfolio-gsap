@@ -22,9 +22,9 @@ Directive-based GSAP transitions with ScrollSmoother parallax and headroom integ
 | Directive | Args | Common Options | Example |
 |-----------|------|----------------|---------|
 | `v-page-split` | chars, words, lines | stagger, duration, ease, y | `v-page-split:chars="{ stagger: 0.04 }"` |
-| `v-page-fade` | up, down, left, right | distance, duration, ease | `v-page-fade:up="{ distance: 40 }"` |
+| `v-page-fade` | up, down, left, right | distance, duration, ease, leaveOnly | `v-page-fade:up="{ distance: 40 }"` |
 | `v-page-clip` | top, bottom, left, right | duration, ease | `v-page-clip:bottom="{ duration: 0.8 }"` |
-| `v-page-stagger` | - | selector, stagger, duration | `v-page-stagger="{ selector: 'a' }"` |
+| `v-page-stagger` | - | selector, stagger, duration, leaveOnly | `v-page-stagger="{ selector: 'a', leaveOnly: true }"` |
 
 ### Defaults
 
@@ -38,7 +38,41 @@ Directive-based GSAP transitions with ScrollSmoother parallax and headroom integ
 - `direction: 'top'`, `duration: 0.6`, `ease: 'power2.out'`
 
 **v-page-stagger:**
-- `selector: ':scope > *'`, `stagger: 0.1`, `duration: 0.5`, `ease: 'power2.out'`
+- `selector: ':scope > *'`, `stagger: 0.1`, `duration: 0.5`, `ease: 'power2.out'`, `leaveOnly: false`
+
+### Leave-Only Mode
+
+**Use Case:** Elements that should only animate OUT during page transitions, with IN animation handled by ScrollTrigger or other systems.
+
+**Option:** `leaveOnly: true`
+
+**Behavior:**
+- **Page Leave**: Element animates OUT normally ✅
+- **Page Enter**: Element is set to hidden state but doesn't animate ✅
+- **After Enter**: ScrollTrigger or other systems handle the IN animation ✅
+
+**Example - Scroll-Triggered Elements:**
+```vue
+<!-- Items should only transition OUT, ScrollTrigger handles IN animation -->
+<div v-page-stagger="{ stagger: 0.08, leaveOnly: true }">
+  <div>Item 1</div>
+  <div>Item 2</div>
+</div>
+
+<!-- Fade element that uses custom IN animation -->
+<h2 v-page-fade:up="{ distance: 40, leaveOnly: true }">
+  Title animated by ScrollTrigger
+</h2>
+```
+
+**Supported Directives:**
+- `v-page-stagger` - Sets children to `y: 15, opacity: 0` on enter (no animation)
+- `v-page-fade` - Sets element to initial fade state on enter (no animation)
+
+**Why Use This:**
+- Prevents conflict between page transitions and scroll-based animations
+- Elements controlled by ScrollTrigger should use `leaveOnly: true`
+- Ensures clean state after page transition without animating IN
 
 ## Parallax Effects
 

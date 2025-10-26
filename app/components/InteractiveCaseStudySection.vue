@@ -2,15 +2,21 @@
   <section
     ref="sectionRef"
     class="interactive-case-study-section content-grid w-full min-h-screen relative py-12 md:py-16 lg:py-20"
+    :data-entrance-animate="animateEntrance ? 'true' : undefined"
     @mousemove="handleMouseMove"
   >
-    <h2 class="section-title breakout3 mb-8 md:mb-12" v-page-split:lines>
+    <h2
+      ref="titleRef"
+      class="section-title breakout3 mb-8 md:mb-12"
+      v-page-split:lines
+    >
       <slot name="title">Work</slot>
     </h2>
 
     <div
+      ref="itemsListRef"
       class="case-study-list full-width-content"
-      v-page-stagger="{ stagger: 0.08 }"
+      v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
     >
       <slot />
     </div>
@@ -57,19 +63,62 @@
  * Interactive case study gallery with cursor-following preview
  * Desktop: List layout with hover preview (dynamic aspect ratios, crossfade transitions)
  * Mobile: Card layout with images
+ *
+ * Entrance Animation System:
+ * - animateEntrance: Use entrance animation system for first load (via setupEntrance)
+ * - animateOnScroll: Use ScrollTrigger animation when scrolling into view (default)
+ * - position: GSAP position parameter for entrance timeline timing
  */
 import { useInteractiveCaseStudyPreview } from "~/composables/useInteractiveCaseStudyPreview";
 import { calculatePreviewPosition } from "~/utils/previewPosition";
 
-const { $gsap } = useNuxtApp();
+// Props
+const props = defineProps({
+  /**
+   * Enable entrance animation on first load (uses setupEntrance system)
+   * @type {boolean}
+   */
+  animateEntrance: {
+    type: Boolean,
+    default: false,
+  },
+  /**
+   * Enable scroll-triggered animation when section enters viewport
+   * @type {boolean}
+   */
+  animateOnScroll: {
+    type: Boolean,
+    default: true,
+  },
+  /**
+   * GSAP position parameter for entrance animation timing
+   * Examples:
+   * - '<' - Start with previous animation (overlap completely)
+   * - '<-0.5' - Start 0.5s before previous ends (default)
+   * - '+=0.2' - Start 0.2s after previous animation
+   * @type {string}
+   */
+  position: {
+    type: String,
+    default: "<-0.5",
+  },
+});
+
+const { $gsap, $ScrollTrigger } = useNuxtApp();
+const loadingStore = useLoadingStore();
+const pageTransitionStore = usePageTransitionStore();
 
 const sectionRef = ref(null);
+const titleRef = ref(null);
+const itemsListRef = ref(null);
 const previewContainerRef = ref(null);
 const currentImageWrapperRef = ref(null);
 const nextImageWrapperRef = ref(null);
 
 const cursorX = ref(0);
 const cursorY = ref(0);
+
+let scrollTriggerInstance = null;
 
 const getRefs = () => ({
   sectionRef: sectionRef.value,
@@ -153,11 +202,139 @@ const clearActivePreview = () => {
 provide("setActivePreview", setActivePreview);
 provide("clearActivePreview", clearActivePreview);
 
+// Entrance animation system (optional, for consistency with HeroSection)
+const { setupEntrance } = useEntranceAnimation();
+
+/**
+ * Create reusable animation function for title + items
+ * Used by both entrance animation and scroll animation
+ */
+const createSectionAnimation = () => {
+  const tl = $gsap.timeline();
+
+  // Animate title (fade + y offset)
+  // Using .fromTo() to explicitly define both start and end states
+  if (titleRef.value) {
+    tl.fromTo(
+      titleRef.value,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out",
+      }
+    );
+  }
+
+  // Animate items (stagger fade + y offset)
+  // Query only visible desktop items (.case-study-item)
+  // Using .fromTo() to explicitly define both start and end states
+  if (itemsListRef.value) {
+    const items = itemsListRef.value.querySelectorAll(".case-study-item");
+    if (items.length > 0) {
+      tl.fromTo(
+        items,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out",
+        },
+        "<+0.2" // Start 0.2s after title animation begins
+      );
+    }
+  }
+
+  return tl;
+};
+
 // Hide preview smoothly when scrolling out of section (prevents stuck previews)
 // Monitors cursor position continuously and hides with animation if outside section
 onMounted(() => {
-  const { $ScrollTrigger } = useNuxtApp();
+  // Setup entrance or scroll animation
+  if (props.animateEntrance) {
+    // ENTRANCE MODE: Use entrance animation system (first load only)
+    // CSS will hide elements via html.is-first-load scoping
+    if (sectionRef.value) {
+      setupEntrance(sectionRef.value, {
+        position: props.position,
+        animate: () => createSectionAnimation(),
+      });
+    }
+  } else if (props.animateOnScroll) {
+    // SCROLL MODE: Animate when scrolling into view (default)
+    // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
+    // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
+    if ($ScrollTrigger && sectionRef.value) {
+      // Create/recreate ScrollTrigger with fresh element queries
+      const createScrollTrigger = () => {
+        // Kill existing ScrollTrigger if present
+        if (scrollTriggerInstance) {
+          scrollTriggerInstance.kill();
+          scrollTriggerInstance = null;
+        }
 
+        // CRITICAL: Clear inline GSAP styles from page transitions
+        // The v-page-stagger directive leaves inline styles (opacity, transform) on elements
+        // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
+        if (titleRef.value) {
+          $gsap.set(titleRef.value, { clearProps: "all" });
+          $gsap.set(titleRef.value, { opacity: 0, y: 40 });
+        }
+        if (itemsListRef.value) {
+          const items = itemsListRef.value.querySelectorAll(".case-study-item");
+          if (items.length > 0) {
+            $gsap.set(items, { clearProps: "all" });
+            $gsap.set(items, { opacity: 0, y: 40 });
+          }
+        }
+
+        // Create timeline with fromTo() defining both start and end states
+        // Initial state already set above, timeline will animate based on scroll position
+        const scrollTimeline = createSectionAnimation();
+
+        // Create ScrollTrigger with animation timeline
+        scrollTriggerInstance = $ScrollTrigger.create({
+          trigger: sectionRef.value,
+          start: "top 80%", // Animate when section is 80% down viewport
+          end: "bottom top+=25%", // Complete animation when bottom of section reaches top of viewport
+          animation: scrollTimeline, // Link timeline to scroll position
+          scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
+          invalidateOnRefresh: true, // Recalculate on window resize/refresh
+        });
+      };
+
+      // Coordinate with page transition system
+      // First load: Create immediately after mount
+      // Navigation: Recreate after page transition completes
+      if (loadingStore.isFirstLoad) {
+        nextTick(() => {
+          createScrollTrigger();
+        });
+      } else {
+        // After page navigation, wait for page transition to complete
+        // Watch pageTransitionStore.isTransitioning for proper timing
+        const unwatch = watch(
+          () => pageTransitionStore.isTransitioning,
+          (isTransitioning) => {
+            // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
+            if (!isTransitioning) {
+              nextTick(() => {
+                createScrollTrigger();
+              });
+              unwatch(); // Stop watching
+            }
+          },
+          { immediate: true }
+        );
+      }
+    }
+  }
+
+  // Scroll trigger for hiding preview (separate from entrance animation)
   if ($ScrollTrigger) {
     $ScrollTrigger.create({
       trigger: sectionRef.value,
@@ -193,6 +370,14 @@ onMounted(() => {
         }
       },
     });
+  }
+});
+
+// Cleanup ScrollTrigger on unmount
+onUnmounted(() => {
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill();
+    scrollTriggerInstance = null;
   }
 });
 </script>

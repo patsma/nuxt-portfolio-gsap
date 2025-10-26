@@ -22,7 +22,31 @@
    - Uses CSS custom properties for colors
    - Adapts to light/dark theme automatically
    - Smooth transitions using design tokens
+
+   Entrance Animation:
+   - Optional entrance animation system support (via data-entrance-animate)
+   - Default scroll-triggered animation when entering viewport
+   - CSS hides elements on first load to prevent FOUC
 */
+
+/* ============================================
+   ENTRANCE ANIMATION HIDING (FIRST LOAD ONLY)
+   ============================================ */
+
+/* Hide section elements on first load when entrance animation is enabled */
+/* This prevents FOUC (Flash Of Unstyled Content) before animations run */
+/* Only applies when html.is-first-load class exists (removed after first load) */
+html.is-first-load [data-entrance-animate="true"] {
+  .section-title {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .case-study-item {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 
 /* ============================================
    SECTION CONTAINER
