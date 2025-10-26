@@ -63,8 +63,27 @@ const ANIMATION_CONFIG = {
     ease: "power2.inOut", // Smooth in-out for size changes
   },
   clipPath: {
-    closed: "inset(50% 50% 50% 50%)",
-    open: "inset(0% 0% 0% 0%)",
+    // Various clip-path states for different reveal directions
+    center: {
+      closed: "inset(50% 50% 50% 50%)",
+      open: "inset(0% 0% 0% 0%)",
+    },
+    left: {
+      closed: "inset(0% 100% 0% 0%)",
+      open: "inset(0% 0% 0% 0%)",
+    },
+    right: {
+      closed: "inset(0% 0% 0% 100%)",
+      open: "inset(0% 0% 0% 0%)",
+    },
+    top: {
+      closed: "inset(0% 0% 100% 0%)",
+      open: "inset(0% 0% 0% 0%)",
+    },
+    bottom: {
+      closed: "inset(100% 0% 0% 0%)",
+      open: "inset(0% 0% 0% 0%)",
+    },
   },
   position: {
     offsetX: 30, // px to the right
@@ -73,6 +92,19 @@ const ANIMATION_CONFIG = {
   debounce: {
     clearDelay: 100, // ms delay before hiding preview (allows rapid item switching)
   },
+};
+
+/**
+ * Resolve clip direction (handles 'random' option)
+ * @param {string} direction - Direction or 'random'
+ * @returns {string} Resolved direction ('center', 'left', 'right', 'top', 'bottom')
+ */
+const resolveClipDirection = (direction) => {
+  if (direction === 'random') {
+    const directions = ['center', 'left', 'right', 'top', 'bottom'];
+    return directions[Math.floor(Math.random() * directions.length)];
+  }
+  return direction;
 };
 
 export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
@@ -88,6 +120,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const preloadedImages = new Map(); // Stores { img, aspectRatio }
   const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
   const isNavigating = ref(false); // Prevents re-showing preview during navigation
+  const currentClipDirection = ref('center'); // Track current clip direction for animations
 
   /**
    * Preload image for instant display on hover
@@ -198,21 +231,25 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   /**
    * Animate clip-path reveal
    * @param {HTMLElement} target - Target element
+   * @param {string} direction - Clip direction ('center', 'left', 'right', 'top', 'bottom')
    * @param {Function} onComplete - Completion callback
    */
-  const animateClipReveal = (target, onComplete) => {
+  const animateClipReveal = (target, direction, onComplete) => {
     if (!target) {
       log.error("animateClipReveal: target is null");
       return;
     }
 
-    log.animationStart("clip-reveal", ANIMATION_CONFIG.clipReveal.duration);
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
+    log.animationStart("clip-reveal", ANIMATION_CONFIG.clipReveal.duration, {
+      direction,
+    });
 
     gsap.fromTo(
       target,
-      { clipPath: ANIMATION_CONFIG.clipPath.closed },
+      { clipPath: clipPaths.closed },
       {
-        clipPath: ANIMATION_CONFIG.clipPath.open,
+        clipPath: clipPaths.open,
         duration: ANIMATION_CONFIG.clipReveal.duration / 1000, // Convert to seconds
         ease: ANIMATION_CONFIG.clipReveal.ease,
         overwrite: true, // Kill all tweens on target for smooth interruption
@@ -230,18 +267,22 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   /**
    * Animate clip-path close
    * @param {HTMLElement} target - Target element
+   * @param {string} direction - Clip direction ('center', 'left', 'right', 'top', 'bottom')
    * @param {Function} onComplete - Completion callback
    */
-  const animateClipClose = (target, onComplete) => {
+  const animateClipClose = (target, direction, onComplete) => {
     if (!target) {
       log.error("animateClipClose: target is null");
       return;
     }
 
-    log.animationStart("clip-close", ANIMATION_CONFIG.clipClose.duration);
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
+    log.animationStart("clip-close", ANIMATION_CONFIG.clipClose.duration, {
+      direction,
+    });
 
     gsap.to(target, {
-      clipPath: ANIMATION_CONFIG.clipPath.closed,
+      clipPath: clipPaths.closed,
       duration: ANIMATION_CONFIG.clipClose.duration / 1000,
       ease: ANIMATION_CONFIG.clipClose.ease,
       overwrite: true, // Kill all tweens on target for smooth interruption
@@ -259,9 +300,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * Animate dual clip-path transition (one closes, one opens)
    * @param {HTMLElement} clipOutTarget - Element to close
    * @param {HTMLElement} clipInTarget - Element to open
+   * @param {string} outDirection - Direction for closing animation
+   * @param {string} inDirection - Direction for opening animation
    * @param {Function} onComplete - Completion callback
    */
-  const animateDualClip = (clipOutTarget, clipInTarget, onComplete) => {
+  const animateDualClip = (clipOutTarget, clipInTarget, outDirection, inDirection, onComplete) => {
     if (!clipOutTarget || !clipInTarget) {
       log.error("animateDualClip: missing targets", {
         clipOut: !!clipOutTarget,
@@ -270,9 +313,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       return;
     }
 
+    const clipPathOut = ANIMATION_CONFIG.clipPath[outDirection];
+    const clipPathIn = ANIMATION_CONFIG.clipPath[inDirection];
+
     log.animationStart("dual-clip", ANIMATION_CONFIG.dualClip.duration, {
-      clipOut: "closing",
-      clipIn: "opening",
+      outDirection,
+      inDirection,
     });
 
     // Ensure new image wrapper is visible
@@ -288,11 +334,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       },
     });
 
-    // Clip out current image (0% → 50% inset)
+    // Clip out current image (0% → closed inset)
     tl.to(
       clipOutTarget,
       {
-        clipPath: ANIMATION_CONFIG.clipPath.closed,
+        clipPath: clipPathOut.closed,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
         overwrite: true, // Kill all tweens on target for smooth interruption
@@ -300,12 +346,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       0 // Position 0 - start immediately
     );
 
-    // Clip in next image (50% → 0% inset)
+    // Clip in next image (closed → 0% inset)
     tl.fromTo(
       clipInTarget,
-      { clipPath: ANIMATION_CONFIG.clipPath.closed },
+      { clipPath: clipPathIn.closed },
       {
-        clipPath: ANIMATION_CONFIG.clipPath.open,
+        clipPath: clipPathIn.open,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
         overwrite: true, // Kill all tweens on target for smooth interruption
@@ -352,13 +398,17 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
   /**
    * Handle first hover - Initialize and reveal preview
-   * @param {Object} preview - Preview data { image, imageAlt }
+   * @param {Object} preview - Preview data { image, imageAlt, clipDirection }
    * @param {Object} cursor - Cursor position { x, y }
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleFirstHover = async (preview, cursor, aspectRatio) => {
     log.route("FIRST_HOVER", { image: preview.image });
     log.state("IDLE", "REVEALING", { image: preview.image });
+
+    // Resolve clip direction (handles 'random')
+    const direction = resolveClipDirection(preview.clipDirection || 'random');
+    currentClipDirection.value = direction;
 
     // Set state
     currentImage.value = preview;
@@ -402,27 +452,32 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     setInitialPosition(refs, cursor);
 
     // Set initial opacity and clip-path
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
     gsap.set(refs.currentImageWrapperRef, {
       opacity: 1,
-      clipPath: ANIMATION_CONFIG.clipPath.closed, // Start closed
+      clipPath: clipPaths.closed, // Start closed
     });
     gsap.set(refs.nextImageWrapperRef, { opacity: 0 });
 
     // Animate clip-path reveal
-    animateClipReveal(refs.currentImageWrapperRef, () => {
+    animateClipReveal(refs.currentImageWrapperRef, direction, () => {
       log.state("REVEALING", "VISIBLE");
     });
   };
 
   /**
    * Handle re-entry after leaving section
-   * @param {Object} preview - Preview data { image, imageAlt }
+   * @param {Object} preview - Preview data { image, imageAlt, clipDirection }
    * @param {boolean} sameImage - Whether this is the same image as before
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleReentry = async (preview, sameImage, aspectRatio) => {
     log.route("RE_ENTRY", { image: preview.image, sameImage });
     log.state("IDLE", "REVEALING", { image: preview.image, reentry: true });
+
+    // Resolve clip direction for new animation
+    const direction = resolveClipDirection(preview.clipDirection || 'random');
+    currentClipDirection.value = direction;
 
     showPreview.value = true;
     isTransitioning.value = true;
@@ -473,8 +528,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     gsap.set(hideTarget, { opacity: 0 });
     gsap.set(revealTarget, { opacity: 1 });
 
-    // Animate clip-path reveal
-    animateClipReveal(revealTarget, () => {
+    // Animate clip-path reveal with new direction
+    animateClipReveal(revealTarget, direction, () => {
       // Toggle active state if different image
       if (!sameImage) {
         currentImageActive.value = !currentImageActive.value;
@@ -489,7 +544,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
   /**
    * Handle item switch with dual clip-path transition
-   * @param {Object} preview - Preview data { image, imageAlt }
+   * @param {Object} preview - Preview data { image, imageAlt, clipDirection }
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleItemSwitch = async (preview, aspectRatio) => {
@@ -500,6 +555,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       to: preview.image,
     });
     log.state("VISIBLE", "TRANSITIONING", { image: preview.image });
+
+    // Resolve new clip direction for incoming image
+    const newDirection = resolveClipDirection(preview.clipDirection || 'random');
+    const oldDirection = currentClipDirection.value; // Use previous direction for closing
+    currentClipDirection.value = newDirection; // Update for next animation
 
     // Get current refs for cleanup
     let refs = getRefs();
@@ -559,8 +619,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       ? refs.nextImageWrapperRef
       : refs.currentImageWrapperRef;
 
-    // Animate dual clip-path transition
-    animateDualClip(clipOutTarget, clipInTarget, () => {
+    // Animate dual clip-path transition with different directions for variety
+    animateDualClip(clipOutTarget, clipInTarget, oldDirection, newDirection, () => {
       // Toggle active state
       currentImageActive.value = !currentImageActive.value;
       isTransitioning.value = false;
@@ -687,8 +747,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         return;
       }
 
-      // Animate clip-path close
-      animateClipClose(activeWrapper, () => {
+      // Animate clip-path close using current direction
+      animateClipClose(activeWrapper, currentClipDirection.value, () => {
         showPreview.value = false;
         isTransitioning.value = false;
         clearTimer.value = null;
@@ -743,8 +803,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       return;
     }
 
-    // Animate clip-path close immediately
-    animateClipClose(activeWrapper, () => {
+    // Animate clip-path close immediately using current direction
+    animateClipClose(activeWrapper, currentClipDirection.value, () => {
       showPreview.value = false;
       isTransitioning.value = false;
       log.state("CLOSING", "IDLE");

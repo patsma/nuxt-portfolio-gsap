@@ -56,6 +56,7 @@ InteractiveCaseStudySection.vue
 - `image` (required): Image path
 - `image-alt` (required): Alt text
 - `to` (default: "/contact"): Navigation path
+- `clip-direction` (default: "random"): Clip animation direction ('center', 'left', 'right', 'top', 'bottom', 'random')
 
 ## Technical Details
 
@@ -69,9 +70,10 @@ InteractiveCaseStudySection.vue
 
 **Animations:**
 - Cursor follow: 0.6s power2.out lag effect
-- Clip reveal/close: 350ms power2.inOut
+- Clip reveal/close: 350ms power2.inOut (direction-aware)
 - Aspect ratio morph: 400ms power2.inOut
 - Crossfade: Dual-image wrappers with opacity
+- Clip directions: center (50% inset), left, right, top, bottom
 
 **Size:**
 - Width: 35vw (40vw @ lg), max 30em (40em @ lg)

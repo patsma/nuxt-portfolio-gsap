@@ -161,6 +161,17 @@ const props = defineProps({
     type: String,
     default: '/contact',
   },
+  /**
+   * Clip animation direction for preview reveal
+   * Options: 'center', 'left', 'right', 'top', 'bottom', 'random'
+   * Defaults to 'random' for variety
+   * @type {string}
+   */
+  clipDirection: {
+    type: String,
+    default: 'random',
+    validator: (value) => ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value),
+  },
 });
 
 // Inject context from parent InteractiveCaseStudySection
@@ -176,6 +187,7 @@ const handleMouseEnter = () => {
     setActivePreview({
       image: props.image,
       imageAlt: props.imageAlt,
+      clipDirection: props.clipDirection,
     });
   }
 };
