@@ -149,34 +149,25 @@ const clearActivePreview = () => {
 provide("setActivePreview", setActivePreview);
 provide("clearActivePreview", clearActivePreview);
 
-// Hide preview during fast scrolling if cursor outside section (throttled)
+// Hide preview when scrolling out of section bounds (both directions)
 onMounted(() => {
   const { $ScrollTrigger } = useNuxtApp();
 
   if ($ScrollTrigger) {
-    let lastCheck = 0;
-    const throttleMs = 150;
-
     $ScrollTrigger.create({
-      onUpdate: (self) => {
-        const now = Date.now();
-        if (now - lastCheck < throttleMs) return;
-        lastCheck = now;
-
-        if (showPreview.value && Math.abs(self.getVelocity()) > 50) {
-          if (sectionRef.value && cursorX.value && cursorY.value) {
-            const sectionRect = sectionRef.value.getBoundingClientRect();
-
-            const isCursorOutsideSection =
-              cursorX.value < sectionRect.left ||
-              cursorX.value > sectionRect.right ||
-              cursorY.value < sectionRect.top ||
-              cursorY.value > sectionRect.bottom;
-
-            if (isCursorOutsideSection) {
-              clearActivePreview();
-            }
-          }
+      trigger: sectionRef.value,
+      start: "top top",
+      end: "bottom bottom",
+      onLeave: () => {
+        // User scrolled past the section (going down)
+        if (showPreview.value) {
+          clearActivePreview();
+        }
+      },
+      onLeaveBack: () => {
+        // User scrolled past the section (going up)
+        if (showPreview.value) {
+          clearActivePreview();
         }
       },
     });
