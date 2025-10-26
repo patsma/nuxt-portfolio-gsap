@@ -258,6 +258,21 @@
 }
 
 /* ============================================
+   PREVIEW FADE TRANSITION
+   ============================================ */
+
+/* Smooth fade transition for preview visibility */
+.preview-fade-enter-active,
+.preview-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.preview-fade-enter-from,
+.preview-fade-leave-to {
+  opacity: 0;
+}
+
+/* ============================================
    RESPONSIVE ADJUSTMENTS
    ============================================ */
 

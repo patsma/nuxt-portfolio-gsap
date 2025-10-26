@@ -15,36 +15,39 @@
       <slot />
     </div>
 
-    <!-- Teleport to body for scroll support, visibility via clip-path -->
+    <!-- Teleport to body for scroll support, visibility with smooth fade transition -->
     <Teleport to="body" v-if="previewMounted">
-      <div
-        ref="previewContainerRef"
-        class="preview-container hidden md:block"
-        :class="{ active: showPreview }"
-        :style="{ aspectRatio: currentAspectRatio }"
-      >
-        <div ref="currentImageWrapperRef" class="preview-image-wrapper">
-          <NuxtImg
-            v-if="currentImage"
-            :src="currentImage.image"
-            :alt="currentImage.imageAlt"
-            class="preview-image"
-            loading="eager"
-            data-speed="0.95"
-          />
-        </div>
+      <Transition name="preview-fade">
+        <div
+          v-show="showPreview"
+          ref="previewContainerRef"
+          class="preview-container hidden md:block"
+          :class="{ active: showPreview }"
+          :style="{ aspectRatio: currentAspectRatio }"
+        >
+          <div ref="currentImageWrapperRef" class="preview-image-wrapper">
+            <NuxtImg
+              v-if="currentImage"
+              :src="currentImage.image"
+              :alt="currentImage.imageAlt"
+              class="preview-image"
+              loading="eager"
+              data-speed="0.95"
+            />
+          </div>
 
-        <div ref="nextImageWrapperRef" class="preview-image-wrapper">
-          <NuxtImg
-            v-if="nextImage"
-            :src="nextImage.image"
-            :alt="nextImage.imageAlt"
-            class="preview-image"
-            loading="eager"
-            data-speed="0.95"
-          />
+          <div ref="nextImageWrapperRef" class="preview-image-wrapper">
+            <NuxtImg
+              v-if="nextImage"
+              :src="nextImage.image"
+              :alt="nextImage.imageAlt"
+              class="preview-image"
+              loading="eager"
+              data-speed="0.95"
+            />
+          </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
   </section>
 </template>
@@ -85,6 +88,7 @@ const {
   setActivePreview: setActivePreviewComposable,
   clearActivePreview: clearActivePreviewComposable,
   clearActivePreviewImmediate,
+  clearActivePreviewInstant,
   animationConfig,
 } = useInteractiveCaseStudyPreview({
   gsap: $gsap,
@@ -149,7 +153,8 @@ const clearActivePreview = () => {
 provide("setActivePreview", setActivePreview);
 provide("clearActivePreview", clearActivePreview);
 
-// Hide preview when scrolling out of section bounds (both directions)
+// Hide preview smoothly when scrolling out of section (prevents stuck previews)
+// Monitors cursor position continuously and hides with animation if outside section
 onMounted(() => {
   const { $ScrollTrigger } = useNuxtApp();
 
@@ -159,15 +164,32 @@ onMounted(() => {
       start: "top top",
       end: "bottom bottom",
       onLeave: () => {
-        // User scrolled past the section (going down)
+        // User scrolled past section (down) - hide with smooth animation
         if (showPreview.value) {
-          clearActivePreview();
+          clearActivePreviewInstant();
         }
       },
       onLeaveBack: () => {
-        // User scrolled past the section (going up)
+        // User scrolled past section (up) - hide with smooth animation
         if (showPreview.value) {
-          clearActivePreview();
+          clearActivePreviewInstant();
+        }
+      },
+      onUpdate: () => {
+        // Failsafe: Continuously check if cursor is outside section while preview is visible
+        // This catches rapid hover + scroll edge cases that leave preview stuck
+        if (!showPreview.value || !sectionRef.value) return;
+
+        const sectionRect = sectionRef.value.getBoundingClientRect();
+        const cursorInSection =
+          cursorY.value >= sectionRect.top &&
+          cursorY.value <= sectionRect.bottom &&
+          cursorX.value >= sectionRect.left &&
+          cursorX.value <= sectionRect.right;
+
+        // If preview visible but cursor is outside section bounds - hide smoothly
+        if (!cursorInSection) {
+          clearActivePreviewInstant();
         }
       },
     });

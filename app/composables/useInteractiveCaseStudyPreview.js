@@ -121,6 +121,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
   const isNavigating = ref(false); // Prevents re-showing preview during navigation
   const currentClipDirection = ref('center'); // Track current clip direction for animations
+  const forceHideUntil = ref(0); // Timestamp to block hover events after force hide
 
   /**
    * Preload image for instant display on hover
@@ -651,6 +652,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       return;
     }
 
+    // Prevent showing preview if force-hide block is active
+    if (Date.now() < forceHideUntil.value) {
+      log.debug("Force-hide block active, skipping hover", {
+        blockedFor: forceHideUntil.value - Date.now() + "ms"
+      });
+      return;
+    }
+
     log.separator(`HOVER: ${preview.image}`);
 
     // Cancel pending clear timer (rapid item switching)
@@ -812,6 +821,55 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
   };
 
+  /**
+   * Clear active preview instantly - no debounce, WITH smooth animation
+   * Used for scroll triggers when user leaves section
+   * Animates clip-path close smoothly WITHOUT setting navigation flag
+   */
+  const clearActivePreviewInstant = () => {
+    log.separator("CLEAR INSTANT (Scroll)");
+
+    // Cancel any pending debounced clear
+    if (clearTimer.value) {
+      clearTimeout(clearTimer.value);
+      clearTimer.value = null;
+    }
+
+    // Skip if already hidden
+    if (!showPreview.value) {
+      log.debug("Preview already hidden, skipping");
+      return;
+    }
+
+    isTransitioning.value = true;
+    log.state("VISIBLE", "CLOSING", { scroll: true });
+
+    // Get currently visible wrapper
+    const refs = getRefs();
+    const activeWrapper = currentImageActive.value
+      ? refs.currentImageWrapperRef
+      : refs.nextImageWrapperRef;
+
+    if (!activeWrapper) {
+      log.warn("No active wrapper for scroll clear, immediate hide");
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+      return;
+    }
+
+    // Animate clip-path close SMOOTHLY using current direction
+    animateClipClose(activeWrapper, currentClipDirection.value, () => {
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+      // Do NOT set isNavigating - allow re-entry on hover
+    });
+
+    // Brief hover block to prevent immediate glitchy re-entry during animation
+    forceHideUntil.value = Date.now() + 100;
+  };
+
   // RETURN PUBLIC API
 
   return {
@@ -825,8 +883,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
     // Methods
     setActivePreview,
-    clearActivePreview,
-    clearActivePreviewImmediate, // Immediate clear for navigation clicks
+    clearActivePreview, // Debounced clear (100ms) with animation - for mouse leave
+    clearActivePreviewImmediate, // Immediate animated clear + isNavigating flag - for navigation
+    clearActivePreviewInstant, // Immediate animated clear, no flags - for scroll triggers
     calculatePosition,
 
     // Animation config (for external use if needed)
