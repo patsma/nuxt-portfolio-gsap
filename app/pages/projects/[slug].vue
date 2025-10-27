@@ -91,15 +91,28 @@ const router = useRouter();
 
 // Prevent rapid double navigations causing smoother crashes
 const isNavigating = ref(false);
+
+/**
+ * Release navigation lock after route completes
+ * Small delay to let new page mount and plugin reinit (300ms)
+ */
+const releaseNavigationLock = () => {
+  isNavigating.value = false;
+};
+
+const { start: startNavigationLockRelease } = useTimeoutFn(
+  releaseNavigationLock,
+  300,
+  { immediate: false } // Don't start automatically
+);
+
 const navigateToPath = (path) => {
   if (!path || isNavigating.value) return;
   isNavigating.value = true;
   // Push, then release the guard after route completes
   router.push(path).finally(() => {
-    // small delay to let new page mount and plugin reinit
-    setTimeout(() => {
-      isNavigating.value = false;
-    }, 300);
+    // Small delay to let new page mount and plugin reinit using VueUse
+    startNavigationLockRelease();
   });
 };
 
@@ -165,6 +178,65 @@ const shouldShowNavigationHints = computed(() => {
   return !!(prevProject.value || nextProject.value) && !!project.value;
 });
 
+/**
+ * Hide desktop navigation hint and mark as shown
+ */
+const hideDesktopHint = () => {
+  showDesktopHint.value = false;
+  hintsStore.markAsShown("project-navigation-desktop");
+};
+
+/**
+ * Hide mobile navigation hint and mark as shown
+ */
+const hideMobileHint = () => {
+  showMobileHint.value = false;
+  hintsStore.markAsShown("project-navigation-mobile");
+};
+
+/**
+ * VueUse timeouts for hints auto-hide (4s after showing)
+ */
+const { start: startDesktopHintAutoHide } = useTimeoutFn(hideDesktopHint, 4000, {
+  immediate: false,
+});
+
+const { start: startMobileHintAutoHide } = useTimeoutFn(hideMobileHint, 4000, {
+  immediate: false,
+});
+
+/**
+ * Show navigation hints based on device type
+ * Called after initial 2s delay
+ */
+const showNavigationHints = () => {
+  if (shouldShowNavigationHints.value) {
+    if (
+      !hintsStore.hasShown("project-navigation-desktop") &&
+      !isMobile.value
+    ) {
+      showDesktopHint.value = true;
+      // Auto-hide after 4 seconds using VueUse
+      startDesktopHintAutoHide();
+    }
+
+    if (!hintsStore.hasShown("project-navigation-mobile") && isMobile.value) {
+      showMobileHint.value = true;
+      // Auto-hide after 4 seconds using VueUse
+      startMobileHintAutoHide();
+    }
+  }
+};
+
+/**
+ * VueUse timeout for initial delay before showing hints (2s)
+ */
+const { start: startHintsInitialDelay } = useTimeoutFn(
+  showNavigationHints,
+  2000,
+  { immediate: false }
+);
+
 onMounted(() => {
   // Initialize keyboard navigation
   window.addEventListener("keydown", handleKeydown, { passive: true });
@@ -175,31 +247,8 @@ onMounted(() => {
   // Initialize hints system
   hintsStore.loadPersistedHints();
 
-  // Show hints after a delay if they haven't been shown before
-  setTimeout(() => {
-    if (shouldShowNavigationHints.value) {
-      if (
-        !hintsStore.hasShown("project-navigation-desktop") &&
-        !isMobile.value
-      ) {
-        showDesktopHint.value = true;
-        // Auto-hide after 4 seconds
-        setTimeout(() => {
-          showDesktopHint.value = false;
-          hintsStore.markAsShown("project-navigation-desktop");
-        }, 4000);
-      }
-
-      if (!hintsStore.hasShown("project-navigation-mobile") && isMobile.value) {
-        showMobileHint.value = true;
-        // Auto-hide after 4 seconds
-        setTimeout(() => {
-          showMobileHint.value = false;
-          hintsStore.markAsShown("project-navigation-mobile");
-        }, 4000);
-      }
-    }
-  }, 2000);
+  // Show hints after initial delay using VueUse
+  startHintsInitialDelay();
 });
 
 onBeforeUnmount(() => {
