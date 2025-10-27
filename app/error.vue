@@ -57,6 +57,25 @@ const errorJson = computed(() => {
 });
 
 const copyStatus = ref("");
+
+/**
+ * Reset copy status to empty
+ * Called by VueUse timeout after copy action
+ */
+const resetCopyStatus = () => {
+  copyStatus.value = "";
+};
+
+/**
+ * VueUse timeout for auto-clearing copy status
+ * Starts manually after copy action completes
+ */
+const { start: startResetTimeout, stop: cancelResetTimeout } = useTimeoutFn(
+  resetCopyStatus,
+  1600,
+  { immediate: false } // Don't start automatically
+);
+
 const handleCopyError = async () => {
   try {
     const text = `Nuxt Error Details\n\n${errorJson.value}`;
@@ -78,7 +97,9 @@ const handleCopyError = async () => {
   } catch (e) {
     copyStatus.value = "Copy failed";
   } finally {
-    setTimeout(() => (copyStatus.value = ""), 1600);
+    // Cancel any pending reset, then start new timeout using VueUse
+    cancelResetTimeout();
+    startResetTimeout();
   }
 };
 </script>
