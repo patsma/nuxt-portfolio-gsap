@@ -73,7 +73,7 @@ onMounted(() => {
 |---------|-------|---------|
 | `AT_TOP_THRESHOLD` | 10px | Distance to be considered "at top" |
 | `SCROLL_THRESHOLD` | 100px | Distance before hiding header |
-| `THROTTLE_DELAY` | 100ms | Update frequency (~10 times/sec) |
+| `THROTTLE_DELAY` | 100ms | Update frequency (~10 times/sec) using VueUse `useThrottleFn` |
 
 ### Three-State System
 
@@ -311,7 +311,7 @@ refreshSmoother()  // Recalculates parallax for new content
 
 **Optimizations:**
 - Single scroll listener (ScrollSmoother's internal)
-- Throttled updates (100ms between header changes)
+- Throttled updates (100ms between header changes using VueUse `useThrottleFn`)
 - GPU-accelerated animations (transform-based)
 - No layout reflows
 - Cached DOM references

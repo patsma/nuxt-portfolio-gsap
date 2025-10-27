@@ -7,27 +7,20 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Headroom configuration
   const AT_TOP_THRESHOLD = 10; // px to be considered "at top" (triggers full header)
   const SCROLL_THRESHOLD = 100; // px before hiding header on scroll down
-  const THROTTLE_DELAY = 100; // ms between updates
+  const THROTTLE_DELAY = 100; // ms between updates (using VueUse throttle)
 
   // State tracking
   let lastScrollTop = 0;
-  let lastUpdateTime = 0;
   let headerElement = null;
   let isPaused = false; // Pause during page transitions to prevent flicker
 
   /**
-   * Update header visibility based on scroll position and direction
-   * Called by ScrollSmoother's onUpdate callback
+   * Core header update logic (without throttle)
    * @param {number} currentScroll - Current scroll position
    */
-  const updateHeader = (currentScroll) => {
+  const updateHeaderCore = (currentScroll) => {
     // Skip updates when paused (during page transitions)
     if (isPaused) return;
-
-    // Throttle updates for performance
-    const now = Date.now();
-    if (now - lastUpdateTime < THROTTLE_DELAY) return;
-    lastUpdateTime = now;
 
     // Ensure we have header reference
     if (!headerElement) {
@@ -73,12 +66,17 @@ export default defineNuxtPlugin((nuxtApp) => {
   };
 
   /**
+   * Throttled update header function (using VueUse)
+   * Limits updates to once per THROTTLE_DELAY for performance
+   */
+  const updateHeader = useThrottleFn(updateHeaderCore, THROTTLE_DELAY);
+
+  /**
    * Reset headroom state (show header at top)
    * Called in afterLeave when content is hidden - uses instant state change (no animation)
    */
   const reset = () => {
     lastScrollTop = 0;
-    lastUpdateTime = 0;
     headerElement = document.querySelector(".header-grid");
     if (headerElement) {
       // Disable transitions for instant state change
@@ -111,7 +109,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     isPaused = false;
     // Reset tracking state so headroom starts fresh
     lastScrollTop = 0;
-    lastUpdateTime = 0;
 
     if (!headerElement) {
       headerElement = document.querySelector(".header-grid");
