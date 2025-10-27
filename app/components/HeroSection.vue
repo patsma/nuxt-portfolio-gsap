@@ -4,12 +4,12 @@
     class="content-grid w-full min-h-[100dvh] grid items-center"
     data-entrance-animate="true"
   >
-    <div class="breakout3 translate-y-12">
+    <div class="breakout3 translate-y-[var(--space-xl)]">
       <!-- Default slot for main hero content (h1, p, etc.) -->
       <slot />
 
       <!-- Horizontal layout container for services and button -->
-      <div class="flex flex-col md:flex-row md:items-center gap-4">
+      <div class="flex flex-col md:flex-row md:items-center gap-[var(--space-s)]">
         <!-- Named slot for optional services list (left side on desktop) -->
         <div ref="servicesSlotRef">
           <slot name="services" />
@@ -215,10 +215,3 @@ onUnmounted(() => {
   }
 });
 </script>
-
-<style scoped>
-/* Optional: Add gradient background like reference image */
-/* .hero-section {
-  background: linear-gradient(135deg, #fef5f1 0%, #fde5e0 100%);
-} */
-</style>
