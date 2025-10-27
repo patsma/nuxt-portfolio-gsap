@@ -155,6 +155,9 @@ import { useLoadingSequence } from "~/composables/useLoadingSequence";
 import { useTokyoTime } from "~/composables/useTokyoTime";
 import { useTitleRotationStore } from "~/stores/title-rotation";
 
+// Loading store for font readiness check
+const loadingStore = useLoadingStore();
+
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const nuxtApp = useNuxtApp();
 const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp;
@@ -236,11 +239,36 @@ function isActive(href) {
 }
 
 /**
+ * Wait for fonts to be ready before creating SplitText
+ * Prevents "SplitText called before fonts loaded" warning
+ * @returns {Promise<void>}
+ */
+async function waitForFonts() {
+  // If fonts are already ready, return immediately
+  if (loadingStore.fontsReady) {
+    return;
+  }
+
+  // Wait for fonts to be ready
+  if (typeof document !== "undefined") {
+    try {
+      await document.fonts.ready;
+    } catch (error) {
+      console.warn("⚠️ Font loading wait failed:", error);
+    }
+  }
+}
+
+/**
  * Set up SplitText animation for the title element
  * Creates a timeline that fades characters in and out, then cycles to next title
  */
-function setupTitleAnimation() {
+async function setupTitleAnimation() {
   if (!titleElementRef.value || !$SplitText || !$gsap) return;
+
+  // CRITICAL: Wait for fonts to be loaded before creating SplitText
+  // This prevents "SplitText called before fonts loaded" warning
+  await waitForFonts();
 
   // Clean up previous SplitText instance
   if (titleSplitInstance) {
@@ -296,7 +324,11 @@ onMounted(() => {
     const { initThemeSwitch } = useThemeSwitch();
     initThemeSwitch();
 
-    gsapCtx = $gsap.context(() => {
+    gsapCtx = $gsap.context(async () => {
+      // CRITICAL: Wait for fonts before creating SplitText
+      // This prevents "SplitText called before fonts loaded" warning
+      await waitForFonts();
+
       /**
        * Helper to unwrap child-exposed refs safely
        * @param {HamburgerSVGExposed | null} exp
