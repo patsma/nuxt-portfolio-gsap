@@ -255,6 +255,98 @@ const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-
 gsap.to(element, { x: 100, duration, ease: "power2.inOut" });
 ```
 
+## Component Patterns
+
+### Typography Utility Classes
+
+**All typography styles from `theme.scss` are available as utility classes.**
+
+Generated automatically from design tokens - no need to manually create them.
+
+**Pattern:** `{font-family}-{breakpoint}-{style}`
+
+```vue
+<!-- Responsive typography: Mobile P1 → Laptop P2 -->
+<p class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-100)]">
+  Your content here
+</p>
+
+<!-- Single size (no responsive variant needed) -->
+<h2 class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+  Biography
+</h2>
+
+<!-- Display heading -->
+<h1 class="pp-eiko-mobile-h1 md:pp-eiko-desktop-h1 text-[var(--theme-text-100)]">
+  Large Heading
+</h1>
+```
+
+**Available utility classes:**
+
+- **PP Eiko:** `pp-eiko-mobile-h1`, `pp-eiko-laptop-h2`, `pp-eiko-desktop-h3`, etc.
+- **IBM Plex Sans JP:** `ibm-plex-sans-jp-mobile-p1`, `ibm-plex-sans-jp-laptop-p2`, `ibm-plex-sans-jp-desktop-caption`, etc.
+- **Custom styles:** `ibm-plex-sans-jp-mobile-custom-labels`, `pp-eiko-desktop-custom-navigation`, etc.
+
+See `app/pages/dev/typography.vue` for complete list.
+
+### Building Components: Tailwind-First Approach
+
+**Keep it simple** - use Tailwind utilities + generated typography classes.
+
+✅ **DO:**
+- Use pure Tailwind + typography utility classes
+- Apply responsive typography with `md:`, `lg:` prefixes
+- Use `content-grid` + `breakout3` for layout (already styled in `content-grid.scss`)
+- Apply theme colors via `text-[var(--theme-text-100)]`, `bg-[var(--theme-5)]`
+- Use fluid spacing tokens: `gap-[var(--space-m)]`, `py-[var(--space-xl)]`
+
+❌ **DON'T:**
+- Create custom SCSS files for simple components
+- Use `@apply` for basic utility combinations
+- Reinvent layout systems (use content-grid)
+- Write media queries manually (use Tailwind's `md:`, `lg:` prefixes)
+
+**Example: BiographySection.vue** (reference implementation)
+
+```vue
+<template>
+  <section class="content-grid w-full py-[var(--space-xl)] md:py-[var(--space-2xl)]">
+    <div class="breakout3 grid gap-[var(--space-m)] lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-3xl)] items-start">
+      <!-- Label: single size, secondary color -->
+      <h2 class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+        <slot name="label">Biography</slot>
+      </h2>
+
+      <!-- Content: responsive typography, primary color -->
+      <div class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2">
+        <slot />
+      </div>
+    </div>
+  </section>
+</template>
+```
+
+**Key points:**
+- Layout: Tailwind grid (`grid lg:grid-cols-[...]`)
+- Typography: Utility classes with responsive modifiers (`class="mobile-p1 md:laptop-p2"`)
+- Spacing: Fluid tokens (`gap-[var(--space-m)]`)
+- Colors: Theme variables (`text-[var(--theme-text-100)]`)
+- **No `<style>` block needed**
+
+### When to Use SCSS
+
+Only create SCSS files when:
+- Complex hover states requiring multiple properties
+- Pseudo-elements with intricate styling (::before, ::after)
+- Component needs CSS that can't be expressed with utilities
+- Tailwind would require 10+ classes for a single element
+
+**Examples of valid SCSS usage:**
+- `interactive-case-study.scss` - Complex hover preview with clip-path animations
+- `content-grid.scss` - Advanced grid system with named grid lines
+- `base.scss` - Global resets and navigation link behaviors
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |

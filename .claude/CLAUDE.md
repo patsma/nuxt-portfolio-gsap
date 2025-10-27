@@ -47,6 +47,8 @@ GSAP-animated dark/light theme with localStorage persistence and SSR compatibili
 
 **Features:** Smooth color transitions, manual toggle overrides system preference, SVG icon morphing, Pinia store with hydration, no FOUC
 
+**Component Patterns:** Typography utility classes, Tailwind-first approach, when to use SCSS
+
 📖 **See** `.claude/THEME_SYSTEM.md`
 
 ### Page Transitions
