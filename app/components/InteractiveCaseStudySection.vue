@@ -107,6 +107,7 @@ const props = defineProps({
 const { $gsap, $ScrollTrigger } = useNuxtApp();
 const loadingStore = useLoadingStore();
 const pageTransitionStore = usePageTransitionStore();
+const { isMobile } = useIsMobile();
 
 const sectionRef = ref(null);
 const titleRef = ref(null);
@@ -228,10 +229,13 @@ const createSectionAnimation = () => {
   }
 
   // Animate items (stagger fade + y offset)
-  // Query only visible desktop items (.case-study-item)
+  // Query responsive items based on breakpoint:
+  // - Mobile: .case-study-card (visible on mobile only)
+  // - Desktop: .case-study-item (visible on desktop only)
   // Using .fromTo() to explicitly define both start and end states
   if (itemsListRef.value) {
-    const items = itemsListRef.value.querySelectorAll(".case-study-item");
+    const selector = isMobile.value ? ".case-study-card" : ".case-study-item";
+    const items = itemsListRef.value.querySelectorAll(selector);
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -285,7 +289,8 @@ onMounted(() => {
           $gsap.set(titleRef.value, { opacity: 0, y: 40 });
         }
         if (itemsListRef.value) {
-          const items = itemsListRef.value.querySelectorAll(".case-study-item");
+          const selector = isMobile.value ? ".case-study-card" : ".case-study-item";
+          const items = itemsListRef.value.querySelectorAll(selector);
           if (items.length > 0) {
             $gsap.set(items, { clearProps: "all" });
             $gsap.set(items, { opacity: 0, y: 40 });
@@ -331,6 +336,16 @@ onMounted(() => {
           { immediate: true }
         );
       }
+
+      // Watch for breakpoint changes to recreate ScrollTrigger with correct selector
+      // This handles viewport resize between mobile and desktop breakpoints
+      watch(isMobile, () => {
+        if (scrollTriggerInstance) {
+          nextTick(() => {
+            createScrollTrigger();
+          });
+        }
+      });
     }
   }
 

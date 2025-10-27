@@ -37,7 +37,7 @@
   <NuxtLink
     :to="to"
     class="case-study-card flex md:hidden"
-    v-page-clip:bottom="{ duration: 0.8 }"
+    v-page-clip:bottom="{ duration: 0.8, leaveOnly: true }"
   >
     <div class="card-image-container">
       <NuxtImg

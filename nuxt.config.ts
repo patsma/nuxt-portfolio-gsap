@@ -161,18 +161,7 @@ export default defineNuxtConfig({
   // Tailwind v4 + global SCSS. Order matters: Tailwind first, then custom SCSS.
   css: ["./app/assets/css/main.css"],
 
-  modules: [
-    "@nuxt/fonts",
-    "@nuxt/icon",
-    "@nuxt/image",
-    "@nuxt/eslint",
-    "@hypernym/nuxt-gsap",
-    "@pinia/nuxt",
-    "@nuxt/content",
-    "@maz-ui/nuxt",
-    "nuxt-mcp",
-    "@tresjs/nuxt",
-  ],
+  modules: ["@nuxt/fonts", "@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@hypernym/nuxt-gsap", "@pinia/nuxt", "@nuxt/content", "@maz-ui/nuxt", "nuxt-mcp", "@tresjs/nuxt", "@vueuse/nuxt"],
 
   // Nuxt Fonts configuration (provider-based)
   fonts: {
