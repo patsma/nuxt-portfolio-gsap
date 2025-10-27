@@ -177,11 +177,29 @@ const handleMouseMove = (event) => {
   });
 };
 
+/**
+ * Navigation delay timeout using VueUse
+ * Allows clip animation to complete before route change (350ms)
+ */
+let pendingNavigation = null;
+const { start: startNavigationDelay, stop: cancelNavigationDelay } = useTimeoutFn(
+  () => {
+    if (pendingNavigation) {
+      pendingNavigation();
+      pendingNavigation = null;
+    }
+  },
+  350,
+  { immediate: false } // Don't start automatically
+);
+
 // Delay navigation until clip animation completes (350ms)
 onBeforeRouteLeave((to, from, next) => {
   if (showPreview.value) {
     clearActivePreviewImmediate();
-    setTimeout(() => next(), 350);
+    // Store next callback and start delay using VueUse
+    pendingNavigation = next;
+    startNavigationDelay();
   } else {
     next();
   }
