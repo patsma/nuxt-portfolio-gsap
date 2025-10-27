@@ -1,5 +1,8 @@
 /**
- * Responsive breakpoint detection composable with SSR support
+ * Responsive breakpoint detection composable powered by VueUse
+ *
+ * Uses VueUse's optimized useBreakpoints with proper debouncing and SSR support.
+ * Provides the same API as the previous custom implementation for backward compatibility.
  *
  * Breakpoints synced with TailwindCSS and design system:
  * - Mobile: < 768px
@@ -29,54 +32,23 @@
  * </template>
  * ```
  */
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+
 export default function useIsMobile() {
-  // Breakpoint constants matching TailwindCSS defaults
-  const TABLET = 768
-  const LAPTOP = 1024
-  const LARGE_DESKTOP = 1536
-  const EXTRA_LARGE_DESKTOP = 3820
-
-  // Initialize with SSR-safe value
-  const width = ref(0)
-
-  /**
-   * Update the current window width
-   * Only runs on client-side
-   */
-  function update() {
-    if (import.meta.client) {
-      width.value = window.innerWidth
-    }
-  }
-
-  // Client-side only lifecycle hooks
-  onMounted(() => {
-    update()
-    if (import.meta.client) {
-      window.addEventListener("resize", update, { passive: true })
-    }
+  // Extend Tailwind breakpoints with custom 3xl breakpoint for extra large desktop
+  const breakpoints = useBreakpoints({
+    ...breakpointsTailwind,
+    '3xl': 3820, // Custom extra large desktop breakpoint
   })
 
-  onUnmounted(() => {
-    if (import.meta.client) {
-      window.removeEventListener("resize", update)
-    }
-  })
-
-  // Computed breakpoint flags
-  const isMobile = computed(() => width.value < TABLET)
-  const isTablet = computed(() => width.value >= TABLET && width.value < LAPTOP)
-  const isLaptop = computed(() => width.value >= LAPTOP && width.value < LARGE_DESKTOP)
-  const isDesktop = computed(() => width.value >= LAPTOP)
-  const isLargeDesktop = computed(() => width.value >= LARGE_DESKTOP && width.value < EXTRA_LARGE_DESKTOP)
-  const isExtraLargeDesktop = computed(() => width.value >= EXTRA_LARGE_DESKTOP)
-
+  // Computed breakpoint flags matching the previous custom implementation API
+  // VueUse provides optimized resize handling with proper debouncing and SSR safety
   return {
-    isMobile,
-    isTablet,
-    isLaptop,
-    isDesktop,
-    isLargeDesktop,
-    isExtraLargeDesktop,
+    isMobile: breakpoints.smaller('md'),                    // < 768px
+    isTablet: breakpoints.between('md', 'lg'),              // 768px - 1024px
+    isLaptop: breakpoints.between('lg', '2xl'),             // 1024px - 1536px
+    isDesktop: breakpoints.greaterOrEqual('lg'),            // >= 1024px
+    isLargeDesktop: breakpoints.between('2xl', '3xl'),      // 1536px - 3820px
+    isExtraLargeDesktop: breakpoints.greaterOrEqual('3xl'), // >= 3820px
   }
 }
