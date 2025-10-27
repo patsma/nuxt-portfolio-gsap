@@ -325,10 +325,11 @@ onMounted(() => {
         // Create ScrollTrigger with animation timeline
         scrollTriggerInstance = $ScrollTrigger.create({
           trigger: sectionRef.value,
-          start: "top 80%", // Animate when section is 80% down viewport
+          start: "top center", // Animate when section is 80% down viewport
           end: "bottom top+=25%", // Complete animation when bottom of section reaches top of viewport
           animation: scrollTimeline, // Link timeline to scroll position
-          scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
+          toggleActions: "play pause resume reverse",
+          // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
           invalidateOnRefresh: true, // Recalculate on window resize/refresh
         });
       };
