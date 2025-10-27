@@ -7,7 +7,7 @@
   >
     <h2
       ref="titleRef"
-      class="section-title breakout3 mb-8 md:mb-12"
+      class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
       v-page-split:lines
     >
       <slot name="title">Work</slot>
@@ -182,16 +182,17 @@ const handleMouseMove = (event) => {
  * Allows clip animation to complete before route change (350ms)
  */
 let pendingNavigation = null;
-const { start: startNavigationDelay, stop: cancelNavigationDelay } = useTimeoutFn(
-  () => {
-    if (pendingNavigation) {
-      pendingNavigation();
-      pendingNavigation = null;
-    }
-  },
-  350,
-  { immediate: false } // Don't start automatically
-);
+const { start: startNavigationDelay, stop: cancelNavigationDelay } =
+  useTimeoutFn(
+    () => {
+      if (pendingNavigation) {
+        pendingNavigation();
+        pendingNavigation = null;
+      }
+    },
+    350,
+    { immediate: false } // Don't start automatically
+  );
 
 // Delay navigation until clip animation completes (350ms)
 onBeforeRouteLeave((to, from, next) => {
@@ -307,7 +308,9 @@ onMounted(() => {
           $gsap.set(titleRef.value, { opacity: 0, y: 40 });
         }
         if (itemsListRef.value) {
-          const selector = isMobile.value ? ".case-study-card" : ".case-study-item";
+          const selector = isMobile.value
+            ? ".case-study-card"
+            : ".case-study-item";
           const items = itemsListRef.value.querySelectorAll(selector);
           if (items.length > 0) {
             $gsap.set(items, { clearProps: "all" });

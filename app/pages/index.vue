@@ -67,6 +67,19 @@ const services = [
         <ScrollDownSVG data-speed="1" v-page-fade:left />
       </template>
     </HeroSection>
+    <BiographySection>
+      <template #label>Biography</template>
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua.
+      </p>
+
+      <p>
+        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+        accusantium doloremque laudantium, totam rem aperiam.
+      </p>
+    </BiographySection>
     <InteractiveCaseStudySection>
       <InteractiveCaseStudyItem
         title="Recommendating"
