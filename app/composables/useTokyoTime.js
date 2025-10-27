@@ -1,6 +1,6 @@
 /**
  * Composable for displaying live Tokyo time
- * Updates every second with proper cleanup
+ * Updates every second with proper cleanup using VueUse
  *
  * @returns {{ tokyoTime: import('vue').Ref<string> }}
  */
@@ -30,22 +30,22 @@ export function useTokyoTime() {
     });
   }
 
-  /** @type {NodeJS.Timeout | undefined} */
-  let intervalId;
+  /**
+   * Update Tokyo time value
+   * Called every second by VueUse useIntervalFn
+   */
+  const updateTime = () => {
+    tokyoTime.value = getCurrentTokyoTime();
+  };
 
-  // Start updating time every second when mounted
-  onMounted(() => {
-    intervalId = setInterval(() => {
-      tokyoTime.value = getCurrentTokyoTime();
-    }, 1000);
-  });
+  // Auto-start interval when composable is used, auto-cleanup on unmount
+  // VueUse handles lifecycle automatically - no need for onMounted/onUnmounted
+  const { pause, resume, isActive } = useIntervalFn(updateTime, 1000);
 
-  // Clean up interval when component unmounts
-  onUnmounted(() => {
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
-  });
-
-  return { tokyoTime };
+  return {
+    tokyoTime,
+    pause,    // Exposed for manual control if needed
+    resume,   // Exposed for manual control if needed
+    isActive  // Exposed to check if interval is running
+  };
 }
