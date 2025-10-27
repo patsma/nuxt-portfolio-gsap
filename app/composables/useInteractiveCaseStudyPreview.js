@@ -116,7 +116,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const showPreview = ref(false);
   const previewMounted = ref(false);
   const isTransitioning = ref(false);
-  const clearTimer = ref(null);
   const preloadedImages = new Map(); // Stores { img, aspectRatio }
   const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
   const isNavigating = ref(false); // Prevents re-showing preview during navigation
@@ -632,6 +631,51 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     });
   };
 
+  /**
+   * Core clear logic (executed after debounce delay)
+   * Animates clip-path close and hides preview
+   */
+  const executeClear = () => {
+    log.debug("Executing debounced clear", {
+      delay: ANIMATION_CONFIG.debounce.clearDelay,
+    });
+
+    // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
+    isTransitioning.value = true;
+    log.state("VISIBLE", "CLOSING");
+
+    // Get currently visible wrapper
+    const refs = getRefs();
+    const activeWrapper = currentImageActive.value
+      ? refs.currentImageWrapperRef
+      : refs.nextImageWrapperRef;
+
+    if (!activeWrapper) {
+      log.warn("No active wrapper for clear, instant hide");
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+      return;
+    }
+
+    // Animate clip-path close using current direction
+    animateClipClose(activeWrapper, currentClipDirection.value, () => {
+      showPreview.value = false;
+      isTransitioning.value = false;
+      log.state("CLOSING", "IDLE");
+    });
+  };
+
+  /**
+   * Debounced clear using VueUse useTimeoutFn (provides cancel control)
+   * Allows rapid item switching without closing preview
+   */
+  const { start: startClearTimeout, stop: cancelClearTimeout } = useTimeoutFn(
+    executeClear,
+    ANIMATION_CONFIG.debounce.clearDelay,
+    { immediate: false } // Don't start automatically
+  );
+
   // PUBLIC API
 
   /**
@@ -662,12 +706,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
     log.separator(`HOVER: ${preview.image}`);
 
-    // Cancel pending clear timer (rapid item switching)
-    if (clearTimer.value) {
-      log.debug("Cancelled pending clear timer", { wasScheduled: true });
-      clearTimeout(clearTimer.value);
-      clearTimer.value = null;
-    }
+    // Cancel pending debounced clear (rapid item switching)
+    cancelClearTimeout();
+    log.debug("Cancelled pending clear timer", { wasScheduled: true });
 
     // Preload image first and get aspect ratio
     let aspectRatio = 4 / 3; // Fallback
@@ -720,50 +761,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
 
   /**
    * Clear active preview - hide preview container with clip-path animation
-   * Uses debounce to allow rapid item switching without closing
+   * Uses VueUse useTimeoutFn to allow rapid item switching without closing
    * NOTE: Don't clear image data - keep it so toggle state persists
    */
   const clearActivePreview = () => {
     log.separator("CLEAR");
 
-    // Clear any existing timer
-    if (clearTimer.value) {
-      clearTimeout(clearTimer.value);
-    }
-
-    // Set debounced timer
-    clearTimer.value = setTimeout(() => {
-      log.debug("Executing debounced clear", {
-        delay: ANIMATION_CONFIG.debounce.clearDelay,
-      });
-
-      // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
-      isTransitioning.value = true;
-      log.state("VISIBLE", "CLOSING");
-
-      // Get currently visible wrapper
-      const refs = getRefs();
-      const activeWrapper = currentImageActive.value
-        ? refs.currentImageWrapperRef
-        : refs.nextImageWrapperRef;
-
-      if (!activeWrapper) {
-        log.warn("No active wrapper for clear, instant hide");
-        showPreview.value = false;
-        isTransitioning.value = false;
-        clearTimer.value = null;
-        log.state("CLOSING", "IDLE");
-        return;
-      }
-
-      // Animate clip-path close using current direction
-      animateClipClose(activeWrapper, currentClipDirection.value, () => {
-        showPreview.value = false;
-        isTransitioning.value = false;
-        clearTimer.value = null;
-        log.state("CLOSING", "IDLE");
-      });
-    }, ANIMATION_CONFIG.debounce.clearDelay);
+    // Trigger debounced clear using VueUse useTimeoutFn
+    startClearTimeout();
 
     log.debug("Clear scheduled", {
       delay: ANIMATION_CONFIG.debounce.clearDelay,
@@ -782,11 +787,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     // Set navigation flag to prevent hover events from re-showing preview
     isNavigating.value = true;
 
-    // Cancel any pending debounced clear
-    if (clearTimer.value) {
-      clearTimeout(clearTimer.value);
-      clearTimer.value = null;
-    }
+    // Cancel any pending debounced clear using VueUse
+    cancelClearTimeout();
 
     // Skip if already hidden
     if (!showPreview.value) {
@@ -829,11 +831,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
   const clearActivePreviewInstant = () => {
     log.separator("CLEAR INSTANT (Scroll)");
 
-    // Cancel any pending debounced clear
-    if (clearTimer.value) {
-      clearTimeout(clearTimer.value);
-      clearTimer.value = null;
-    }
+    // Cancel any pending debounced clear using VueUse
+    cancelClearTimeout();
 
     // Skip if already hidden
     if (!showPreview.value) {
