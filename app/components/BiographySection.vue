@@ -73,19 +73,19 @@ const createSectionAnimation = () => {
     );
   }
 
-  // Animate content paragraphs (stagger fade + y offset)
-  // Query all paragraphs in content slot
+  // Animate content children (stagger fade + y offset)
+  // Query direct children using same selector as v-page-stagger directive
   if (contentRef.value) {
-    const paragraphs = contentRef.value.querySelectorAll("p");
-    if (paragraphs.length > 0) {
+    const children = contentRef.value.querySelectorAll(":scope > *");
+    if (children.length > 0) {
       tl.fromTo(
-        paragraphs,
+        children,
         { opacity: 0, y: 40 },
         {
           opacity: 1,
           y: 0,
           duration: 0.6,
-          stagger: 0.08, // Stagger paragraph reveals
+          stagger: 0.08, // Stagger child element reveals
           ease: "power2.out",
         },
         "<+0.2" // Start 0.2s after label animation begins
@@ -117,10 +117,11 @@ onMounted(() => {
         $gsap.set(labelRef.value, { opacity: 0, y: 40 });
       }
       if (contentRef.value) {
-        const paragraphs = contentRef.value.querySelectorAll("p");
-        if (paragraphs.length > 0) {
-          $gsap.set(paragraphs, { clearProps: "all" });
-          $gsap.set(paragraphs, { opacity: 0, y: 40 });
+        // Query direct children using same selector as v-page-stagger directive
+        const children = contentRef.value.querySelectorAll(":scope > *");
+        if (children.length > 0) {
+          $gsap.set(children, { clearProps: "all" });
+          $gsap.set(children, { opacity: 0, y: 40 });
         }
       }
 
@@ -134,7 +135,8 @@ onMounted(() => {
         start: "top 80%", // Animate when section is 80% down viewport
         end: "bottom top+=25%", // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
-        scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
+        toggleActions: "play pause resume reverse",
+        // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
         invalidateOnRefresh: true, // Recalculate on window resize/refresh
       });
     };
