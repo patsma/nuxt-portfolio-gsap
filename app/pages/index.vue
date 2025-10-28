@@ -80,6 +80,26 @@ const services = [
         accusantium doloremque laudantium, totam rem aperiam.
       </p>
     </BiographySection>
+    <ExperienceSection view-more-text="View all" view-more-to="/about">
+      <ExperienceItem
+        date-range="2023 – Current"
+        title="Senior UX/UI Designer"
+        company="TCS"
+        location="Tokyo"
+      />
+      <ExperienceItem
+        date-range="2020 – 2023"
+        title="Lead/Senior Digital Designer"
+        company="Bærnholdt"
+        location="Copenhagen"
+      />
+      <ExperienceItem
+        date-range="2018 – 2020"
+        title="Senior UX/UI Designer"
+        company="Pointvoucher"
+        location="Copenhagen"
+      />
+    </ExperienceSection>
     <InteractiveCaseStudySection>
       <InteractiveCaseStudyItem
         title="Recommendating"
