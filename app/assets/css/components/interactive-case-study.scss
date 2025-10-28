@@ -167,16 +167,6 @@ html.is-first-load [data-entrance-animate="true"] {
   background-color: var(--theme-100);
 }
 
-/* Border line element - uses full-width class within sub-grid */
-.item-border-line {
-  grid-column: full-width;
-  height: 1px;
-  background-color: color-mix(in srgb, var(--theme-text-100) 10%, transparent);
-  margin-bottom: var(--space-s); /* Fluid 18-22px */
-  /* Will be animated with bouncy effect later */
-}
-/* Note: Already hidden on mobile via parent's "hidden md:block" Tailwind class */
-
 /* Content wrapper - uses breakout3 class within sub-grid */
 .item-content {
   /* breakout3 class handles grid-column placement */

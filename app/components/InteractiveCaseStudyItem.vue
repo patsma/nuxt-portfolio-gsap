@@ -7,7 +7,7 @@
     @mouseleave="handleMouseLeave"
   >
     <!-- Animated border line (full-width within sub-grid) -->
-    <div class="item-border-line full-width"></div>
+    <FullWidthBorder :opacity="10" />
 
     <!-- Content wrapper (breakout3 within sub-grid) -->
     <div class="item-content breakout3">
