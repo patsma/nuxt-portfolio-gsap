@@ -5,10 +5,11 @@
    ============================================
 
    Experience list component with responsive layout.
-   Uses content-grid system with nested full-width elements.
+   Uses CSS Subgrid to inherit content-grid columns for perfect alignment.
 
    Desktop/Laptop (≥1024px):
-   - 4-column horizontal layout (Date | Title | Company | Location)
+   - CSS Subgrid inherits parent content-grid columns
+   - Items align to same grid lines across all rows
 
    Mobile/Tablet (<1024px):
    - 2-column layout (Date left, Title/Company/Location stacked right)
@@ -37,46 +38,4 @@
 .experience-item {
   /* Full-width grid for border and content */
   position: relative;
-}
-
-/* ============================================
-   RESPONSIVE PADDING
-   ============================================ */
-
-/* Mobile: Minimal padding */
-.experience-item-content {
-  padding-left: var(--space-s); /* ~27px */
-  padding-right: var(--space-s);
-}
-
-/* Tablet: Medium padding */
-@include bp.up(bp.$bp-md) {
-  .experience-item-content {
-    padding-left: var(--space-xl); /* ~48px */
-    padding-right: var(--space-xl);
-  }
-}
-
-/* Laptop: Standard padding */
-@include bp.up(bp.$bp-lg) {
-  .experience-item-content {
-    padding-left: calc(var(--space-xl) + var(--space-l)); /* ~91px */
-    padding-right: calc(var(--space-xl) + var(--space-l));
-  }
-}
-
-/* Desktop: Large padding */
-@include bp.up(bp.$bp-2xl) {
-  .experience-item-content {
-    padding-left: calc(var(--space-3xl) * 1.78); /* ~120px */
-    padding-right: calc(var(--space-3xl) * 1.78);
-  }
-}
-
-/* Large Desktop: Extra large padding */
-@include bp.up(bp.$bp-4xl) {
-  .experience-item-content {
-    padding-left: calc(var(--space-3xl) * 2.78); /* ~188px */
-    padding-right: calc(var(--space-3xl) * 2.78);
-  }
 }

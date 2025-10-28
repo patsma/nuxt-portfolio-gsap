@@ -20,9 +20,18 @@
         <FullWidthBorder />
 
         <div class="experience-view-more breakout3 py-[var(--space-s)] md:py-[var(--space-s)] lg:py-[var(--space-m)]">
+          <!-- Mobile/Tablet: Centered -->
           <NuxtLink
             :to="viewMoreTo"
-            class="ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)] font-medium text-center md:text-left hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
+            class="lg:hidden block ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] font-medium text-center hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
+          >
+            {{ viewMoreText }}
+          </NuxtLink>
+
+          <!-- Desktop: Aligned with items -->
+          <NuxtLink
+            :to="viewMoreTo"
+            class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)] font-medium hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
           >
             {{ viewMoreText }}
           </NuxtLink>

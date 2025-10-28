@@ -5,42 +5,10 @@
     <FullWidthBorder />
 
     <!-- Content wrapper - breakout3 for consistent content width -->
+    <!-- On desktop: 4-column grid matching Figma specs -->
     <div
-      class="experience-item-content breakout3 grid gap-[var(--space-m)] py-[var(--space-s)] md:py-[var(--space-s)] lg:py-[var(--space-m)]"
+      class="experience-item-content breakout3 py-[var(--space-s)] md:py-[var(--space-s)] lg:py-[var(--space-m)] lg:grid lg:grid-cols-4 lg:gap-[var(--space-m)] xl:gap-[var(--space-l)] lg:items-start"
     >
-      <!-- Desktop/Laptop: 4-column horizontal layout (hidden on mobile/tablet) -->
-      <div
-        class="hidden lg:grid lg:grid-cols-[minmax(auto,24rem)_minmax(auto,24rem)_1fr_auto] lg:gap-[var(--space-m)] xl:gap-[var(--space-l)] 2xl:gap-[var(--space-xl)] items-start"
-      >
-        <!-- Date Range -->
-        <p
-          class="ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
-        >
-          {{ dateRange }}
-        </p>
-
-        <!-- Job Title -->
-        <p
-          class="ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
-        >
-          {{ title }}
-        </p>
-
-        <!-- Company Name (grows to fill space) -->
-        <p
-          class="ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
-        >
-          {{ company }}
-        </p>
-
-        <!-- Location (right-aligned) -->
-        <p
-          class="ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)] text-right whitespace-nowrap"
-        >
-          {{ location }}
-        </p>
-      </div>
-
       <!-- Mobile/Tablet: 2-column layout (hidden on desktop) -->
       <div class="grid grid-cols-2 gap-[var(--space-xs)] lg:hidden items-start">
         <!-- Left: Date Range -->
@@ -69,6 +37,35 @@
           </p>
         </div>
       </div>
+
+      <!-- Desktop/Laptop: 4-column grid items -->
+      <!-- Date Range -->
+      <p
+        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+      >
+        {{ dateRange }}
+      </p>
+
+      <!-- Job Title -->
+      <p
+        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+      >
+        {{ title }}
+      </p>
+
+      <!-- Company Name -->
+      <p
+        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+      >
+        {{ company }}
+      </p>
+
+      <!-- Location (right-aligned) -->
+      <p
+        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)] text-right whitespace-nowrap"
+      >
+        {{ location }}
+      </p>
     </div>
   </div>
 </template>
