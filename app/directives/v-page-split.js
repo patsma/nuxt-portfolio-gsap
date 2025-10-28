@@ -58,6 +58,7 @@ export default {
         ease: config.ease || "back.out(1.2)",
         y: config.y !== undefined ? config.y : typeDefaults.y,
         animateFrom: config.animateFrom, // 'below' | 'above' | undefined
+        leaveOnly: config.leaveOnly || false, // Only animate on page leave, skip enter
       },
     };
   },

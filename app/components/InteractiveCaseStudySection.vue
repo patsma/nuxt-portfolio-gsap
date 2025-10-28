@@ -8,7 +8,7 @@
     <h2
       ref="titleRef"
       class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
-      v-page-split:lines
+      v-page-split:lines="{ leaveOnly: true }"
     >
       <slot name="title">Work</slot>
     </h2>

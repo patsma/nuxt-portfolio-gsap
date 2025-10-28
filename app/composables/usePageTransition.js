@@ -453,12 +453,14 @@ export const usePageTransition = () => {
                 const children = element.querySelectorAll(selector);
                 $gsap.set(children, { y: 15, opacity: 0 });
               } else if (type === "fade") {
-                // Set fade initial state if needed in future
                 const direction = config.direction || "up";
                 const distance = config.distance || 20;
                 const axis = direction === "up" || direction === "down" ? "y" : "x";
                 const value = direction === "up" || direction === "left" ? distance : -distance;
                 $gsap.set(element, { [axis]: value, opacity: 0 });
+              } else if (type === "split") {
+                // Set split initial hidden state (ScrollTrigger will handle SplitText animation)
+                $gsap.set(element, { opacity: 0, y: 40 });
               }
               return; // Skip animation
             }

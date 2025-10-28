@@ -37,7 +37,8 @@ export default {
         direction,
         distance: config.distance !== undefined ? config.distance : 20,
         duration: config.duration || 0.6,
-        ease: config.ease || 'power2.out'
+        ease: config.ease || 'power2.out',
+        leaveOnly: config.leaveOnly || false // Only animate on page leave, skip enter
       }
     }
   },
