@@ -2,7 +2,7 @@
   <!-- Experience item wrapper - uses full-width-content for nested sub-grid -->
   <div class="experience-item full-width-content">
     <!-- Full-width border line at top (15% opacity) -->
-    <FullWidthBorder />
+    <FullWidthBorder spacing="0" />
 
     <!-- Content wrapper - breakout3 for consistent content width -->
     <!-- On desktop: 4-column grid matching Figma specs -->
@@ -12,9 +12,7 @@
       <!-- Mobile/Tablet: 2-column layout (hidden on desktop) -->
       <div class="grid grid-cols-2 gap-[var(--space-xs)] lg:hidden items-start">
         <!-- Left: Date Range -->
-        <p
-          class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)]"
-        >
+        <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)]">
           {{ dateRange }}
         </p>
 

@@ -67,6 +67,13 @@ ScrollSmoother with headroom header behavior for buttery smooth scrolling.
 
 📖 **See** `.claude/SCROLL_SYSTEM.md`
 
+### Component Patterns
+Reusable component architectures and layout patterns for building consistent section components.
+
+**Patterns:** FullWidthBorder abstraction, 4-column grid layouts, BiographySection, ExperienceSection, scroll animations, responsive strategies
+
+📖 **See** `.claude/COMPONENT_PATTERNS.md`
+
 ## Architecture
 
 ### File Structure
@@ -104,11 +111,17 @@ app/
 │   ├── about.vue            # About
 │   └── contact.vue          # Contact
 ├── components/
-│   ├── HeaderGrid.vue       # Fixed header with mobile overlay
-│   ├── HeroSection.vue      # Hero with entrance animation support
-│   ├── CursorTrail.vue      # Cursor trail effect
-│   ├── FluidGradient.vue    # Animated gradient background
-│   └── ThemeToggleSVG.vue   # Theme switcher
+│   ├── HeaderGrid.vue              # Fixed header with mobile overlay
+│   ├── HeroSection.vue             # Hero with entrance animation support
+│   ├── BiographySection.vue        # Simple 2-column section
+│   ├── ExperienceSection.vue       # Experience list with scroll animations
+│   ├── ExperienceItem.vue          # Individual experience entry
+│   ├── InteractiveCaseStudySection.vue  # Gallery with hover preview
+│   ├── InteractiveCaseStudyItem.vue     # Individual case study item
+│   ├── FullWidthBorder.vue         # Reusable border divider
+│   ├── CursorTrail.vue             # Cursor trail effect
+│   ├── FluidGradient.vue           # Animated gradient background
+│   └── ThemeToggleSVG.vue          # Theme switcher
 └── server/
     └── plugins/
         └── inject-loader.ts # Nitro plugin: loader + theme script + is-first-load class
@@ -264,6 +277,7 @@ Missing logs indicate:
 - `.claude/THEME_SYSTEM.md` - Theme switching system
 - `.claude/PAGE_TRANSITIONS.md` - Page transition system
 - `.claude/SCROLL_SYSTEM.md` - Scroll system
+- `.claude/COMPONENT_PATTERNS.md` - Reusable section component patterns
 - `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
 
 ### Code Documentation
