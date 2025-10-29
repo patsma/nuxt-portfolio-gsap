@@ -3,11 +3,14 @@
     ref="sectionRef"
     class="content-grid w-full py-[var(--space-xl)] md:py-[var(--space-2xl)]"
   >
-    <!-- Main 2-column layout: Label (left) + Services content (right) -->
+    <!-- Responsive layout structure:
+         Mobile: Label top, services stack in 1 column
+         Tablet: Label top, services in 2 columns
+         Desktop: Label left, services in 2 columns on right -->
     <div
       class="breakout3 grid gap-[var(--space-m)] lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-3xl)] items-start"
     >
-      <!-- Label column (left on desktop) -->
+      <!-- Label: Top on mobile/tablet, left on desktop -->
       <h2
         ref="labelRef"
         class="ibm-plex-sans-jp-mobile-caption 2xl:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
@@ -16,11 +19,13 @@
         <slot name="label">Services</slot>
       </h2>
 
-      <!-- Services content area (right on desktop) -->
-      <!-- 2 columns on desktop, 1 column on mobile for smooth responsive behavior -->
+      <!-- Services content area:
+           Mobile: 1 column (default)
+           Tablet (md): 2 columns
+           Desktop (lg): 2 columns (within right side of main grid) -->
       <div
         ref="contentRef"
-        class="grid gap-[var(--space-m)] lg:grid-cols-2 lg:gap-[var(--space-3xl)]"
+        class="grid gap-[var(--space-m)] md:grid-cols-2 md:gap-[var(--space-3xl)]"
         v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
       >
         <!-- Left services column -->
