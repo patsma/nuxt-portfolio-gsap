@@ -23,11 +23,11 @@
  *
  * Props:
  * @param {number} opacity - Opacity percentage for border (0-100, default: 15)
- * @param {string} spacing - Bottom margin spacing (CSS value, default: 'var(--space-s)')
+ * @param {string} spacing - Bottom margin spacing (CSS value, default: '0')
  *
  * Usage:
- * <FullWidthBorder /> <!-- Default: 15% opacity, space-s margin -->
- * <FullWidthBorder :opacity="10" spacing="var(--space-m)" />
+ * <FullWidthBorder /> <!-- Default: 15% opacity, no margin -->
+ * <FullWidthBorder :opacity="10" spacing="var(--space-m)" /> <!-- Custom spacing if needed -->
  */
 
 const props = defineProps({
@@ -43,11 +43,13 @@ const props = defineProps({
   },
   /**
    * Bottom margin spacing (CSS variable or value)
+   * Default is '0' - parent elements should handle their own padding
+   * Use this prop only when you need the border to provide spacing
    * @type {string}
    */
   spacing: {
     type: String,
-    default: 'var(--space-s)', // Fluid 18-22px
+    default: '0',
   },
 });
 </script>

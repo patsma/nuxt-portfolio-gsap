@@ -1,4 +1,6 @@
 <template>
+  <FullWidthBorder class="hidden md:grid" :opacity="10" />
+
   <!-- Desktop: List item with hover (full-width-content creates sub-grid) -->
   <NuxtLink
     :to="to"
@@ -7,7 +9,6 @@
     @mouseleave="handleMouseLeave"
   >
     <!-- Animated border line (full-width within sub-grid) -->
-    <FullWidthBorder :opacity="10" />
 
     <!-- Content wrapper (breakout3 within sub-grid) -->
     <div class="item-content breakout3">
@@ -40,22 +41,14 @@
     v-page-clip:bottom="{ duration: 0.8, leaveOnly: true }"
   >
     <div class="card-image-container">
-      <NuxtImg
-        :src="image"
-        :alt="imageAlt"
-        class="card-image"
-        loading="lazy"
-      />
+      <NuxtImg :src="image" :alt="imageAlt" class="card-image" loading="lazy" />
     </div>
     <div class="card-content">
       <div class="card-header">
         <h2 class="card-title pp-eiko-mobile-h2">
           {{ title }}
         </h2>
-        <span
-          v-if="tag"
-          class="card-tag ibm-plex-sans-jp-mobile-custom-labels"
-        >
+        <span v-if="tag" class="card-tag ibm-plex-sans-jp-mobile-custom-labels">
           {{ tag }}
         </span>
       </div>
@@ -126,7 +119,7 @@ const props = defineProps({
    */
   tag: {
     type: String,
-    default: '',
+    default: "",
   },
   /**
    * Project description or role (e.g., "Art direction & UI")
@@ -159,7 +152,7 @@ const props = defineProps({
    */
   to: {
     type: String,
-    default: '/contact',
+    default: "/contact",
   },
   /**
    * Clip animation direction for preview reveal
@@ -169,14 +162,15 @@ const props = defineProps({
    */
   clipDirection: {
     type: String,
-    default: 'random',
-    validator: (value) => ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value),
+    default: "random",
+    validator: (value) =>
+      ["center", "left", "right", "top", "bottom", "random"].includes(value),
   },
 });
 
 // Inject context from parent InteractiveCaseStudySection
-const setActivePreview = inject('setActivePreview');
-const clearActivePreview = inject('clearActivePreview');
+const setActivePreview = inject("setActivePreview");
+const clearActivePreview = inject("clearActivePreview");
 
 /**
  * Handle mouse enter (desktop only)

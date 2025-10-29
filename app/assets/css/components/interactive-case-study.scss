@@ -153,8 +153,8 @@ html.is-first-load [data-entrance-animate="true"] {
   /* Remove link styling */
   text-decoration: none;
 
-  /* Vertical spacing - only bottom padding so border line is at top */
-  padding: 0 0 var(--space-s) 0; /* Fluid 18-22px */
+  /* Vertical spacing - top and bottom padding (border has no margin) */
+  padding: var(--space-s) 0; /* Fluid 18-22px top and bottom */
 
   /* Smooth background transition on hover */
   background: transparent;
@@ -300,7 +300,7 @@ html.is-first-load [data-entrance-animate="true"] {
 
   /* More generous spacing */
   .case-study-item {
-    padding: 0 0 var(--space-m) 0; /* Fluid 27-33px */
+    padding: var(--space-m) 0; /* Fluid 27-33px top and bottom */
   }
 
   .item-content {
