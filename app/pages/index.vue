@@ -67,6 +67,20 @@ const services = [
         <ScrollDownSVG data-speed="1" v-page-fade:left />
       </template>
     </HeroSection>
+    <ServicesSection>
+      <template #column-left>
+        <p>Art Direction</p>
+        <p>Creative Direction</p>
+        <p>Concept Development</p>
+        <p>Consulting & Guidance</p>
+      </template>
+      <template #column-right>
+        <p>User Experience Design (UX)</p>
+        <p>Digital Design (UI)</p>
+        <p>Interactive Design</p>
+        <p>Design Systems & Tokens</p>
+      </template>
+    </ServicesSection>
     <BiographySection>
       <template #label>Biography</template>
 
