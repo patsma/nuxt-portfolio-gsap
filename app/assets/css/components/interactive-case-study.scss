@@ -300,7 +300,7 @@ html.is-first-load [data-entrance-animate="true"] {
 
   /* More generous spacing */
   .case-study-item {
-    padding: var(--space-m) 0; /* Fluid 27-33px top and bottom */
+    padding: 0 0 var(--space-m) 0; /* Fluid 27-33px top and bottom */
   }
 
   .item-content {

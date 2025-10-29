@@ -1,6 +1,4 @@
 <template>
-  <FullWidthBorder class="hidden md:grid" :opacity="10" />
-
   <!-- Desktop: List item with hover (full-width-content creates sub-grid) -->
   <NuxtLink
     :to="to"
@@ -8,6 +6,13 @@
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
+    <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
+    <!-- FullWidthBorder must be a direct child to use grid-column: full-width -->
+    <FullWidthBorder
+      class="hidden md:grid"
+      spacing="var(--space-m)"
+      :opacity="10"
+    />
     <!-- Animated border line (full-width within sub-grid) -->
 
     <!-- Content wrapper (breakout3 within sub-grid) -->
