@@ -26,12 +26,12 @@
       <div
         ref="contentRef"
         class="grid gap-[var(--space-m)] md:grid-cols-2 md:gap-[var(--space-3xl)]"
-        v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
       >
         <!-- Left services column -->
         <div
           ref="contentLeftRef"
           class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
+          v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
         >
           <slot name="column-left" />
         </div>
@@ -40,6 +40,7 @@
         <div
           ref="contentRightRef"
           class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
+          v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
         >
           <slot name="column-right" />
         </div>
@@ -139,11 +140,12 @@ const createSectionAnimation = () => {
   }
 
   // Collect all service items from both columns for unified stagger
+  // Query direct children from both column containers
   const leftItems = contentLeftRef.value
-    ? contentLeftRef.value.querySelectorAll(":scope > *")
+    ? Array.from(contentLeftRef.value.children)
     : [];
   const rightItems = contentRightRef.value
-    ? contentRightRef.value.querySelectorAll(":scope > *")
+    ? Array.from(contentRightRef.value.children)
     : [];
 
   // Combine items from both columns into single array for stagger sequence
@@ -188,20 +190,14 @@ onMounted(() => {
         $gsap.set(labelRef.value, { opacity: 0, y: 40 });
       }
 
-      if (contentLeftRef.value) {
-        const leftItems = contentLeftRef.value.querySelectorAll(":scope > *");
-        if (leftItems.length > 0) {
-          $gsap.set(leftItems, { clearProps: "all" });
-          $gsap.set(leftItems, { opacity: 0, y: 40 });
-        }
-      }
+      // Query all service items from both column containers
+      const leftItems = contentLeftRef.value ? Array.from(contentLeftRef.value.children) : [];
+      const rightItems = contentRightRef.value ? Array.from(contentRightRef.value.children) : [];
+      const allServiceItems = [...leftItems, ...rightItems];
 
-      if (contentRightRef.value) {
-        const rightItems = contentRightRef.value.querySelectorAll(":scope > *");
-        if (rightItems.length > 0) {
-          $gsap.set(rightItems, { clearProps: "all" });
-          $gsap.set(rightItems, { opacity: 0, y: 40 });
-        }
+      if (allServiceItems.length > 0) {
+        $gsap.set(allServiceItems, { clearProps: "all" });
+        $gsap.set(allServiceItems, { opacity: 0, y: 40 });
       }
 
       // Create timeline with fromTo() defining both start and end states
