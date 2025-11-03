@@ -6,7 +6,7 @@
     <!-- Clickable row wrapper (breakout3 within sub-grid) -->
     <button
       @click="toggle"
-      class="recommendation-row breakout3 w-full text-left cursor-pointer py-[var(--space-s)] md:py-[var(--space-m)] transition-opacity duration-[var(--duration-hover)] hover:opacity-80"
+      class="recommendation-row full-width w-full text-left cursor-pointer py-[var(--space-s)] md:py-[var(--space-m)] transition-opacity duration-[var(--duration-hover)] hover:opacity-80"
     >
       <!-- Full-width marquee container with all elements -->
       <div
