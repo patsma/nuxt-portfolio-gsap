@@ -1,0 +1,570 @@
+<template>
+  <div class="recommendation-item full-width-content">
+    <!-- FullWidthBorder (top divider) -->
+    <FullWidthBorder :opacity="10" />
+
+    <!-- Clickable row wrapper (breakout3 within sub-grid) -->
+    <button
+      @click="toggle"
+      class="recommendation-row breakout3 w-full text-left cursor-pointer py-[var(--space-s)] md:py-[var(--space-m)] transition-opacity duration-[var(--duration-hover)] hover:opacity-80"
+    >
+      <!-- Full-width marquee container with all elements -->
+      <div
+        ref="marqueeContainerRef"
+        class="marquee-container breakout3"
+        @mouseenter="handleMouseEnter"
+        @mouseleave="handleMouseLeave"
+      >
+        <div ref="marqueeTrackRef" class="marquee-track">
+          <!-- Unit 1: Quote → Image → Name -->
+          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+            {{ quote }}
+          </span>
+          <img
+            v-if="authorImage"
+            :src="authorImage"
+            :alt="`${authorFirstName} ${authorLastName}`"
+            class="marquee-image"
+          />
+          <span class="marquee-author-name text-[var(--theme-text-100)]">
+            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+          </span>
+
+          <!-- Unit 2: Quote → Image → Name (duplicate) -->
+          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+            {{ quote }}
+          </span>
+          <img
+            v-if="authorImage"
+            :src="authorImage"
+            :alt="`${authorFirstName} ${authorLastName}`"
+            class="marquee-image"
+          />
+          <span class="marquee-author-name text-[var(--theme-text-100)]">
+            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+          </span>
+
+          <!-- Unit 3: Quote → Image → Name (duplicate) -->
+          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+            {{ quote }}
+          </span>
+          <img
+            v-if="authorImage"
+            :src="authorImage"
+            :alt="`${authorFirstName} ${authorLastName}`"
+            class="marquee-image"
+          />
+          <span class="marquee-author-name text-[var(--theme-text-100)]">
+            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+          </span>
+        </div>
+      </div>
+    </button>
+
+    <!-- Expanded content (GSAP animated height, initially hidden) -->
+    <div
+      ref="expandedContentRef"
+      class="expanded-content overflow-hidden breakout3"
+      style="height: 0; opacity: 0;"
+    >
+      <div class="expanded-inner py-[var(--space-l)] grid gap-[var(--space-m)] lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-3xl)] items-start">
+        <!-- Left column: Author title (matches BiographySection label pattern) -->
+        <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+          {{ authorTitle }}
+        </p>
+
+        <!-- Right column: Full recommendation text (ready for future markdown support) -->
+        <div class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-100)] leading-relaxed space-y-[var(--space-m)]">
+          <p>{{ fullRecommendation }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+/**
+ * RecommendationItem Component - Individual Recommendation Entry
+ *
+ * Displays a single recommendation with infinite horizontal marquee animation
+ * and accordion-style expand/collapse functionality.
+ *
+ * Features:
+ * - Infinite horizontal marquee scrolling (pause on hover)
+ * - Alternating scroll directions based on item index
+ * - ScrollTrigger controls marquee start/stop based on visibility
+ * - Accordion expansion (only one item open at a time via parent)
+ * - GSAP height animations for smooth expand/collapse
+ * - FullWidthBorder integration
+ * - Theme-aware colors and responsive typography
+ *
+ * Props:
+ * @param {string} id - Unique identifier for accordion state
+ * @param {number} index - Item index for alternating scroll direction
+ * @param {string} quote - Short quote text for marquee
+ * @param {string} fullRecommendation - Full recommendation text when expanded
+ * @param {string} authorFirstName - Recommender's first name (styled with IBM Plex Sans JP)
+ * @param {string} authorLastName - Recommender's last name (styled with PP Eiko)
+ * @param {string} authorTitle - Recommender's title/company
+ * @param {string} authorImage - Recommender's profile image URL
+ *
+ * Accordion Pattern:
+ * - Injects activeItemId and setActiveItem from parent RecommendationsSection
+ * - isExpanded computed property checks if this item is active
+ * - Watches isExpanded to animate height/opacity with GSAP
+ * - Only one item can be expanded at a time
+ *
+ * Marquee Pattern:
+ * - GSAP infinite animation with ScrollTrigger control
+ * - Structure: Each unit contains quote (italic) → author image → author name (mixed typography)
+ * - Direction: Even index (0,2,4) scrolls right-to-left (reversed), odd index (1,3,5) scrolls left-to-right (forward)
+ * - Starts when item enters viewport, stops when leaves
+ * - Pauses on hover, resumes on leave (if still in viewport)
+ * - Duplicates complete unit (quote + image + name) 3 times for seamless loop
+ * - Typography: Quote is italic PP Eiko, first name is IBM Plex JP, last name is PP Eiko
+ *
+ * Usage:
+ * <RecommendationItem
+ *   id="rec-1"
+ *   :index="0"
+ *   quote="An extraordinary individual"
+ *   full-recommendation="I worked closely with Morten..."
+ *   author-first-name="Thomas"
+ *   author-last-name="Rømhild"
+ *   author-title="CEO, Bærnholdt"
+ *   author-image="/images/authors/thomas.jpg"
+ * />
+ */
+
+const props = defineProps({
+  /**
+   * Unique identifier for this recommendation (used for accordion state)
+   * @type {string}
+   */
+  id: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Item index (0-based) for determining scroll direction
+   * Even index = scroll left, Odd index = scroll right
+   * @type {number}
+   */
+  index: {
+    type: Number,
+    required: true,
+  },
+  /**
+   * Short quote text to display in the marquee
+   * @type {string}
+   */
+  quote: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Full recommendation text shown when expanded
+   * @type {string}
+   */
+  fullRecommendation: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Recommender's first name (styled with IBM Plex Sans JP)
+   * @type {string}
+   */
+  authorFirstName: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Recommender's last name (styled with PP Eiko)
+   * @type {string}
+   */
+  authorLastName: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Recommender's title and/or company
+   * @type {string}
+   */
+  authorTitle: {
+    type: String,
+    required: true,
+  },
+  /**
+   * Recommender's profile image URL
+   * @type {string}
+   */
+  authorImage: {
+    type: String,
+    default: '',
+  },
+});
+
+const { $gsap, $ScrollTrigger } = useNuxtApp();
+
+// Inject accordion state from parent RecommendationsSection
+const activeItemId = inject('activeItemId');
+const setActiveItem = inject('setActiveItem');
+
+// Refs for DOM elements
+const marqueeContainerRef = ref(null);
+const marqueeTrackRef = ref(null);
+const expandedContentRef = ref(null);
+
+// Marquee animation instances
+let marqueeAnimation = null;
+let scrollTriggerInstance = null;
+
+// Computed property to check if this item is currently expanded
+const isExpanded = computed(() => activeItemId.value === props.id);
+
+/**
+ * Toggle accordion expansion
+ * If already expanded, collapse it
+ * If collapsed, expand it and close others
+ */
+const toggle = () => {
+  setActiveItem(isExpanded.value ? null : props.id);
+};
+
+/**
+ * GSAP horizontalLoop helper function
+ * Creates seamless infinite horizontal scrolling animation
+ *
+ * @param {Array|string} items - Elements to loop
+ * @param {Object} config - Configuration options
+ * @returns {gsap.core.Timeline} Timeline with loop methods
+ */
+function horizontalLoop(items, config) {
+  items = $gsap.utils.toArray(items);
+  config = config || {};
+  let tl = $gsap.timeline({
+      repeat: config.repeat,
+      paused: config.paused,
+      defaults: { ease: "none" },
+      onReverseComplete: () => tl.totalTime(tl.rawTime() + tl.duration() * 100),
+    }),
+    length = items.length,
+    startX = items[0].offsetLeft,
+    times = [],
+    widths = [],
+    xPercents = [],
+    curIndex = 0,
+    pixelsPerSecond = (config.speed || 1) * 100,
+    snap = config.snap === false ? (v) => v : $gsap.utils.snap(config.snap || 1),
+    totalWidth,
+    curX,
+    distanceToStart,
+    distanceToLoop,
+    item,
+    i;
+
+  $gsap.set(items, {
+    xPercent: (i, el) => {
+      let w = (widths[i] = parseFloat($gsap.getProperty(el, "width", "px")));
+      xPercents[i] = snap(
+        (parseFloat($gsap.getProperty(el, "x", "px")) / w) * 100 +
+          $gsap.getProperty(el, "xPercent")
+      );
+      return xPercents[i];
+    },
+  });
+
+  $gsap.set(items, { x: 0 });
+
+  totalWidth =
+    items[length - 1].offsetLeft +
+    (xPercents[length - 1] / 100) * widths[length - 1] -
+    startX +
+    items[length - 1].offsetWidth *
+      $gsap.getProperty(items[length - 1], "scaleX") +
+    (parseFloat(config.paddingRight) || 0);
+
+  for (i = 0; i < length; i++) {
+    item = items[i];
+    curX = (xPercents[i] / 100) * widths[i];
+    distanceToStart = item.offsetLeft + curX - startX;
+    distanceToLoop =
+      distanceToStart + widths[i] * $gsap.getProperty(item, "scaleX");
+
+    tl.to(
+      item,
+      {
+        xPercent: snap(((curX - distanceToLoop) / widths[i]) * 100),
+        duration: distanceToLoop / pixelsPerSecond,
+      },
+      0
+    )
+      .fromTo(
+        item,
+        {
+          xPercent: snap(
+            ((curX - distanceToLoop + totalWidth) / widths[i]) * 100
+          ),
+        },
+        {
+          xPercent: xPercents[i],
+          duration:
+            (curX - distanceToLoop + totalWidth - curX) / pixelsPerSecond,
+          immediateRender: false,
+        },
+        distanceToLoop / pixelsPerSecond
+      )
+      .add("label" + i, distanceToStart / pixelsPerSecond);
+    times[i] = distanceToStart / pixelsPerSecond;
+  }
+
+  function toIndex(index, vars) {
+    vars = vars || {};
+    Math.abs(index - curIndex) > length / 2 &&
+      (index += index > curIndex ? -length : length);
+    let newIndex = $gsap.utils.wrap(0, length, index),
+      time = times[newIndex];
+    if (time > tl.time() !== index > curIndex) {
+      vars.modifiers = { time: $gsap.utils.wrap(0, tl.duration()) };
+      time += tl.duration() * (index > curIndex ? 1 : -1);
+    }
+    curIndex = newIndex;
+    vars.overwrite = true;
+    return tl.tweenTo(time, vars);
+  }
+
+  tl.next = (vars) => toIndex(curIndex + 1, vars);
+  tl.previous = (vars) => toIndex(curIndex - 1, vars);
+  tl.current = () => curIndex;
+  tl.toIndex = (index, vars) => toIndex(index, vars);
+  tl.times = times;
+  tl.progress(1, true).progress(0, true);
+
+  if (config.reversed) {
+    tl.vars.onReverseComplete();
+    tl.reverse();
+  }
+
+  return tl;
+}
+
+/**
+ * Setup marquee animation with ScrollTrigger control
+ * Uses horizontalLoop helper for seamless infinite scrolling
+ * Alternating directions: even index scrolls left, odd index scrolls right
+ */
+onMounted(() => {
+  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return;
+
+  // Wait for next tick to ensure DOM is fully rendered
+  nextTick(() => {
+    // Get all children in the track (should be 9 elements: 3 quotes + 3 images + 3 names)
+    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name');
+    if (items.length === 0) return;
+
+    // Create seamless loop using horizontalLoop helper
+    // Use negative speed for even-indexed items to reverse direction
+    // Even index (0,2,4): negative speed for right-to-left
+    // Odd index (1,3,5): positive speed for left-to-right
+    const direction = props.index % 2 === 0 ? -1 : 1;
+
+    marqueeAnimation = horizontalLoop(items, {
+      repeat: -1, // Infinite repeat
+      speed: direction, // Negative for reversed, positive for forward
+      paused: true, // Start paused
+    });
+
+    console.log(`🎬 Marquee ${props.index}: ${direction === -1 ? 'REVERSED (right-to-left)' : 'FORWARD (left-to-right)'}, speed=${direction}`);
+
+    // ScrollTrigger: Control marquee based on viewport visibility
+    // Play when in view, pause when out of view
+    scrollTriggerInstance = $ScrollTrigger.create({
+      trigger: marqueeContainerRef.value,
+      start: 'top bottom', // Starts when top of element enters bottom of viewport
+      end: 'bottom top', // Ends when bottom of element leaves top of viewport
+      onEnter: () => {
+        // Element entered viewport from below - start animation
+        marqueeAnimation?.play();
+      },
+      onLeave: () => {
+        // Element left viewport from top - pause animation
+        marqueeAnimation?.pause();
+      },
+      onEnterBack: () => {
+        // Element re-entered viewport from above - resume animation
+        marqueeAnimation?.play();
+      },
+      onLeaveBack: () => {
+        // Element left viewport from bottom - pause animation
+        marqueeAnimation?.pause();
+      },
+    });
+  });
+});
+
+/**
+ * Pause marquee on hover
+ */
+const handleMouseEnter = () => {
+  marqueeAnimation?.pause();
+};
+
+/**
+ * Resume marquee on mouse leave
+ * Only if element is still in viewport (ScrollTrigger is active)
+ */
+const handleMouseLeave = () => {
+  if (scrollTriggerInstance?.isActive) {
+    marqueeAnimation?.play();
+  }
+};
+
+/**
+ * Watch expanded state and animate height/opacity
+ * Uses GSAP for smooth animations
+ */
+watch(isExpanded, (expanded) => {
+  if (!expandedContentRef.value) return;
+
+  if (expanded) {
+    // Expand: Animate to auto height with opacity fade in
+    $gsap.to(expandedContentRef.value, {
+      height: 'auto',
+      opacity: 1,
+      duration: 0.5,
+      ease: 'power2.out',
+    });
+  } else {
+    // Collapse: Animate to 0 height with opacity fade out
+    $gsap.to(expandedContentRef.value, {
+      height: 0,
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.in',
+    });
+  }
+});
+
+// Cleanup animations on unmount
+onUnmounted(() => {
+  if (marqueeAnimation) {
+    marqueeAnimation.kill();
+    marqueeAnimation = null;
+  }
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill();
+    scrollTriggerInstance = null;
+  }
+});
+</script>
+
+<style scoped>
+/**
+ * Recommendation item styles
+ * Similar to InteractiveCaseStudySection pattern with marquee and accordion
+ */
+
+.recommendation-item {
+  position: relative;
+}
+
+/**
+ * Clickable row (replaces separate button)
+ * Entire row is clickable to expand/collapse
+ */
+.recommendation-row {
+  background: transparent;
+  border: none;
+}
+
+/**
+ * Marquee container
+ * Hides overflow for infinite scroll effect
+ */
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+  cursor: pointer;
+}
+
+/**
+ * Marquee track
+ * Contains repeating units of quote → image → name
+ * Uses fluid spacing that scales from 36-66px (centered around Figma's 48px spec)
+ */
+.marquee-track {
+  display: inline-flex;
+  gap: var(--space-l-xl); /* Fluid gap: 36px → 66px (Figma spec ~48px) */
+  align-items: center; /* Vertically center all elements */
+  white-space: nowrap;
+  will-change: transform; /* Performance optimization */
+}
+
+/**
+ * Marquee text (quote)
+ * PP Eiko Italic Thin typography from Figma
+ * Typography handled by utility classes (pp-eiko-*-h2-enlarged)
+ */
+.marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/**
+ * Marquee image (author photo within marquee)
+ * Fluid responsive dimensions maintaining ~1.775:1 aspect ratio
+ * Figma base: 213×120px, scales fluidly across viewports
+ * Border scales from 1px → 2px for high-res displays
+ */
+.marquee-image {
+  width: clamp(10.625rem, 10rem + 2.6vw, 13.3125rem); /* 170px → 213px → 213px */
+  height: clamp(6rem, 5.65rem + 1.5vw, 7.5rem); /* 96px → 120px → 120px */
+  border-radius: clamp(0.25rem, 0.2rem + 0.2vw, 0.375rem); /* 4px → 6px fluid */
+  object-fit: cover;
+  flex-shrink: 0;
+  flex-grow: 0;
+  border: clamp(0.0625rem, 0.05rem + 0.05vw, 0.125rem) solid var(--theme-15); /* 1px → 2px fluid */
+}
+
+/**
+ * Marquee author name container
+ * Contains first name (IBM Plex) + last name (PP Eiko)
+ * Uses inline-flex with gap for proper spacing between names
+ * Baseline alignment ensures both names sit on the same baseline despite different fonts
+ */
+.marquee-author-name {
+  display: inline-flex;
+  align-items: baseline; /* Align different fonts to same baseline */
+  gap: var(--space-s); /* Fluid spacing: 5-6px between first and last name */
+  white-space: nowrap;
+}
+
+/**
+ * Author name typography from Figma
+ * First name: IBM Plex Sans JP ExtraLight (200) - utility class has weight 400, override needed
+ * Last name: PP Eiko Thin (100) with tracking - handled by utility classes
+ * Gap between names: var(--space-3xs) fluid token from parent flex container
+ */
+.author-first-name {
+  font-weight: 200; /* ExtraLight weight from Figma - override utility default */
+  white-space: nowrap; /* Prevent name from breaking */
+}
+
+.author-last-name {
+  white-space: nowrap; /* Prevent name from breaking */
+}
+
+/**
+ * Expanded content
+ * Initially hidden, animated by GSAP
+ * Uses BiographySection-style 2-column grid pattern
+ */
+.expanded-content {
+  margin-top: var(--space-s);
+}
+
+.expanded-inner {
+  /* Grid layout handled by Tailwind utility classes */
+  /* Ready for future markdown content rendering */
+}
+</style>

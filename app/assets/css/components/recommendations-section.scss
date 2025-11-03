@@ -1,0 +1,42 @@
+/**
+ * Recommendations Section Styles
+ *
+ * Styling for RecommendationsSection and RecommendationItem components
+ * Handles full-width grid pattern for FullWidthBorder integration
+ *
+ * Pattern:
+ * - Similar to InteractiveCaseStudySection full-width pattern
+ * - Nested full-width-content elements for proper grid spanning
+ * - Minimal custom styles, mostly Tailwind utility classes
+ */
+
+/**
+ * Nested full-width-content grid handling
+ * Required for RecommendationItem to properly span full-width
+ * and inherit grid-template-columns from parent content-grid
+ */
+.full-width-content > .recommendation-item.full-width-content {
+  grid-column: full-width;
+  display: grid;
+  grid-template-columns: inherit;
+}
+
+/**
+ * Recommendation item positioning
+ * Relative position for potential pseudo-elements or overlays
+ */
+.recommendation-item {
+  position: relative;
+}
+
+/**
+ * Recommendation row (clickable button)
+ * Full-width container for marquee scrolling
+ * No grid needed - everything scrolls horizontally
+ */
+.recommendation-row {
+  /* breakout3 class handles grid-column placement */
+  /* Full width for marquee */
+  display: block;
+  width: 100%;
+}

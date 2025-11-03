@@ -3,32 +3,60 @@
     <h1 id="test-heading" class="sr-only">Test</h1>
 
     <!-- Clients Section Test -->
-    <ClientsSection>
-      <template #label>Clients</template>
-      <template #primary-clients>
-        <p>
-          Carlsberg, Coop (Irma, SuperBrugsen, Fakta), Lundbech Foundation, Maj
-          Bank/Invest, Maanesten, Molio, New Carlsberg Foundation, Novo Nordisk
-          Foundation, TNT
-        </p>
-      </template>
-      <template #secondary-clients>
-        <p>
-          Arkyn, Begravelse Danmark, Bibelselskabet, Bilka, BreathingBusiness,
-          Copenhagen Segway, Dansk Markedsføring, Danske Spil, eSmiley, FIF
-          Håndbold, FitnessDK, Fonden for Socialt Ansvar, Fonda, FoodWaste,
-          Haveselskabet, Independo, Isaaffik, Karen Tobiasen, Klarlund,
-          Kulturtjenesten, Kunstens Veje, Københavns Håndbold, Københavns
-          Kommune, Langelinie Outlet, LevendeStreg, MS Branding, Needit,
-          Neurotorium, Nixu, Novo Nordisk Foundation (August Krogh,
-          BioInnovation Institute, Data Science, Impact Assessment, LIFE, New
-          Carlsberg Foundation, Novo Holdings, ScienceNews), Pergo, Spirii,
-          SpotTheSpy, Storebælt, Sydsjællandspoliti, Toftkobber, WMHD
-        </p>
-      </template>
-    </ClientsSection>
+  
 
-   
+    <!-- Recommendations Section Test -->
+    <RecommendationsSection>
+      <template #label>Recommendations</template>
+
+      <RecommendationItem
+        id="rec-1"
+        :index="0"
+        quote="An extraordinary individual"
+        full-recommendation="I worked closely with Morten for almost three years while building an ambitious creative digital agency with Morten as a key player in executing on our most prominent digital design solutions.
+
+Morten is always on the lookout for what's next and has a strong eye for spotting design trends and capturing the visual DNA of clients on all levels.
+
+I have always been impressed by the speed and thoroughness that Morten shows in all projects he is a part of."
+        author-first-name="Thomas"
+        author-last-name="Rømhild"
+        author-title="CEO, Bærnholdt"
+        author-image="/assets/dummy/placeholder.jpg"
+      />
+
+      <RecommendationItem
+        id="rec-2"
+        :index="1"
+        quote="I understood once & for all"
+        full-recommendation="Morten's user-centric approach significantly improved our platform's usability and conversion rates. His attention to detail and ability to translate complex requirements into intuitive designs has been invaluable to our product development process."
+        author-first-name="Jesper"
+        author-last-name="Geldø Hansen"
+        author-title="UX Writer, Microsoft"
+        author-image="/assets/dummy/placeholder2.jpg"
+      />
+
+      <RecommendationItem
+        id="rec-3"
+        :index="2"
+        quote="A talented passionate designer"
+        full-recommendation="Working with Morten was a game-changer for our digital transformation. His creative vision and technical expertise helped us reimagine our entire user experience. He consistently delivered exceptional work that exceeded our expectations."
+        author-first-name="Mikkel"
+        author-last-name="Kreiner"
+        author-title="CTO, Arkyn"
+        author-image="/assets/dummy/placeholder3.jpg"
+      />
+
+      <RecommendationItem
+        id="rec-4"
+        :index="3"
+        quote="Fast and efficient at work and colleagues"
+        full-recommendation="Morten brings an incredible combination of strategic thinking and hands-on design skills. His ability to understand business objectives and translate them into compelling user experiences sets him apart. A true professional in every sense."
+        author-first-name="Rune"
+        author-last-name="Brændholt"
+        author-title="Partner, Bærnholdt"
+        author-image="/assets/dummy/placeholder1.jpg"
+      />
+    </RecommendationsSection>
 
     <!-- Experience Section Test -->
     <ExperienceSection view-more-text="View all" view-more-to="/about">
