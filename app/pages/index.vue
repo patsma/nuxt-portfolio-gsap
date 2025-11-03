@@ -81,6 +81,24 @@ const services = [
         <p>Design Systems & Tokens</p>
       </template>
     </ServicesSection>
+    <ClientsSection>
+      <template #label>Clients</template>
+      <template #primary-clients>
+        <p>
+          Carlsberg, Coop, Lundbech Foundation, Munch Museet, Terma,
+          Tivoli, World's Best Bar 2023
+        </p>
+      </template>
+      <template #secondary-clients>
+        <p>
+          Arkyn, Begravelse Danmark, Bibelselskabet, BioInnovation Institute,
+          Bjelin, Boligforeningen 3B, Bærnholdt, Byggefirmaet Hoffmann, Contempas,
+          Dansk Sygeplejeråd, Det Nationale Forsknings- og Analysecenter for
+          Velfærd (VIVE), Elvstrøm, Grøndalcentret, Lederne, Møbelsnedkeren,
+          Novozymes, Pointvoucher, Scion DTU, Stadshagenselskabet, TCS
+        </p>
+      </template>
+    </ClientsSection>
     <BiographySection>
       <template #label>Biography</template>
 
