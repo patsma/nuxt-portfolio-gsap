@@ -99,6 +99,23 @@ const services = [
         </p>
       </template>
     </ClientsSection>
+     <!-- Awards & Recognition Section Test -->
+     <AwardsRecognitionSection>
+      <template #label>Awards &<br />Recognition</template>
+      <template #awards-column>
+        <p>1 <span class="text-[var(--theme-text-60)]">x</span> Awwwards</p>
+        <p>4 <span class="text-[var(--theme-text-60)]">x</span> Behance</p>
+        <p>
+          2 <span class="text-[var(--theme-text-60)]">x</span> CSS Design
+          Awards
+        </p>
+        <p>1 <span class="text-[var(--theme-text-60)]">x</span> CSS Light</p>
+      </template>
+      <template #featured-column>
+        <p>Design Rush – Featured</p>
+        <p>Web Design Pub – Featured</p>
+      </template>
+    </AwardsRecognitionSection>
     <BiographySection>
       <template #label>Biography</template>
 
