@@ -117,7 +117,8 @@
  * Marquee Pattern:
  * - GSAP infinite animation with ScrollTrigger control
  * - Structure: Each unit contains quote (italic) → author image → author name (mixed typography)
- * - Direction: Even index (0,2,4) scrolls right-to-left (reversed), odd index (1,3,5) scrolls left-to-right (forward)
+ * - Direction: Even index (0,2,4) scrolls left-to-right (forward), odd index (1,3,5) scrolls right-to-left (reversed)
+ * - Uses 'reversed' config in horizontalLoop (NOT negative speed which breaks GSAP durations)
  * - Starts when item enters viewport, stops when leaves
  * - Pauses on hover, resumes on leave (if still in viewport)
  * - Duplicates complete unit (quote + image + name) 3 times for seamless loop
@@ -147,7 +148,7 @@ const props = defineProps({
   },
   /**
    * Item index (0-based) for determining scroll direction
-   * Even index = scroll left, Odd index = scroll right
+   * Even index (0,2,4) = scroll left-to-right, Odd index (1,3,5) = scroll right-to-left
    * @type {number}
    */
   index: {
@@ -351,7 +352,7 @@ function horizontalLoop(items, config) {
 /**
  * Setup marquee animation with ScrollTrigger control
  * Uses horizontalLoop helper for seamless infinite scrolling
- * Alternating directions: even index scrolls left, odd index scrolls right
+ * Alternating directions: even index (0,2,4) left-to-right, odd index (1,3,5) right-to-left
  */
 onMounted(() => {
   if (!marqueeTrackRef.value || !marqueeContainerRef.value) return;
@@ -363,28 +364,30 @@ onMounted(() => {
     if (items.length === 0) return;
 
     // Create seamless loop using horizontalLoop helper
-    // Use negative speed for even-indexed items to reverse direction
-    // Even index (0,2,4): negative speed for right-to-left
-    // Odd index (1,3,5): positive speed for left-to-right
-    const direction = props.index % 2 === 0 ? -1 : 1;
+    // Alternate directions: even index (0,2,4) = left-to-right, odd index (1,3,5) = right-to-left
+    // IMPORTANT: Use 'reversed' config, NOT negative speed (negative speed breaks GSAP durations)
+    const shouldReverse = props.index % 2 !== 0;
 
     marqueeAnimation = horizontalLoop(items, {
       repeat: -1, // Infinite repeat
-      speed: direction, // Negative for reversed, positive for forward
+      speed: 1, // Always positive - direction controlled by 'reversed' config
+      reversed: shouldReverse, // true = right-to-left, false = left-to-right
       paused: true, // Start paused
     });
 
-    console.log(`🎬 Marquee ${props.index}: ${direction === -1 ? 'REVERSED (right-to-left)' : 'FORWARD (left-to-right)'}, speed=${direction}`);
+    // Debug: Uncomment to verify marquee direction setup
+    // console.log(`🎬 Marquee ${props.index}: ${shouldReverse ? 'REVERSED (right-to-left)' : 'FORWARD (left-to-right)'}, tl.reversed()=${marqueeAnimation.reversed()}, timeScale=${marqueeAnimation.timeScale()}`);
 
     // ScrollTrigger: Control marquee based on viewport visibility
-    // Play when in view, pause when out of view
+    // IMPORTANT: Use resume() instead of play() to respect reversed state
+    // play() resets direction to forward, resume() continues in current direction
     scrollTriggerInstance = $ScrollTrigger.create({
       trigger: marqueeContainerRef.value,
       start: 'top bottom', // Starts when top of element enters bottom of viewport
       end: 'bottom top', // Ends when bottom of element leaves top of viewport
       onEnter: () => {
         // Element entered viewport from below - start animation
-        marqueeAnimation?.play();
+        marqueeAnimation?.resume();
       },
       onLeave: () => {
         // Element left viewport from top - pause animation
@@ -392,7 +395,7 @@ onMounted(() => {
       },
       onEnterBack: () => {
         // Element re-entered viewport from above - resume animation
-        marqueeAnimation?.play();
+        marqueeAnimation?.resume();
       },
       onLeaveBack: () => {
         // Element left viewport from bottom - pause animation
@@ -412,10 +415,11 @@ const handleMouseEnter = () => {
 /**
  * Resume marquee on mouse leave
  * Only if element is still in viewport (ScrollTrigger is active)
+ * IMPORTANT: Use resume() to respect reversed state
  */
 const handleMouseLeave = () => {
   if (scrollTriggerInstance?.isActive) {
-    marqueeAnimation?.play();
+    marqueeAnimation?.resume();
   }
 };
 
