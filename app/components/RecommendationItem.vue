@@ -368,10 +368,15 @@ onMounted(() => {
     // IMPORTANT: Use 'reversed' config, NOT negative speed (negative speed breaks GSAP durations)
     const shouldReverse = props.index % 2 !== 0;
 
+    // Calculate gap size to match CSS var(--space-l-xl) = clamp(36px, 48px, 66px)
+    // Use middle value for consistent spacing between loop cycles
+    const gapSize = 48; // Matches Figma spec, middle of fluid range
+
     marqueeAnimation = horizontalLoop(items, {
       repeat: -1, // Infinite repeat
       speed: 1, // Always positive - direction controlled by 'reversed' config
       reversed: shouldReverse, // true = right-to-left, false = left-to-right
+      paddingRight: gapSize, // Add gap between loop cycles for seamless connection
       paused: true, // Start paused
     });
 
@@ -564,7 +569,7 @@ onUnmounted(() => {
  * Uses BiographySection-style 2-column grid pattern
  */
 .expanded-content {
-  margin-top: var(--space-s);
+  /* margin-top: var(--space-s); */
 }
 
 .expanded-inner {
