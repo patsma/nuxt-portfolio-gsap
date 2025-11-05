@@ -138,6 +138,9 @@ const createSectionAnimation = () => {
   return tl;
 };
 
+// Store hook cleanup function
+let unhookPageStart = null;
+
 onMounted(() => {
   // Listen for page transitions to animate OUT with existing SplitText
   const nuxtApp = useNuxtApp();
@@ -168,11 +171,15 @@ onMounted(() => {
   };
 
   // Hook into page:start to trigger leave animation
-  nuxtApp.hook('page:start', handlePageLeave);
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
 
   // EXACT pattern from BiographySection
   if (props.animateOnScroll && $ScrollTrigger && sectionRef.value) {
-    const createScrollTrigger = () => {
+    const createScrollTrigger = async () => {
+      // CRITICAL: Wait for fonts to load before creating SplitText
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
       // Kill existing ScrollTrigger
       if (scrollTriggerInstance) {
         scrollTriggerInstance.kill();
@@ -259,11 +266,19 @@ onMounted(() => {
 
 // Cleanup
 onUnmounted(() => {
+  // Unhook page:start listener
+  if (unhookPageStart) {
+    unhookPageStart();
+    unhookPageStart = null;
+  }
+
+  // Kill ScrollTrigger
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill();
     scrollTriggerInstance = null;
   }
 
+  // Revert SplitText
   if (splitInstance.value) {
     splitInstance.value.revert?.();
     splitInstance.value = null;
