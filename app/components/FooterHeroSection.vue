@@ -146,10 +146,12 @@ onMounted(() => {
   const nuxtApp = useNuxtApp();
   const handlePageLeave = () => {
     // If we have an active SplitText instance, animate it OUT
+    // EXACT same animation as page transition with animateFrom: 'below'
     if (splitInstance.value && splitInstance.value.lines) {
       $gsap.to(splitInstance.value.lines, {
-        yPercent: -100,
-        rotate: -20,
+        yPercent: -100,          // Slide up (opposite of entry which is 100)
+        rotate: 20,              // Positive rotation (matching page transition)
+        transformOrigin: "100% 0%", // Bottom-right origin for OUT
         duration: 0.7,
         stagger: 0.08,
         ease: "power2.in",
