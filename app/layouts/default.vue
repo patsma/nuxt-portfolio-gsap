@@ -110,7 +110,7 @@ onUnmounted(() => {
           />
         </div>
       </div>
-      <div class="spacer h-screen"></div>
+      <!-- <div class="spacer h-screen"></div> -->
     </div>
   </div>
 </template>
