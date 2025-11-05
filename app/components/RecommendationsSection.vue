@@ -99,9 +99,62 @@ const setActiveItem = (id) => {
   activeItemId.value = activeItemId.value === id ? null : id;
 };
 
+/**
+ * Smart ScrollTrigger refresh for accordion animations
+ * Ensures entrance ScrollTrigger is fully destroyed before refreshing
+ * This prevents iOS Safari from triggering timeline reversal
+ */
+let pendingCallbacks = [];
+
+const executeRefresh = () => {
+  console.log('[RecommendationsSection] Executing TARGETED refresh for pinned sections ONLY');
+
+  // CRITICAL iOS Safari Fix: Ensure entrance ScrollTrigger is DEAD before refresh
+  if (scrollTriggerInstance) {
+    console.log('[RecommendationsSection] ⚠️ Entrance ScrollTrigger still exists, killing it NOW');
+    scrollTriggerInstance.kill();
+    scrollTriggerInstance = null;
+  }
+
+  // TARGETED REFRESH: Only refresh ScrollTriggers with pin: true
+  // This avoids affecting marquee ScrollTriggers (RecommendationItem animations)
+  // Marquees don't need refreshing - they only care about their own element's viewport position
+  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
+
+  console.log(`[RecommendationsSection] Found ${pinnedTriggers.length} pinned ScrollTrigger(s) to refresh`);
+
+  pinnedTriggers.forEach((trigger, index) => {
+    console.log(`[RecommendationsSection] Refreshing pinned trigger ${index + 1}`);
+    trigger.refresh();
+  });
+
+  // Execute queued callbacks
+  const callbacks = [...pendingCallbacks];
+  pendingCallbacks = [];
+
+  callbacks.forEach((cb) => {
+    cb();
+  });
+};
+
+// Debounce with 100ms delay to let once:true fully clean up
+const debouncedRefresh = useDebounceFn(executeRefresh, 100);
+
+/**
+ * Public API for child components to request refresh
+ * @param {Function} callback - Optional callback after refresh
+ */
+const requestRefresh = (callback) => {
+  if (callback) {
+    pendingCallbacks.push(callback);
+  }
+  debouncedRefresh();
+};
+
 // Provide accordion state to child RecommendationItem components
 provide('activeItemId', activeItemId);
 provide('setActiveItem', setActiveItem);
+provide('requestRefresh', requestRefresh);
 
 /**
  * Create reusable animation function for recommendations section
@@ -181,13 +234,19 @@ onMounted(() => {
       const scrollTimeline = createSectionAnimation();
 
       // Create ScrollTrigger with animation timeline
+      // CRITICAL: Use 'once: true' to auto-destroy after entrance animation completes
+      // This prevents iOS Safari from reversing the timeline during accordion animations
+      // Entrance animations should only play once - no reversal needed
       scrollTriggerInstance = $ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top 80%', // Animate when section is 80% down viewport
         end: 'bottom top+=25%', // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
-        toggleActions: 'play pause resume reverse',
+        once: true, // Auto-destroy after first trigger (prevents reversal)
         invalidateOnRefresh: true, // Recalculate on window resize/refresh
+        onEnter: () => {
+          console.log('[RecommendationsSection] ScrollTrigger onEnter - playing once (will self-destruct)');
+        },
       });
     };
 

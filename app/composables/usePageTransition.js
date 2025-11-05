@@ -356,7 +356,11 @@ export const usePageTransition = () => {
    * LEAVE Animation - Elements animate OUT
    */
   const leave = (el, done) => {
-    // console.log('🚀 Page LEAVE')
+    console.error('🚨 PAGE LEAVE TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
+      path: window.location.pathname,
+      timestamp: Date.now(),
+      stackTrace: new Error().stack,
+    });
 
     const elements = findAnimatedElements(el);
 
@@ -399,7 +403,10 @@ export const usePageTransition = () => {
    * before animations start. Safari executes animations too fast otherwise.
    */
   const enter = (el, done) => {
-    // console.log('🎬 Page ENTER')
+    console.error('🚨 PAGE ENTER TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
+      path: window.location.pathname,
+      timestamp: Date.now(),
+    });
 
     // Wait for directives to mount and store their configs
     nextTick(() => {

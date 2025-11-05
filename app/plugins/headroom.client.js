@@ -22,20 +22,16 @@ export default defineNuxtPlugin((nuxtApp) => {
   const updateHeaderCore = (currentScroll) => {
     // Skip updates when paused (during page transitions)
     if (isPaused) {
-      console.log("[Headroom] UPDATE BLOCKED - isPaused=true, scroll:", currentScroll);
       return;
     }
 
     // Skip first update after unpause to sync scroll position
     // This prevents headroom from reacting to scroll position changes that happened during pause/refresh
     if (skipNextUpdate) {
-      console.log("[Headroom] SKIPPING FIRST UPDATE - syncing lastScrollTop to:", currentScroll);
       lastScrollTop = currentScroll;
       skipNextUpdate = false;
       return;
     }
-
-    console.log("[Headroom] UPDATE RUNNING - scroll:", currentScroll, "lastScrollTop:", lastScrollTop);
 
     // Ensure we have header reference
     if (!headerElement) {
@@ -113,7 +109,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Stop scroll updates immediately
     // Header stays frozen in current visual state (unpinned/not-top/top)
     isPaused = true;
-    console.log("[Headroom] PAUSED - header frozen in current state");
   };
 
   /**
@@ -160,8 +155,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const unpause = () => {
     isPaused = false;
     skipNextUpdate = true; // Next update will sync lastScrollTop without changing header state
-
-    console.log("[Headroom] UNPAUSED - scroll updates re-enabled, will sync on next update");
   };
 
   // Expose controller for ScrollSmoother plugin to call

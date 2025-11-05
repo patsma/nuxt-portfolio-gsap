@@ -5,6 +5,7 @@
 
     <!-- Clickable row wrapper (breakout3 within sub-grid) -->
     <button
+      type="button"
       @click="toggle"
       class="recommendation-row full-width w-full text-left cursor-pointer py-[var(--space-s)] md:py-[var(--space-m)] transition-opacity duration-[var(--duration-hover)] hover:opacity-80"
     >
@@ -214,6 +215,7 @@ const { createLoop } = useHorizontalLoop($gsap);
 // Inject accordion state from parent RecommendationsSection
 const activeItemId = inject('activeItemId');
 const setActiveItem = inject('setActiveItem');
+const requestRefresh = inject('requestRefresh');
 
 // Refs for DOM elements
 const marqueeContainerRef = ref(null);
@@ -232,7 +234,21 @@ const isExpanded = computed(() => activeItemId.value === props.id);
  * If already expanded, collapse it
  * If collapsed, expand it and close others
  */
-const toggle = () => {
+const toggle = (event) => {
+  console.log('[RecommendationItem] Toggle clicked', {
+    id: props.id,
+    currentlyExpanded: isExpanded.value,
+    willExpand: !isExpanded.value,
+    eventType: event?.type,
+    target: event?.target?.tagName,
+  });
+
+  // Prevent any default behavior
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   setActiveItem(isExpanded.value ? null : props.id);
 };
 
@@ -326,7 +342,23 @@ const handleMouseLeave = () => {
 watch(isExpanded, (expanded) => {
   if (!expandedContentRef.value) return;
 
-  console.log('[Accordion] Starting animation, expanded:', expanded);
+  console.log('[RecommendationItem] Animation starting', {
+    id: props.id,
+    expanded,
+    windowSize: `${window.innerWidth}x${window.innerHeight}`,
+    scrollPosition: window.scrollY,
+    currentPath: window.location.pathname,
+    timestamp: Date.now(),
+  });
+
+  // Check if page transition is active (this should NOT be happening during accordion)
+  const pageTransitionStore = usePageTransitionStore();
+  if (pageTransitionStore?.isTransitioning) {
+    console.error('[RecommendationItem] ⚠️ WARNING: Page transition is ACTIVE during accordion animation!', {
+      id: props.id,
+      isTransitioning: pageTransitionStore.isTransitioning,
+    });
+  }
 
   // Pause headroom before animation starts to prevent header from reacting to content height changes
   nuxtApp.$headroom?.pause();
@@ -339,23 +371,19 @@ watch(isExpanded, (expanded) => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
-        console.log('[Accordion] Expand complete, setting up refresh listener');
+        console.log('[RecommendationItem] Expand complete, requesting refresh', {
+          id: props.id,
+          timestamp: Date.now(),
+        });
 
-        // Setup one-time listener BEFORE calling refresh
-        // This fires precisely when ScrollTrigger.refresh() completes all recalculations
-        const handleRefreshComplete = () => {
-          console.log('[Accordion] ScrollTrigger refresh complete, unpausing headroom');
+        // Request refresh for pinned sections below (ImageScalingSection, etc.)
+        requestRefresh(() => {
+          console.log('[RecommendationItem] Refresh complete after expand', {
+            id: props.id,
+            timestamp: Date.now(),
+          });
           nuxtApp.$headroom?.unpause();
-
-          // Remove listener immediately to prevent memory leaks
-          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-        };
-
-        // Register listener first
-        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
-
-        // Trigger refresh - listener will fire when ScrollSmoother has fully settled
-        $ScrollTrigger.refresh();
+        });
       },
     });
   } else {
@@ -366,23 +394,19 @@ watch(isExpanded, (expanded) => {
       duration: 0.4,
       ease: 'power2.in',
       onComplete: () => {
-        console.log('[Accordion] Collapse complete, setting up refresh listener');
+        console.log('[RecommendationItem] Collapse complete, requesting refresh', {
+          id: props.id,
+          timestamp: Date.now(),
+        });
 
-        // Setup one-time listener BEFORE calling refresh
-        // This fires precisely when ScrollTrigger.refresh() completes all recalculations
-        const handleRefreshComplete = () => {
-          console.log('[Accordion] ScrollTrigger refresh complete, unpausing headroom');
+        // Request refresh for pinned sections below (ImageScalingSection, etc.)
+        requestRefresh(() => {
+          console.log('[RecommendationItem] Refresh complete after collapse', {
+            id: props.id,
+            timestamp: Date.now(),
+          });
           nuxtApp.$headroom?.unpause();
-
-          // Remove listener immediately to prevent memory leaks
-          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-        };
-
-        // Register listener first
-        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
-
-        // Trigger refresh - listener will fire when ScrollSmoother has fully settled
-        $ScrollTrigger.refresh();
+        });
       },
     });
   }
