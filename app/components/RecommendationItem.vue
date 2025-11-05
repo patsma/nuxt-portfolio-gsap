@@ -205,7 +205,8 @@ const props = defineProps({
   },
 });
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
+const nuxtApp = useNuxtApp();
+const { $gsap, $ScrollTrigger } = nuxtApp;
 
 // Horizontal loop composable for marquee animation (pass GSAP instance)
 const { createLoop } = useHorizontalLoop($gsap);
@@ -318,11 +319,17 @@ const handleMouseLeave = () => {
 /**
  * Watch expanded state and animate height/opacity
  * Uses GSAP for smooth animations
+ * IMPORTANT: Pauses headroom during animation to prevent header from reacting to height changes
  * IMPORTANT: Refreshes ScrollTrigger after animation to recalculate positions
  * This prevents pinning issues in subsequent scroll-based sections (ImageScalingSection, VideoScalingSection)
  */
 watch(isExpanded, (expanded) => {
   if (!expandedContentRef.value) return;
+
+  console.log('[Accordion] Starting animation, expanded:', expanded);
+
+  // Pause headroom before animation starts to prevent header from reacting to content height changes
+  nuxtApp.$headroom?.pause();
 
   if (expanded) {
     // Expand: Animate to auto height with opacity fade in
@@ -332,9 +339,18 @@ watch(isExpanded, (expanded) => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
+        console.log('[Accordion] Expand complete, refreshing ScrollTrigger');
         // Refresh ScrollTrigger after expansion completes
         // This recalculates all ScrollTrigger positions affected by height change
         $ScrollTrigger.refresh();
+
+        console.log('[Accordion] Waiting for ScrollSmoother to settle (300ms)');
+        // Wait longer (300ms) for ScrollSmoother to fully settle after refresh
+        // ScrollTrigger.refresh() causes scroll position recalculations that take time to stabilize
+        setTimeout(() => {
+          console.log('[Accordion] Calling unpause now');
+          nuxtApp.$headroom?.unpause();
+        }, 300);
       },
     });
   } else {
@@ -345,8 +361,17 @@ watch(isExpanded, (expanded) => {
       duration: 0.4,
       ease: 'power2.in',
       onComplete: () => {
+        console.log('[Accordion] Collapse complete, refreshing ScrollTrigger');
         // Refresh ScrollTrigger after collapse completes
         $ScrollTrigger.refresh();
+
+        console.log('[Accordion] Waiting for ScrollSmoother to settle (300ms)');
+        // Wait longer (300ms) for ScrollSmoother to fully settle after refresh
+        // ScrollTrigger.refresh() causes scroll position recalculations that take time to stabilize
+        setTimeout(() => {
+          console.log('[Accordion] Calling unpause now');
+          nuxtApp.$headroom?.unpause();
+        }, 300);
       },
     });
   }

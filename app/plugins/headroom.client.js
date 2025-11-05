@@ -20,7 +20,12 @@ export default defineNuxtPlugin((nuxtApp) => {
    */
   const updateHeaderCore = (currentScroll) => {
     // Skip updates when paused (during page transitions)
-    if (isPaused) return;
+    if (isPaused) {
+      console.log("[Headroom] UPDATE BLOCKED - isPaused=true, scroll:", currentScroll);
+      return;
+    }
+
+    console.log("[Headroom] UPDATE RUNNING - scroll:", currentScroll, "lastScrollTop:", lastScrollTop);
 
     // Ensure we have header reference
     if (!headerElement) {
@@ -98,7 +103,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Stop scroll updates immediately
     // Header stays frozen in current visual state (unpinned/not-top/top)
     isPaused = true;
-    // console.log("[Headroom] Paused - header frozen in current state");
+    console.log("[Headroom] PAUSED - header frozen in current state");
   };
 
   /**
@@ -135,12 +140,32 @@ export default defineNuxtPlugin((nuxtApp) => {
     // console.log("[Headroom] Resumed - smoothly animating to top state (800ms)");
   };
 
+  /**
+   * Simple unpause (used by accordion/content animations)
+   * Re-enables updates without any header animations
+   * IMPORTANT: Resets lastScrollTop so headroom doesn't react to scroll changes that happened during pause
+   */
+  const unpause = () => {
+    isPaused = false;
+
+    // Get current scroll position from ScrollSmoother (if available) or window
+    const currentScroll = window.gsap?.getProperty('#smooth-content', 'y')
+      ? Math.abs(window.gsap.getProperty('#smooth-content', 'y'))
+      : window.scrollY || window.pageYOffset || 0;
+
+    // Reset lastScrollTop to current position so we don't react to the difference
+    lastScrollTop = currentScroll;
+
+    console.log("[Headroom] UNPAUSED - scroll updates re-enabled, tracking reset to", currentScroll);
+  };
+
   // Expose controller for ScrollSmoother plugin to call
   nuxtApp.provide("headroom", {
     updateHeader,
     reset,
     pause,
     resume,
+    unpause,
   });
 
   // Pause headroom at start of page transition
