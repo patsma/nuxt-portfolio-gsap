@@ -245,13 +245,6 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
       scroll-amount="180%"
       start-position="left"
     />
-    <FooterSection>
-      <template #heading>
-        Feel free to reach out if you want to collaborate, hire, or simply have a chat with me
-      </template>
-      <template #linkedin>linkedin.com/in/mortengust</template>
-      <template #behance>behance.net/mortengust</template>
-      <template #email>hello@mortengust.com</template>
-    </FooterSection>
+   
   </div>
 </template>

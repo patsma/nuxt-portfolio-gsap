@@ -110,6 +110,12 @@ onUnmounted(() => {
           />
         </div>
       </div>
+      <FooterSection>
+     
+      <template #linkedin>linkedin.com/in/mortengust</template>
+      <template #behance>behance.net/mortengust</template>
+      <template #email>hello@mortengust.com</template>
+    </FooterSection>
       <!-- <div class="spacer h-screen"></div> -->
     </div>
   </div>

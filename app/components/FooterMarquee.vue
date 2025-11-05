@@ -2,7 +2,7 @@
   <div
     ref="marqueeContainerRef"
     class="marquee-container full-width overflow-hidden"
-    v-page-fade="{ leaveOnly: true }"
+    data-footer-marquee
   >
     <div ref="marqueeTrackRef" class="marquee-track">
       <!-- Unit 1: Japanese → Danish → English -->
@@ -53,7 +53,7 @@
  * - Multilingual text: "お問い合わせ" (JP) → "Kontakt mig" (DK) → "Get in touch" (EN)
  * - ScrollTrigger controls: Start/pause based on viewport visibility
  * - NO hover pause (unlike RecommendationItem)
- * - Page transition support: v-page-fade with leaveOnly: true
+ * - Page leave/enter animations handled by parent FooterSection component
  * - Theme-aware text color
  * - Responsive typography (PP Eiko h2-enlarged)
  *
@@ -85,6 +85,7 @@ let scrollTriggerInstance = null;
 /**
  * Setup marquee animation with ScrollTrigger control
  * Right-to-left infinite scroll (reversed: true)
+ * NOTE: Page transition animations handled by parent FooterSection
  */
 onMounted(() => {
   if (!marqueeTrackRef.value || !marqueeContainerRef.value) return;

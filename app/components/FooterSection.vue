@@ -1,27 +1,20 @@
 <template>
   <footer class="footer-section">
     <!-- Section 1: Hero CTA (Reusing HeroSection component) -->
-    <!-- NO animateEntrance prop - defaults to scroll-triggered animation -->
-    <HeroSection>
-      <!-- Heading slot with default text -->
-      <h2
-        v-page-split:lines="{ leaveOnly: true }"
-        class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-100)] leading-tight"
-      >
-        <slot name="heading">
-          Feel free to reach out if you want to collaborate, hire, or simply
-          have a chat with me
-        </slot>
-      </h2>
-
-      <!-- Button slot (user will add ScrollToTopSVG later) -->
+    <FooterHeroSection>
+      <h1 class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter">
+        <span class="text-[var(--theme-text-60)]">This is a</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> scroll-triggered</em>
+        <span class="text-[var(--theme-text-60)]"> hero section for</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> testing</span>
+      </h1>
       <template #button>
-        <slot name="button" />
+        <ScrollDownSVG />
       </template>
-    </HeroSection>
+    </FooterHeroSection>
 
     <!-- Section 2: Marquee (Multilingual "Get in touch") -->
-    <FooterMarquee />
+    <FooterMarquee ref="marqueeRef" />
 
     <!-- Section 3: Links/Info List -->
     <section
@@ -30,7 +23,6 @@
     >
       <div
         class="links-list full-width-content flex flex-col"
-        v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
       >
         <!-- Link Item 1: LinkedIn -->
         <div class="link-item full-width-content">
@@ -122,11 +114,12 @@
  * FooterSection Component - Complete Footer with Hero CTA, Marquee, Links, and Socket
  *
  * Features:
- * - Reuses HeroSection component for hero CTA (scroll-triggered animation, NO entrance animation)
+ * - Reuses FooterHeroSection component for hero CTA (scroll-triggered animation, NO entrance animation)
  * - FooterMarquee: Infinite right-to-left multilingual scroll
  * - Links section: LinkedIn, Behance, Email with 2-column layout
  * - Socket: Copyright, Cookie Policy, Special Thanks
- * - All sections have scroll-triggered animations and page transition support
+ * - All sections have scroll-triggered animations
+ * - Manual page leave animations (since component is in layout, not page)
  * - Theme-aware colors and responsive typography
  *
  * Structure:
@@ -151,8 +144,9 @@
  * Pattern:
  * - Follows COMPONENT_PATTERNS.md: content-grid + breakout3, FullWidthBorder, scroll animations
  * - Similar to ExperienceSection and InteractiveCaseStudySection patterns
- * - Page transitions: leaveOnly: true for all animated elements
+ * - Manual page leave animations via page:start hook (since component is in layout)
  * - ScrollTrigger recreated after page transitions for fresh DOM queries
+ * - Same approach as FooterHeroSection for handling layout-level animations
  *
  * Usage:
  * <FooterSection>
@@ -183,8 +177,11 @@ const loadingStore = useLoadingStore();
 const pageTransitionStore = usePageTransitionStore();
 
 const linksListRef = ref(null);
+const marqueeRef = ref(null);
 
 let scrollTriggerInstance = null;
+let marqueeScrollTriggerInstance = null;
+let unhookPageStart = null;
 
 // Computed property for dynamic copyright year
 const currentYear = computed(() => new Date().getFullYear());
@@ -218,7 +215,108 @@ const createLinksAnimation = () => {
   return tl;
 };
 
+/**
+ * Handle page leave animation
+ * Simple fade out of marquee and links when page navigation starts
+ * ScrollTrigger will handle fade in when user scrolls to footer on new page
+ */
+const handlePageLeave = () => {
+  // Fade out marquee
+  if (marqueeRef.value && marqueeRef.value.$el) {
+    $gsap.to(marqueeRef.value.$el, {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.in',
+    });
+  }
+
+  // Fade out links
+  if (linksListRef.value) {
+    const items = linksListRef.value.querySelectorAll('.link-item');
+    if (items.length > 0) {
+      $gsap.to(items, {
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.05,
+        ease: 'power2.in',
+      });
+    }
+  }
+};
+
+/**
+ * Create marquee scroll animation
+ * Animates marquee from opacity: 0 to 1 when entering viewport
+ */
+const createMarqueeAnimation = () => {
+  const tl = $gsap.timeline();
+
+  if (marqueeRef.value && marqueeRef.value.$el) {
+    tl.fromTo(
+      marqueeRef.value.$el,
+      { opacity: 0 },
+      {
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out',
+      }
+    );
+  }
+
+  return tl;
+};
+
 onMounted(() => {
+  // Hook into page:start to trigger leave animation
+  const nuxtApp = useNuxtApp();
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
+
+  // MARQUEE ScrollTrigger: Fade in when entering viewport
+  if (marqueeRef.value && marqueeRef.value.$el && $ScrollTrigger) {
+    const createMarqueeScrollTrigger = () => {
+      // Kill existing ScrollTrigger
+      if (marqueeScrollTriggerInstance) {
+        marqueeScrollTriggerInstance.kill();
+        marqueeScrollTriggerInstance = null;
+      }
+
+      // Clear inline styles from page leave animation
+      $gsap.set(marqueeRef.value.$el, { clearProps: 'all' });
+      $gsap.set(marqueeRef.value.$el, { opacity: 0 });
+
+      // Create ScrollTrigger animation
+      const marqueeTimeline = createMarqueeAnimation();
+
+      marqueeScrollTriggerInstance = $ScrollTrigger.create({
+        trigger: marqueeRef.value.$el,
+        start: 'top 80%',
+        animation: marqueeTimeline,
+        toggleActions: 'play pause resume reverse',
+        invalidateOnRefresh: true,
+      });
+    };
+
+    // Coordinate with page transitions (same pattern as links)
+    if (loadingStore.isFirstLoad) {
+      nextTick(() => {
+        createMarqueeScrollTrigger();
+      });
+    } else {
+      const unwatch = watch(
+        () => pageTransitionStore.isTransitioning,
+        (isTransitioning) => {
+          if (!isTransitioning) {
+            nextTick(() => {
+              createMarqueeScrollTrigger();
+            });
+            unwatch();
+          }
+        },
+        { immediate: true }
+      );
+    }
+  }
+
   // SCROLL MODE: Animate links section when scrolling into view (default)
   // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
   // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
@@ -231,8 +329,8 @@ onMounted(() => {
         scrollTriggerInstance = null;
       }
 
-      // CRITICAL: Clear inline GSAP styles from page transitions
-      // The v-page-stagger directive leaves inline styles (opacity, transform)
+      // CRITICAL: Clear inline GSAP styles from page transitions on links
+      // handlePageLeave() leaves inline styles (opacity, transform)
       // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
       if (linksListRef.value) {
         const items = linksListRef.value.querySelectorAll('.link-item');
@@ -284,8 +382,21 @@ onMounted(() => {
   }
 });
 
-// Cleanup ScrollTrigger on unmount
+// Cleanup ScrollTriggers and hooks on unmount
 onUnmounted(() => {
+  // Unhook page:start listener
+  if (unhookPageStart) {
+    unhookPageStart();
+    unhookPageStart = null;
+  }
+
+  // Kill marquee ScrollTrigger
+  if (marqueeScrollTriggerInstance) {
+    marqueeScrollTriggerInstance.kill();
+    marqueeScrollTriggerInstance = null;
+  }
+
+  // Kill links ScrollTrigger
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill();
     scrollTriggerInstance = null;
