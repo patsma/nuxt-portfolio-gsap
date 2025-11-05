@@ -431,6 +431,8 @@ const handleMouseLeave = () => {
 /**
  * Watch expanded state and animate height/opacity
  * Uses GSAP for smooth animations
+ * IMPORTANT: Refreshes ScrollTrigger after animation to recalculate positions
+ * This prevents pinning issues in subsequent scroll-based sections (ImageScalingSection, VideoScalingSection)
  */
 watch(isExpanded, (expanded) => {
   if (!expandedContentRef.value) return;
@@ -442,6 +444,11 @@ watch(isExpanded, (expanded) => {
       opacity: 1,
       duration: 0.5,
       ease: 'power2.out',
+      onComplete: () => {
+        // Refresh ScrollTrigger after expansion completes
+        // This recalculates all ScrollTrigger positions affected by height change
+        $ScrollTrigger.refresh();
+      },
     });
   } else {
     // Collapse: Animate to 0 height with opacity fade out
@@ -450,6 +457,10 @@ watch(isExpanded, (expanded) => {
       opacity: 0,
       duration: 0.4,
       ease: 'power2.in',
+      onComplete: () => {
+        // Refresh ScrollTrigger after collapse completes
+        $ScrollTrigger.refresh();
+      },
     });
   }
 });
