@@ -306,6 +306,7 @@ refreshSmoother()  // Recalculates parallax for new content
 | Fixed elements broken | Inside smooth-content | Move outside (see DOM structure) |
 | Headroom resumes too early | Using page:finish hook | Resume in enter() `onComplete` instead |
 | 14fps on Safari | smooth value too high | Use `smooth: 1` (see setup) |
+| ScrollTrigger pinning at wrong position | Content height changed after initialization | Call ScrollTrigger.refresh() after animations (see Component Patterns) |
 
 ## Performance
 

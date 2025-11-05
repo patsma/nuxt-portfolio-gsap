@@ -316,6 +316,71 @@ $gsap.set(items, { clearProps: 'all' });
 $gsap.set(items, { opacity: 0, y: 40 });
 ```
 
+### Refreshing ScrollTrigger After Dynamic Height Changes
+
+**Problem:** When content height changes dynamically (accordions, modals, lazy-loaded content), ScrollTrigger positions become stale. This breaks pinning for subsequent sections.
+
+**Solution:** Call `ScrollTrigger.refresh()` after height-changing animations complete.
+
+**When to Use:**
+- Accordion expand/collapse
+- Modal open/close
+- Lazy-loaded content insertion
+- Dynamic content additions/removals
+- Any height-changing GSAP animations
+
+**Pattern:**
+```javascript
+watch(isExpanded, (expanded) => {
+  if (expanded) {
+    $gsap.to(element, {
+      height: 'auto',
+      opacity: 1,
+      duration: 0.5,
+      ease: 'power2.out',
+      onComplete: () => {
+        // Refresh ScrollTrigger after animation completes
+        // This recalculates all ScrollTrigger positions affected by height change
+        $ScrollTrigger.refresh();
+      },
+    });
+  } else {
+    $gsap.to(element, {
+      height: 0,
+      opacity: 0,
+      duration: 0.4,
+      ease: 'power2.in',
+      onComplete: () => {
+        $ScrollTrigger.refresh();
+      },
+    });
+  }
+});
+```
+
+**Reference Implementation:** `app/components/RecommendationItem.vue` (lines 437-466)
+
+**Critical Timing:**
+- ALWAYS call refresh in `onComplete` callback, never during animation
+- This ensures DOM has fully updated before recalculation
+- Prevents visual glitches and incorrect positioning
+
+**Why It Matters:**
+- ScrollTrigger caches element positions for performance
+- Height changes invalidate these cached positions
+- Subsequent sections (ImageScalingSection, VideoScalingSection) pin at wrong scroll positions
+- Global refresh recalculates all triggers efficiently
+
+**Alternative (with ScrollSmoother):**
+```javascript
+const { refreshSmoother } = useScrollSmootherManager();
+
+onComplete: () => {
+  // Also recalculates data-speed/data-lag parallax effects
+  refreshSmoother();
+}
+```
+
 ### Page Transition Directives
 
 **Pattern:** Use `leaveOnly: true` for exit animations only
@@ -461,6 +526,7 @@ setupEntrance(sectionRef.value, {
 ✅ **Grid for alignment** - Use grid-cols-4 or grid-cols-2, not arbitrary padding
 ✅ **Typography utilities** - Use generated classes (ibm-plex-sans-jp-mobile-p1)
 ✅ **Theme-aware colors** - Always use CSS variables (--theme-text-60)
+✅ **Refresh after height changes** - Call ScrollTrigger.refresh() in GSAP onComplete callbacks
 
 ---
 
