@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
+import FooterHeroSection from "~/components/FooterHeroSection.vue";
 import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
 import VideoScalingSection from "~/components/VideoScalingSection.vue";
 </script>
@@ -42,5 +43,19 @@ import VideoScalingSection from "~/components/VideoScalingSection.vue";
       scroll-amount="180%"
       start-position="left"
     />
+
+    <!-- Footer Hero Section - Scroll-triggered variant for testing -->
+    <!-- NO page transition directives - FooterHeroSection handles all animations -->
+    <FooterHeroSection>
+      <h1 class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter">
+        <span class="text-[var(--theme-text-60)]">This is a</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> scroll-triggered</em>
+        <span class="text-[var(--theme-text-60)]"> hero section for</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> testing</span>
+      </h1>
+      <template #button>
+        <ScrollDownSVG />
+      </template>
+    </FooterHeroSection>
   </div>
 </template>
