@@ -13,6 +13,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   let lastScrollTop = 0;
   let headerElement = null;
   let isPaused = false; // Pause during page transitions to prevent flicker
+  let skipNextUpdate = false; // Skip next update after unpause to sync scroll position
 
   /**
    * Core header update logic (without throttle)
@@ -22,6 +23,15 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Skip updates when paused (during page transitions)
     if (isPaused) {
       console.log("[Headroom] UPDATE BLOCKED - isPaused=true, scroll:", currentScroll);
+      return;
+    }
+
+    // Skip first update after unpause to sync scroll position
+    // This prevents headroom from reacting to scroll position changes that happened during pause/refresh
+    if (skipNextUpdate) {
+      console.log("[Headroom] SKIPPING FIRST UPDATE - syncing lastScrollTop to:", currentScroll);
+      lastScrollTop = currentScroll;
+      skipNextUpdate = false;
       return;
     }
 
@@ -112,6 +122,7 @@ export default defineNuxtPlugin((nuxtApp) => {
    */
   const resume = () => {
     isPaused = false;
+    skipNextUpdate = false; // Clear skip flag (resume forces header to top, no sync needed)
     // Reset tracking state so headroom starts fresh
     lastScrollTop = 0;
 
@@ -143,20 +154,14 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Simple unpause (used by accordion/content animations)
    * Re-enables updates without any header animations
-   * IMPORTANT: Resets lastScrollTop so headroom doesn't react to scroll changes that happened during pause
+   * IMPORTANT: Sets skipNextUpdate flag so first update after unpause just syncs scroll position
+   * This ensures we sync to the ACTUAL current scroll position (after ScrollSmoother settles)
    */
   const unpause = () => {
     isPaused = false;
+    skipNextUpdate = true; // Next update will sync lastScrollTop without changing header state
 
-    // Get current scroll position from ScrollSmoother (if available) or window
-    const currentScroll = window.gsap?.getProperty('#smooth-content', 'y')
-      ? Math.abs(window.gsap.getProperty('#smooth-content', 'y'))
-      : window.scrollY || window.pageYOffset || 0;
-
-    // Reset lastScrollTop to current position so we don't react to the difference
-    lastScrollTop = currentScroll;
-
-    console.log("[Headroom] UNPAUSED - scroll updates re-enabled, tracking reset to", currentScroll);
+    console.log("[Headroom] UNPAUSED - scroll updates re-enabled, will sync on next update");
   };
 
   // Expose controller for ScrollSmoother plugin to call

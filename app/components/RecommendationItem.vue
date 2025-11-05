@@ -339,18 +339,23 @@ watch(isExpanded, (expanded) => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
-        console.log('[Accordion] Expand complete, refreshing ScrollTrigger');
-        // Refresh ScrollTrigger after expansion completes
-        // This recalculates all ScrollTrigger positions affected by height change
-        $ScrollTrigger.refresh();
+        console.log('[Accordion] Expand complete, setting up refresh listener');
 
-        console.log('[Accordion] Waiting for ScrollSmoother to settle (300ms)');
-        // Wait longer (300ms) for ScrollSmoother to fully settle after refresh
-        // ScrollTrigger.refresh() causes scroll position recalculations that take time to stabilize
-        setTimeout(() => {
-          console.log('[Accordion] Calling unpause now');
+        // Setup one-time listener BEFORE calling refresh
+        // This fires precisely when ScrollTrigger.refresh() completes all recalculations
+        const handleRefreshComplete = () => {
+          console.log('[Accordion] ScrollTrigger refresh complete, unpausing headroom');
           nuxtApp.$headroom?.unpause();
-        }, 300);
+
+          // Remove listener immediately to prevent memory leaks
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+        };
+
+        // Register listener first
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+
+        // Trigger refresh - listener will fire when ScrollSmoother has fully settled
+        $ScrollTrigger.refresh();
       },
     });
   } else {
@@ -361,17 +366,23 @@ watch(isExpanded, (expanded) => {
       duration: 0.4,
       ease: 'power2.in',
       onComplete: () => {
-        console.log('[Accordion] Collapse complete, refreshing ScrollTrigger');
-        // Refresh ScrollTrigger after collapse completes
-        $ScrollTrigger.refresh();
+        console.log('[Accordion] Collapse complete, setting up refresh listener');
 
-        console.log('[Accordion] Waiting for ScrollSmoother to settle (300ms)');
-        // Wait longer (300ms) for ScrollSmoother to fully settle after refresh
-        // ScrollTrigger.refresh() causes scroll position recalculations that take time to stabilize
-        setTimeout(() => {
-          console.log('[Accordion] Calling unpause now');
+        // Setup one-time listener BEFORE calling refresh
+        // This fires precisely when ScrollTrigger.refresh() completes all recalculations
+        const handleRefreshComplete = () => {
+          console.log('[Accordion] ScrollTrigger refresh complete, unpausing headroom');
           nuxtApp.$headroom?.unpause();
-        }, 300);
+
+          // Remove listener immediately to prevent memory leaks
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+        };
+
+        // Register listener first
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+
+        // Trigger refresh - listener will fire when ScrollSmoother has fully settled
+        $ScrollTrigger.refresh();
       },
     });
   }
