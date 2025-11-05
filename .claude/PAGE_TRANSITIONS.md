@@ -283,6 +283,142 @@ onMounted(() => {
 - Always kill animations in `onUnmounted()` (prevent leaks)
 - See LOADING_SYSTEM.md for full viewport-aware pattern
 
+## Layout Component Page Transitions
+
+**Problem:** Components in layouts (default.vue) persist across page navigations. Page transition directives (v-page-fade, v-page-stagger) only work for content inside NuxtPage.
+
+**Example:** FooterSection in default.vue layout - directives won't trigger.
+
+### Solution Pattern
+
+**1. Page Leave:** Hook into `page:start`, manually animate to `opacity: 0`
+
+```javascript
+const nuxtApp = useNuxtApp();
+let unhookPageStart = null;
+
+onMounted(() => {
+  unhookPageStart = nuxtApp.hook('page:start', () => {
+    // Simple fade out when navigation starts
+    $gsap.to(marqueeElement, { opacity: 0, duration: 0.5, ease: 'power2.in' });
+    $gsap.to(linksItems, { opacity: 0, duration: 0.5, stagger: 0.05, ease: 'power2.in' });
+  });
+});
+
+onUnmounted(() => {
+  if (unhookPageStart) {
+    unhookPageStart();
+  }
+});
+```
+
+**2. Page Enter:** Do NOT use `page:finish` to reset/force visible
+- Let elements stay at `opacity: 0` after page transition
+- ScrollTrigger will handle fade in when user scrolls
+
+**3. ScrollTrigger:** Animate to visible when scrolling into view
+
+```javascript
+const createScrollTrigger = () => {
+  // Clear inline styles from page leave animation
+  $gsap.set(element, { clearProps: 'all' });
+  $gsap.set(element, { opacity: 0 });
+
+  // Create fade in animation
+  const timeline = $gsap.timeline();
+  timeline.fromTo(element,
+    { opacity: 0 },
+    { opacity: 1, duration: 0.6, ease: 'power2.out' }
+  );
+
+  // Attach to ScrollTrigger
+  $ScrollTrigger.create({
+    trigger: element,
+    start: 'top 80%',
+    animation: timeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true,
+  });
+};
+
+// Coordinate with page transitions
+if (loadingStore.isFirstLoad) {
+  nextTick(() => createScrollTrigger());
+} else {
+  const unwatch = watch(
+    () => pageTransitionStore.isTransitioning,
+    (isTransitioning) => {
+      if (!isTransitioning) {
+        nextTick(() => createScrollTrigger());
+        unwatch();
+      }
+    },
+    { immediate: true }
+  );
+}
+```
+
+### Anti-Patterns (What NOT to Do)
+
+❌ **Don't store timelines and kill them in `page:finish`**
+```javascript
+// BAD: Causes issues with other animations
+let leaveTimeline = $gsap.timeline();
+nuxtApp.hook('page:finish', () => {
+  leaveTimeline.kill(); // This breaks everything else!
+});
+```
+
+❌ **Don't use `clearProps` and force visible in `page:finish`**
+```javascript
+// BAD: Racing conditions with page transitions
+nuxtApp.hook('page:finish', () => {
+  $gsap.set(element, { clearProps: 'all' });
+  $gsap.set(element, { autoAlpha: 1 }); // Fighting with other animations!
+});
+```
+
+❌ **Don't try to coordinate reset timing**
+```javascript
+// BAD: Complex and error-prone
+watch(() => pageTransitionStore.isTransitioning, (value) => {
+  if (!value) {
+    // Too late, animations already conflicting
+  }
+});
+```
+
+✅ **Simple fade out + ScrollTrigger fade in**
+```javascript
+// GOOD: Clean, predictable, works every time
+nuxtApp.hook('page:start', () => {
+  $gsap.to(element, { opacity: 0, duration: 0.5 });
+});
+
+// ScrollTrigger handles fade in
+$ScrollTrigger.create({
+  trigger: element,
+  animation: $gsap.fromTo(element, { opacity: 0 }, { opacity: 1 }),
+});
+```
+
+### Why This Works
+
+1. **Page leave**: Elements fade to `opacity: 0` cleanly
+2. **Page transition**: Content swaps, elements stay hidden
+3. **Scroll in**: ScrollTrigger animates to visible when user reaches footer
+4. **No conflicts**: Each system has one job, no coordination needed
+
+### Reference Implementation
+
+**File:** `app/components/FooterSection.vue`
+
+Complete example showing:
+- Simple `page:start` fade out
+- ScrollTrigger setup for marquee
+- ScrollTrigger setup for links
+- Proper cleanup in `onUnmounted()`
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |

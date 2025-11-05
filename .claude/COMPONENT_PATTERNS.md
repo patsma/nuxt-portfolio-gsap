@@ -516,6 +516,190 @@ setupEntrance(sectionRef.value, {
 
 ---
 
+### FooterSection Reference
+
+**Complete implementation for layout-level components with page transitions**
+
+#### Key Differences from Page Components
+
+- Lives in layout (persists across navigation)
+- Page transition directives won't work
+- Must manually handle page leave animation
+- ScrollTrigger handles entrance animations
+
+#### Why It's Different
+
+**Page components** (index.vue, about.vue):
+- Destroyed/recreated on navigation
+- Directives (v-page-fade, v-page-stagger) work automatically
+- Framework handles lifecycle
+
+**Layout components** (FooterSection in default.vue):
+- Persist across all pages
+- Directives never trigger (not part of NuxtPage)
+- Manual hooks required
+
+#### Implementation Pattern
+
+**1. Simple Page Leave Hook**
+
+```javascript
+const handlePageLeave = () => {
+  // Fade out marquee
+  if (marqueeRef.value && marqueeRef.value.$el) {
+    $gsap.to(marqueeRef.value.$el, {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.in',
+    });
+  }
+
+  // Fade out links
+  if (linksListRef.value) {
+    const items = linksListRef.value.querySelectorAll('.link-item');
+    if (items.length > 0) {
+      $gsap.to(items, {
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.05,
+        ease: 'power2.in',
+      });
+    }
+  }
+};
+
+onMounted(() => {
+  const nuxtApp = useNuxtApp();
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
+});
+```
+
+**2. ScrollTrigger for Each Element**
+
+```javascript
+// Marquee ScrollTrigger
+const createMarqueeAnimation = () => {
+  const tl = $gsap.timeline();
+  if (marqueeRef.value && marqueeRef.value.$el) {
+    tl.fromTo(
+      marqueeRef.value.$el,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6, ease: 'power2.out' }
+    );
+  }
+  return tl;
+};
+
+const createMarqueeScrollTrigger = () => {
+  // Kill existing
+  if (marqueeScrollTriggerInstance) {
+    marqueeScrollTriggerInstance.kill();
+    marqueeScrollTriggerInstance = null;
+  }
+
+  // Clear inline styles from page leave
+  $gsap.set(marqueeRef.value.$el, { clearProps: 'all' });
+  $gsap.set(marqueeRef.value.$el, { opacity: 0 });
+
+  // Create ScrollTrigger
+  const timeline = createMarqueeAnimation();
+  marqueeScrollTriggerInstance = $ScrollTrigger.create({
+    trigger: marqueeRef.value.$el,
+    start: 'top 80%',
+    animation: timeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true,
+  });
+};
+
+// Coordinate with page transitions
+if (loadingStore.isFirstLoad) {
+  nextTick(() => createMarqueeScrollTrigger());
+} else {
+  const unwatch = watch(
+    () => pageTransitionStore.isTransitioning,
+    (isTransitioning) => {
+      if (!isTransitioning) {
+        nextTick(() => createMarqueeScrollTrigger());
+        unwatch();
+      }
+    },
+    { immediate: true }
+  );
+}
+```
+
+**3. Proper Cleanup**
+
+```javascript
+onUnmounted(() => {
+  // Unhook page:start
+  if (unhookPageStart) {
+    unhookPageStart();
+    unhookPageStart = null;
+  }
+
+  // Kill ScrollTriggers
+  if (marqueeScrollTriggerInstance) {
+    marqueeScrollTriggerInstance.kill();
+    marqueeScrollTriggerInstance = null;
+  }
+
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill();
+    scrollTriggerInstance = null;
+  }
+});
+```
+
+#### Anti-Patterns to Avoid
+
+❌ **Don't use `page:finish` to reset elements**
+```javascript
+// BAD: Racing with other animations
+nuxtApp.hook('page:finish', () => {
+  $gsap.set(element, { autoAlpha: 1 });
+});
+```
+
+❌ **Don't store and kill timelines**
+```javascript
+// BAD: Breaks other animations
+let leaveTimeline = $gsap.timeline();
+nuxtApp.hook('page:finish', () => {
+  leaveTimeline.kill();
+});
+```
+
+❌ **Don't use page transition directives**
+```vue
+<!-- BAD: Won't work in layout components -->
+<div v-page-fade="{ leaveOnly: true }">
+```
+
+✅ **Do use simple hooks + ScrollTrigger**
+```javascript
+// GOOD: Clean separation of concerns
+nuxtApp.hook('page:start', () => fadeOut());
+$ScrollTrigger.create({ animation: fadeIn() });
+```
+
+#### Files
+
+- `app/components/FooterSection.vue` - Container with ScrollTriggers
+- `app/components/FooterMarquee.vue` - Child component (no transition logic)
+- `app/components/FooterHeroSection.vue` - Child with own ScrollTrigger
+
+#### Critical Rules
+
+1. **Never** try to reset elements in `page:finish` hook
+2. **Always** let ScrollTrigger handle entrance animations
+3. **Keep** page leave animations simple (just fade to opacity: 0)
+4. **Use** refs instead of `document.querySelector()`
+5. **Clear** inline styles before creating ScrollTrigger
+
+---
+
 ## Key Takeaways
 
 ✅ **Use content-grid system** - Avoid custom padding, use breakout3
@@ -545,4 +729,5 @@ When building a new section component:
 **For questions or patterns not covered here, reference:**
 - BiographySection.vue (simplest pattern)
 - ExperienceSection.vue (4-column grid)
+- FooterSection.vue (layout component with page transitions)
 - InteractiveCaseStudySection.vue (complex interactions)
