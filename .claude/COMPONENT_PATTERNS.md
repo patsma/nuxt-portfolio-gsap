@@ -331,7 +331,13 @@ $gsap.set(items, { opacity: 0, y: 40 });
 
 **Pattern:**
 ```javascript
+const nuxtApp = useNuxtApp();
+const { $gsap, $ScrollTrigger } = nuxtApp;
+
 watch(isExpanded, (expanded) => {
+  // Pause headroom before animation to prevent header from reacting to scroll changes
+  nuxtApp.$headroom?.pause();
+
   if (expanded) {
     $gsap.to(element, {
       height: 'auto',
@@ -339,8 +345,20 @@ watch(isExpanded, (expanded) => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
-        // Refresh ScrollTrigger after animation completes
-        // This recalculates all ScrollTrigger positions affected by height change
+        // Setup one-time listener BEFORE calling refresh
+        // This fires precisely when ScrollTrigger.refresh() completes all recalculations
+        const handleRefreshComplete = () => {
+          // Unpause headroom after ScrollSmoother settles
+          nuxtApp.$headroom?.unpause();
+
+          // Remove listener immediately to prevent memory leaks
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+        };
+
+        // Register listener first
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+
+        // Trigger refresh - listener will fire when ScrollSmoother has fully settled
         $ScrollTrigger.refresh();
       },
     });
@@ -351,6 +369,13 @@ watch(isExpanded, (expanded) => {
       duration: 0.4,
       ease: 'power2.in',
       onComplete: () => {
+        // Same pattern for collapse
+        const handleRefreshComplete = () => {
+          nuxtApp.$headroom?.unpause();
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+        };
+
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
         $ScrollTrigger.refresh();
       },
     });
@@ -358,7 +383,7 @@ watch(isExpanded, (expanded) => {
 });
 ```
 
-**Reference Implementation:** `app/components/RecommendationItem.vue` (lines 437-466)
+**Reference Implementation:** `app/components/RecommendationItem.vue` (lines 326-389)
 
 **Critical Timing:**
 - ALWAYS call refresh in `onComplete` callback, never during animation
@@ -370,6 +395,49 @@ watch(isExpanded, (expanded) => {
 - Height changes invalidate these cached positions
 - Subsequent sections (ImageScalingSection, VideoScalingSection) pin at wrong scroll positions
 - Global refresh recalculates all triggers efficiently
+
+### Headroom Coordination Pattern
+
+**Why coordinate with headroom?**
+
+When content height changes (accordion expand/collapse), it triggers:
+1. ScrollTrigger.refresh() → Recalculates all scroll positions
+2. ScrollSmoother animates to new scroll position
+3. Headroom sees scroll position changes and tries to show/hide header ❌
+
+**Solution:** Pause headroom during animation, unpause after ScrollSmoother settles.
+
+**Key Pattern: ScrollTrigger.addEventListener("refresh")**
+
+❌ **Anti-pattern (arbitrary timing):**
+```javascript
+$ScrollTrigger.refresh();
+setTimeout(() => {
+  nuxtApp.$headroom?.unpause(); // Guessing when ScrollSmoother settles
+}, 300);
+```
+
+✅ **Correct pattern (event-driven):**
+```javascript
+const handleRefreshComplete = () => {
+  nuxtApp.$headroom?.unpause();
+  $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+};
+
+$ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+$ScrollTrigger.refresh(); // Listener fires when complete
+```
+
+**Why event listeners are better:**
+- No arbitrary delays
+- Fires precisely when ScrollTrigger calculations complete
+- Event-driven (matches codebase patterns)
+- Official GSAP API
+
+**unpause() uses skipNextUpdate pattern:**
+When `unpause()` is called, it sets `skipNextUpdate = true`. The next `updateHeader()` call will sync `lastScrollTop` to the current scroll position without changing header state. This prevents headroom from reacting to scroll changes that occurred during the animation.
+
+See `.claude/SCROLL_SYSTEM.md` for full skipNextUpdate documentation.
 
 **Alternative (with ScrollSmoother):**
 ```javascript

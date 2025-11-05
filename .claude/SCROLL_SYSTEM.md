@@ -147,6 +147,49 @@ onComplete → headroom.resume()
   - Restores fast transitions (300ms) after animation completes
 ```
 
+### unpause() vs resume()
+
+**Different methods for different use cases:**
+
+| Method | Use Case | Behavior |
+|--------|----------|----------|
+| `pause()` | Both page transitions and accordions | Freezes header in current state |
+| `resume()` | Page transitions only | Smoothly animates header to top state (800ms) |
+| `unpause()` | Accordions/height changes only | Re-enables updates without animation, uses skipNextUpdate |
+
+**When to use which:**
+- **Page transitions:** Use `pause()` → `resume()` (animates to top)
+- **Accordions/dynamic content:** Use `pause()` → `unpause()` (no animation, syncs scroll position)
+
+### skipNextUpdate Pattern
+
+When `unpause()` is called, it sets an internal `skipNextUpdate = true` flag. The next `updateHeader()` call will:
+1. Skip header state changes (no show/hide/compact)
+2. Sync `lastScrollTop` to current scroll position
+3. Clear `skipNextUpdate` flag
+
+**Why this matters:** After `ScrollTrigger.refresh()`, ScrollSmoother takes time to settle. The `skipNextUpdate` pattern ensures headroom syncs to the ACTUAL final scroll position instead of reacting to intermediate scroll changes during the settling animation.
+
+**Example:** RecommendationItem accordion (lines 326-389)
+```javascript
+// Pause before animation
+nuxtApp.$headroom?.pause();
+
+$gsap.to(expandedContentRef.value, {
+  height: 'auto',
+  onComplete: () => {
+    // Setup one-time listener BEFORE refresh
+    const handleRefreshComplete = () => {
+      nuxtApp.$headroom?.unpause(); // Uses skipNextUpdate internally
+      $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
+    };
+
+    $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+    $ScrollTrigger.refresh(); // Listener fires when complete
+  }
+});
+```
+
 ### Integration
 
 **File:** `app/composables/usePageTransition.js`
