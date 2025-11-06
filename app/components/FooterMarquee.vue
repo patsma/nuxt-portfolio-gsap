@@ -6,35 +6,35 @@
   >
     <div ref="marqueeTrackRef" class="marquee-track">
       <!-- Unit 1: Japanese → Danish → English -->
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
 
       <!-- Unit 2: Japanese → Danish → English (duplicate for seamless loop) -->
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
 
       <!-- Unit 3: Japanese → Danish → English (duplicate for seamless loop) -->
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
     </div>
@@ -54,19 +54,24 @@
  * - ScrollTrigger controls: Start/pause based on viewport visibility
  * - NO hover pause (unlike RecommendationItem)
  * - Page leave/enter animations handled by parent FooterSection component
- * - Theme-aware text color
- * - Responsive typography (PP Eiko h2-enlarged)
+ * - Theme-aware text color (40% opacity)
+ * - Responsive typography (PP Eiko h2 - matches FooterSection links)
+ * - Fully fluid responsive using design tokens
  *
  * Pattern:
  * - Uses useHorizontalLoop composable for seamless infinite animation
  * - 3 complete text sets duplicated 3 times (9 spans total) for seamless loop
- * - Gap: var(--space-l-xl) fluid (36-66px, centered around 48px)
+ * - Gap: var(--space-l-xl) - dynamically read from computed style
+ * - Padding: var(--space-s) for responsive height
  * - Direction: Right-to-left (reversed: true)
  * - Speed: 1 (matches RecommendationItem)
+ * - Typography: PP Eiko h2 (regular, not enlarged) matching FooterSection link sizes
  *
  * Integration:
- * - Used in FooterSection component
+ * - Used in FooterSection component wrapped in marquee-wrapper div
  * - No props needed (static content)
+ * - Border handled by FooterSection parent (FullWidthBorder top with 15% opacity)
+ * - Wrapper div animated as a unit (border + marquee together)
  */
 
 const { $gsap, $ScrollTrigger } = useNuxtApp();
@@ -96,9 +101,10 @@ onMounted(() => {
     const items = marqueeTrackRef.value.querySelectorAll('.marquee-text');
     if (items.length === 0) return;
 
-    // Calculate gap size to match CSS var(--space-l-xl) = clamp(36px, 48px, 66px)
-    // Use middle value for consistent spacing between loop cycles
-    const gapSize = 48; // Matches Figma spec, middle of fluid range
+    // Calculate gap size dynamically from CSS variable --space-l-xl
+    // Read computed style to get the actual resolved fluid clamp() value
+    const computedGap = window.getComputedStyle(marqueeTrackRef.value).gap;
+    const gapSize = parseFloat(computedGap) || 48; // Fallback to 48px if parsing fails
 
     // Create seamless loop using useHorizontalLoop composable
     // IMPORTANT: Direction is ALWAYS right-to-left for footer marquee (reversed: true)
@@ -153,12 +159,15 @@ onUnmounted(() => {
 /**
  * Footer marquee styles
  * Simple infinite horizontal scroll with no hover interactions
+ * Responsive padding instead of fixed height for fluid layout
  */
 
 .marquee-container {
   /* Full-width container, hides overflow */
   width: 100%;
-  height: 66px; /* Fixed height from Figma */
+  /* Use padding for responsive height instead of fixed height */
+  padding-top: var(--space-s);
+  padding-bottom: var(--space-s);
   display: flex;
   align-items: center; /* Vertically center text */
 }
@@ -169,7 +178,7 @@ onUnmounted(() => {
  */
 .marquee-track {
   display: inline-flex;
-  gap: var(--space-l-xl); /* Fluid gap: 36px → 66px (Figma spec ~48px) */
+  gap: var(--space-l-xl); /* Fluid gap using design token */
   align-items: center; /* Vertically center all text */
   white-space: nowrap;
   will-change: transform; /* Performance optimization */
@@ -178,7 +187,7 @@ onUnmounted(() => {
 /**
  * Marquee text (multilingual "Get in touch")
  * PP Eiko typography from Figma with responsive sizing
- * Typography handled by utility classes (pp-eiko-*-h2-enlarged)
+ * Typography handled by utility classes (pp-eiko-*-h2)
  */
 .marquee-text {
   display: inline-block;

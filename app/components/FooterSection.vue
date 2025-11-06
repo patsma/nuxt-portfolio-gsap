@@ -14,95 +14,103 @@
     </FooterHeroSection>
 
     <!-- Section 2: Marquee (Multilingual "Get in touch") -->
-    <FooterMarquee ref="marqueeRef" />
+    <div ref="marqueeWrapperRef" class="marquee-wrapper full-width-content">
+      <FullWidthBorder :opacity="15" />
+      <FooterMarquee ref="marqueeRef" />
+    </div>
 
     <!-- Section 3: Links/Info List -->
-    <section
+    <div
       ref="linksListRef"
-      class="content-grid w-full py-[var(--space-m)] md:py-[var(--space-l)]"
+      class="links-list full-width-content flex flex-col"
     >
-      <div
-        class="links-list full-width-content flex flex-col"
-      >
-        <!-- Link Item 1: LinkedIn -->
-        <div class="link-item full-width-content">
-          <FullWidthBorder :opacity="10" />
+      <!-- Link Item 1: Email -->
+      <div class="link-item full-width-content">
+        <FullWidthBorder :opacity="15" />
+        <div class="link-item-wrapper content-grid w-full">
           <div
-            class="link-item-content breakout3 py-[var(--space-s)] grid gap-[var(--space-xs)] grid-cols-2 lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-m)]"
+            class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
-            <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-              LinkedIn
-            </p>
             <a
               href="/"
-              class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)] text-right lg:text-left"
+              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
-              <slot name="linkedin">linkedin.com/in/username</slot>
+              <slot name="email">Contact@mschritsensen.com</slot>
             </a>
-          </div>
-        </div>
-
-        <!-- Link Item 2: Behance -->
-        <div class="link-item full-width-content">
-          <FullWidthBorder :opacity="10" />
-          <div
-            class="link-item-content breakout3 py-[var(--space-s)] grid gap-[var(--space-xs)] grid-cols-2 lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-m)]"
-          >
-            <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-              Behance
+            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+              <slot name="email-desc">Got a project or something else?</slot>
             </p>
-            <a
-              href="/"
-              class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)] text-right lg:text-left"
-            >
-              <slot name="behance">behance.net/username</slot>
-            </a>
-          </div>
-        </div>
-
-        <!-- Link Item 3: Email -->
-        <div class="link-item full-width-content">
-          <FullWidthBorder :opacity="10" />
-          <div
-            class="link-item-content breakout3 py-[var(--space-s)] grid gap-[var(--space-xs)] grid-cols-2 lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-m)]"
-          >
-            <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-              Email
-            </p>
-            <a
-              href="/"
-              class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)] text-right lg:text-left"
-            >
-              <slot name="email">hello@example.com</slot>
-            </a>
           </div>
         </div>
       </div>
-    </section>
+
+      <!-- Link Item 2: LinkedIn -->
+      <div class="link-item full-width-content">
+        <FullWidthBorder :opacity="15" />
+        <div class="link-item-wrapper content-grid w-full">
+          <div
+            class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
+          >
+            <a
+              href="/"
+              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+            >
+              <slot name="linkedin">LinkedIn</slot>
+            </a>
+            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+              <slot name="linkedin-desc">Let's connect? Also, my online resumé</slot>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link Item 3: Behance -->
+      <div class="link-item full-width-content">
+        <FullWidthBorder :opacity="15" />
+        <div class="link-item-wrapper content-grid w-full">
+          <div
+            class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
+          >
+            <a
+              href="/"
+              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+            >
+              <slot name="behance">Behance</slot>
+            </a>
+            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+              <slot name="behance-desc">My latest projects</slot>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Section 4: Socket (Copyright + Cookie Policy + Special Thanks) -->
-    <div class="content-grid w-full pb-[var(--space-l)] md:pb-[var(--space-xl)]">
-      <div
-        class="socket breakout3 pt-[var(--space-m)] grid gap-[var(--space-m)] lg:grid-cols-2 lg:items-center ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
-      >
-        <!-- Copyright + Cookie Policy (left/top) -->
-        <div class="copyright-policy flex gap-[var(--space-m)] items-center flex-wrap">
-          <span><slot name="copyright">© Copyright, {{ currentYear }}</slot></span>
-          <a
-            href="/"
-            class="hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
-          >
-            <slot name="cookie-policy">Cookie Policy</slot>
-          </a>
-        </div>
+    <div class="socket-section full-width-content">
+      <FullWidthBorder :opacity="15" />
+      <div class="socket-wrapper content-grid w-full">
+        <div
+          class="socket breakout3 py-[var(--space-s)] flex flex-col gap-[var(--space-s)] lg:flex-row lg:items-center lg:justify-between ibm-plex-sans-jp-mobile-custom-labels uppercase text-[var(--theme-text-30)]"
+        >
+          <!-- Copyright + Cookie Policy (left/top) -->
+          <div class="copyright-policy flex gap-[var(--space-m)] items-center flex-wrap">
+            <span><slot name="copyright">© Copyright, {{ currentYear }}</slot></span>
+            <a
+              href="/"
+              class="hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+            >
+              <slot name="cookie-policy">Cookie Policy</slot>
+            </a>
+          </div>
 
-        <!-- Special Thanks (right/bottom) -->
-        <div class="special-thanks lg:text-right">
-          <p>
-            <slot name="thanks">
-              Special thanks to Patryk Smakosz for the collaboration
-            </slot>
-          </p>
+          <!-- Special Thanks (right/bottom) -->
+          <div class="special-thanks lg:text-right">
+            <p>
+              <slot name="thanks">
+                Special thanks to Patryk Smakosz for the collaboration
+              </slot>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -116,17 +124,23 @@
  * Features:
  * - Reuses FooterHeroSection component for hero CTA (scroll-triggered animation, NO entrance animation)
  * - FooterMarquee: Infinite right-to-left multilingual scroll
- * - Links section: LinkedIn, Behance, Email with 2-column layout
+ * - Links section: Email, LinkedIn, Behance with link + description layout
  * - Socket: Copyright, Cookie Policy, Special Thanks
  * - All sections have scroll-triggered animations
  * - Manual page leave animations (since component is in layout, not page)
  * - Theme-aware colors and responsive typography
+ * - Follows BiographySection/RecommendationsSection grid patterns
  *
  * Structure:
  * 1. Hero CTA (HeroSection) - "Feel free to reach out..."
- * 2. Marquee (FooterMarquee) - Infinite scroll with JP/DK/EN text
- * 3. Links List - Social/contact links with FullWidthBorder dividers
+ * 2. Marquee (FooterMarquee) - Infinite scroll with JP/DK/EN text, bordered top only
+ * 3. Links List - Contact links with descriptions, FullWidthBorder dividers
  * 4. Socket - Copyright + Cookie Policy | Special Thanks
+ *
+ * Layout Pattern:
+ * - Mobile: Link → Description (stacked vertically)
+ * - Desktop: Link (left) | Description (right) with justify-between
+ * - Uses content-grid + breakout3 for consistent spacing with other sections
  *
  * Props:
  * @param {boolean} animateOnScroll - Enable scroll-triggered animations (default: true)
@@ -134,16 +148,19 @@
  * Slots:
  * - heading: Hero CTA text (default: "Feel free to reach out...")
  * - button: Scroll to top button slot (user adds ScrollToTopSVG later)
- * - linkedin: LinkedIn URL (default: placeholder)
- * - behance: Behance URL (default: placeholder)
- * - email: Email address (default: placeholder)
+ * - email: Email address link text (default: "Contact@mschritsensen.com")
+ * - email-desc: Email description (default: "Got a project or something else?")
+ * - linkedin: LinkedIn link text (default: "LinkedIn")
+ * - linkedin-desc: LinkedIn description (default: "Let's connect? Also, my online resumé")
+ * - behance: Behance link text (default: "Behance")
+ * - behance-desc: Behance description (default: "My latest projects")
  * - copyright: Copyright text (default: "© Copyright, {year}")
  * - cookie-policy: Cookie policy link text (default: "Cookie Policy")
  * - thanks: Special thanks text (default: Patryk Smakosz collaboration)
  *
  * Pattern:
  * - Follows COMPONENT_PATTERNS.md: content-grid + breakout3, FullWidthBorder, scroll animations
- * - Similar to ExperienceSection and InteractiveCaseStudySection patterns
+ * - Similar to BiographySection and RecommendationsSection grid patterns
  * - Manual page leave animations via page:start hook (since component is in layout)
  * - ScrollTrigger recreated after page transitions for fresh DOM queries
  * - Same approach as FooterHeroSection for handling layout-level animations
@@ -151,9 +168,12 @@
  * Usage:
  * <FooterSection>
  *   <template #heading>Custom CTA text</template>
+ *   <template #email>hello@mydomain.com</template>
+ *   <template #email-desc>Let's work together!</template>
  *   <template #linkedin>linkedin.com/in/myprofile</template>
+ *   <template #linkedin-desc>Connect with me</template>
  *   <template #behance>behance.net/myportfolio</template>
- *   <template #email>contact@mydomain.com</template>
+ *   <template #behance-desc">View my work</template>
  * </FooterSection>
  */
 
@@ -178,6 +198,7 @@ const pageTransitionStore = usePageTransitionStore();
 
 const linksListRef = ref(null);
 const marqueeRef = ref(null);
+const marqueeWrapperRef = ref(null);
 
 let scrollTriggerInstance = null;
 let marqueeScrollTriggerInstance = null;
@@ -217,13 +238,13 @@ const createLinksAnimation = () => {
 
 /**
  * Handle page leave animation
- * Simple fade out of marquee and links when page navigation starts
+ * Simple fade out of marquee wrapper (includes border + marquee) and links when page navigation starts
  * ScrollTrigger will handle fade in when user scrolls to footer on new page
  */
 const handlePageLeave = () => {
-  // Fade out marquee
-  if (marqueeRef.value && marqueeRef.value.$el) {
-    $gsap.to(marqueeRef.value.$el, {
+  // Fade out marquee wrapper (includes border + marquee component)
+  if (marqueeWrapperRef.value) {
+    $gsap.to(marqueeWrapperRef.value, {
       opacity: 0,
       duration: 0.5,
       ease: 'power2.in',
@@ -246,14 +267,14 @@ const handlePageLeave = () => {
 
 /**
  * Create marquee scroll animation
- * Animates marquee from opacity: 0 to 1 when entering viewport
+ * Animates marquee wrapper (border + marquee) from opacity: 0 to 1 when entering viewport
  */
 const createMarqueeAnimation = () => {
   const tl = $gsap.timeline();
 
-  if (marqueeRef.value && marqueeRef.value.$el) {
+  if (marqueeWrapperRef.value) {
     tl.fromTo(
-      marqueeRef.value.$el,
+      marqueeWrapperRef.value,
       { opacity: 0 },
       {
         opacity: 1,
@@ -272,7 +293,7 @@ onMounted(() => {
   unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
 
   // MARQUEE ScrollTrigger: Fade in when entering viewport
-  if (marqueeRef.value && marqueeRef.value.$el && $ScrollTrigger) {
+  if (marqueeWrapperRef.value && $ScrollTrigger) {
     const createMarqueeScrollTrigger = () => {
       // Kill existing ScrollTrigger
       if (marqueeScrollTriggerInstance) {
@@ -281,14 +302,14 @@ onMounted(() => {
       }
 
       // Clear inline styles from page leave animation
-      $gsap.set(marqueeRef.value.$el, { clearProps: 'all' });
-      $gsap.set(marqueeRef.value.$el, { opacity: 0 });
+      $gsap.set(marqueeWrapperRef.value, { clearProps: 'all' });
+      $gsap.set(marqueeWrapperRef.value, { opacity: 0 });
 
       // Create ScrollTrigger animation
       const marqueeTimeline = createMarqueeAnimation();
 
       marqueeScrollTriggerInstance = $ScrollTrigger.create({
-        trigger: marqueeRef.value.$el,
+        trigger: marqueeWrapperRef.value,
         start: 'top 80%',
         animation: marqueeTimeline,
         toggleActions: 'play pause resume reverse',
@@ -296,25 +317,28 @@ onMounted(() => {
       });
     };
 
-    // Coordinate with page transitions (same pattern as links)
+    // Coordinate with page transitions
+    // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
     if (loadingStore.isFirstLoad) {
+      // First load: create immediately
       nextTick(() => {
         createMarqueeScrollTrigger();
       });
-    } else {
-      const unwatch = watch(
-        () => pageTransitionStore.isTransitioning,
-        (isTransitioning) => {
-          if (!isTransitioning) {
-            nextTick(() => {
-              createMarqueeScrollTrigger();
-            });
-            unwatch();
-          }
-        },
-        { immediate: true }
-      );
     }
+
+    // Set up persistent watch for ALL subsequent page transitions
+    // This watch runs for every navigation, not just the first one
+    watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        // When transition completes, recreate ScrollTrigger
+        if (!isTransitioning && !loadingStore.isFirstLoad) {
+          nextTick(() => {
+            createMarqueeScrollTrigger();
+          });
+        }
+      }
+    );
   }
 
   // SCROLL MODE: Animate links section when scrolling into view (default)
@@ -358,27 +382,26 @@ onMounted(() => {
     // Coordinate with page transition system
     // First load: Create immediately after mount
     // Navigation: Recreate after page transition completes
+    // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
     if (loadingStore.isFirstLoad) {
       nextTick(() => {
         createScrollTrigger();
       });
-    } else {
-      // After page navigation, wait for page transition to complete
-      // Watch pageTransitionStore.isTransitioning for proper timing
-      const unwatch = watch(
-        () => pageTransitionStore.isTransitioning,
-        (isTransitioning) => {
-          // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
-          if (!isTransitioning) {
-            nextTick(() => {
-              createScrollTrigger();
-            });
-            unwatch(); // Stop watching
-          }
-        },
-        { immediate: true }
-      );
     }
+
+    // Set up persistent watch for ALL subsequent page transitions
+    // This watch runs for every navigation, not just the first one
+    watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        // When transition completes, recreate ScrollTrigger
+        if (!isTransitioning && !loadingStore.isFirstLoad) {
+          nextTick(() => {
+            createScrollTrigger();
+          });
+        }
+      }
+    );
   }
 });
 
@@ -416,22 +439,29 @@ onUnmounted(() => {
 }
 
 /**
+ * Marquee wrapper styles
+ * Full-width container for marquee with top/bottom borders
+ */
+.marquee-wrapper.full-width-content {
+  grid-column: full-width;
+}
+
+/**
  * Links list styles
- * Follows ExperienceSection pattern with full-width-content nested grid
+ * Follows BiographySection/RecommendationsSection pattern with full-width-content
  */
 .links-list {
   position: relative;
 }
 
 /**
- * Nested full-width-content grid handling
- * Required for .link-item to span full-width and inherit parent grid
+ * Nested full-width-content handling
+ * Required for .link-item to span full-width
+ * Each link-item contains its own content-grid + breakout3 structure
  * Same pattern as ExperienceSection and InteractiveCaseStudySection
  */
 .full-width-content > .link-item.full-width-content {
   grid-column: full-width;
-  display: grid;
-  grid-template-columns: inherit;
 }
 
 .link-item {
@@ -439,10 +469,15 @@ onUnmounted(() => {
 }
 
 /**
- * Socket styles
- * Simple 2-column layout on desktop, stacked on mobile
+ * Socket section styles
+ * Flexbox layout on desktop (justify-between), stacked on mobile
+ * Uses same full-width-content pattern as links
  */
+.socket-section.full-width-content {
+  grid-column: full-width;
+}
+
 .socket {
-  /* Grid layout handled by Tailwind utility classes */
+  /* Flexbox layout handled by Tailwind utility classes */
 }
 </style>
