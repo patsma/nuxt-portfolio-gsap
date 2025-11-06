@@ -449,6 +449,52 @@ onComplete: () => {
 }
 ```
 
+### iOS Safari Fix: Targeted Refresh Pattern
+
+**Problem (iOS Safari only):** Global `ScrollTrigger.refresh()` reverses entrance animations on iOS Safari when entrance ScrollTrigger still exists.
+
+**Root Cause:** iOS Safari + GSAP quirk - `ScrollTrigger.refresh()` can trigger `toggleActions: 'play pause resume reverse'` to execute reversal on entrance ScrollTriggers, even when they're not in viewport.
+
+**Solution:** Targeted refresh pattern - only refresh pinned ScrollTriggers, not entrance animations or marquees.
+
+**Implementation Pattern:**
+```javascript
+// RecommendationsSection.vue - Targeted refresh for accordion animations
+const executeRefresh = () => {
+  // CRITICAL: Kill entrance ScrollTrigger BEFORE refresh
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill();
+    scrollTriggerInstance = null;
+  }
+
+  // TARGETED REFRESH: Only refresh ScrollTriggers with pin: true
+  // Avoids affecting marquee ScrollTriggers and entrance animations
+  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
+
+  pinnedTriggers.forEach((trigger) => {
+    trigger.refresh();
+  });
+};
+
+// Debounce to let once:true fully clean up
+const debouncedRefresh = useDebounceFn(executeRefresh, 100);
+```
+
+**When to Use:**
+- Accordion expand/collapse animations
+- Any height-changing animations that need to update pinned sections below
+- iOS Safari compatibility is critical
+
+**Key Points:**
+- Kill entrance ScrollTriggers before refresh (prevents reversal)
+- Filter for `pin: true` to only refresh pinned sections
+- Use `once: true` on entrance animations (auto-destroys after first play)
+- Debounce refresh with 100ms delay to ensure cleanup completes
+
+**Reference Implementations:**
+- `app/components/RecommendationsSection.vue` (lines 107-152) - Targeted refresh pattern
+- `app/components/RecommendationItem.vue` (lines 342-413) - Accordion animation with refresh
+
 ### Page Transition Directives
 
 **Pattern:** Use `leaveOnly: true` for exit animations only

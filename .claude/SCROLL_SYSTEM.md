@@ -190,6 +190,42 @@ $gsap.to(expandedContentRef.value, {
 });
 ```
 
+### iOS Safari ScrollTrigger Refresh Quirk
+
+**Issue:** On iOS Safari, calling global `ScrollTrigger.refresh()` can trigger entrance animations to reverse unexpectedly.
+
+**Why it Happens:** iOS Safari + GSAP interaction - when `ScrollTrigger.refresh()` recalculates all triggers, it can cause entrance ScrollTriggers with `toggleActions: 'play pause resume reverse'` to execute the reversal action even when not actively in viewport.
+
+**Solution:** Use targeted refresh pattern instead of global refresh.
+
+**Anti-Pattern (causes reversals on iOS Safari):**
+```javascript
+// BAD: Reverses entrance animations on iOS Safari
+$ScrollTrigger.refresh(); // Refreshes ALL triggers globally
+```
+
+**Correct Pattern (targeted refresh):**
+```javascript
+// GOOD: Only refreshes pinned sections, leaves entrance animations alone
+const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
+pinnedTriggers.forEach(trigger => trigger.refresh());
+```
+
+**Additional Protection:** Use `once: true` on entrance ScrollTriggers to auto-destroy after first play.
+
+```javascript
+$ScrollTrigger.create({
+  trigger: element,
+  animation: timeline,
+  once: true,  // Auto-destroys after entrance animation completes
+  toggleActions: 'play none none none', // Only play on enter, no reversal
+});
+```
+
+**Reference Implementation:** `app/components/RecommendationsSection.vue` (lines 107-152)
+
+**See Also:** `.claude/COMPONENT_PATTERNS.md` - "iOS Safari Fix: Targeted Refresh Pattern"
+
 ### Integration
 
 **File:** `app/composables/usePageTransition.js`

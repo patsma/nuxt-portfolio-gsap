@@ -235,14 +235,6 @@ const isExpanded = computed(() => activeItemId.value === props.id);
  * If collapsed, expand it and close others
  */
 const toggle = (event) => {
-  console.log('[RecommendationItem] Toggle clicked', {
-    id: props.id,
-    currentlyExpanded: isExpanded.value,
-    willExpand: !isExpanded.value,
-    eventType: event?.type,
-    target: event?.target?.tagName,
-  });
-
   // Prevent any default behavior
   if (event) {
     event.preventDefault();
@@ -342,15 +334,6 @@ const handleMouseLeave = () => {
 watch(isExpanded, (expanded) => {
   if (!expandedContentRef.value) return;
 
-  console.log('[RecommendationItem] Animation starting', {
-    id: props.id,
-    expanded,
-    windowSize: `${window.innerWidth}x${window.innerHeight}`,
-    scrollPosition: window.scrollY,
-    currentPath: window.location.pathname,
-    timestamp: Date.now(),
-  });
-
   // Check if page transition is active (this should NOT be happening during accordion)
   const pageTransitionStore = usePageTransitionStore();
   if (pageTransitionStore?.isTransitioning) {
@@ -371,17 +354,8 @@ watch(isExpanded, (expanded) => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
-        console.log('[RecommendationItem] Expand complete, requesting refresh', {
-          id: props.id,
-          timestamp: Date.now(),
-        });
-
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
         requestRefresh(() => {
-          console.log('[RecommendationItem] Refresh complete after expand', {
-            id: props.id,
-            timestamp: Date.now(),
-          });
           nuxtApp.$headroom?.unpause();
         });
       },
@@ -394,17 +368,8 @@ watch(isExpanded, (expanded) => {
       duration: 0.4,
       ease: 'power2.in',
       onComplete: () => {
-        console.log('[RecommendationItem] Collapse complete, requesting refresh', {
-          id: props.id,
-          timestamp: Date.now(),
-        });
-
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
         requestRefresh(() => {
-          console.log('[RecommendationItem] Refresh complete after collapse', {
-            id: props.id,
-            timestamp: Date.now(),
-          });
           nuxtApp.$headroom?.unpause();
         });
       },

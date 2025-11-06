@@ -107,11 +107,8 @@ const setActiveItem = (id) => {
 let pendingCallbacks = [];
 
 const executeRefresh = () => {
-  console.log('[RecommendationsSection] Executing TARGETED refresh for pinned sections ONLY');
-
   // CRITICAL iOS Safari Fix: Ensure entrance ScrollTrigger is DEAD before refresh
   if (scrollTriggerInstance) {
-    console.log('[RecommendationsSection] ⚠️ Entrance ScrollTrigger still exists, killing it NOW');
     scrollTriggerInstance.kill();
     scrollTriggerInstance = null;
   }
@@ -121,10 +118,7 @@ const executeRefresh = () => {
   // Marquees don't need refreshing - they only care about their own element's viewport position
   const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
 
-  console.log(`[RecommendationsSection] Found ${pinnedTriggers.length} pinned ScrollTrigger(s) to refresh`);
-
-  pinnedTriggers.forEach((trigger, index) => {
-    console.log(`[RecommendationsSection] Refreshing pinned trigger ${index + 1}`);
+  pinnedTriggers.forEach((trigger) => {
     trigger.refresh();
   });
 
@@ -244,9 +238,6 @@ onMounted(() => {
         animation: scrollTimeline, // Link timeline to scroll position
         once: true, // Auto-destroy after first trigger (prevents reversal)
         invalidateOnRefresh: true, // Recalculate on window resize/refresh
-        onEnter: () => {
-          console.log('[RecommendationsSection] ScrollTrigger onEnter - playing once (will self-destruct)');
-        },
       });
     };
 
