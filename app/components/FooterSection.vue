@@ -107,7 +107,7 @@
           <div class="special-thanks lg:text-right">
             <p>
               <slot name="thanks">
-                Special thanks to Patryk Smakosz for the collaboration
+                Special thanks to <a class="underline pb-1"  href="https://patryksmakosz.com/" target="_blank">Patryk Smakosz </a> for the collaboration
               </slot>
             </p>
           </div>
