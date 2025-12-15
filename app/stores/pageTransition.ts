@@ -1,6 +1,3 @@
-// ~/stores/pageTransition.js
-import { defineStore } from 'pinia'
-
 /**
  * Page Transition Store - Clean state management for transitions
  *
@@ -19,31 +16,14 @@ import { defineStore } from 'pinia'
  * 3. swapping → fading-in (init smoother, route-changing class removed)
  * 4. fading-in → idle (on transitionend)
  */
+import { defineStore } from 'pinia'
+import type { PageTransitionState } from '~/types'
+
 export const usePageTransitionStore = defineStore('pageTransition', {
-  state: () => ({
-    /**
-     * Current transition state
-     * @type {'idle' | 'fading-out' | 'swapping' | 'fading-in'}
-     */
+  state: (): PageTransitionState => ({
     state: 'idle',
-
-    /**
-     * Whether currently in a transition
-     * Prevents double-execution of hooks
-     */
     isTransitioning: false,
-
-    /**
-     * Element being transitioned (#smooth-content)
-     * Cached for transitionend listener
-     * @type {HTMLElement | null}
-     */
     contentElement: null,
-
-    /**
-     * Cleanup functions for event listeners
-     * @type {Array<Function>}
-     */
     cleanupFns: []
   }),
 
@@ -51,17 +31,23 @@ export const usePageTransitionStore = defineStore('pageTransition', {
     /**
      * Whether in fading out state
      */
-    isFadingOut: state => state.state === 'fading-out',
+    isFadingOut(): boolean {
+      return this.state === 'fading-out'
+    },
 
     /**
      * Whether in fading in state
      */
-    isFadingIn: state => state.state === 'fading-in',
+    isFadingIn(): boolean {
+      return this.state === 'fading-in'
+    },
 
     /**
      * Whether safe to kill ScrollSmoother (after fade out)
      */
-    canKillSmoother: state => state.state === 'swapping'
+    canKillSmoother(): boolean {
+      return this.state === 'swapping'
+    }
   },
 
   actions: {
@@ -69,7 +55,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Initialize the store (called once on client)
      * Sets up content element reference
      */
-    init() {
+    init(): void {
       if (!import.meta.client) return
 
       // Cache #smooth-content element
@@ -87,9 +73,8 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Called from page:start hook
      *
      * Returns a Promise that resolves when fade out completes
-     * @returns {Promise<void>}
      */
-    async startFadeOut() {
+    async startFadeOut(): Promise<void> {
       if (this.isTransitioning) {
         console.warn('[PageTransition] Already transitioning, ignoring startFadeOut')
         return
@@ -115,7 +100,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
          * transitionend handler
          * Only fires for opacity transitions on #smooth-content
          */
-        const handleTransitionEnd = (event) => {
+        const handleTransitionEnd = (event: TransitionEvent): void => {
           // Only listen to opacity transitions on the content element
           if (
             event.target === this.contentElement
@@ -127,7 +112,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
             this.state = 'swapping'
 
             // Clean up listener
-            this.contentElement.removeEventListener('transitionend', handleTransitionEnd)
+            this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
 
             resolve()
           }
@@ -157,9 +142,8 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Called from page:finish hook after smoother init
      *
      * Returns a Promise that resolves when fade in completes
-     * @returns {Promise<void>}
      */
-    async startFadeIn() {
+    async startFadeIn(): Promise<void> {
       if (this.state !== 'swapping') {
         console.warn('[PageTransition] Not in swapping state, ignoring startFadeIn')
         return
@@ -185,7 +169,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
          * transitionend handler
          * Only fires for opacity transitions on #smooth-content
          */
-        const handleTransitionEnd = (event) => {
+        const handleTransitionEnd = (event: TransitionEvent): void => {
           // Only listen to opacity transitions on the content element
           if (
             event.target === this.contentElement
@@ -194,7 +178,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
             console.log('[PageTransition] Fade in complete')
 
             // Clean up listener
-            this.contentElement.removeEventListener('transitionend', handleTransitionEnd)
+            this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
 
             // Reset to idle state
             this.reset()
@@ -225,7 +209,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
     /**
      * Reset transition state to idle
      */
-    reset() {
+    reset(): void {
       console.log('[PageTransition] Reset to idle')
 
       this.state = 'idle'
@@ -245,7 +229,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Emergency cleanup
      * Called on errors or when transition gets stuck
      */
-    forceReset() {
+    forceReset(): void {
       console.warn('[PageTransition] Force reset')
       this.reset()
 

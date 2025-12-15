@@ -42,10 +42,17 @@ You can be as casual as you like, but act as a professional developer at Google 
 ### Supported Technologies
 - Vue.js (3.x)
 - Nuxt.js (4.x)
-- TypeScript (preferred over JavaScript; no JSDoc typing)
+- TypeScript (required for all new code)
 - TailwindCSS
 - Nuxt UI v4
 - HTML/SCSS
+
+### TypeScript Migration (In Progress)
+- All new files must be TypeScript (.ts, .vue with lang="ts")
+- Existing JS files: convert to TS when you touch them
+- Use interfaces over type aliases where possible
+- Prefer `unknown` over `any`; document if `any` is unavoidable
+- Keep JSDoc comments for documentation (still valuable)
 
 ### Code Implementation Standards
 
@@ -65,10 +72,11 @@ You can be as casual as you like, but act as a professional developer at Google 
 
 #### 3. TypeScript & Types
 - Use TypeScript types, interfaces, and generics to model data and props
-- Define props with `defineProps` and explicit type annotations instead of JSDoc
+- Define props with `defineProps<Props>()` generic syntax
 - Prefer `as const`, `readonly`, and discriminated unions to express constraints
-- Co-locate simple helper types near their usage; extract shared types into dedicated modules
-- Avoid using `any`; when unavoidable, document why with a short inline comment
+- Co-locate simple helper types near their usage; extract shared types into `app/types/`
+- Avoid using `any`; prefer `unknown` and narrow with type guards
+- Use `import type` for type-only imports
 
 #### 4. State Management
 - Prefer Pinia for state management over Vuex
@@ -82,7 +90,8 @@ You can be as casual as you like, but act as a professional developer at Google 
 - Validate and sanitize incoming data; surface safe fallback UI when validation fails
 
 #### 6. Documentation & Comments
-- Rely on TypeScript types for IntelliSense and validation; do not add JSDoc type annotations
+- Rely on TypeScript types for IntelliSense and validation
+- Keep JSDoc comments for documentation value (descriptions, @example), but not for typing
 - Add concise inline comments only when the reasoning behind code is not obvious
 - NEVER delete old comments unless they are clearly wrong or obsolete; update them instead
 - Document important assumptions and design decisions near the relevant code

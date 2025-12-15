@@ -21,65 +21,57 @@
  */
 
 import { defineStore } from 'pinia'
-
-/**
- * @typedef {Object} LoadingState
- * @property {'initial'|'loading'|'ready'|'animating'|'complete'} status - Current loading status
- * @property {boolean} gsapReady - GSAP and plugins loaded
- * @property {boolean} scrollSmootherReady - ScrollSmoother initialized
- * @property {boolean} pageReady - Page content ready
- * @property {boolean} fontsReady - Fonts loaded
- * @property {boolean} isFirstLoad - Is this the first page load (not a navigation)
- * @property {number|null} startTime - Loading start timestamp
- * @property {number|null} readyTime - Ready state timestamp
- */
+import type { LoadingState } from '~/types'
 
 export const useLoadingStore = defineStore('loading', {
-  state: () =>
-    /** @type {LoadingState} */ ({
-      status: 'initial',
-      gsapReady: false,
-      scrollSmootherReady: false,
-      pageReady: false,
-      fontsReady: false,
-      isFirstLoad: true,
-      startTime: null,
-      readyTime: null
-    }),
+  state: (): LoadingState => ({
+    status: 'initial',
+    gsapReady: false,
+    scrollSmootherReady: false,
+    pageReady: false,
+    fontsReady: false,
+    isFirstLoad: true,
+    startTime: null,
+    readyTime: null
+  }),
 
   getters: {
     /**
      * Check if app is fully ready for animations
-     * @returns {boolean}
      */
-    isReady: state =>
-      state.status === 'ready'
-      || state.status === 'animating'
-      || state.status === 'complete',
+    isReady(): boolean {
+      return (
+        this.status === 'ready'
+        || this.status === 'animating'
+        || this.status === 'complete'
+      )
+    },
 
     /**
      * Check if initial load animations are complete
-     * @returns {boolean}
      */
-    isComplete: state => state.status === 'complete',
+    isComplete(): boolean {
+      return this.status === 'complete'
+    },
 
     /**
      * Check if all critical resources are loaded
-     * @returns {boolean}
      */
-    allResourcesReady: state =>
-      state.gsapReady
-      && state.scrollSmootherReady
-      && state.pageReady
-      && state.fontsReady,
+    allResourcesReady(): boolean {
+      return (
+        this.gsapReady
+        && this.scrollSmootherReady
+        && this.pageReady
+        && this.fontsReady
+      )
+    },
 
     /**
      * Get loading duration in ms
-     * @returns {number|null}
      */
-    loadingDuration: (state) => {
-      if (state.startTime && state.readyTime) {
-        return state.readyTime - state.startTime
+    loadingDuration(): number | null {
+      if (this.startTime && this.readyTime) {
+        return this.readyTime - this.startTime
       }
       return null
     }
@@ -89,7 +81,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Start the loading process
      */
-    startLoading() {
+    startLoading(): void {
       this.status = 'loading'
       this.startTime = Date.now()
       // console.log("🔄 Loading started");
@@ -98,7 +90,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Mark GSAP as ready
      */
-    setGsapReady() {
+    setGsapReady(): void {
       this.gsapReady = true
       // console.log("✅ GSAP ready");
       this.checkReadyState()
@@ -107,7 +99,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Mark ScrollSmoother as ready
      */
-    setScrollSmootherReady() {
+    setScrollSmootherReady(): void {
       this.scrollSmootherReady = true
       // console.log("✅ ScrollSmoother ready");
       this.checkReadyState()
@@ -116,7 +108,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Mark page content as ready
      */
-    setPageReady() {
+    setPageReady(): void {
       this.pageReady = true
       // console.log("✅ Page content ready");
       this.checkReadyState()
@@ -125,7 +117,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Mark fonts as ready
      */
-    setFontsReady() {
+    setFontsReady(): void {
       this.fontsReady = true
       // console.log("✅ Fonts ready");
       this.checkReadyState()
@@ -135,7 +127,7 @@ export const useLoadingStore = defineStore('loading', {
      * Check if all resources are ready and update status
      * NOTE: This only marks as ready internally, event is fired later after minLoadTime
      */
-    checkReadyState() {
+    checkReadyState(): void {
       if (this.allResourcesReady && this.status === 'loading') {
         this.status = 'ready'
         this.readyTime = Date.now()
@@ -152,7 +144,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Start initial animations
      */
-    startAnimating() {
+    startAnimating(): void {
       if (this.status === 'ready') {
         this.status = 'animating'
         // console.log("🎬 Initial animations started");
@@ -162,7 +154,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Mark initial animations as complete
      */
-    setAnimationsComplete() {
+    setAnimationsComplete(): void {
       if (this.status === 'animating') {
         this.status = 'complete'
         this.isFirstLoad = false // Next loads won't be first
@@ -178,7 +170,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Reset loading state (useful for testing or manual reload)
      */
-    reset() {
+    reset(): void {
       this.status = 'initial'
       this.gsapReady = false
       this.scrollSmootherReady = false
@@ -192,7 +184,7 @@ export const useLoadingStore = defineStore('loading', {
     /**
      * Force ready state (fallback for timeout scenarios)
      */
-    forceReady() {
+    forceReady(): void {
       console.warn('⚠️ Forcing ready state (fallback)')
       this.gsapReady = true
       this.scrollSmootherReady = true

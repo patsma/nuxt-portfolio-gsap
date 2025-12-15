@@ -1,13 +1,13 @@
-// ~/stores/theme.js
-import { defineStore } from 'pinia'
-
 /**
  * Theme store - centralized theme state management
  * Uses Pinia hydration for SSR-safe initialization
  * Plugin handles HTML class, store only manages state
  */
+import { defineStore } from 'pinia'
+import type { ThemeState } from '~/types'
+
 export const useThemeStore = defineStore('theme', {
-  state: () => ({
+  state: (): ThemeState => ({
     isDark: false // Default state, will be hydrated from localStorage
   }),
 
@@ -16,7 +16,7 @@ export const useThemeStore = defineStore('theme', {
    * Reads from localStorage during client-side hydration
    * Plugin already set HTML class, we just sync the state
    */
-  hydrate(state) {
+  hydrate(state: ThemeState): void {
     if (import.meta.client) {
       const stored = localStorage.getItem('theme')
       const prefersDark = window.matchMedia(
@@ -35,7 +35,7 @@ export const useThemeStore = defineStore('theme', {
     /**
      * Toggle theme between light and dark
      */
-    toggle() {
+    toggle(): void {
       this.isDark = !this.isDark
 
       if (import.meta.client) {
@@ -56,9 +56,8 @@ export const useThemeStore = defineStore('theme', {
 
     /**
      * Set theme explicitly
-     * @param {boolean} isDark - Whether to set dark theme
      */
-    setTheme(isDark) {
+    setTheme(isDark: boolean): void {
       this.isDark = isDark
 
       if (import.meta.client) {

@@ -3,13 +3,10 @@
  * Cycles through professional titles with GSAP character animations
  */
 import { defineStore } from 'pinia'
+import type { TitleRotationState } from '~/types'
 
 export const useTitleRotationStore = defineStore('titleRotation', {
-  state: () => ({
-    /**
-     * Array of professional titles to cycle through
-     * @type {string[]}
-     */
+  state: (): TitleRotationState => ({
     textArray: [
       'UX/UI Designer',
       'Digital Designer',
@@ -18,21 +15,16 @@ export const useTitleRotationStore = defineStore('titleRotation', {
       'Visual Designer',
       'Portfolio'
     ],
-
-    /**
-     * Current index in the textArray
-     * @type {number}
-     */
     currentIndex: 0
   }),
 
   getters: {
     /**
      * Get the current title text
-     * @param {Object} state - Store state
-     * @returns {string} Current title text
      */
-    currentText: state => state.textArray[state.currentIndex]
+    currentText(): string {
+      return this.textArray[this.currentIndex]
+    }
   },
 
   actions: {
@@ -40,7 +32,7 @@ export const useTitleRotationStore = defineStore('titleRotation', {
      * Advance to the next title in the rotation
      * Loops back to start when reaching the end
      */
-    updateText() {
+    updateText(): void {
       this.currentIndex = (this.currentIndex + 1) % this.textArray.length
     }
   }
