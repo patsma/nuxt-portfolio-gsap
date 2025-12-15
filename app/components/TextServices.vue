@@ -38,7 +38,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * TextServices Component
  * Standalone services section with grid layout

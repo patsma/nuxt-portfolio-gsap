@@ -5,15 +5,15 @@
  * - Only elements within <defs> are renamed to avoid breaking external queries for on-stage nodes
  * - Updates attributes that commonly reference IDs: fill, stroke, filter, clip-path, mask,
  *   href, xlink:href, marker-start/mid/end, and inline style declarations
- *
- * @param {SVGElement} svgEl Root <svg> element
- * @param {string} prefix Unique prefix per component instance
- * @returns {Map<string,string>} Mapping from oldId -> newId
  */
-export function scopeSvgDefsIds(svgEl, prefix) {
+
+/**
+ * Scope SVG defs IDs with a unique prefix
+ */
+export function scopeSvgDefsIds(svgEl: SVGElement | null, prefix: string): Map<string, string> {
   if (!svgEl || !prefix) return new Map()
 
-  const idMap = new Map()
+  const idMap = new Map<string, string>()
   const defsNodes = svgEl.querySelectorAll('defs')
 
   // Collect and rename IDs inside all <defs>
@@ -74,12 +74,8 @@ export function scopeSvgDefsIds(svgEl, prefix) {
 /**
  * Helper to remap CSS id selectors like "#mask" to a prefixed variant if present in idMap.
  * Leaves non-id selectors unchanged.
- *
- * @param {string} selector CSS selector string (supports multiple #id occurrences)
- * @param {Map<string,string>} idMap mapping from oldId -> newId
- * @returns {string}
  */
-export function remapIdSelectors(selector, idMap) {
+export function remapIdSelectors(selector: string, idMap: Map<string, string>): string {
   if (!selector || !idMap || idMap.size === 0) return selector
   return selector.replace(/#([A-Za-z0-9_-]+)/g, (match, id) => {
     return idMap.has(id) ? `#${idMap.get(id)}` : match

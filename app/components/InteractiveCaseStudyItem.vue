@@ -72,7 +72,7 @@
   </NuxtLink>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * InteractiveCaseStudyItem Component - Individual Case Study Entry
  *
@@ -176,14 +176,21 @@ const props = defineProps({
   clipDirection: {
     type: String,
     default: 'random',
-    validator: value =>
-      ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value)
+    validator: (value: unknown) =>
+      typeof value === 'string' && ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value)
   }
 })
 
+// Type for preview data passed to parent
+interface PreviewData {
+  image: string
+  imageAlt: string
+  clipDirection: string
+}
+
 // Inject context from parent InteractiveCaseStudySection
-const setActivePreview = inject('setActivePreview')
-const clearActivePreview = inject('clearActivePreview')
+const setActivePreview = inject<((data: PreviewData) => void) | undefined>('setActivePreview')
+const clearActivePreview = inject<(() => void) | undefined>('clearActivePreview')
 
 /**
  * Handle mouse enter (desktop only)

@@ -397,7 +397,7 @@
   </svg>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const svgRootRef = ref(null)
 defineExpose({ svgRootRef })
 </script>

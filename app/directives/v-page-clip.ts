@@ -18,16 +18,17 @@
  * - right: Reveal from right
  */
 
-export default {
-  name: 'page-clip',
+import type { Directive, DirectiveBinding } from 'vue'
+import type { ClipBindingValue, ClipDirection, PageAnimationElement } from '~/types/directives'
 
+const vPageClip: Directive<PageAnimationElement, ClipBindingValue> = {
   // SSR support - skip during server rendering
   getSSRProps() {
     return {}
   },
 
-  mounted(el, binding) {
-    const direction = binding.arg || 'top'
+  mounted(el: PageAnimationElement, binding: DirectiveBinding<ClipBindingValue>) {
+    const direction = (binding.arg || 'top') as ClipDirection
     const config = binding.value || {}
 
     // Store config on element for page transitions to read
@@ -36,13 +37,16 @@ export default {
       config: {
         direction,
         duration: config.duration || 0.6,
-        ease: config.ease || 'power2.out'
+        ease: config.ease || 'power2.out',
+        leaveOnly: config.leaveOnly || false
       }
     }
   },
 
-  unmounted(el) {
+  unmounted(el: PageAnimationElement) {
     // Clean up config
     delete el._pageAnimation
   }
 }
+
+export default vPageClip

@@ -46,7 +46,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * AwardsRecognitionSection Component - Awards & Recognition List Container
  *

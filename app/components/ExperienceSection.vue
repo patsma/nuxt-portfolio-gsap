@@ -41,7 +41,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * ExperienceSection Component - Experience List Container
  *

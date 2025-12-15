@@ -43,7 +43,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * ClientsSection Component - Clients List Container
  *

@@ -68,7 +68,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * ExperienceItem Component - Individual Experience List Item
  *

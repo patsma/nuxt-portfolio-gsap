@@ -7,7 +7,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * FullWidthBorder Component - Reusable Full-Width Border Line
  *
@@ -39,7 +39,7 @@ defineProps({
   opacity: {
     type: Number,
     default: 15,
-    validator: value => value >= 0 && value <= 100
+    validator: (value: unknown) => typeof value === 'number' && value >= 0 && value <= 100
   },
   /**
    * Bottom margin spacing (CSS variable or value)

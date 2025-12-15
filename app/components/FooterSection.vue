@@ -130,7 +130,7 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * FooterSection Component - Complete Footer with Hero CTA, Marquee, Links, and Socket
  *

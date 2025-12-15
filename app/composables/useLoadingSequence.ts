@@ -23,24 +23,67 @@
 
 import { useLoadingStore } from '~/stores/loading'
 
-/**
- * @typedef {Object} LoadingSequenceOptions
- * @property {boolean} checkFonts - Whether to wait for fonts to load
- * @property {number} minLoadTime - Minimum loading time in ms (for UX consistency)
- * @property {boolean} animateOnReady - Auto-start animations when ready
- */
+export interface LoadingSequenceOptions {
+  /** Whether to wait for fonts to load */
+  checkFonts?: boolean
+  /** Minimum loading time in ms (for UX consistency) */
+  minLoadTime?: number
+  /** Auto-start animations when ready */
+  animateOnReady?: boolean
+}
 
-export const useLoadingSequence = () => {
+interface StaggerOptions {
+  stagger?: number
+  duration?: number
+  ease?: string
+  from?: string
+}
+
+interface AnimationProps {
+  from?: Record<string, unknown>
+  to?: Record<string, unknown>
+}
+
+// GSAP types
+interface GSAPInstance {
+  timeline: (config?: Record<string, unknown>) => GSAPTimeline
+  set: (targets: unknown, vars: Record<string, unknown>) => void
+  to: (targets: unknown, vars: Record<string, unknown>) => unknown
+}
+
+interface GSAPTimeline {
+  to: (targets: unknown, vars: Record<string, unknown>) => GSAPTimeline
+  play: () => GSAPTimeline
+  pause: () => GSAPTimeline
+}
+
+export interface LoadingSequenceReturn {
+  initializeLoading: (options?: LoadingSequenceOptions) => Promise<void>
+  markScrollSmootherReady: () => void
+  markPageReady: () => void
+  startInitialAnimations: () => void
+  waitForReady: () => Promise<void>
+  createEntranceTimeline: () => GSAPTimeline | null
+  createStaggerAnimation: (
+    elements: HTMLElement[],
+    animationProps?: AnimationProps,
+    options?: StaggerOptions
+  ) => GSAPTimeline | null
+  isFirstLoad: () => boolean
+  isAppReady: () => boolean
+  isAnimationComplete: () => boolean
+  loadingStore: Readonly<ReturnType<typeof useLoadingStore>>
+}
+
+export const useLoadingSequence = (): LoadingSequenceReturn => {
   const loadingStore = useLoadingStore()
-  const { $gsap } = useNuxtApp()
+  const { $gsap } = useNuxtApp() as unknown as { $gsap: GSAPInstance }
 
   /**
    * Initialize the loading sequence
    * Should be called in app.vue or main layout
-   *
-   * @param {LoadingSequenceOptions} options
    */
-  const initializeLoading = async (options = {}) => {
+  const initializeLoading = async (options: LoadingSequenceOptions = {}): Promise<void> => {
     const {
       checkFonts = true,
       minLoadTime = 800, // Default minimum display time (can be overridden in app.vue)
@@ -53,8 +96,8 @@ export const useLoadingSequence = () => {
 
     // CRITICAL: Ensure loader is visible before continuing
     // Wait for next frame to ensure loader is painted
-    await new Promise(resolve =>
-      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    await new Promise<void>(resolve =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     )
 
     // Check GSAP availability
@@ -65,7 +108,8 @@ export const useLoadingSequence = () => {
       console.warn('⚠️ GSAP not available during initialization')
       // Try again after a delay
       setTimeout(() => {
-        if (useNuxtApp().$gsap) {
+        const nuxtApp = useNuxtApp() as { $gsap?: GSAPInstance }
+        if (nuxtApp.$gsap) {
           loadingStore.setGsapReady()
         }
       }, 100)
@@ -93,18 +137,8 @@ export const useLoadingSequence = () => {
     const remainingTime = Math.max(minLoadTime - elapsed, 0)
 
     if (remainingTime > 0) {
-      // console.log(
-      //   `⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`
-      // );
-      await new Promise(resolve => setTimeout(resolve, remainingTime))
+      await new Promise<void>(resolve => setTimeout(resolve, remainingTime))
     }
-    else {
-      // console.log(
-      //   `⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`
-      // );
-    }
-
-    // console.log("🎯 Minimum display time reached - ready to show content");
 
     // CRITICAL: Fire app:ready event AFTER minimum time is enforced
     // This ensures loader stays visible for the full duration
@@ -134,7 +168,7 @@ export const useLoadingSequence = () => {
    * Mark ScrollSmoother as initialized
    * Called from layout after ScrollSmoother is created
    */
-  const markScrollSmootherReady = () => {
+  const markScrollSmootherReady = (): void => {
     loadingStore.setScrollSmootherReady()
   }
 
@@ -142,17 +176,15 @@ export const useLoadingSequence = () => {
    * Mark page content as ready
    * Called when page component is mounted
    */
-  const markPageReady = () => {
+  const markPageReady = (): void => {
     loadingStore.setPageReady()
   }
 
   /**
    * Create the initial entrance timeline
    * This is different from page transitions - more elaborate
-   *
-   * @returns {Object} GSAP timeline
    */
-  const createEntranceTimeline = () => {
+  const createEntranceTimeline = (): GSAPTimeline | null => {
     if (!$gsap) {
       console.warn('⚠️ GSAP not available for entrance timeline')
       return null
@@ -177,7 +209,7 @@ export const useLoadingSequence = () => {
    * Start the initial animations
    * Called when everything is ready
    */
-  const startInitialAnimations = () => {
+  const startInitialAnimations = (): void => {
     if (!loadingStore.isReady) {
       console.warn('⚠️ Cannot start animations - app not ready')
       return
@@ -194,10 +226,8 @@ export const useLoadingSequence = () => {
   /**
    * Wait for app to be ready
    * Returns a promise that resolves when ready
-   *
-   * @returns {Promise<void>}
    */
-  const waitForReady = () => {
+  const waitForReady = (): Promise<void> => {
     return new Promise((resolve) => {
       if (loadingStore.isReady) {
         resolve()
@@ -205,7 +235,7 @@ export const useLoadingSequence = () => {
       }
 
       // Listen for ready event
-      const handler = () => {
+      const handler = (): void => {
         window.removeEventListener('app:ready', handler)
         resolve()
       }
@@ -226,17 +256,12 @@ export const useLoadingSequence = () => {
   /**
    * Create a staggered animation helper
    * Useful for animating multiple elements in sequence
-   *
-   * @param {HTMLElement[]} elements - Elements to animate
-   * @param {Object} animationProps - GSAP animation properties
-   * @param {Object} options - Stagger options
-   * @returns {Object|null} GSAP timeline
    */
   const createStaggerAnimation = (
-    elements,
-    animationProps = {},
-    options = {}
-  ) => {
+    elements: HTMLElement[],
+    animationProps: AnimationProps = {},
+    options: StaggerOptions = {}
+  ): GSAPTimeline | null => {
     if (!$gsap || !elements || elements.length === 0) return null
 
     const {
@@ -273,21 +298,18 @@ export const useLoadingSequence = () => {
 
   /**
    * Helper to check if this is the first load
-   * @returns {boolean}
    */
-  const isFirstLoad = () => loadingStore.isFirstLoad
+  const isFirstLoad = (): boolean => loadingStore.isFirstLoad
 
   /**
    * Helper to check if app is ready
-   * @returns {boolean}
    */
-  const isAppReady = () => loadingStore.isReady
+  const isAppReady = (): boolean => loadingStore.isReady
 
   /**
    * Helper to check if animations are complete
-   * @returns {boolean}
    */
-  const isAnimationComplete = () => loadingStore.isComplete
+  const isAnimationComplete = (): boolean => loadingStore.isComplete
 
   return {
     // Main functions
@@ -307,6 +329,6 @@ export const useLoadingSequence = () => {
     isAnimationComplete,
 
     // Direct store access if needed
-    loadingStore: readonly(loadingStore)
+    loadingStore: readonly(loadingStore) as Readonly<ReturnType<typeof useLoadingStore>>
   }
 }

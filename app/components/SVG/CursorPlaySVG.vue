@@ -28,7 +28,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * CursorPlaySVG Component - Theme-Aware Play Button
  *

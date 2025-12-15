@@ -69,7 +69,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * Interactive case study gallery with cursor-following preview
  * Desktop: List layout with hover preview (dynamic aspect ratios, crossfade transitions)

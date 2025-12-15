@@ -18,16 +18,17 @@
  * - right: Fade with rightward movement
  */
 
-export default {
-  name: 'page-fade',
+import type { Directive, DirectiveBinding } from 'vue'
+import type { FadeBindingValue, FadeDirection, PageAnimationElement } from '~/types/directives'
 
+const vPageFade: Directive<PageAnimationElement, FadeBindingValue> = {
   // SSR support - skip during server rendering
   getSSRProps() {
     return {}
   },
 
-  mounted(el, binding) {
-    const direction = binding.arg || 'up'
+  mounted(el: PageAnimationElement, binding: DirectiveBinding<FadeBindingValue>) {
+    const direction = (binding.arg || 'up') as FadeDirection
     const config = binding.value || {}
 
     // Store config on element for page transitions to read
@@ -43,8 +44,10 @@ export default {
     }
   },
 
-  unmounted(el) {
+  unmounted(el: PageAnimationElement) {
     // Clean up config
     delete el._pageAnimation
   }
 }
+
+export default vPageFade

@@ -31,7 +31,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   /**
    * Enable scroll-triggered animation when section enters viewport

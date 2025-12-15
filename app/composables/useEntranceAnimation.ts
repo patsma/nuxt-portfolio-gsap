@@ -24,9 +24,9 @@
  *   </div>
  * </template>
  *
- * <script setup>
+ * <script setup lang="ts">
  * const { setupEntrance } = useEntranceAnimation()
- * const myElement = ref(null)
+ * const myElement = ref<HTMLElement | null>(null)
  *
  * onMounted(() => {
  *   setupEntrance(myElement.value, {
@@ -46,18 +46,52 @@
  * ```
  */
 
+// GSAP types
+interface GSAPTimeline {
+  add: (animation: unknown, position?: string | number) => GSAPTimeline
+  play: () => GSAPTimeline
+  kill: () => void
+}
+
+interface GSAPInstance {
+  timeline: (config?: Record<string, unknown>) => GSAPTimeline
+}
+
+interface ScrollTriggerInstance {
+  create: (config: Record<string, unknown>) => void
+}
+
+interface QueuedAnimation {
+  element: HTMLElement
+  animateFn: (el: HTMLElement) => GSAPTimeline | unknown
+  position: string
+}
+
+export interface EntranceAnimationOptions {
+  /** GSAP position parameter */
+  position?: string
+  /** Animation function (el) => tween/timeline */
+  animate: (el: HTMLElement) => GSAPTimeline | unknown
+  /** Optional ScrollTrigger config for fallback */
+  scrollTrigger?: Record<string, unknown>
+}
+
+export interface EntranceAnimationReturn {
+  setupEntrance: (element: HTMLElement | null, options?: EntranceAnimationOptions) => void
+  getTimeline: () => GSAPTimeline | null
+  reset: () => void
+}
+
 // Module-level state for master timeline and queue
-let masterTimeline = null
-let animationQueue = []
+let masterTimeline: GSAPTimeline | null = null
+let animationQueue: QueuedAnimation[] = []
 let isInitialized = false
 let isPlaying = false
 
 /**
  * Check if element is in viewport on page load
- * @param {HTMLElement} el - Element to check
- * @returns {boolean} - True if element is in viewport
  */
-const isInViewport = (el) => {
+const isInViewport = (el: HTMLElement | null): boolean => {
   if (!el) return false
 
   const rect = el.getBoundingClientRect()
@@ -72,29 +106,27 @@ const isInViewport = (el) => {
 /**
  * Main composable for entrance animation system
  */
-export const useEntranceAnimation = () => {
-  const nuxtApp = useNuxtApp()
+export const useEntranceAnimation = (): EntranceAnimationReturn => {
+  const nuxtApp = useNuxtApp() as unknown as {
+    $gsap: GSAPInstance
+    $ScrollTrigger?: ScrollTriggerInstance
+  }
   const { $gsap } = nuxtApp
   const { isFirstLoad } = useLoadingSequence()
 
   /**
    * Initialize the master timeline and event listeners
    */
-  const initialize = () => {
+  const initialize = (): void => {
     if (isInitialized) return
 
     // Create master timeline (paused, will play after entrance-ready event)
     masterTimeline = $gsap.timeline({
       paused: true,
       onComplete: () => {
-        // console.log("✨ All entrance animations complete");
-
         // Remove is-first-load class from html element
         // This stops CSS from hiding elements on subsequent navigations
         document.documentElement.classList.remove('is-first-load')
-        // console.log(
-        //   "🔓 Removed is-first-load class - page transitions can now handle visibility"
-        // );
 
         // Fire completion event
         window.dispatchEvent(new CustomEvent('app:entrance-complete'))
@@ -117,17 +149,15 @@ export const useEntranceAnimation = () => {
     )
 
     isInitialized = true
-    // console.log("🎬 Entrance animation system initialized");
   }
 
   /**
    * Play all queued entrance animations
    */
-  const playEntranceAnimations = () => {
+  const playEntranceAnimations = (): void => {
     if (isPlaying || !masterTimeline || animationQueue.length === 0) return
 
     isPlaying = true
-    // console.log(`🎬 Playing ${animationQueue.length} entrance animations`);
 
     // Add all queued animations to master timeline
     animationQueue.forEach(({ element, animateFn, position }) => {
@@ -137,7 +167,7 @@ export const useEntranceAnimation = () => {
 
         // Add to master timeline at specified position
         if (animation) {
-          masterTimeline.add(animation, position)
+          masterTimeline!.add(animation, position)
         }
       }
       catch (error) {
@@ -154,14 +184,11 @@ export const useEntranceAnimation = () => {
 
   /**
    * Setup entrance animation for a component
-   *
-   * @param {HTMLElement} element - Element to animate
-   * @param {Object} options - Animation options
-   * @param {string} [options.position='+=0.15'] - GSAP position parameter
-   * @param {Function} options.animate - Animation function (el) => tween/timeline
-   * @param {Object} [options.scrollTrigger] - Optional ScrollTrigger config for fallback
    */
-  const setupEntrance = (element, options = {}) => {
+  const setupEntrance = (
+    element: HTMLElement | null,
+    options: EntranceAnimationOptions = {} as EntranceAnimationOptions
+  ): void => {
     if (!element) {
       console.warn('⚠️ setupEntrance: No element provided')
       return
@@ -180,8 +207,6 @@ export const useEntranceAnimation = () => {
 
     // Only run on first page load
     if (!isFirstLoad()) {
-      // console.log("⏭️ Not first load, skipping entrance animation");
-
       // If ScrollTrigger config provided, set it up as fallback
       if (scrollTrigger) {
         setupScrollTriggerFallback(element, animate, scrollTrigger)
@@ -198,7 +223,6 @@ export const useEntranceAnimation = () => {
 
     if (inViewport) {
       // Queue for entrance animation
-      // console.log("📝 Queued entrance animation for element:", element);
       animationQueue.push({
         element,
         animateFn: animate,
@@ -207,11 +231,6 @@ export const useEntranceAnimation = () => {
     }
     else {
       // Element not in viewport, use ScrollTrigger if provided
-      // console.log(
-      //   "👁️ Element not in viewport, using ScrollTrigger fallback:",
-      //   element
-      // );
-
       if (scrollTrigger) {
         setupScrollTriggerFallback(element, animate, scrollTrigger)
       }
@@ -230,16 +249,12 @@ export const useEntranceAnimation = () => {
 
   /**
    * Setup ScrollTrigger animation as fallback
-   *
-   * @param {HTMLElement} element - Element to animate
-   * @param {Function} animateFn - Animation function
-   * @param {Object} scrollTriggerConfig - ScrollTrigger configuration
    */
   const setupScrollTriggerFallback = (
-    element,
-    animateFn,
-    scrollTriggerConfig
-  ) => {
+    element: HTMLElement,
+    animateFn: (el: HTMLElement) => GSAPTimeline | unknown,
+    scrollTriggerConfig: Record<string, unknown>
+  ): void => {
     const { $ScrollTrigger } = nuxtApp
 
     if (!$ScrollTrigger) {
@@ -261,8 +276,6 @@ export const useEntranceAnimation = () => {
         animation,
         once: true // Only animate once
       })
-
-      // console.log("✅ ScrollTrigger fallback setup for element:", element);
     }
     catch (error) {
       console.error('❌ Error setting up ScrollTrigger fallback:', error)
@@ -271,14 +284,13 @@ export const useEntranceAnimation = () => {
 
   /**
    * Get master timeline (useful for debugging)
-   * @returns {gsap.core.Timeline|null}
    */
-  const getTimeline = () => masterTimeline
+  const getTimeline = (): GSAPTimeline | null => masterTimeline
 
   /**
    * Reset system (useful for testing or cleanup)
    */
-  const reset = () => {
+  const reset = (): void => {
     if (masterTimeline) {
       masterTimeline.kill()
       masterTimeline = null
@@ -286,7 +298,6 @@ export const useEntranceAnimation = () => {
     animationQueue = []
     isInitialized = false
     isPlaying = false
-    // console.log("🔄 Entrance animation system reset");
   }
 
   return {

@@ -1,9 +1,102 @@
-// ~/composables/useThemeSwitch.js
-export default function useThemeSwitch() {
-  const { $gsap, $MorphSVGPlugin } = useNuxtApp()
+/**
+ * Theme Switch Composable
+ *
+ * GSAP-animated dark/light theme with localStorage persistence and SSR compatibility.
+ * Uses MorphSVG for smooth icon transitions.
+ */
 
-  // Helper to parse rgba() or hex string to RGB object
-  const parseColor = (colorString) => {
+interface RGBColor {
+  r: number
+  g: number
+  b: number
+}
+
+interface ColorVariants {
+  [key: string]: RGBColor
+}
+
+interface GradientColors {
+  tl: RGBColor
+  tr: RGBColor
+  bl: RGBColor
+  br: RGBColor
+}
+
+interface ThemeColors {
+  light: ColorVariants
+  dark: ColorVariants
+}
+
+interface ThemeGradientColors {
+  light: GradientColors
+  dark: GradientColors
+}
+
+interface ColorProxy {
+  bgR: number
+  bgG: number
+  bgB: number
+  textR: number
+  textG: number
+  textB: number
+  gradTL_R: number
+  gradTL_G: number
+  gradTL_B: number
+  gradTR_R: number
+  gradTR_G: number
+  gradTR_B: number
+  gradBL_R: number
+  gradBL_G: number
+  gradBL_B: number
+  gradBR_R: number
+  gradBR_G: number
+  gradBR_B: number
+}
+
+// GSAP types
+interface GSAPInstance {
+  timeline: (config?: Record<string, unknown>) => GSAPTimeline
+  set: (targets: unknown, vars: Record<string, unknown>) => void
+  to: (targets: unknown, vars: Record<string, unknown>, position?: number | string) => GSAPTimeline
+  context: (fn: () => void) => GSAPContext
+}
+
+interface GSAPTimeline {
+  to: (targets: unknown, vars: Record<string, unknown>, position?: number | string) => GSAPTimeline
+  play: () => GSAPTimeline
+  pause: () => GSAPTimeline
+  reverse: () => GSAPTimeline
+  progress: (value: number) => GSAPTimeline
+}
+
+interface GSAPContext {
+  revert: () => void
+}
+
+interface MorphSVGPlugin {
+  convertToPath: (element: Element | null) => Element[]
+}
+
+interface ThemeStore {
+  isDark: boolean
+  toggle: () => void
+}
+
+export interface ThemeSwitchReturn {
+  initThemeSwitch: () => (() => void) | undefined
+}
+
+export default function useThemeSwitch(): ThemeSwitchReturn {
+  const nuxtApp = useNuxtApp() as unknown as {
+    $gsap: GSAPInstance
+    $MorphSVGPlugin: MorphSVGPlugin
+  }
+  const { $gsap, $MorphSVGPlugin } = nuxtApp
+
+  /**
+   * Helper to parse rgba() or hex string to RGB object
+   */
+  const parseColor = (colorString: string): RGBColor => {
     // Try rgba() format first
     const rgbaMatch = colorString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
     if (rgbaMatch) {
@@ -38,20 +131,21 @@ export default function useThemeSwitch() {
     return { r: 0, g: 0, b: 0 }
   }
 
-  // Helper function to initialize a single theme toggle button
+  /**
+   * Helper function to initialize a single theme toggle button
+   */
   const initButton = (
-    button,
-    themeStore,
-    html,
-    colors,
-    gradientColors,
-    themeDuration,
-    tl
-  ) => {
+    button: HTMLElement | null,
+    themeStore: ThemeStore,
+    html: HTMLElement,
+    colors: ThemeColors,
+    _gradientColors: ThemeGradientColors,
+    themeDuration: number,
+    tl: GSAPTimeline
+  ): void => {
     if (!button) return
 
     // Find SVG elements within this button's context using attribute selectors
-    // Elements have unique IDs like "theme-toggle-X-bg", so we match by ID suffix
     const svgRoot = button.querySelector('svg')
     if (!svgRoot) {
       console.warn('useThemeSwitch: SVG not found in button', button.id)
@@ -94,7 +188,6 @@ export default function useThemeSwitch() {
     $gsap.set([convertedSunDark, moonDark], { autoAlpha: 0 })
 
     // Add animations to the shared timeline for this button's SVG
-    // These will be added to the timeline that already handles color transitions
     tl.to(
       background,
       {
@@ -136,41 +229,33 @@ export default function useThemeSwitch() {
       // Get current state BEFORE toggle
       const wasLight = !themeStore.isDark
 
-      // console.log("🖱️ [Theme Toggle] Button clicked:", button.id);
-      // console.log("  → Was:", wasLight ? "LIGHT" : "DARK");
-
       // Toggle store ONCE
       themeStore.toggle()
-
-      // console.log("  → Now:", themeStore.isDark ? "DARK" : "LIGHT");
 
       // Animate timeline based on NEW state (simple toggle)
       if (wasLight) {
         // Was light, now dark → animate forward
-        // console.log("  → Animating timeline: play() → progress 1");
         tl.play()
       }
       else {
         // Was dark, now light → animate backward
-        // console.log("  → Animating timeline: reverse() → progress 0");
         tl.reverse()
       }
     })
   }
 
-  // Function to initialize theme switching
-  const initThemeSwitch = () => {
-    // console.log("🎨 initThemeSwitch called!");
-    // console.log("$gsap:", !!$gsap, "$MorphSVGPlugin:", !!$MorphSVGPlugin);
-
+  /**
+   * Function to initialize theme switching
+   */
+  const initThemeSwitch = (): (() => void) | undefined => {
     if (!$gsap || !$MorphSVGPlugin) {
       console.warn('useThemeSwitch: GSAP or MorphSVGPlugin not available')
       return
     }
 
     // Query for both desktop and mobile theme toggle buttons
-    const themeSwitchDesktop = document.querySelector('#themeSwitch')
-    const themeSwitchMobile = document.querySelector('#themeSwitchMobile')
+    const themeSwitchDesktop = document.querySelector('#themeSwitch') as HTMLElement | null
+    const themeSwitchMobile = document.querySelector('#themeSwitchMobile') as HTMLElement | null
 
     if (!themeSwitchDesktop && !themeSwitchMobile) {
       console.warn('useThemeSwitch: No theme switch buttons found')
@@ -178,11 +263,10 @@ export default function useThemeSwitch() {
     }
 
     // Use theme store as single source of truth for TOGGLING
-    const themeStore = useThemeStore()
+    const themeStore = useThemeStore() as ThemeStore
     const html = document.documentElement
 
     // Read initial theme directly from same source as blocking script
-    // Can't rely on Pinia hydration timing - it may not have run yet
     const stored = localStorage.getItem('theme')
     const prefersDark = window.matchMedia(
       '(prefers-color-scheme: dark)'
@@ -190,26 +274,11 @@ export default function useThemeSwitch() {
     const isDarkInitially = stored ? stored === 'dark' : prefersDark
 
     // CRITICAL: Immediately sync Pinia store state with what we just read
-    // This prevents the double-click bug when starting with dark theme
-    // Without this, store might still have default isDark: false
-    // causing button logic to think it's light when timeline is actually dark
     themeStore.isDark = isDarkInitially
-
-    // console.log(
-    //   "🎬 [GSAP Timeline] Reading initial theme directly:",
-    //   "| localStorage:",
-    //   stored || "null",
-    //   "| system prefers:",
-    //   prefersDark ? "dark" : "light",
-    //   "| isDark:",
-    //   isDarkInitially,
-    //   "| Store synced:",
-    //   themeStore.isDark
-    // );
 
     // Read all color values from CSS custom properties - single source of truth!
     const colorVariants = ['100', '60', '50', '40', '30', '15', '5']
-    const colors = {
+    const colors: ThemeColors = {
       light: {},
       dark: {}
     }
@@ -226,10 +295,10 @@ export default function useThemeSwitch() {
     })
 
     // Read gradient colors for FluidGradient component
-    const gradientCorners = ['tl', 'tr', 'bl', 'br']
-    const gradientColors = {
-      light: {},
-      dark: {}
+    const gradientCorners: Array<keyof GradientColors> = ['tl', 'tr', 'bl', 'br']
+    const gradientColors: ThemeGradientColors = {
+      light: {} as GradientColors,
+      dark: {} as GradientColors
     }
 
     gradientCorners.forEach((corner) => {
@@ -240,25 +309,16 @@ export default function useThemeSwitch() {
         .getPropertyValue(`--gradient-dark-${corner}`)
         .trim()
 
-      // console.log(`📊 Raw CSS for gradient-light-${corner}:`, lightStr);
-      // console.log(`📊 Raw CSS for gradient-dark-${corner}:`, darkStr);
-
       gradientColors.light[corner] = parseColor(lightStr)
       gradientColors.dark[corner] = parseColor(darkStr)
-
-      // console.log(`📊 Parsed light ${corner}:`, gradientColors.light[corner]);
-      // console.log(`📊 Parsed dark ${corner}:`, gradientColors.dark[corner]);
     })
 
-    // console.log("🎨 Colors from CSS:", colors);
-    // console.log("🌈 Gradient colors from CSS:", gradientColors);
-
     // Create GSAP context for proper cleanup
-    const ctx = $gsap.context(() => {
+    let ctx: GSAPContext | null = null
+
+    ctx = $gsap.context(() => {
       // Create a proxy object to animate ALL color values
-      // ALWAYS initialize from LIGHT theme (timeline start position)
-      // Timeline animates FROM light (progress 0) TO dark (progress 1)
-      const colorProxy = {
+      const colorProxy: ColorProxy = {
         // Light theme → background = light, text = dark
         bgR: colors.light['100'].r,
         bgG: colors.light['100'].g,
@@ -281,13 +341,11 @@ export default function useThemeSwitch() {
         gradBR_B: gradientColors.light.br.b
       }
 
-      let updateCount = 0
       const tl = $gsap.timeline({
         paused: true,
         onUpdate: function () {
-          updateCount++
           // Format as rgba colors for CSS custom properties
-          const toRgba = (r, g, b, a) => {
+          const toRgba = (r: number, g: number, b: number, a: number): string => {
             return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
           }
 
@@ -298,75 +356,24 @@ export default function useThemeSwitch() {
           const textG = Math.round(colorProxy.textG)
           const textB = Math.round(colorProxy.textB)
 
-          if (updateCount % 10 === 0 || updateCount === 1) {
-            // console.log(
-            //   `🎨 onUpdate #${updateCount}: bg(${bgR},${bgG},${bgB}) text(${textR},${textG},${textB})`
-            // );
-          }
-
           // Update ALL theme variables with interpolated color values on EVERY frame
-          // Background variants use TEXT color (inverted!) - so accent backgrounds are visible
-          // Light theme: light bg + dark accent backgrounds
-          // Dark theme: dark bg + light accent backgrounds
           html.style.setProperty('--theme-100', toRgba(bgR, bgG, bgB, 1))
-          html.style.setProperty(
-            '--theme-60',
-            toRgba(textR, textG, textB, 0.6)
-          )
-          html.style.setProperty(
-            '--theme-50',
-            toRgba(textR, textG, textB, 0.5)
-          )
-          html.style.setProperty(
-            '--theme-40',
-            toRgba(textR, textG, textB, 0.4)
-          )
-          html.style.setProperty(
-            '--theme-30',
-            toRgba(textR, textG, textB, 0.3)
-          )
-          html.style.setProperty(
-            '--theme-15',
-            toRgba(textR, textG, textB, 0.15)
-          )
-          html.style.setProperty(
-            '--theme-10',
-            toRgba(textR, textG, textB, 0.10)
-          )
-          html.style.setProperty(
-            '--theme-5',
-            toRgba(textR, textG, textB, 0.05)
-          )
+          html.style.setProperty('--theme-60', toRgba(textR, textG, textB, 0.6))
+          html.style.setProperty('--theme-50', toRgba(textR, textG, textB, 0.5))
+          html.style.setProperty('--theme-40', toRgba(textR, textG, textB, 0.4))
+          html.style.setProperty('--theme-30', toRgba(textR, textG, textB, 0.3))
+          html.style.setProperty('--theme-15', toRgba(textR, textG, textB, 0.15))
+          html.style.setProperty('--theme-10', toRgba(textR, textG, textB, 0.10))
+          html.style.setProperty('--theme-5', toRgba(textR, textG, textB, 0.05))
 
           // Text variants use TEXT color
-          html.style.setProperty(
-            '--theme-text-100',
-            toRgba(textR, textG, textB, 1)
-          )
-          html.style.setProperty(
-            '--theme-text-60',
-            toRgba(textR, textG, textB, 0.6)
-          )
-          html.style.setProperty(
-            '--theme-text-50',
-            toRgba(textR, textG, textB, 0.5)
-          )
-          html.style.setProperty(
-            '--theme-text-40',
-            toRgba(textR, textG, textB, 0.4)
-          )
-          html.style.setProperty(
-            '--theme-text-30',
-            toRgba(textR, textG, textB, 0.3)
-          )
-          html.style.setProperty(
-            '--theme-text-15',
-            toRgba(textR, textG, textB, 0.15)
-          )
-          html.style.setProperty(
-            '--theme-text-5',
-            toRgba(textR, textG, textB, 0.05)
-          )
+          html.style.setProperty('--theme-text-100', toRgba(textR, textG, textB, 1))
+          html.style.setProperty('--theme-text-60', toRgba(textR, textG, textB, 0.6))
+          html.style.setProperty('--theme-text-50', toRgba(textR, textG, textB, 0.5))
+          html.style.setProperty('--theme-text-40', toRgba(textR, textG, textB, 0.4))
+          html.style.setProperty('--theme-text-30', toRgba(textR, textG, textB, 0.3))
+          html.style.setProperty('--theme-text-15', toRgba(textR, textG, textB, 0.15))
+          html.style.setProperty('--theme-text-5', toRgba(textR, textG, textB, 0.05))
 
           // Gradient colors for FluidGradient background
           const gradTL = toRgba(
@@ -394,13 +401,6 @@ export default function useThemeSwitch() {
             1
           )
 
-          if (updateCount % 10 === 0 || updateCount === 1) {
-            // console.log(
-            //   `🌈 Gradient colors #${updateCount}:`,
-            //   { gradTL, gradTR, gradBL, gradBR }
-            // );
-          }
-
           html.style.setProperty('--gradient-tl', gradTL)
           html.style.setProperty('--gradient-tr', gradTR)
           html.style.setProperty('--gradient-bl', gradBL)
@@ -408,20 +408,18 @@ export default function useThemeSwitch() {
         }
       })
 
-      // Read theme duration from CSS variable for consistency - handle both 's' and 'ms' units
+      // Read theme duration from CSS variable for consistency
       const themeDurationRaw = getComputedStyle(html)
         .getPropertyValue('--duration-theme')
         .trim()
 
       let themeDuration = 0.6 // Default fallback
       if (themeDurationRaw.endsWith('ms')) {
-        themeDuration = parseFloat(themeDurationRaw) / 1000 // Convert ms to seconds
+        themeDuration = parseFloat(themeDurationRaw) / 1000
       }
       else if (themeDurationRaw.endsWith('s')) {
-        themeDuration = parseFloat(themeDurationRaw) // Already in seconds
+        themeDuration = parseFloat(themeDurationRaw)
       }
-
-      // console.log('🎨 Theme duration raw:', themeDurationRaw, 'parsed:', themeDuration, 'seconds');
 
       // Animate the proxy object's color values - light to dark
       tl.to(
@@ -453,7 +451,6 @@ export default function useThemeSwitch() {
       )
 
       // Initialize both theme toggle buttons with the shared timeline
-      // Each button's SVG elements will be animated by the same timeline
       initButton(
         themeSwitchDesktop,
         themeStore,
@@ -473,16 +470,8 @@ export default function useThemeSwitch() {
         tl
       )
 
-      // Set initial timeline position based on localStorage reading (not store)
-      // Store will eventually sync via hydration, but timeline needs correct state NOW
+      // Set initial timeline position based on localStorage reading
       tl.progress(isDarkInitially ? 1 : 0).pause()
-      // console.log('🎬 [GSAP Timeline] Timeline initialized:',
-      //   '| Progress set to:', tl.progress(),
-      //   '| Visual state:', isDarkInitially ? 'DARK' : 'LIGHT',
-      //   '| Buttons initialized:', {
-      //     desktop: !!themeSwitchDesktop,
-      //     mobile: !!themeSwitchMobile
-      //   });
     })
 
     // Return cleanup function

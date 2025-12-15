@@ -28,7 +28,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * HeroSection Component - Reusable Layout Wrapper with Entrance Animation
  *

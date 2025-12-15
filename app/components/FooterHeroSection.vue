@@ -23,7 +23,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * FooterHeroSection - Scroll-triggered hero with SplitText animation
  *

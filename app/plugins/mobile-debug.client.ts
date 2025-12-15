@@ -5,6 +5,13 @@
  * Shows a fixed overlay with logs, route changes, and page transitions.
  * Toggle with triple-tap anywhere on screen.
  */
+
+interface LogEntry {
+  type: 'log' | 'error' | 'warn' | 'info'
+  timestamp: string
+  message: string
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   if (typeof window === 'undefined') return
 
@@ -14,7 +21,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // State
   let isVisible = false
-  let logs = []
+  let logs: LogEntry[] = []
   const MAX_LOGS = 50 // Keep last 50 logs
 
   // Create debug console container
@@ -149,7 +156,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Add log entry
    */
-  const addLog = (type, ...args) => {
+  const addLog = (type: LogEntry['type'], ...args: unknown[]): void => {
     const timestamp = new Date().toLocaleTimeString()
     const message = args
       .map((arg) => {
@@ -194,7 +201,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Render all logs
    */
-  const renderLogs = () => {
+  const renderLogs = (): void => {
     container.innerHTML = logs
       .map((log) => {
         const color
@@ -221,7 +228,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Clear all logs
    */
-  const clearLogs = () => {
+  const clearLogs = (): void => {
     logs = []
     renderLogs()
   }
@@ -229,7 +236,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Copy logs to clipboard
    */
-  const copyLogsToClipboard = async () => {
+  const copyLogsToClipboard = async (): Promise<void> => {
     // Create plain text version of logs
     const logText = logs
       .map((log) => {
@@ -266,14 +273,15 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
     }
     catch (err) {
-      addLog('error', 'Failed to copy logs:', err.message)
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      addLog('error', 'Failed to copy logs:', errorMessage)
     }
   }
 
   /**
    * Show toast notification
    */
-  const showToast = () => {
+  const showToast = (): void => {
     toast.style.display = 'block'
     setTimeout(() => {
       toast.style.display = 'none'
@@ -283,7 +291,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   /**
    * Toggle console visibility
    */
-  const toggleConsole = () => {
+  const toggleConsole = (): void => {
     isVisible = !isVisible
     container.style.display = isVisible ? 'block' : 'none'
     toggleBtn.style.display = isVisible ? 'block' : 'none'
@@ -298,7 +306,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Triple-tap anywhere to toggle console
   let tapCount = 0
-  let tapTimeout
+  let tapTimeout: ReturnType<typeof setTimeout>
   document.addEventListener('touchend', () => {
     tapCount++
     clearTimeout(tapTimeout)
@@ -318,28 +326,28 @@ export default defineNuxtPlugin((nuxtApp) => {
   const originalError = console.error
   const originalWarn = console.warn
 
-  console.log = (...args) => {
+  console.log = (...args: unknown[]): void => {
     addLog('log', ...args)
     originalLog.apply(console, args)
   }
 
-  console.error = (...args) => {
+  console.error = (...args: unknown[]): void => {
     addLog('error', ...args)
     originalError.apply(console, args)
   }
 
-  console.warn = (...args) => {
+  console.warn = (...args: unknown[]): void => {
     addLog('warn', ...args)
     originalWarn.apply(console, args)
   }
 
   // Track route changes
-  nuxtApp.hook('page:start', (to) => {
-    addLog('error', '🚀 PAGE:START →', to?.path || 'unknown', '⚠️ THIS SHOULD NOT FIRE ON ACCORDION!')
+  nuxtApp.hook('page:start', () => {
+    addLog('error', '🚀 PAGE:START ⚠️ THIS SHOULD NOT FIRE ON ACCORDION!')
   })
 
-  nuxtApp.hook('page:finish', (to) => {
-    addLog('error', '✅ PAGE:FINISH →', to?.path || 'unknown')
+  nuxtApp.hook('page:finish', () => {
+    addLog('error', '✅ PAGE:FINISH')
   })
 
   nuxtApp.hook('page:loading:end', () => {

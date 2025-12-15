@@ -26,20 +26,26 @@
  * - y: Number - Y offset for default fade animation (ignored if animateFrom is set)
  */
 
-export default {
-  name: 'page-split',
+import type { Directive, DirectiveBinding } from 'vue'
+import type { PageAnimationElement, SplitBindingValue, SplitType } from '~/types/directives'
 
+interface SplitDefaults {
+  y: number
+  stagger: number
+}
+
+const vPageSplit: Directive<PageAnimationElement, SplitBindingValue> = {
   // SSR support - skip during server rendering
   getSSRProps() {
     return {}
   },
 
-  mounted(el, binding) {
-    const splitType = binding.arg || 'chars'
+  mounted(el: PageAnimationElement, binding: DirectiveBinding<SplitBindingValue>) {
+    const splitType = (binding.arg || 'chars') as SplitType
     const config = binding.value || {}
 
     // Default values based on split type
-    const defaults = {
+    const defaults: Record<SplitType, SplitDefaults> = {
       chars: { y: 35, stagger: 0.025 },
       words: { y: 15, stagger: 0.03 },
       lines: { y: 20, stagger: 0.04 }
@@ -63,8 +69,10 @@ export default {
     }
   },
 
-  unmounted(el) {
+  unmounted(el: PageAnimationElement) {
     // Clean up config
     delete el._pageAnimation
   }
 }
+
+export default vPageSplit

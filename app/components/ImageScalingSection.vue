@@ -21,7 +21,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * ImageScalingSection Component - ScrollTrigger Image Reveal
  *
@@ -122,7 +122,7 @@ const props = defineProps({
   startPosition: {
     type: String,
     default: 'left',
-    validator: value => ['left', 'right'].includes(value)
+    validator: (value: unknown) => typeof value === 'string' && ['left', 'right'].includes(value)
   }
 })
 

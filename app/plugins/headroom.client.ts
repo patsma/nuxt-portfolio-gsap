@@ -1,6 +1,17 @@
-// Headroom-like behavior for header
-// Inspired by headroom.js - hides header on scroll down, shows on scroll up
-// Integrated with ScrollSmoother via onUpdate callback
+/**
+ * Headroom-like behavior for header
+ * Inspired by headroom.js - hides header on scroll down, shows on scroll up
+ * Integrated with ScrollSmoother via onUpdate callback
+ */
+
+export interface HeadroomController {
+  updateHeader: (currentScroll: number) => void
+  reset: () => void
+  pause: () => void
+  resume: () => void
+  unpause: () => void
+}
+
 export default defineNuxtPlugin((nuxtApp) => {
   if (!import.meta.client) return
 
@@ -11,15 +22,14 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // State tracking
   let lastScrollTop = 0
-  let headerElement = null
+  let headerElement: HTMLElement | null = null
   let isPaused = false // Pause during page transitions to prevent flicker
   let skipNextUpdate = false // Skip next update after unpause to sync scroll position
 
   /**
    * Core header update logic (without throttle)
-   * @param {number} currentScroll - Current scroll position
    */
-  const updateHeaderCore = (currentScroll) => {
+  const updateHeaderCore = (currentScroll: number): void => {
     // Skip updates when paused (during page transitions)
     if (isPaused) {
       return
@@ -88,7 +98,7 @@ export default defineNuxtPlugin((nuxtApp) => {
    * Reset headroom state (show header at top)
    * Called in afterLeave when content is hidden - uses instant state change (no animation)
    */
-  const reset = () => {
+  const reset = (): void => {
     lastScrollTop = 0
     headerElement = document.querySelector('.header-grid')
     if (headerElement) {
@@ -107,7 +117,7 @@ export default defineNuxtPlugin((nuxtApp) => {
    * Freezes header in current state - no animation, no class changes
    * This prevents visual jumps when user clicks a navigation link
    */
-  const pause = () => {
+  const pause = (): void => {
     // Stop scroll updates immediately
     // Header stays frozen in current visual state (unpinned/not-top/top)
     isPaused = true
@@ -117,7 +127,7 @@ export default defineNuxtPlugin((nuxtApp) => {
    * Resume headroom updates after page transitions
    * Smoothly animates header to top state with slow, dramatic transition
    */
-  const resume = () => {
+  const resume = (): void => {
     isPaused = false
     skipNextUpdate = false // Clear skip flag (resume forces header to top, no sync needed)
     // Reset tracking state so headroom starts fresh
@@ -154,19 +164,21 @@ export default defineNuxtPlugin((nuxtApp) => {
    * IMPORTANT: Sets skipNextUpdate flag so first update after unpause just syncs scroll position
    * This ensures we sync to the ACTUAL current scroll position (after ScrollSmoother settles)
    */
-  const unpause = () => {
+  const unpause = (): void => {
     isPaused = false
     skipNextUpdate = true // Next update will sync lastScrollTop without changing header state
   }
 
   // Expose controller for ScrollSmoother plugin to call
-  nuxtApp.provide('headroom', {
+  const headroomController: HeadroomController = {
     updateHeader,
     reset,
     pause,
     resume,
     unpause
-  })
+  }
+
+  nuxtApp.provide('headroom', headroomController)
 
   // Pause headroom at start of page transition
   nuxtApp.hook('page:start', () => {

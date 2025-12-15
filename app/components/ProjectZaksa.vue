@@ -22,9 +22,9 @@
   -->
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Standard GSAP & tools from Nuxt app
-import { scopeSvgDefsIds } from '/utils/scopeSvgIds'
+import { scopeSvgDefsIds } from '~/utils/scopeSvgIds'
 
 const { $gsap } = useNuxtApp()
 const { $GSDevTools } = useNuxtApp()

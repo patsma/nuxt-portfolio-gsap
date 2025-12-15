@@ -51,7 +51,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * ServicesSection Component - Services List Display
  *

@@ -21,15 +21,16 @@
  * </nav>
  */
 
-export default {
-  name: 'page-stagger',
+import type { Directive, DirectiveBinding } from 'vue'
+import type { PageAnimationElement, StaggerBindingValue } from '~/types/directives'
 
+const vPageStagger: Directive<PageAnimationElement, StaggerBindingValue> = {
   // SSR support - skip during server rendering
   getSSRProps() {
     return {}
   },
 
-  mounted(el, binding) {
+  mounted(el: PageAnimationElement, binding: DirectiveBinding<StaggerBindingValue>) {
     const config = binding.value || {}
 
     // Store config on element for page transitions to read
@@ -45,8 +46,10 @@ export default {
     }
   },
 
-  unmounted(el) {
+  unmounted(el: PageAnimationElement) {
     // Clean up config
     delete el._pageAnimation
   }
 }
+
+export default vPageStagger

@@ -86,7 +86,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * RecommendationItem Component - Individual Recommendation Entry
  *
@@ -216,9 +216,9 @@ const { $gsap, $ScrollTrigger } = nuxtApp
 const { createLoop } = useHorizontalLoop($gsap)
 
 // Inject accordion state from parent RecommendationsSection
-const activeItemId = inject('activeItemId')
-const setActiveItem = inject('setActiveItem')
-const requestRefresh = inject('requestRefresh')
+const activeItemId = inject<Ref<string | null>>('activeItemId')
+const setActiveItem = inject<((id: string | null) => void) | undefined>('setActiveItem')
+const requestRefresh = inject<((callback?: () => void) => void) | undefined>('requestRefresh')
 
 // Refs for DOM elements
 const marqueeContainerRef = ref(null)
@@ -230,21 +230,21 @@ let marqueeAnimation = null
 let scrollTriggerInstance = null
 
 // Computed property to check if this item is currently expanded
-const isExpanded = computed(() => activeItemId.value === props.id)
+const isExpanded = computed(() => activeItemId?.value === props.id)
 
 /**
  * Toggle accordion expansion
  * If already expanded, collapse it
  * If collapsed, expand it and close others
  */
-const toggle = (event) => {
+const toggle = (event: Event | undefined) => {
   // Prevent any default behavior
   if (event) {
     event.preventDefault()
     event.stopPropagation()
   }
 
-  setActiveItem(isExpanded.value ? null : props.id)
+  setActiveItem?.(isExpanded.value ? null : props.id)
 }
 
 /**
@@ -357,7 +357,7 @@ watch(isExpanded, (expanded) => {
       ease: 'power2.out',
       onComplete: () => {
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
-        requestRefresh(() => {
+        requestRefresh?.(() => {
           nuxtApp.$headroom?.unpause()
         })
       }
@@ -372,7 +372,7 @@ watch(isExpanded, (expanded) => {
       ease: 'power2.in',
       onComplete: () => {
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
-        requestRefresh(() => {
+        requestRefresh?.(() => {
           nuxtApp.$headroom?.unpause()
         })
       }

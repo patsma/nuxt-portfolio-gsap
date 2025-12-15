@@ -419,7 +419,7 @@ const heading = {
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Define component name for better DevTools debugging
 defineOptions({
   name: 'SmoothDemoAlt'

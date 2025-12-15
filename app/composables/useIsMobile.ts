@@ -11,15 +11,6 @@
  * - Large Desktop: 1536px - 3820px
  * - Extra Large Desktop: >= 3820px
  *
- * @returns {{
- *  isMobile: import('vue').ComputedRef<boolean>,
- *  isTablet: import('vue').ComputedRef<boolean>,
- *  isLaptop: import('vue').ComputedRef<boolean>,
- *  isDesktop: import('vue').ComputedRef<boolean>,
- *  isLargeDesktop: import('vue').ComputedRef<boolean>,
- *  isExtraLargeDesktop: import('vue').ComputedRef<boolean>
- * }}
- *
  * @example
  * ```vue
  * <script setup>
@@ -32,9 +23,19 @@
  * </template>
  * ```
  */
+import type { Ref } from 'vue'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 
-export default function useIsMobile() {
+export interface BreakpointFlags {
+  isMobile: Ref<boolean>
+  isTablet: Ref<boolean>
+  isLaptop: Ref<boolean>
+  isDesktop: Ref<boolean>
+  isLargeDesktop: Ref<boolean>
+  isExtraLargeDesktop: Ref<boolean>
+}
+
+export default function useIsMobile(): BreakpointFlags {
   // Extend Tailwind breakpoints with custom 3xl breakpoint for extra large desktop
   const breakpoints = useBreakpoints({
     ...breakpointsTailwind,

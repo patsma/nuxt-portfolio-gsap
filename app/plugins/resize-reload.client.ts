@@ -8,13 +8,13 @@
 export default defineNuxtPlugin(() => {
   if (typeof window === 'undefined') return
 
-  let initialWidth = window.innerWidth
-  let initialHeight = window.innerHeight
+  const initialWidth = window.innerWidth
+  const initialHeight = window.innerHeight
 
   /**
    * Check and reload if window size changed
    */
-  const checkAndReload = () => {
+  const checkAndReload = (): void => {
     const currentWidth = window.innerWidth
     const currentHeight = window.innerHeight
 

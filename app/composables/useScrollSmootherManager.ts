@@ -11,16 +11,39 @@
  * killSmoother()
  */
 
-// Store the active smoother instance at module level so it's shared across all calls
-let smootherInstance = null
+// ScrollSmoother instance type (from GSAP)
+interface ScrollSmootherInstance {
+  kill: () => void
+  refresh: () => void
+  scrollTo: (position: number | string | HTMLElement, smooth?: boolean) => void
+  effects: (selector: string) => void
+}
 
-export const useScrollSmootherManager = () => {
+interface ScrollSmootherConfig {
+  smooth?: number
+  effects?: boolean
+  normalizeScroll?: boolean
+  smoothTouch?: number | boolean
+  onUpdate?: (self: ScrollSmootherInstance) => void
+  [key: string]: unknown
+}
+
+interface ScrollSmootherManagerReturn {
+  createSmoother: (config?: ScrollSmootherConfig) => ScrollSmootherInstance | null
+  killSmoother: () => void
+  getSmoother: () => ScrollSmootherInstance | null
+  refreshSmoother: () => void
+  scrollToTop: () => void
+}
+
+// Store the active smoother instance at module level so it's shared across all calls
+let smootherInstance: ScrollSmootherInstance | null = null
+
+export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
   /**
    * Create a new ScrollSmoother instance
-   * @param {Object} config - ScrollSmoother configuration (supports all ScrollSmoother options including onUpdate)
-   * @returns {Object} ScrollSmoother instance
    */
-  const createSmoother = (config = {}) => {
+  const createSmoother = (config: ScrollSmootherConfig = {}): ScrollSmootherInstance | null => {
     // Only run on client side
     if (typeof window === 'undefined') {
       console.warn('⚠️ ScrollSmoother can only run on client side')
@@ -33,7 +56,7 @@ export const useScrollSmootherManager = () => {
     }
 
     // Default configuration - all config options are passed through to ScrollSmoother.create()
-    const defaultConfig = {
+    const defaultConfig: ScrollSmootherConfig = {
       smooth: 2, // seconds it takes to "catch up" to native scroll position
       effects: true, // look for data-speed and data-lag attributes
       ...config // Includes onUpdate, smoothTouch, normalizeScroll, and any other ScrollSmoother options
@@ -43,12 +66,15 @@ export const useScrollSmootherManager = () => {
     // console.log('window.ScrollSmoother:', typeof window.ScrollSmoother)
 
     // Try multiple methods to access ScrollSmoother
-    let ScrollSmootherClass = null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let ScrollSmootherClass: any = null
 
     // Method 1: Check window.ScrollSmoother
-    if (window.ScrollSmoother) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).ScrollSmoother) {
       // console.log('✅ Found ScrollSmoother on window')
-      ScrollSmootherClass = window.ScrollSmoother
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ScrollSmootherClass = (window as any).ScrollSmoother
     }
 
     // Method 2: Try useNuxtApp injection
@@ -56,9 +82,11 @@ export const useScrollSmootherManager = () => {
       const nuxtApp = useNuxtApp()
       // console.log('Available $injections:', Object.keys(nuxtApp).filter(k => k.startsWith('$')))
 
-      if (nuxtApp.$ScrollSmoother) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((nuxtApp as any).$ScrollSmoother) {
         // console.log('✅ Found $ScrollSmoother in Nuxt app')
-        ScrollSmootherClass = nuxtApp.$ScrollSmoother
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ScrollSmootherClass = (nuxtApp as any).$ScrollSmoother
       }
     }
 
@@ -86,7 +114,7 @@ export const useScrollSmootherManager = () => {
   /**
    * Kill the current ScrollSmoother instance
    */
-  const killSmoother = () => {
+  const killSmoother = (): void => {
     if (smootherInstance) {
       smootherInstance.kill()
       smootherInstance = null
@@ -96,9 +124,8 @@ export const useScrollSmootherManager = () => {
 
   /**
    * Get the current ScrollSmoother instance
-   * @returns {Object|null} Current ScrollSmoother instance
    */
-  const getSmoother = () => {
+  const getSmoother = (): ScrollSmootherInstance | null => {
     return smootherInstance
   }
 
@@ -106,7 +133,7 @@ export const useScrollSmootherManager = () => {
    * Refresh ScrollSmoother to recalculate all data-speed and data-lag elements
    * Call this after page transitions or DOM changes
    */
-  const refreshSmoother = () => {
+  const refreshSmoother = (): void => {
     if (!smootherInstance) {
       console.warn('⚠️ ScrollSmoother instance not found, cannot refresh')
       return
@@ -126,11 +153,15 @@ export const useScrollSmootherManager = () => {
     smootherInstance.refresh()
 
     // Also refresh ScrollTrigger to ensure everything recalculates
-    if (nuxtApp.$ScrollTrigger) {
-      nuxtApp.$ScrollTrigger.refresh()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((nuxtApp as any).$ScrollTrigger) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(nuxtApp as any).$ScrollTrigger.refresh()
     }
-    else if (window.ScrollTrigger) {
-      window.ScrollTrigger.refresh()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    else if ((window as any).ScrollTrigger) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).ScrollTrigger.refresh()
     }
 
     // console.log('🔄 ScrollSmoother refreshed')
@@ -140,7 +171,7 @@ export const useScrollSmootherManager = () => {
    * Scroll to top (0, 0) position
    * Use this to reset scroll position after loading
    */
-  const scrollToTop = () => {
+  const scrollToTop = (): void => {
     if (!smootherInstance) {
       // Fallback to native scroll if smoother not available
       window.scrollTo(0, 0)

@@ -15,7 +15,7 @@
  * - Padding right for seamless loop cycles
  *
  * Usage:
- * ```javascript
+ * ```typescript
  * const { $gsap } = useNuxtApp()
  * const { createLoop } = useHorizontalLoop($gsap)
  *
@@ -36,11 +36,34 @@
  *
  * IMPORTANT: Always use resume() instead of play() to respect reversed state.
  * play() resets direction to forward, resume() continues in current direction.
- *
- * @param {Object} gsap - GSAP instance from useNuxtApp().$gsap
- * @returns {Object} { createLoop: Function }
  */
-export const useHorizontalLoop = (gsap) => {
+
+// GSAP types - using basic types since GSAP types are complex
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPInstance = any
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPTimeline = any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPTween = any
+
+export interface HorizontalLoopConfig {
+  speed?: number
+  reversed?: boolean
+  repeat?: number
+  paddingRight?: number
+  paused?: boolean
+  snap?: number | false
+}
+
+export interface HorizontalLoopReturn {
+  createLoop: (
+    items: Element[] | NodeList | string,
+    config?: HorizontalLoopConfig
+  ) => GSAPTimeline | null
+}
+
+export const useHorizontalLoop = (gsap: GSAPInstance): HorizontalLoopReturn => {
   // Use provided GSAP instance instead of calling useNuxtApp() at module level
   const $gsap = gsap
 
@@ -57,51 +80,45 @@ export const useHorizontalLoop = (gsap) => {
 
   /**
    * Create seamless horizontal infinite loop animation
-   *
-   * @param {Array|NodeList|string} items - Elements to animate
-   * @param {Object} config - Configuration options
-   * @param {number} [config.speed=1] - Speed multiplier (pixels per second, always positive)
-   * @param {boolean} [config.reversed=false] - Direction (true = right-to-left, false = left-to-right)
-   * @param {number} [config.repeat=-1] - Repeat count (-1 = infinite)
-   * @param {number} [config.paddingRight=0] - Gap between loop cycles (pixels)
-   * @param {boolean} [config.paused=false] - Start paused
-   * @param {boolean|number} [config.snap=1] - Snap positions
-   * @returns {gsap.core.Timeline} Timeline with loop control methods
    */
-  const createLoop = (items, config) => {
+  const createLoop = (
+    items: Element[] | NodeList | string,
+    config: HorizontalLoopConfig = {}
+  ): GSAPTimeline | null => {
     // Convert items to array
-    items = $gsap.utils.toArray(items)
-    config = config || {}
+    const itemsArray = $gsap.utils.toArray(items) as Element[]
 
     // Create timeline with infinite repeat and no easing
-    let tl = $gsap.timeline({
-        repeat: config.repeat,
-        paused: config.paused,
-        defaults: { ease: 'none' },
-        onReverseComplete: () => tl.totalTime(tl.rawTime() + tl.duration() * 100)
-      }),
-      length = items.length,
-      startX = items[0].offsetLeft,
-      times = [],
-      widths = [],
-      xPercents = [],
-      curIndex = 0,
-      pixelsPerSecond = (config.speed || 1) * 100,
-      snap
-        = config.snap === false ? v => v : $gsap.utils.snap(config.snap || 1),
-      totalWidth,
-      curX,
-      distanceToStart,
-      distanceToLoop,
-      item,
-      i
+    const tl = $gsap.timeline({
+      repeat: config.repeat,
+      paused: config.paused,
+      defaults: { ease: 'none' },
+      onReverseComplete: () => tl.totalTime(tl.rawTime() + tl.duration() * 100)
+    }) as GSAPTimeline & {
+      next: (vars?: Record<string, unknown>) => GSAPTween
+      previous: (vars?: Record<string, unknown>) => GSAPTween
+      current: () => number
+      toIndex: (index: number, vars?: Record<string, unknown>) => GSAPTween
+      times: number[]
+    }
+
+    const length = itemsArray.length
+    const startX = (itemsArray[0] as HTMLElement).offsetLeft
+    const times: number[] = []
+    const widths: number[] = []
+    const xPercents: number[] = []
+    let curIndex = 0
+    const pixelsPerSecond = (config.speed || 1) * 100
+    const snap = config.snap === false
+      ? (v: number) => v
+      : $gsap.utils.snap(config.snap || 1)
 
     // Calculate initial xPercent positions
-    $gsap.set(items, {
-      xPercent: (i, el) => {
-        let w = (widths[i] = parseFloat($gsap.getProperty(el, 'width', 'px')))
+    $gsap.set(itemsArray, {
+      xPercent: (i: number, el: Element) => {
+        const w = (widths[i] = parseFloat(String($gsap.getProperty(el, 'width', 'px'))))
         xPercents[i] = snap(
-          (parseFloat($gsap.getProperty(el, 'x', 'px')) / w) * 100
+          (parseFloat(String($gsap.getProperty(el, 'x', 'px'))) / w) * 100
           + $gsap.getProperty(el, 'xPercent')
         )
         return xPercents[i]
@@ -109,23 +126,23 @@ export const useHorizontalLoop = (gsap) => {
     })
 
     // Reset x position
-    $gsap.set(items, { x: 0 })
+    $gsap.set(itemsArray, { x: 0 })
 
     // Calculate total width including padding
-    totalWidth
-      = items[length - 1].offsetLeft
+    const lastItem = itemsArray[length - 1] as HTMLElement
+    const totalWidth
+      = lastItem.offsetLeft
         + (xPercents[length - 1] / 100) * widths[length - 1]
         - startX
-        + items[length - 1].offsetWidth
-        * $gsap.getProperty(items[length - 1], 'scaleX')
-        + (parseFloat(config.paddingRight) || 0)
+        + lastItem.offsetWidth * $gsap.getProperty(lastItem, 'scaleX')
+        + (parseFloat(String(config.paddingRight)) || 0)
 
     // Create seamless loop animation for each item
-    for (i = 0; i < length; i++) {
-      item = items[i]
-      curX = (xPercents[i] / 100) * widths[i]
-      distanceToStart = item.offsetLeft + curX - startX
-      distanceToLoop
+    for (let i = 0; i < length; i++) {
+      const item = itemsArray[i]
+      const curX = (xPercents[i] / 100) * widths[i]
+      const distanceToStart = (item as HTMLElement).offsetLeft + curX - startX
+      const distanceToLoop
         = distanceToStart + widths[i] * $gsap.getProperty(item, 'scaleX')
 
       // Animate from current position to loop end
@@ -160,30 +177,28 @@ export const useHorizontalLoop = (gsap) => {
 
     /**
      * Jump to specific index in loop
-     * @param {number} index - Target index
-     * @param {Object} vars - GSAP tween vars
-     * @returns {gsap.core.Tween}
      */
-    function toIndex(index, vars) {
-      vars = vars || {}
-      Math.abs(index - curIndex) > length / 2
-      && (index += index > curIndex ? -length : length)
-      let newIndex = $gsap.utils.wrap(0, length, index),
-        time = times[newIndex]
+    function toIndex(index: number, vars: Record<string, unknown> = {}): GSAPTween {
+      const adjustedVars = { ...vars }
+      if (Math.abs(index - curIndex) > length / 2) {
+        index += index > curIndex ? -length : length
+      }
+      const newIndex = $gsap.utils.wrap(0, length, index)
+      let time = times[newIndex]
       if ((time > tl.time()) !== (index > curIndex)) {
-        vars.modifiers = { time: $gsap.utils.wrap(0, tl.duration()) }
+        adjustedVars.modifiers = { time: $gsap.utils.wrap(0, tl.duration()) }
         time += tl.duration() * (index > curIndex ? 1 : -1)
       }
       curIndex = newIndex
-      vars.overwrite = true
-      return tl.tweenTo(time, vars)
+      adjustedVars.overwrite = true
+      return tl.tweenTo(time, adjustedVars)
     }
 
     // Add helper methods to timeline
-    tl.next = vars => toIndex(curIndex + 1, vars)
-    tl.previous = vars => toIndex(curIndex - 1, vars)
+    tl.next = (vars?: Record<string, unknown>) => toIndex(curIndex + 1, vars)
+    tl.previous = (vars?: Record<string, unknown>) => toIndex(curIndex - 1, vars)
     tl.current = () => curIndex
-    tl.toIndex = (index, vars) => toIndex(index, vars)
+    tl.toIndex = (index: number, vars?: Record<string, unknown>) => toIndex(index, vars)
     tl.times = times
 
     // Initialize timeline at start position
@@ -191,7 +206,10 @@ export const useHorizontalLoop = (gsap) => {
 
     // If reversed, set up reverse playback
     if (config.reversed) {
-      tl.vars.onReverseComplete()
+      const onReverseComplete = tl.vars.onReverseComplete as () => void
+      if (onReverseComplete) {
+        onReverseComplete()
+      }
       tl.reverse()
     }
 

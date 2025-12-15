@@ -44,7 +44,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * FooterMarquee Component - Infinite Horizontal Marquee
  *

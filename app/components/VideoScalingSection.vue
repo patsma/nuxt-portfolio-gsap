@@ -46,7 +46,7 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * VideoScalingSection Component - ScrollTrigger Video Reveal
  *
@@ -153,7 +153,7 @@ const props = defineProps({
   startPosition: {
     type: String,
     default: 'left',
-    validator: value => ['left', 'right'].includes(value)
+    validator: (value: unknown) => typeof value === 'string' && ['left', 'right'].includes(value)
   }
 })
 

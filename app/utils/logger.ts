@@ -12,68 +12,93 @@
  * - Animation lifecycle tracking
  * - Ref validation logging
  * - Race condition detection
- *
- * Usage:
- * ```javascript
- * const log = createPreviewLogger()
- * log.state('IDLE', 'REVEALING', { image: 'foo.jpg' })
- * log.animation('clip-reveal', 500, () => { ... })
- * log.error('Missing refs', { currentWrapper: false })
- * ```
  */
+
+// ============================================================================
+// Types
+// ============================================================================
 
 /**
  * Log levels for filtering output
- * @enum {number}
  */
-const LogLevel = {
+export const LogLevel = {
   DEBUG: 0,
   INFO: 1,
   WARN: 2,
   ERROR: 3
+} as const
+
+export type LogLevelValue = (typeof LogLevel)[keyof typeof LogLevel]
+
+export type PreloadAction = 'loading' | 'cached' | 'failed'
+
+export type HoverRoute = 'FIRST_HOVER' | 'SAME_IMAGE' | 'ITEM_SWITCH' | 'RE_ENTRY' | 'SKIP'
+
+export interface Position {
+  x: number
+  y: number
 }
+
+export interface PreviewLogger {
+  state: (from: string, to: string, context?: Record<string, unknown>) => void
+  animationStart: (name: string, expectedDuration: number, context?: Record<string, unknown>) => void
+  animationComplete: (name: string, expectedDuration: number, context?: Record<string, unknown>) => void
+  preload: (action: PreloadAction, src: string, duration?: number | null) => void
+  position: (position: Position, clamped?: Position | null, reason?: string | null) => void
+  refs: (refs: Record<string, boolean>) => void
+  route: (route: HoverRoute | string, context?: Record<string, unknown>) => void
+  warn: (message: string, context?: Record<string, unknown>) => void
+  error: (message: string, context?: Record<string, unknown>) => void
+  raceCondition: (description: string, state?: Record<string, unknown>) => void
+  info: (message: string, context?: Record<string, unknown>) => void
+  debug: (message: string, context?: Record<string, unknown>) => void
+  separator: (label?: string | null) => void
+}
+
+// ============================================================================
+// Module State
+// ============================================================================
 
 /**
  * Current log level (set to INFO for normal use, DEBUG for troubleshooting)
  * Can be changed via setLogLevel()
  */
-let currentLogLevel = LogLevel.INFO
+let currentLogLevel: LogLevelValue = LogLevel.INFO
 
 /**
  * Set the minimum log level for output
- * @param {number} level - LogLevel enum value
  */
-export const setLogLevel = (level) => {
+export const setLogLevel = (level: LogLevelValue): void => {
   currentLogLevel = level
 }
 
+// ============================================================================
+// Helpers
+// ============================================================================
+
 /**
  * Format a log message with namespace and emoji
- * @param {string} namespace - Log namespace (e.g., 'STATE', 'ANIM')
- * @param {string} emoji - Emoji for quick visual scanning
- * @param {string} message - Log message
- * @returns {string} Formatted log message
  */
-const formatLog = (namespace, emoji, message) => {
+const formatLog = (namespace: string, emoji: string, message: string): string => {
   return `${emoji} [PREVIEW:${namespace}] ${message}`
 }
 
+// ============================================================================
+// Logger Factory
+// ============================================================================
+
 /**
  * Create a logger instance for preview system
- * @returns {Object} Logger instance with logging methods
  */
-export const createPreviewLogger = () => {
+export const createPreviewLogger = (): PreviewLogger => {
   // Performance timing map (animation name → start time)
-  const timings = new Map()
+  const timings = new Map<string, number>()
 
   return {
     /**
      * Log state machine transitions
-     * @param {string} from - Previous state
-     * @param {string} to - New state
-     * @param {Object} context - Additional context (image, reason, etc.)
      */
-    state(from, to, context = {}) {
+    state(from: string, to: string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.INFO) return
 
       const contextStr = Object.keys(context).length > 0
@@ -85,11 +110,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log animation start with performance tracking
-     * @param {string} name - Animation name (e.g., 'clip-reveal', 'crossfade')
-     * @param {number} expectedDuration - Expected duration in ms
-     * @param {Object} context - Animation context
      */
-    animationStart(name, expectedDuration, context = {}) {
+    animationStart(name: string, expectedDuration: number, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const contextStr = Object.keys(context).length > 0
@@ -102,11 +124,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log animation completion with performance validation
-     * @param {string} name - Animation name
-     * @param {number} expectedDuration - Expected duration in ms
-     * @param {Object} context - Completion context
      */
-    animationComplete(name, expectedDuration, context = {}) {
+    animationComplete(name: string, expectedDuration: number, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const startTime = timings.get(name)
@@ -136,11 +155,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log image preload events
-     * @param {string} action - 'loading', 'cached', 'failed'
-     * @param {string} src - Image source URL
-     * @param {number|null} duration - Load duration in ms (for 'cached')
      */
-    preload(action, src, duration = null) {
+    preload(action: PreloadAction, src: string, duration: number | null = null): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const filename = src.split('/').pop()
@@ -162,11 +178,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log position calculations and bounds clamping
-     * @param {Object} position - Calculated position { x, y }
-     * @param {Object|null} clamped - Clamped position if different (or null)
-     * @param {string|null} reason - Reason for clamping
      */
-    position(position, clamped = null, reason = null) {
+    position(position: Position, clamped: Position | null = null, reason: string | null = null): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       if (clamped) {
@@ -184,9 +197,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log ref validation results
-     * @param {Object} refs - Refs object with boolean values
      */
-    refs(refs) {
+    refs(refs: Record<string, boolean>): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const missing = Object.entries(refs)
@@ -203,33 +215,30 @@ export const createPreviewLogger = () => {
 
     /**
      * Log hover routing decisions
-     * @param {string} route - Route taken (e.g., 'FIRST_HOVER', 'SAME_IMAGE', 'ITEM_SWITCH')
-     * @param {Object} context - Decision context
      */
-    route(route, context = {}) {
+    route(route: HoverRoute | string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.INFO) return
 
       const contextStr = Object.keys(context).length > 0
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      const emoji = {
+      const emojiMap: Record<string, string> = {
         FIRST_HOVER: '🆕',
         SAME_IMAGE: '⏭️',
         ITEM_SWITCH: '🔄',
         RE_ENTRY: '🎬',
         SKIP: '⏸️'
-      }[route] || '🎯'
+      }
+      const emoji = emojiMap[route] || '🎯'
 
       console.log(formatLog('ROUTE', emoji, `${route}${contextStr}`))
     },
 
     /**
      * Log warnings (non-fatal issues)
-     * @param {string} message - Warning message
-     * @param {Object} context - Additional context
      */
-    warn(message, context = {}) {
+    warn(message: string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.WARN) return
 
       const contextStr = Object.keys(context).length > 0
@@ -241,10 +250,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log errors (fatal issues)
-     * @param {string} message - Error message
-     * @param {Object} context - Additional context
      */
-    error(message, context = {}) {
+    error(message: string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.ERROR) return
 
       const contextStr = Object.keys(context).length > 0
@@ -256,10 +263,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log race condition detection
-     * @param {string} description - What race condition was detected
-     * @param {Object} state - Current state snapshot
      */
-    raceCondition(description, state = {}) {
+    raceCondition(description: string, state: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.WARN) return
 
       const stateStr = Object.keys(state).length > 0
@@ -271,10 +276,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log info messages (general information)
-     * @param {string} message - Info message
-     * @param {Object} context - Additional context
      */
-    info(message, context = {}) {
+    info(message: string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.INFO) return
 
       const contextStr = Object.keys(context).length > 0
@@ -286,10 +289,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Log debug messages (verbose debugging)
-     * @param {string} message - Debug message
-     * @param {Object} context - Additional context
      */
-    debug(message, context = {}) {
+    debug(message: string, context: Record<string, unknown> = {}): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const contextStr = Object.keys(context).length > 0
@@ -301,9 +302,8 @@ export const createPreviewLogger = () => {
 
     /**
      * Create a visual separator in logs
-     * @param {string|null} label - Optional label for separator
      */
-    separator(label = null) {
+    separator(label: string | null = null): void {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       const line = '━'.repeat(40)
@@ -316,8 +316,3 @@ export const createPreviewLogger = () => {
     }
   }
 }
-
-/**
- * Export LogLevel enum for external use
- */
-export { LogLevel }

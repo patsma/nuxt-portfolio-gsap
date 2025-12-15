@@ -4,7 +4,7 @@
 let instanceCounter = 0
 </script>
 
-<script setup>
+<script setup lang="ts">
 // Generate unique ID for this instance to avoid conflicts when multiple instances exist
 // Counter increments in the same order on both server and client, preventing hydration mismatches
 const uid = `theme-toggle-${++instanceCounter}`

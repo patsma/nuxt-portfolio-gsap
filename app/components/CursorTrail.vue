@@ -7,7 +7,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 // Standard GSAP from Nuxt app
 const { $gsap } = useNuxtApp()
 
