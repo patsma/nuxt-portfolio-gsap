@@ -13,8 +13,8 @@
       <!-- Label: Top on mobile/tablet, left on desktop -->
       <h2
         ref="labelRef"
-        class="ibm-plex-sans-jp-mobile-caption 2xl:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
         v-page-split:lines="{ leaveOnly: true }"
+        class="ibm-plex-sans-jp-mobile-caption 2xl:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
       >
         <slot name="label">Services</slot>
       </h2>
@@ -30,8 +30,8 @@
         <!-- Left services column -->
         <div
           ref="contentLeftRef"
-          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
         >
           <slot name="column-left" />
         </div>
@@ -39,8 +39,8 @@
         <!-- Right services column -->
         <div
           ref="contentRightRef"
-          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
         >
           <slot name="column-right" />
         </div>

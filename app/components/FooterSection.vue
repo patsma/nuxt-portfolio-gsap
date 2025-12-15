@@ -177,7 +177,6 @@
  * </FooterSection>
  */
 
-import HeroSection from '~/components/HeroSection.vue';
 import FooterMarquee from '~/components/FooterMarquee.vue';
 import FullWidthBorder from '~/components/FullWidthBorder.vue';
 

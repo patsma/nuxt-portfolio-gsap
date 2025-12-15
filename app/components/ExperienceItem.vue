@@ -103,7 +103,7 @@
  * />
  */
 
-const props = defineProps({
+defineProps({
   /**
    * Date range for the position
    * Format: "YYYY – YYYY" or "YYYY – Current"

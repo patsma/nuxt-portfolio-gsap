@@ -50,8 +50,8 @@ const services = [
       <template #services>
         <nav class="services-list pt-10 md:pt-0" aria-label="Services">
           <div
-            data-speed="0.95"
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
+            data-speed="0.95"
             class="flex flex-wrap gap-2 max-w-3xl"
           >
             <div class="tag-label">Services</div>
@@ -64,7 +64,7 @@ const services = [
 
       <!-- Scroll down button (right side on desktop) -->
       <template #button>
-        <ScrollDownSVG data-speed="1" v-page-fade:left />
+        <ScrollDownSVG v-page-fade:left data-speed="1" />
       </template>
     </HeroSection>
     <ServicesSection>
@@ -153,7 +153,7 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
     </RecommendationsSection>
      <!-- Awards & Recognition Section Test -->
      <AwardsRecognitionSection>
-      <template #label>Awards &<br />Recognition</template>
+      <template #label>Awards &<br >Recognition</template>
       <template #awards-column>
         <p>1 <span class="text-[var(--theme-text-60)]">x</span> Awwwards</p>
         <p>4 <span class="text-[var(--theme-text-60)]">x</span> Behance</p>

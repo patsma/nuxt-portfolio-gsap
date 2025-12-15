@@ -12,9 +12,9 @@
     <TresCanvas
       v-if="isMounted"
       class="w-full h-full opacity-100"
-      clearColor="#0b0b10"
+      clear-color="#0b0b10"
       :antialias="true"
-      :renderMode="'always'"
+      :render-mode="'always'"
     >
       <!-- Orthographic camera so a 2x2 plane fills the view nicely -->
       <TresOrthographicCamera
@@ -27,15 +27,15 @@
         <TresPlaneGeometry :args="[2, 2]" />
         <TresShaderMaterial
           :uniforms="uniforms"
-          :vertexShader="vertexShader"
-          :fragmentShader="fragmentShader"
+          :vertex-shader="vertexShader"
+          :fragment-shader="fragmentShader"
           :transparent="false"
         />
       </TresMesh>
     </TresCanvas>
 
     <!-- Theme-aware overlay to add subtle neutral tones -->
-    <div class="gradient-overlay"></div>
+    <div class="gradient-overlay"/>
   </div>
 </template>
 

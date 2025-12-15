@@ -6,8 +6,8 @@
     <!-- Clickable row wrapper (breakout3 within sub-grid) -->
     <button
       type="button"
-      @click="toggle"
       class="recommendation-row full-width w-full text-left cursor-pointer py-[var(--space-s)] md:py-[var(--space-m)] transition-opacity duration-[var(--duration-hover)] hover:opacity-80"
+      @click="toggle"
     >
       <!-- Full-width marquee container with all elements -->
       <div
@@ -26,7 +26,7 @@
             :src="authorImage"
             :alt="`${authorFirstName} ${authorLastName}`"
             class="marquee-image"
-          />
+          >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
             <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>
@@ -40,7 +40,7 @@
             :src="authorImage"
             :alt="`${authorFirstName} ${authorLastName}`"
             class="marquee-image"
-          />
+          >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
             <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>
@@ -54,7 +54,7 @@
             :src="authorImage"
             :alt="`${authorFirstName} ${authorLastName}`"
             class="marquee-image"
-          />
+          >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
             <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>

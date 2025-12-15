@@ -97,7 +97,7 @@ const scrollToTop = () => {
     <section v-if="status === 'pending'" class="blog-post blog-post--loading">
       <div class="blog-container">
         <div class="blog-loading">
-          <div class="loading-spinner"></div>
+          <div class="loading-spinner"/>
           <p>Brewing the perfect article...</p>
         </div>
       </div>
@@ -133,12 +133,12 @@ const scrollToTop = () => {
           class="parallax-element parallax-element--post-1"
           data-speed="0.4"
           data-lag="0.3"
-        ></div>
+        />
         <div
           class="parallax-element parallax-element--post-2"
           data-speed="0.6"
           data-lag="0.2"
-        ></div>
+        />
       </div>
 
       <div class="blog-container">
@@ -174,7 +174,7 @@ const scrollToTop = () => {
             {{ post.excerpt }}
           </div>
 
-          <div class="blog-post__author" v-if="post.author">
+          <div v-if="post.author" class="blog-post__author">
             <span class="author-label">By</span>
             <span class="author-name">{{ post.author }}</span>
           </div>
@@ -203,7 +203,7 @@ const scrollToTop = () => {
               <h3 class="blog-nav__title">{{ prevPost.title }}</h3>
             </NuxtLink>
 
-            <div class="blog-nav__spacer"></div>
+            <div class="blog-nav__spacer"/>
 
             <NuxtLink
               v-if="nextPost"
@@ -223,9 +223,9 @@ const scrollToTop = () => {
         <!-- Back to top -->
         <div class="blog-post__footer">
           <button
-            @click="scrollToTop"
             class="back-to-top"
             aria-label="Scroll to top"
+            @click="scrollToTop"
           >
             <Icon name="tabler:arrow-up" class="back-to-top__icon" />
             <span>Back to top</span>

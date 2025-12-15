@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import HeroSection from "~/components/HeroSection.vue";
-import FooterHeroSection from "~/components/FooterHeroSection.vue";
 import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
 import VideoScalingSection from "~/components/VideoScalingSection.vue";
 </script>

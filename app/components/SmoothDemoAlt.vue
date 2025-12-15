@@ -46,7 +46,7 @@
               height="630"
               loading="eager"
               decoding="async"
-            />
+            >
             <figcaption
               class="mt-[var(--space-2xs)] ibm-plex-sans-jp-mobile-caption md:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
             >
@@ -337,8 +337,8 @@ const heading = {
         <!-- Feature Grid -->
         <div class="grid gap-[var(--space-s)] md:grid-cols-3" data-speed="1.06">
           <div
-            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
             v-once
+            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
           >
             <Icon
               name="heroicons:bolt-20-solid"
@@ -356,8 +356,8 @@ const heading = {
             </p>
           </div>
           <div
-            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
             v-once
+            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
           >
             <Icon
               name="heroicons:paint-brush-20-solid"
@@ -375,8 +375,8 @@ const heading = {
             </p>
           </div>
           <div
-            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
             v-once
+            class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
           >
             <Icon
               name="heroicons:code-bracket-20-solid"

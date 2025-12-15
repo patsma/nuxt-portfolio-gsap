@@ -37,10 +37,10 @@
             <a
               v-for="item in navItems"
               :key="item.href"
+              v-memo="[item.href, item.label, item.icon]"
               :href="item.href"
               class="pp-eiko-mobile-custom-navigation-menu-items md:pp-eiko-desktop-custom-navigation nav-link text-[var(--theme-text-100)] flex items-center gap-[var(--space-2xs)]"
               :data-active="false"
-              v-memo="[item.href, item.label, item.icon]"
             >
               <Icon :name="item.icon" class="icon icon-base" />
               {{ item.label }}
@@ -192,7 +192,7 @@
               height="630"
               loading="eager"
               decoding="async"
-            />
+            >
             <figcaption
               class="mt-[var(--space-2xs)] text-center ibm-plex-sans-jp-mobile-caption md:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
             >
@@ -234,19 +234,19 @@
 
             <!-- Background opacity showcase -->
             <div class="grid gap-[var(--space-2xs)]" data-speed="1.06">
-              <p class="text-[var(--theme-text-60)] text-step-0 mb-[var(--space-xs)]" v-once>
+              <p v-once class="text-[var(--theme-text-60)] text-step-0 mb-[var(--space-xs)]">
                 Background variants:
               </p>
-              <div class="p-[var(--space-s)] bg-[var(--theme-5)] border border-[var(--theme-text-15)] rounded-md" v-once>
+              <div v-once class="p-[var(--space-s)] bg-[var(--theme-5)] border border-[var(--theme-text-15)] rounded-md">
                 <p class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-p1">5% background opacity</p>
               </div>
-              <div class="p-[var(--space-s)] bg-[var(--theme-15)] border border-[var(--theme-text-15)] rounded-md" v-once>
+              <div v-once class="p-[var(--space-s)] bg-[var(--theme-15)] border border-[var(--theme-text-15)] rounded-md">
                 <p class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-p1">15% background opacity</p>
               </div>
-              <div class="p-[var(--space-s)] bg-[var(--theme-30)] border border-[var(--theme-text-15)] rounded-md" v-once>
+              <div v-once class="p-[var(--space-s)] bg-[var(--theme-30)] border border-[var(--theme-text-15)] rounded-md">
                 <p class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-p1">30% background opacity</p>
               </div>
-              <div class="p-[var(--space-s)] bg-[var(--theme-50)] border border-[var(--theme-text-15)] rounded-md" v-once>
+              <div v-once class="p-[var(--space-s)] bg-[var(--theme-50)] border border-[var(--theme-text-15)] rounded-md">
                 <p class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-p1">50% background opacity</p>
               </div>
             </div>

@@ -31,12 +31,12 @@ export const useHintsStore = defineStore('hints', () => {
           stored.push(hintKey)
           localStorage.setItem('ui-hints', JSON.stringify(stored))
         }
-      } catch (e) {
+      } catch {
         // Silently fail if localStorage is unavailable
       }
     }
   }
-  
+
   /**
    * Load persisted hints from localStorage
    */
@@ -45,13 +45,13 @@ export const useHintsStore = defineStore('hints', () => {
       try {
         const stored = JSON.parse(localStorage.getItem('ui-hints') || '[]')
         shownHints.value = new Set(stored)
-      } catch (e) {
+      } catch {
         // Silently fail if localStorage is unavailable
         shownHints.value = new Set()
       }
     }
   }
-  
+
   /**
    * Reset all hints (useful for testing or user preference)
    */
@@ -60,7 +60,7 @@ export const useHintsStore = defineStore('hints', () => {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('ui-hints')
-      } catch (e) {
+      } catch {
         // Silently fail
       }
     }

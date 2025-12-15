@@ -14,7 +14,7 @@ const { createSmoother, killSmoother, scrollToTop } =
   useScrollSmootherManager();
 
 // Loading sequence manager
-const { markScrollSmootherReady, markPageReady, isFirstLoad } =
+const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad } =
   useLoadingSequence();
 
 // Access Nuxt app for $headroom plugin

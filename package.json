@@ -10,7 +10,9 @@
     "postinstall": "nuxt prepare",
     "styles:build": "sass --no-source-map --load-path app/assets/css app/assets/css/pre.scss:app/assets/css/pre.css app/assets/css/post.scss:app/assets/css/post.css",
     "styles:watch": "sass --no-source-map --load-path app/assets/css app/assets/css/pre.scss:app/assets/css/pre.css app/assets/css/post.scss:app/assets/css/post.css --watch",
-    "prebuild": "npm run styles:build"
+    "prebuild": "npm run styles:build",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@maz-ui/nuxt": "^4.1.6",

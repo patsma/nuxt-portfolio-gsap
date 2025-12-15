@@ -12,7 +12,7 @@
         <div ref="servicesSlotRef">
           <slot name="services" />
         </div>
-        <div class="md:ml-auto" ref="buttonSlotRef">
+        <div ref="buttonSlotRef" class="md:ml-auto">
           <slot name="button" />
         </div>
       </div>

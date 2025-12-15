@@ -17,7 +17,7 @@
 
         <!-- Named slot for optional scroll button (right side on desktop) -->
         <!-- ml-auto pushes button to the right, works with or without services -->
-        <div class="md:ml-auto" ref="buttonSlotRef">
+        <div ref="buttonSlotRef" class="md:ml-auto">
           <slot name="button" />
         </div>
       </div>

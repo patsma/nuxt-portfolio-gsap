@@ -4,7 +4,7 @@
     :style="{
       marginBottom: spacing,
     }"
-  ></div>
+  />
 </template>
 
 <script setup>
@@ -30,7 +30,7 @@
  * <FullWidthBorder :opacity="10" spacing="var(--space-m)" /> <!-- Custom spacing if needed -->
  */
 
-const props = defineProps({
+defineProps({
   /**
    * Opacity percentage for the border line (0-100)
    * Uses color-mix() to blend theme text color with transparency

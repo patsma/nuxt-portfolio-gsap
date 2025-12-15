@@ -256,8 +256,8 @@ onBeforeUnmount(() => {
   stopSwipe();
 });
 
-// Inline debug object visible in UI
-const debugInfo = computed(() => ({
+// Inline debug object visible in UI (kept for debugging)
+const _debugInfo = computed(() => ({
   currentPath: currentPath.value,
   navIndex: navIndex.value,
   prev: prevProject.value

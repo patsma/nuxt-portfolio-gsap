@@ -51,7 +51,7 @@ const errorInfo = computed(() => ({
 const errorJson = computed(() => {
   try {
     return JSON.stringify(errorInfo.value, null, 2);
-  } catch (e) {
+  } catch {
     return String(errorInfo.value || "");
   }
 });
@@ -94,7 +94,7 @@ const handleCopyError = async () => {
       document.body.removeChild(area);
     }
     copyStatus.value = "Copied";
-  } catch (e) {
+  } catch {
     copyStatus.value = "Copy failed";
   } finally {
     // Cancel any pending reset, then start new timeout using VueUse

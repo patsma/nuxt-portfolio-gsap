@@ -10,7 +10,7 @@
  * this plugin confirms it's still correct before Vue hydrates
  */
 export default defineNuxtPlugin(() => {
-  if (process.client) {
+  if (import.meta.client) {
     // Read theme from localStorage or system preference
     const stored = localStorage.getItem("theme");
     const prefersDark = window.matchMedia(

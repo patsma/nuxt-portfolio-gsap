@@ -16,8 +16,8 @@ export const useThemeStore = defineStore("theme", {
    * Reads from localStorage during client-side hydration
    * Plugin already set HTML class, we just sync the state
    */
-  hydrate(state, initialState) {
-    if (process.client) {
+  hydrate(state) {
+    if (import.meta.client) {
       const stored = localStorage.getItem("theme");
       const prefersDark = window.matchMedia(
         "(prefers-color-scheme: dark)"
@@ -38,7 +38,7 @@ export const useThemeStore = defineStore("theme", {
     toggle() {
       this.isDark = !this.isDark;
 
-      if (process.client) {
+      if (import.meta.client) {
         // Persist to localStorage
         localStorage.setItem("theme", this.isDark ? "dark" : "light");
 
@@ -61,7 +61,7 @@ export const useThemeStore = defineStore("theme", {
     setTheme(isDark) {
       this.isDark = isDark;
 
-      if (process.client) {
+      if (import.meta.client) {
         localStorage.setItem("theme", isDark ? "dark" : "light");
         document.documentElement.classList.toggle("theme-dark", isDark);
       }

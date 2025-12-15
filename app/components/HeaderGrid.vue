@@ -12,7 +12,7 @@
       data-entrance-animate="true"
     >
       <!-- Animated background - reveals from bottom to top when menu opens -->
-      <div ref="backgroundRef" class="header-grid__background"></div>
+      <div ref="backgroundRef" class="header-grid__background"/>
       <div class="content-grid">
         <div class="breakout3 header-grid__inner">
           <!-- Top row: shared row for both desktop and mobile -->
@@ -67,8 +67,8 @@
               <!-- Theme toggle in desktop nav -->
               <ClientOnly>
                 <button
-                  ref="themeToggleDesktopRef"
                   id="themeSwitch"
+                  ref="themeToggleDesktopRef"
                   class="cursor-pointer"
                   aria-label="Toggle theme"
                 >
@@ -107,8 +107,8 @@
               <!-- Mobile: Theme toggle -->
               <ClientOnly>
                 <button
-                  ref="themeToggleMobileRef"
                   id="themeSwitchMobile"
+                  ref="themeToggleMobileRef"
                   class="flex md:hidden cursor-pointer"
                   aria-label="Toggle theme"
                 >
@@ -494,7 +494,7 @@ onMounted(() => {
         menuTl = menuTimeline;
 
         // Add GSDevTools for debugging in development
-        if (process.dev && $GSDevTools) {
+        if (import.meta.dev && $GSDevTools) {
           // $GSDevTools.create({
           //   animation: menuTimeline,
           //   id: "menuTimeline",

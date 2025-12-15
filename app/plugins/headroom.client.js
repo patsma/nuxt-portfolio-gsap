@@ -2,7 +2,7 @@
 // Inspired by headroom.js - hides header on scroll down, shows on scroll up
 // Integrated with ScrollSmoother via onUpdate callback
 export default defineNuxtPlugin((nuxtApp) => {
-  if (!process.client) return;
+  if (!import.meta.client) return;
 
   // Headroom configuration
   const AT_TOP_THRESHOLD = 10; // px to be considered "at top" (triggers full header)

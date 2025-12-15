@@ -10,10 +10,10 @@
       <!-- Page transition OUT only, ScrollTrigger handles IN animation -->
       <h2
         ref="labelRef"
-        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
         v-page-split:lines="{ leaveOnly: true }"
+        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
       >
-        <slot name="label">Awards &<br />Recognition</slot>
+        <slot name="label">Awards &<br >Recognition</slot>
       </h2>
 
       <!-- Awards content wrapper (right column on laptop+) -->
@@ -25,8 +25,8 @@
         <!-- Left column: Awards with counts -->
         <div
           ref="contentLeftRef"
-          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
         >
           <slot name="awards-column" />
         </div>
@@ -34,8 +34,8 @@
         <!-- Right column: Featured mentions -->
         <div
           ref="contentRightRef"
-          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
         >
           <slot name="featured-column" />
         </div>

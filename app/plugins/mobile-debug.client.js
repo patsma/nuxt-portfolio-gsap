@@ -296,7 +296,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Triple-tap anywhere to toggle console
   let tapCount = 0;
   let tapTimeout;
-  document.addEventListener("touchend", (e) => {
+  document.addEventListener("touchend", () => {
     tapCount++;
     clearTimeout(tapTimeout);
 

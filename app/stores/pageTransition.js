@@ -70,7 +70,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Sets up content element reference
      */
     init() {
-      if (!process.client) return;
+      if (!import.meta.client) return;
 
       // Cache #smooth-content element
       this.contentElement = document.getElementById('smooth-content');
@@ -236,7 +236,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
       this.cleanupFns = [];
 
       // Ensure route-changing class is removed
-      if (process.client) {
+      if (import.meta.client) {
         document.documentElement.classList.remove('route-changing');
       }
     },
@@ -250,7 +250,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
       this.reset();
 
       // Also update content element reference
-      if (process.client) {
+      if (import.meta.client) {
         this.contentElement = document.getElementById('smooth-content');
       }
     },

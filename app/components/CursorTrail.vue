@@ -25,7 +25,7 @@ let gsapCtx = null;
  * @returns {string} RGBA color string
  */
 function getCursorColor() {
-  if (!process.client) return "rgba(9, 9, 37, 0.8)";
+  if (!import.meta.client) return "rgba(9, 9, 37, 0.8)";
 
   const html = document.documentElement;
   const themeColor = getComputedStyle(html)
@@ -89,7 +89,7 @@ onMounted(() => {
       let mouseMoved = false;
 
       // Mouse position tracking
-      let mouse = {
+      const mouse = {
         x: 0.5 * window.innerWidth, // Current position
         y: 0.5 * window.innerHeight,
         tX: 0, // Target position X
@@ -97,7 +97,7 @@ onMounted(() => {
       };
 
       // Trail parameters - adjust these to customize the effect
-      let params = {
+      const params = {
         pointsNumber: 40, // Number of trail points (more = longer trail)
         widthFactor: 0.45, // Trail width multiplier
         mouseThreshold: 0.6, // Mouse smoothing (lower = smoother)

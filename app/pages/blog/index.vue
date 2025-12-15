@@ -70,17 +70,17 @@ const formatDate = (iso) => {
           class="parallax-element parallax-element--1"
           data-speed="0.3"
           data-lag="0.2"
-        ></div>
+        />
         <div
           class="parallax-element parallax-element--2"
           data-speed="0.5"
           data-lag="0.15"
-        ></div>
+        />
         <div
           class="parallax-element parallax-element--3"
           data-speed="0.2"
           data-lag="0.25"
-        ></div>
+        />
       </div>
 
       <div class="blog-container">
@@ -111,7 +111,7 @@ const formatDate = (iso) => {
 
         <!-- Loading & Error States -->
         <div v-if="status === 'pending'" class="blog-loading">
-          <div class="loading-spinner"></div>
+          <div class="loading-spinner"/>
           <p>Crafting pixels...</p>
         </div>
         <div v-else-if="error" class="blog-error">
@@ -168,7 +168,7 @@ const formatDate = (iso) => {
                     </div>
                   </div>
                 </div>
-                <div class="blog-card__glow"></div>
+                <div class="blog-card__glow"/>
               </NuxtLink>
             </article>
           </div>

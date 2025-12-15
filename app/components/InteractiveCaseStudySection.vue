@@ -7,22 +7,22 @@
   >
     <h2
       ref="titleRef"
-      class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
       v-page-split:lines="{ leaveOnly: true }"
+      class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
     >
       <slot name="title">Work</slot>
     </h2>
 
     <div
       ref="itemsListRef"
-      class="case-study-list full-width-content"
       v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+      class="case-study-list full-width-content"
     >
       <slot />
     </div>
 
     <!-- Teleport to body for scroll support, visibility with smooth fade transition -->
-    <Teleport to="body" v-if="previewMounted">
+    <Teleport v-if="previewMounted" to="body">
       <Transition name="preview-fade">
         <div
           v-show="showPreview"
@@ -133,7 +133,7 @@ const {
   nextImage,
   showPreview,
   previewMounted,
-  currentImageActive,
+  currentImageActive: _currentImageActive,
   currentAspectRatio,
   setActivePreview: setActivePreviewComposable,
   clearActivePreview: clearActivePreviewComposable,
@@ -182,7 +182,7 @@ const handleMouseMove = (event) => {
  * Allows clip animation to complete before route change (350ms)
  */
 let pendingNavigation = null;
-const { start: startNavigationDelay, stop: cancelNavigationDelay } =
+const { start: startNavigationDelay, stop: _cancelNavigationDelay } =
   useTimeoutFn(
     () => {
       if (pendingNavigation) {

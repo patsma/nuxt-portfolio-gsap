@@ -487,7 +487,7 @@
       </section>
 
       <!-- Scroll testing spacers -->
-      <div class="h-[60vh]"></div>
+      <div class="h-[60vh]"/>
 
       <div
         v-page-clip:top
@@ -503,7 +503,7 @@
         </p>
       </div>
 
-      <div class="h-[60vh]"></div>
+      <div class="h-[60vh]"/>
     </div>
   </div>
 </template>

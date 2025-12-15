@@ -140,7 +140,7 @@ export const useLoadingStore = defineStore("loading", {
         this.status = "ready";
         this.readyTime = Date.now();
 
-        const duration = this.loadingDuration;
+        // const duration = this.loadingDuration;
         // console.log(`✅ All resources loaded! Took ${duration}ms`);
         // console.log(`ℹ️  Waiting for minimum display time before showing content...`);
 

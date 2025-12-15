@@ -128,7 +128,7 @@ export const calculatePreviewPosition = ({
  */
 export const validateElements = (elements) => {
   const missing = Object.entries(elements)
-    .filter(([_, el]) => !el)
+    .filter(([, el]) => !el)
     .map(([name]) => name);
 
   return {

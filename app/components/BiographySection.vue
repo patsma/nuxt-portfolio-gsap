@@ -10,8 +10,8 @@
       <!-- Page transition OUT only, ScrollTrigger handles IN animation -->
       <h2
         ref="labelRef"
-        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
         v-page-split:lines="{ leaveOnly: true }"
+        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
       >
         <slot name="label">Biography</slot>
       </h2>
@@ -20,8 +20,8 @@
       <!-- Page transition OUT only, ScrollTrigger handles IN animation -->
       <div
         ref="contentRef"
-        class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2"
         v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+        class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2"
       >
         <slot />
       </div>

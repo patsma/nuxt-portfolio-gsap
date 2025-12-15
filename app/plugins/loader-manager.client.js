@@ -25,7 +25,7 @@
  */
 
 export default defineNuxtPlugin(() => {
-  if (process.client) {
+  if (import.meta.client) {
     // CRITICAL: Reset scroll position immediately
     // Prevents ~20px offset issue caused by early scroll state
     window.scrollTo(0, 0);
@@ -60,7 +60,7 @@ export default defineNuxtPlugin(() => {
     /**
      * Handle app:ready event from loading sequence
      */
-    const handleAppReady = (event) => {
+    const handleAppReady = () => {
       // console.log('🚀 App ready event received:', event.detail);
 
       // Double RAF ensures Safari has painted DOM before we manipulate it

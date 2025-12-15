@@ -35,7 +35,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
     </HeroSection>
 
     <!-- Spacer -->
-    <div class="h-[30vh]"></div>
+    <div class="h-[30vh]"/>
 
     <!-- Parallax Tests -->
     <div class="content-grid">
@@ -57,13 +57,13 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
                 data-speed="auto"
                 class="parallax-media"
                 alt="Parallax test image"
-              />
+              >
             </div>
           </div>
         </section>
 
         <!-- Spacer -->
-        <div class="h-[40vh]"></div>
+        <div class="h-[40vh]"/>
 
         <!-- Video Parallax -->
         <section class="grid gap-[var(--space-l)]">
@@ -91,7 +91,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         </section>
 
         <!-- Spacer -->
-        <div class="h-[50vh]"></div>
+        <div class="h-[50vh]"/>
       </div>
     </div>
   </div>

@@ -18,11 +18,11 @@
 
 <script setup>
 // Standard GSAP & tools from Nuxt app
+import { scopeSvgDefsIds } from "/utils/scopeSvgIds";
 const { $gsap } = useNuxtApp();
 const { $GSDevTools } = useNuxtApp();
 const { $ScrollTrigger } = useNuxtApp();
 const { $CustomBounce } = useNuxtApp();
-import { scopeSvgDefsIds } from "/utils/scopeSvgIds";
 
 // Core refs for the component container and inner logo area
 const containerRef = ref(null);
@@ -134,13 +134,13 @@ const createAnimation = () => {
   const stripeBlue = qs("#stripe-blue");
   const stripeRed = qs("#stripe-red");
   const stripeWhite = qs("#stripe-white");
-  const zaksa = qs("#text-zaksa");
+  const _zaksa = qs("#text-zaksa");
   const legL = qs("#leg-l");
-  const legR = qs("#leg-r");
+  const _legR = qs("#leg-r");
   const handL = qs("#hand-l");
   const handR = qs("#hand-r");
-  const torso = qs("#torso");
-  const head = qs("#head");
+  const _torso = qs("#torso");
+  const _head = qs("#head");
   const shineRect = qs("#shine rect");
 
   // Initial state: reveal container (legacy used visibility hidden on .logo-animation)
@@ -340,13 +340,13 @@ onUnmounted(() => {
   if (scrollTriggerInstance) {
     try {
       scrollTriggerInstance.kill();
-    } catch (e) {}
+    } catch { /* ignore */ }
     scrollTriggerInstance = null;
   }
   if (props.showDevTools) {
     try {
       $GSDevTools.getById?.(props.devToolsId)?.kill();
-    } catch (e) {}
+    } catch { /* ignore */ }
   }
 });
 

@@ -2,15 +2,6 @@
 export default function useThemeSwitch() {
   const { $gsap, $MorphSVGPlugin } = useNuxtApp();
 
-  // Function to toggle the GSAP timeline
-  function toggleTimeline(timeline) {
-    if (timeline.reversed()) {
-      timeline.play();
-    } else {
-      timeline.reverse();
-    }
-  }
-
   // Helper to parse rgba() or hex string to RGB object
   const parseColor = (colorString) => {
     // Try rgba() format first
@@ -68,7 +59,6 @@ export default function useThemeSwitch() {
     }
 
     const sunDark = svgRoot.querySelector('[id$="-sun-dark"]');
-    const sunLight = svgRoot.querySelector('[id$="-sun-light"]');
     const sunLightBeams = svgRoot.querySelectorAll(
       '[id$="-sun-light-beams"] path'
     );

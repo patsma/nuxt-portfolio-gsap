@@ -6,8 +6,8 @@
     <!-- Experience list container - full-width-content for nested sub-grid -->
     <div
       ref="listRef"
-      class="experience-list full-width-content flex flex-col"
       v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+      class="experience-list full-width-content flex flex-col"
     >
       <!-- Experience items slot -->
       <slot />

@@ -6,8 +6,8 @@
     <!-- Recommendations label -->
     <h2
       ref="labelRef"
-      class="breakout3 ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] mb-[var(--space-m)] md:mb-[var(--space-l)]"
       v-page-split:lines="{ leaveOnly: true }"
+      class="breakout3 ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] mb-[var(--space-m)] md:mb-[var(--space-l)]"
     >
       <slot name="label">Recommendations</slot>
     </h2>
@@ -15,8 +15,8 @@
     <!-- Recommendations list container -->
     <div
       ref="listRef"
-      class="recommendations-list full-width-content flex flex-col"
       v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+      class="recommendations-list full-width-content flex flex-col"
     >
       <!-- Recommendation items slot -->
       <slot />

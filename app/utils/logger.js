@@ -148,10 +148,11 @@ export const createPreviewLogger = () => {
         case 'loading':
           console.log(formatLog('PRELOAD', '⏳', `Loading: ${filename}`));
           break;
-        case 'cached':
+        case 'cached': {
           const durationStr = duration ? ` (${duration}ms)` : '';
           console.log(formatLog('PRELOAD', '✓', `Cached: ${filename}${durationStr}`));
           break;
+        }
         case 'failed':
           console.error(formatLog('PRELOAD', '❌', `Failed: ${filename}`));
           break;
@@ -187,7 +188,7 @@ export const createPreviewLogger = () => {
       if (currentLogLevel > LogLevel.DEBUG) return;
 
       const missing = Object.entries(refs)
-        .filter(([_, exists]) => !exists)
+        .filter(([, exists]) => !exists)
         .map(([name]) => name);
 
       if (missing.length > 0) {
