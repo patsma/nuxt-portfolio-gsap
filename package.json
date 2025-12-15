@@ -25,7 +25,7 @@
     "@vueuse/nuxt": "^14.0.0",
     "better-sqlite3": "^12.2.0",
     "eslint": "^9.31.0",
-    "nuxt": "^4.1.2",
+    "nuxt": "^4.2.2",
     "nuxt-mcp": "^0.2.4",
     "pinia": "^3.0.3",
     "three": "^0.180.0",
