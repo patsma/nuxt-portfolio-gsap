@@ -2,7 +2,7 @@
  * Pinia store for managing animated title rotation
  * Cycles through professional titles with GSAP character animations
  */
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 export const useTitleRotationStore = defineStore('titleRotation', {
   state: () => ({
@@ -23,7 +23,7 @@ export const useTitleRotationStore = defineStore('titleRotation', {
      * Current index in the textArray
      * @type {number}
      */
-    currentIndex: 0,
+    currentIndex: 0
   }),
 
   getters: {
@@ -32,7 +32,7 @@ export const useTitleRotationStore = defineStore('titleRotation', {
      * @param {Object} state - Store state
      * @returns {string} Current title text
      */
-    currentText: (state) => state.textArray[state.currentIndex]
+    currentText: state => state.textArray[state.currentIndex]
   },
 
   actions: {
@@ -41,7 +41,7 @@ export const useTitleRotationStore = defineStore('titleRotation', {
      * Loops back to start when reaching the end
      */
     updateText() {
-      this.currentIndex = (this.currentIndex + 1) % this.textArray.length;
+      this.currentIndex = (this.currentIndex + 1) % this.textArray.length
     }
   }
-});
+})

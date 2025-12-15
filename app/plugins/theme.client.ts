@@ -12,18 +12,18 @@
 export default defineNuxtPlugin(() => {
   if (import.meta.client) {
     // Read theme from localStorage or system preference
-    const stored = localStorage.getItem("theme");
+    const stored = localStorage.getItem('theme')
     const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    const isDark = stored ? stored === "dark" : prefersDark;
+      '(prefers-color-scheme: dark)'
+    ).matches
+    const isDark = stored ? stored === 'dark' : prefersDark
 
     // Confirm HTML class is correct (blocking script should have already set it)
     // Using toggle() ensures class is added if dark, removed if light
-    document.documentElement.classList.toggle("theme-dark", isDark);
+    document.documentElement.classList.toggle('theme-dark', isDark)
 
     // Debug logging
     // console.log('🎨 [Nuxt Plugin] Theme confirmed:', isDark ? 'DARK' : 'LIGHT',
     //   '| HTML class:', document.documentElement.classList.contains('theme-dark') ? 'theme-dark' : 'none');
   }
-});
+})

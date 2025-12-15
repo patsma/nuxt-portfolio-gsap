@@ -105,9 +105,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-fade:up</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-fade:up</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Fades in from below with 40px distance
@@ -122,9 +120,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-fade:down</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-fade:down</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Fades in from above with 30px distance
@@ -139,9 +135,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-fade:left</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-fade:left</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Fades in from right with 50px and custom duration
@@ -156,9 +150,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-fade:right</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-fade:right</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Fades in from left with 50px and custom duration
@@ -185,9 +177,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-clip:top</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-clip:top</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Reveals from top with clip-path animation
@@ -203,9 +193,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-clip:bottom</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-clip:bottom</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Reveals from bottom with clip-path + lag effect
@@ -220,9 +208,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-clip:left</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-clip:left</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Reveals from left with default settings
@@ -238,9 +224,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-2xs)]"
             >
-              <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                >v-page-clip:right</code
-              >
+              <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-clip:right</code>
             </p>
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Reveals from right with lag effect
@@ -264,9 +248,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-s)]"
             >
-              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-                >v-page-stagger</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">v-page-stagger</code>
               on list - default stagger
             </p>
             <ul
@@ -294,9 +276,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-s)]"
             >
-              <code class="px-1 py-0.5 bg-[var(--theme-15)} rounded text-sm"
-                >v-page-stagger="{ stagger: 0.05 }"</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)} rounded text-sm">v-page-stagger="{ stagger: 0.05 }"</code>
               - fast stagger
             </p>
             <ol
@@ -324,9 +304,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-s)]"
             >
-              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-                >v-page-stagger</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">v-page-stagger</code>
               on grid of cards
             </p>
             <div
@@ -375,9 +353,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-s)]"
             >
-              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-                >data-speed</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">data-speed</code>
               - Controls scroll movement speed
             </p>
             <div class="grid gap-[var(--space-s)]">
@@ -386,9 +362,7 @@
                 class="p-[var(--space-s)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)]"
               >
                 <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
-                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                    >data-speed="0.5"</code
-                  >
+                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-speed="0.5"</code>
                   - Slower (background effect)
                 </p>
               </div>
@@ -397,9 +371,7 @@
                 class="p-[var(--space-s)] bg-[var(--theme-15)] rounded-lg border border-[var(--theme-text-15)]"
               >
                 <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
-                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                    >data-speed="1.0"</code
-                  >
+                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-speed="1.0"</code>
                   - Normal speed
                 </p>
               </div>
@@ -408,9 +380,7 @@
                 class="p-[var(--space-s)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)]"
               >
                 <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
-                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                    >data-speed="1.5"</code
-                  >
+                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-speed="1.5"</code>
                   - Faster (foreground effect)
                 </p>
               </div>
@@ -422,9 +392,7 @@
             <p
               class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] mb-[var(--space-s)]"
             >
-              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-                >data-lag</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">data-lag</code>
               - Smooth "catch up" trailing effect
             </p>
             <div class="grid gap-[var(--space-s)]">
@@ -433,9 +401,7 @@
                 class="p-[var(--space-s)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)]"
               >
                 <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
-                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                    >data-lag="0.1"</code
-                  >
+                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-lag="0.1"</code>
                   - Subtle trailing
                 </p>
               </div>
@@ -444,9 +410,7 @@
                 class="p-[var(--space-s)] bg-[var(--theme-15)] rounded-lg border border-[var(--theme-text-15)]"
               >
                 <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
-                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                    >data-lag="0.25"</code
-                  >
+                  <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-lag="0.25"</code>
                   - More noticeable lag
                 </p>
               </div>
@@ -468,17 +432,11 @@
             >
               <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
                 This element combines
-                <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                  >v-page-fade:up</code
-                >
+                <code class="px-1 bg-[var(--theme-30)] rounded text-xs">v-page-fade:up</code>
                 with
-                <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                  >data-speed="0.8"</code
-                >
+                <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-speed="0.8"</code>
                 and
-                <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                  >data-lag="0.2"</code
-                >
+                <code class="px-1 bg-[var(--theme-30)] rounded text-xs">data-lag="0.2"</code>
                 for page transitions + scroll parallax + lag trailing
               </p>
             </div>
@@ -487,7 +445,7 @@
       </section>
 
       <!-- Scroll testing spacers -->
-      <div class="h-[60vh]"/>
+      <div class="h-[60vh]" />
 
       <div
         v-page-clip:top
@@ -503,7 +461,7 @@
         </p>
       </div>
 
-      <div class="h-[60vh]"/>
+      <div class="h-[60vh]" />
     </div>
   </div>
 </template>
@@ -511,6 +469,6 @@
 <script setup>
 // No script needed - all interactions handled by directives and ScrollSmoother
 defineOptions({
-  name: "PageTransitionsDemo",
-});
+  name: 'PageTransitionsDemo'
+})
 </script>

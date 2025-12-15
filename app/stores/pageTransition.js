@@ -1,5 +1,5 @@
 // ~/stores/pageTransition.js
-import { defineStore } from 'pinia';
+import { defineStore } from 'pinia'
 
 /**
  * Page Transition Store - Clean state management for transitions
@@ -44,24 +44,24 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Cleanup functions for event listeners
      * @type {Array<Function>}
      */
-    cleanupFns: [],
+    cleanupFns: []
   }),
 
   getters: {
     /**
      * Whether in fading out state
      */
-    isFadingOut: (state) => state.state === 'fading-out',
+    isFadingOut: state => state.state === 'fading-out',
 
     /**
      * Whether in fading in state
      */
-    isFadingIn: (state) => state.state === 'fading-in',
+    isFadingIn: state => state.state === 'fading-in',
 
     /**
      * Whether safe to kill ScrollSmoother (after fade out)
      */
-    canKillSmoother: (state) => state.state === 'swapping',
+    canKillSmoother: state => state.state === 'swapping'
   },
 
   actions: {
@@ -70,16 +70,16 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Sets up content element reference
      */
     init() {
-      if (!import.meta.client) return;
+      if (!import.meta.client) return
 
       // Cache #smooth-content element
-      this.contentElement = document.getElementById('smooth-content');
+      this.contentElement = document.getElementById('smooth-content')
 
       if (!this.contentElement) {
-        console.warn('[PageTransition] #smooth-content not found');
+        console.warn('[PageTransition] #smooth-content not found')
       }
 
-      console.log('[PageTransition] Store initialized');
+      console.log('[PageTransition] Store initialized')
     },
 
     /**
@@ -91,24 +91,24 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      */
     async startFadeOut() {
       if (this.isTransitioning) {
-        console.warn('[PageTransition] Already transitioning, ignoring startFadeOut');
-        return;
+        console.warn('[PageTransition] Already transitioning, ignoring startFadeOut')
+        return
       }
 
-      console.log('[PageTransition] Starting fade out');
+      console.log('[PageTransition] Starting fade out')
 
-      this.isTransitioning = true;
-      this.state = 'fading-out';
+      this.isTransitioning = true
+      this.state = 'fading-out'
 
       // Add route-changing class to trigger CSS fade out
-      document.documentElement.classList.add('route-changing');
+      document.documentElement.classList.add('route-changing')
 
       // Wait for CSS transition to complete
       return new Promise((resolve) => {
         if (!this.contentElement) {
-          console.warn('[PageTransition] No content element, resolving immediately');
-          resolve();
-          return;
+          console.warn('[PageTransition] No content element, resolving immediately')
+          resolve()
+          return
         }
 
         /**
@@ -118,38 +118,38 @@ export const usePageTransitionStore = defineStore('pageTransition', {
         const handleTransitionEnd = (event) => {
           // Only listen to opacity transitions on the content element
           if (
-            event.target === this.contentElement &&
-            event.propertyName === 'opacity'
+            event.target === this.contentElement
+            && event.propertyName === 'opacity'
           ) {
-            console.log('[PageTransition] Fade out complete');
+            console.log('[PageTransition] Fade out complete')
 
             // Move to swapping state
-            this.state = 'swapping';
+            this.state = 'swapping'
 
             // Clean up listener
-            this.contentElement.removeEventListener('transitionend', handleTransitionEnd);
+            this.contentElement.removeEventListener('transitionend', handleTransitionEnd)
 
-            resolve();
+            resolve()
           }
-        };
+        }
 
         // Listen for transitionend
-        this.contentElement.addEventListener('transitionend', handleTransitionEnd);
+        this.contentElement.addEventListener('transitionend', handleTransitionEnd)
 
         // Fallback timeout in case transitionend doesn't fire
         const fallbackTimeout = setTimeout(() => {
-          console.warn('[PageTransition] Fade out transitionend timeout, forcing resolve');
-          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd);
-          this.state = 'swapping';
-          resolve();
-        }, 1000); // 800ms transition + 200ms buffer
+          console.warn('[PageTransition] Fade out transitionend timeout, forcing resolve')
+          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
+          this.state = 'swapping'
+          resolve()
+        }, 1000) // 800ms transition + 200ms buffer
 
         // Track cleanup
         this.cleanupFns.push(() => {
-          clearTimeout(fallbackTimeout);
-          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd);
-        });
-      });
+          clearTimeout(fallbackTimeout)
+          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
+        })
+      })
     },
 
     /**
@@ -161,24 +161,24 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      */
     async startFadeIn() {
       if (this.state !== 'swapping') {
-        console.warn('[PageTransition] Not in swapping state, ignoring startFadeIn');
-        return;
+        console.warn('[PageTransition] Not in swapping state, ignoring startFadeIn')
+        return
       }
 
-      console.log('[PageTransition] Starting fade in');
+      console.log('[PageTransition] Starting fade in')
 
-      this.state = 'fading-in';
+      this.state = 'fading-in'
 
       // Remove route-changing class to trigger CSS fade in
-      document.documentElement.classList.remove('route-changing');
+      document.documentElement.classList.remove('route-changing')
 
       // Wait for CSS transition to complete
       return new Promise((resolve) => {
         if (!this.contentElement) {
-          console.warn('[PageTransition] No content element, resolving immediately');
-          this.reset();
-          resolve();
-          return;
+          console.warn('[PageTransition] No content element, resolving immediately')
+          this.reset()
+          resolve()
+          return
         }
 
         /**
@@ -188,56 +188,56 @@ export const usePageTransitionStore = defineStore('pageTransition', {
         const handleTransitionEnd = (event) => {
           // Only listen to opacity transitions on the content element
           if (
-            event.target === this.contentElement &&
-            event.propertyName === 'opacity'
+            event.target === this.contentElement
+            && event.propertyName === 'opacity'
           ) {
-            console.log('[PageTransition] Fade in complete');
+            console.log('[PageTransition] Fade in complete')
 
             // Clean up listener
-            this.contentElement.removeEventListener('transitionend', handleTransitionEnd);
+            this.contentElement.removeEventListener('transitionend', handleTransitionEnd)
 
             // Reset to idle state
-            this.reset();
+            this.reset()
 
-            resolve();
+            resolve()
           }
-        };
+        }
 
         // Listen for transitionend
-        this.contentElement.addEventListener('transitionend', handleTransitionEnd);
+        this.contentElement.addEventListener('transitionend', handleTransitionEnd)
 
         // Fallback timeout
         const fallbackTimeout = setTimeout(() => {
-          console.warn('[PageTransition] Fade in transitionend timeout, forcing resolve');
-          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd);
-          this.reset();
-          resolve();
-        }, 1000);
+          console.warn('[PageTransition] Fade in transitionend timeout, forcing resolve')
+          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
+          this.reset()
+          resolve()
+        }, 1000)
 
         // Track cleanup
         this.cleanupFns.push(() => {
-          clearTimeout(fallbackTimeout);
-          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd);
-        });
-      });
+          clearTimeout(fallbackTimeout)
+          this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
+        })
+      })
     },
 
     /**
      * Reset transition state to idle
      */
     reset() {
-      console.log('[PageTransition] Reset to idle');
+      console.log('[PageTransition] Reset to idle')
 
-      this.state = 'idle';
-      this.isTransitioning = false;
+      this.state = 'idle'
+      this.isTransitioning = false
 
       // Clean up any remaining listeners/timeouts
-      this.cleanupFns.forEach((fn) => fn());
-      this.cleanupFns = [];
+      this.cleanupFns.forEach(fn => fn())
+      this.cleanupFns = []
 
       // Ensure route-changing class is removed
       if (import.meta.client) {
-        document.documentElement.classList.remove('route-changing');
+        document.documentElement.classList.remove('route-changing')
       }
     },
 
@@ -246,13 +246,13 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Called on errors or when transition gets stuck
      */
     forceReset() {
-      console.warn('[PageTransition] Force reset');
-      this.reset();
+      console.warn('[PageTransition] Force reset')
+      this.reset()
 
       // Also update content element reference
       if (import.meta.client) {
-        this.contentElement = document.getElementById('smooth-content');
+        this.contentElement = document.getElementById('smooth-content')
       }
-    },
-  },
-});
+    }
+  }
+})

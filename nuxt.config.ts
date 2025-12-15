@@ -1,22 +1,24 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite'
+
 export default defineNuxtConfig({
-  compatibilityDate: "2025-07-15",
+
+  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt'],
+
+  components: [
+    { path: '~/components', pathPrefix: false },
+    { path: '~/components/SVG', pathPrefix: false }
+  ],
   devtools: { enabled: true },
-  runtimeConfig: {
-    public: {
-      siteUrl: "https://mortenchristensen.com",
-    },
-  },
 
   app: {
-    pageTransition: { name: "page", mode: "out-in" },
+    pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: false, // No layout transitions needed
 
     head: {
-      title: "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
-      titleTemplate: "%s · Morten Christensen",
-      htmlAttrs: { lang: "en" },
+      title: 'Morten – Danish Designer in Tokyo | UX, UI & Digital Design',
+      titleTemplate: '%s · Morten Christensen',
+      htmlAttrs: { lang: 'en' },
 
       // Inject loader CSS that renders immediately (works in SSR dev mode)
       style: [
@@ -86,114 +88,129 @@ export default defineNuxtConfig({
             #__nuxt.loaded {
               opacity: 1;
             }
-          `,
-        },
+          `
+        }
       ],
 
       meta: [
-        { charset: "utf-8" },
-        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
-          name: "description",
+          name: 'description',
           content:
-            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
+            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
         },
         // Open Graph Basics
-        { property: "og:type", content: "website" },
-        { property: "og:site_name", content: "Morten Christensen" },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Morten Christensen' },
         {
-          property: "og:title",
+          property: 'og:title',
           content:
-            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
+            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
         },
         {
-          property: "og:description",
+          property: 'og:description',
           content:
-            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
+            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
         },
         // Absolute URLs are required by some scrapers (e.g., Facebook)
         {
-          property: "og:url",
-          content: "https://mortenchristensen.com",
+          property: 'og:url',
+          content: 'https://mortenchristensen.com'
         },
         {
-          property: "og:image",
-          content: "https://mortenchristensen.com/og.jpg",
+          property: 'og:image',
+          content: 'https://mortenchristensen.com/og.jpg'
         },
         {
-          property: "og:image:secure_url",
-          content: "https://mortenchristensen.com/og.jpg",
+          property: 'og:image:secure_url',
+          content: 'https://mortenchristensen.com/og.jpg'
         },
         {
-          property: "og:image:alt",
+          property: 'og:image:alt',
           content:
-            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
+            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
         },
-        { property: "og:image:type", content: "image/png" },
-        { property: "og:image:width", content: "1200" },
-        { property: "og:image:height", content: "630" },
+        { property: 'og:image:type', content: 'image/png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
         // Twitter Card
-        { name: "twitter:card", content: "summary_large_image" },
+        { name: 'twitter:card', content: 'summary_large_image' },
         {
-          name: "twitter:title",
+          name: 'twitter:title',
           content:
-            "Morten – Danish Designer in Tokyo | UX, UI & Digital Design",
+            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
         },
         {
-          name: "twitter:description",
+          name: 'twitter:description',
           content:
-            "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.",
+            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
         },
         {
-          name: "twitter:image",
-          content: "https://mortenchristensen.com/og.jpg",
-        },
+          name: 'twitter:image',
+          content: 'https://mortenchristensen.com/og.jpg'
+        }
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-    },
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    }
   },
 
-  components: [
-    { path: "~/components", pathPrefix: false },
-    { path: "~/components/SVG", pathPrefix: false },
-  ],
-
   // Tailwind v4 + global SCSS. Order matters: Tailwind first, then custom SCSS.
-  css: ["./app/assets/css/main.css"],
+  css: ['./app/assets/css/main.css'],
+  runtimeConfig: {
+    public: {
+      siteUrl: 'https://mortenchristensen.com'
+    }
+  },
 
-  modules: ["@nuxt/fonts", "@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@hypernym/nuxt-gsap", "@pinia/nuxt", "@nuxt/content", "@maz-ui/nuxt", "nuxt-mcp", "@tresjs/nuxt", "@vueuse/nuxt"],
+  sourcemap: {
+    client: 'hidden'
+  },
+  compatibilityDate: '2025-07-15',
+
+  // Enable TailwindCSS v4 via Vite plugin
+  vite: {
+    plugins: [tailwindcss()]
+  },
+
+  // ESLint configuration - enable stylistic formatting
+  eslint: {
+    config: {
+      stylistic: {
+        indent: 2,
+        quotes: 'single',
+        semi: false,
+        commaDangle: 'never'
+      }
+    }
+  },
 
   // Nuxt Fonts configuration (provider-based)
   fonts: {
     // Global defaults applied when resolving families automatically from CSS
     defaults: {
-      weights: ["300", "400", "600"],
-      styles: ["normal"],
+      weights: ['300', '400', '600'],
+      styles: ['normal'],
       preload: true,
-      subsets: ["latin", "latin-ext"],
+      subsets: ['latin', 'latin-ext']
     },
     // Explicitly define families
     families: [
       {
-        name: "PP Eiko",
-        provider: "local",
-        weights: ["100", "300", "400", "500", "800", "900"],
-        styles: ["normal", "italic"],
-        global: true,
+        name: 'PP Eiko',
+        provider: 'local',
+        weights: ['100', '300', '400', '500', '800', '900'],
+        styles: ['normal', 'italic'],
+        global: true
       },
       {
-        name: "IBM Plex Sans JP",
-        provider: "local",
-        weights: ["100", "200", "300", "400", "500", "600", "700"],
-        styles: ["normal"],
-        global: true,
-      },
-    ],
-  },
-
-  // Enable TailwindCSS v4 via Vite plugin
-  vite: {
-    plugins: [tailwindcss()],
+        name: 'IBM Plex Sans JP',
+        provider: 'local',
+        weights: ['100', '200', '300', '400', '500', '600', '700'],
+        styles: ['normal'],
+        global: true
+      }
+    ]
   },
 
   gsap: {
@@ -205,20 +222,16 @@ export default defineNuxtConfig({
       customWiggle: true,
       splitText: true,
       gsDevTools: true,
-      scrollSmoother: true,
+      scrollSmoother: true
     },
     extraPlugins: {
       observer: true,
       flip: true,
       scrollTrigger: true,
-      motionPath: true,
+      motionPath: true
     },
     extraEases: {
-      custom: true,
-    },
-  },
-
-  sourcemap: {
-    client: "hidden",
-  },
-});
+      custom: true
+    }
+  }
+})

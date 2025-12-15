@@ -24,7 +24,10 @@
         </header>
 
         <!-- Links & Icons -->
-        <section ref="linksSection" class="mb-[var(--space-2xl)]">
+        <section
+          ref="linksSection"
+          class="mb-[var(--space-2xl)]"
+        >
           <h2
             class="pp-eiko-desktop-h2 text-[var(--theme-text-100)] mb-[var(--space-m)]"
           >
@@ -47,7 +50,10 @@
                   class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)] flex items-center gap-[var(--space-2xs)]"
                   :data-active="false"
                 >
-                  <Icon :name="item.icon" class="icon icon-base" />
+                  <Icon
+                    :name="item.icon"
+                    class="icon icon-base"
+                  />
                   {{ item.label }}
                 </a>
               </nav>
@@ -71,15 +77,13 @@
                   href="#"
                   class="text-link nav-link text-[var(--theme-text-100)]"
                   :data-active="false"
-                  >inline hyperlinks</a
-                >
+                >inline hyperlinks</a>
                 that fade smoothly on hover. Notice how
                 <a
                   href="#"
                   class="text-link nav-link text-[var(--theme-text-100)]"
                   :data-active="false"
-                  >multiple links</a
-                >
+                >multiple links</a>
                 work seamlessly with the theme toggle at 600ms and hover at
                 300ms.
               </p>
@@ -97,7 +101,10 @@
                   class="nav-link text-[var(--theme-text-100)] px-[var(--space-s)] py-[var(--space-xs)] bg-[var(--theme-15)] rounded-md ibm-plex-sans-jp-mobile-button flex items-center gap-[var(--space-xs)]"
                   :data-active="false"
                 >
-                  <Icon name="heroicons:play-20-solid" class="icon icon-base" />
+                  <Icon
+                    name="heroicons:play-20-solid"
+                    class="icon icon-base"
+                  />
                   Play
                 </button>
                 <button
@@ -205,9 +212,7 @@
                 class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)] mb-[var(--space-s)]"
               >
                 Uses
-                <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm"
-                  >clamp()</code
-                >
+                <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm">clamp()</code>
                 for fluid typography that scales from
                 <strong><em>mobile to desktop</em></strong> seamlessly.
               </p>
@@ -244,23 +249,19 @@
                 href="/dev/typography"
                 class="text-link nav-link text-[var(--theme-text-100)]"
                 :data-active="false"
-                >See all typography styles</a
-              >
+              >See all typography styles</a>
               in the dedicated showcase page.
             </p>
 
             <p class="ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]">
               Standard paragraph with
-              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-                >inline code</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">inline code</code>
               styling. Notice how
               <a
                 href="#"
                 class="text-link nav-link text-[var(--theme-text-100)]"
                 :data-active="false"
-                >hyperlinks</a
-              >
+              >hyperlinks</a>
               smoothly fade to 50% opacity on hover using GSAP, perfectly synced
               with theme transitions.
             </p>
@@ -299,9 +300,7 @@
                   class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)]"
                 >
                   Use
-                  <code class="px-1 bg-[var(--theme-15)] rounded text-xs"
-                    >icon-60</code
-                  >
+                  <code class="px-1 bg-[var(--theme-15)] rounded text-xs">icon-60</code>
                   for 60% opacity icons
                 </p>
               </div>
@@ -316,19 +315,19 @@
 <script setup lang="js">
 // Navigation items with icons for testing
 const navItems = [
-  { label: "Home", href: "/", icon: "heroicons:home-20-solid" },
+  { label: 'Home', href: '/', icon: 'heroicons:home-20-solid' },
   {
-    label: "Typography",
-    href: "/dev/typography",
-    icon: "heroicons:document-text-20-solid",
+    label: 'Typography',
+    href: '/dev/typography',
+    icon: 'heroicons:document-text-20-solid'
   },
-  { label: "Colors", href: "/dev/colors", icon: "heroicons:swatch-20-solid" },
+  { label: 'Colors', href: '/dev/colors', icon: 'heroicons:swatch-20-solid' },
   {
-    label: "Icons",
-    href: "/dev/typography-test",
-    icon: "heroicons:sparkles-20-solid",
-  },
-];
+    label: 'Icons',
+    href: '/dev/typography-test',
+    icon: 'heroicons:sparkles-20-solid'
+  }
+]
 
 // Nav link hover effects are now handled by CSS (see base.scss)
 // No GSAP setup needed - browser-native :hover is simpler and more performant

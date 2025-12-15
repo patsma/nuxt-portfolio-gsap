@@ -1,5 +1,8 @@
 <template>
-  <div ref="containerRef" class="play-button grid place-items-center">
+  <div
+    ref="containerRef"
+    class="play-button grid place-items-center"
+  >
     <svg
       width="80"
       height="80"
@@ -56,10 +59,10 @@
  * <CursorPlaySVG />
  */
 
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 // Ref
-const containerRef = ref(null);
+const containerRef = ref(null)
 </script>
 
 <style scoped>

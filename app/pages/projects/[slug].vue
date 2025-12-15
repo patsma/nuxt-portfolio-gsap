@@ -1,120 +1,120 @@
 <script setup>
-import { useSwipe } from "maz-ui/composables";
-import { useHintsStore } from "~/stores/hints";
-import useIsMobile from "~/composables/useIsMobile";
+import { useSwipe } from 'maz-ui/composables'
+import { useHintsStore } from '~/stores/hints'
+import useIsMobile from '~/composables/useIsMobile'
 // Dynamic project page driven by @nuxt/content
 // - Renders markdown body via <ContentRenderer>
 // - Provides basic error and loading states
 
-const route = useRoute();
-const slug = computed(() => String(route.params.slug || ""));
+const route = useRoute()
+const slug = computed(() => String(route.params.slug || ''))
 
 // Fetch project by path inside `projects` collection
 const {
   data: project,
   status,
-  error,
+  error
 } = await useAsyncData(
   () => `project-${slug.value}`,
-  () => queryCollection("projects").path(`/projects/${slug.value}`).first()
-);
+  () => queryCollection('projects').path(`/projects/${slug.value}`).first()
+)
 
-const pageTitle = computed(() => project.value?.title || slug.value);
+const pageTitle = computed(() => project.value?.title || slug.value)
 
 // Extract optional live link from frontmatter if present
-const liveLink = computed(() => project.value?.liveLink || "");
+const liveLink = computed(() => project.value?.liveLink || '')
 
-useHead({ title: `${pageTitle.value} • Projects` });
+useHead({ title: `${pageTitle.value} • Projects` })
 
 // Use Nuxt Content navigation helper (stable fields: title, path)
 const { data: navItems } = await useAsyncData(
   () => `projects-nav`,
-  () => queryCollectionNavigation("projects").order("title", "ASC")
-);
+  () => queryCollectionNavigation('projects').order('title', 'ASC')
+)
 
-const normalizePath = (p) => String(p || "").replace(/\/+$/, "");
-const currentPath = computed(() => normalizePath(`/projects/${slug.value}`));
+const normalizePath = p => String(p || '').replace(/\/+$/, '')
+const currentPath = computed(() => normalizePath(`/projects/${slug.value}`))
 const { data: allProjects } = await useAsyncData(
   () => `projects-all`,
-  () => queryCollection("projects").all()
-);
+  () => queryCollection('projects').all()
+)
 const navList = computed(() => {
-  const nav = (navItems.value || []).filter(Boolean);
-  if (nav.length > 1) return nav.map((i) => ({ title: i.title, path: i.path }));
-  const raw = allProjects.value || [];
+  const nav = (navItems.value || []).filter(Boolean)
+  if (nav.length > 1) return nav.map(i => ({ title: i.title, path: i.path }))
+  const raw = allProjects.value || []
   return raw
-    .map((p) => ({
-      title: p.title || p.slug || "(untitled)",
-      path: p.path || p._path,
+    .map(p => ({
+      title: p.title || p.slug || '(untitled)',
+      path: p.path || p._path
     }))
-    .filter((i) => !!i.path)
-    .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-});
+    .filter(i => !!i.path)
+    .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+})
 const navIndex = computed(() =>
   (navList.value || []).findIndex(
-    (item) => normalizePath(item.path) === currentPath.value
+    item => normalizePath(item.path) === currentPath.value
   )
-);
+)
 const prevProject = computed(() => {
-  const list = navList.value || [];
-  return navIndex.value > 0 ? list[navIndex.value - 1] : null;
-});
+  const list = navList.value || []
+  return navIndex.value > 0 ? list[navIndex.value - 1] : null
+})
 const nextProject = computed(() => {
-  const list = navList.value || [];
+  const list = navList.value || []
   return navIndex.value >= 0 && navIndex.value < list.length - 1
     ? list[navIndex.value + 1]
-    : null;
-});
+    : null
+})
 
 // Custom path to go after the last project (fallback for "next")
 /** @type {string} */
-const NEXT_FALLBACK_PATH = "/about";
+const NEXT_FALLBACK_PATH = '/about'
 
 /**
  * Whether the current project is the last in the ordered list.
  * We use this to decide if we should route to the fallback path.
  */
 const isLastProject = computed(() => {
-  const list = navList.value || [];
-  if (!list.length || navIndex.value < 0) return false;
-  return navIndex.value === list.length - 1;
-});
+  const list = navList.value || []
+  if (!list.length || navIndex.value < 0) return false
+  return navIndex.value === list.length - 1
+})
 
 /**
  * Resolved path for the next navigation action.
  * If there is no next project, falls back to NEXT_FALLBACK_PATH.
  */
-const nextPath = computed(() => nextProject.value?.path || NEXT_FALLBACK_PATH);
+const nextPath = computed(() => nextProject.value?.path || NEXT_FALLBACK_PATH)
 
 // Keyboard navigation: ArrowLeft / ArrowRight to move between projects
-const router = useRouter();
+const router = useRouter()
 
 // Prevent rapid double navigations causing smoother crashes
-const isNavigating = ref(false);
+const isNavigating = ref(false)
 
 /**
  * Release navigation lock after route completes
  * Small delay to let new page mount and plugin reinit (300ms)
  */
 const releaseNavigationLock = () => {
-  isNavigating.value = false;
-};
+  isNavigating.value = false
+}
 
 const { start: startNavigationLockRelease } = useTimeoutFn(
   releaseNavigationLock,
   300,
   { immediate: false } // Don't start automatically
-);
+)
 
 const navigateToPath = (path) => {
-  if (!path || isNavigating.value) return;
-  isNavigating.value = true;
+  if (!path || isNavigating.value) return
+  isNavigating.value = true
   // Push, then release the guard after route completes
   router.push(path).finally(() => {
     // Small delay to let new page mount and plugin reinit using VueUse
-    startNavigationLockRelease();
-  });
-};
+    startNavigationLockRelease()
+  })
+}
 
 /**
  * Check if the event target is an editable element.
@@ -123,11 +123,11 @@ const navigateToPath = (path) => {
  * @returns {boolean}
  */
 const isEditableTarget = (el) => {
-  if (!el) return false;
-  const tag = (el.tagName || "").toLowerCase();
-  if (el.isContentEditable) return true;
-  return tag === "input" || tag === "textarea" || tag === "select";
-};
+  if (!el) return false
+  const tag = (el.tagName || '').toLowerCase()
+  if (el.isContentEditable) return true
+  return tag === 'input' || tag === 'textarea' || tag === 'select'
+}
 
 /**
  * Handle global keydown for Left/Right arrows. Navigates to prev/next project
@@ -135,75 +135,76 @@ const isEditableTarget = (el) => {
  * @param {KeyboardEvent} event
  */
 const handleKeydown = (event) => {
-  if (!event || event.defaultPrevented) return;
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-  if (isEditableTarget(event.target)) return;
+  if (!event || event.defaultPrevented) return
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+  if (isEditableTarget(event.target)) return
 
-  if (event.key === "ArrowLeft" && prevProject.value?.path) {
-    navigateToPath(prevProject.value.path);
-  } else if (event.key === "ArrowRight") {
-    // If there is a next project go there, otherwise use the fallback
-    navigateToPath(nextProject.value?.path || NEXT_FALLBACK_PATH);
+  if (event.key === 'ArrowLeft' && prevProject.value?.path) {
+    navigateToPath(prevProject.value.path)
   }
-};
+  else if (event.key === 'ArrowRight') {
+    // If there is a next project go there, otherwise use the fallback
+    navigateToPath(nextProject.value?.path || NEXT_FALLBACK_PATH)
+  }
+}
 
 // Swipe navigation using Maz-UI useSwipe composable
 // Attach to the root section via a template ref
-const pageRef = ref(null);
+const pageRef = ref(null)
 const { start: startSwipe, stop: stopSwipe } = useSwipe({
   element: pageRef,
   // Swipe Left: go to next project (content moves left)
   onLeft: () => {
     // If there is a next project go there, otherwise use the fallback
-    navigateToPath(nextProject.value?.path || NEXT_FALLBACK_PATH);
+    navigateToPath(nextProject.value?.path || NEXT_FALLBACK_PATH)
   },
   // Swipe Right: go to previous project
   onRight: () => {
-    if (prevProject.value?.path) navigateToPath(prevProject.value.path);
+    if (prevProject.value?.path) navigateToPath(prevProject.value.path)
   },
-  threshold: 56,
-});
+  threshold: 56
+})
 
 // Navigation hints management
-const hintsStore = useHintsStore();
-const showDesktopHint = ref(false);
-const showMobileHint = ref(false);
+const hintsStore = useHintsStore()
+const showDesktopHint = ref(false)
+const showMobileHint = ref(false)
 
 // Use proper mobile detection composable
-const { isMobile } = useIsMobile();
+const { isMobile } = useIsMobile()
 
 // Check if we should show navigation hints
 const shouldShowNavigationHints = computed(() => {
   // Only show hints if there are multiple projects to navigate between
-  return !!(prevProject.value || nextProject.value) && !!project.value;
-});
+  return !!(prevProject.value || nextProject.value) && !!project.value
+})
 
 /**
  * Hide desktop navigation hint and mark as shown
  */
 const hideDesktopHint = () => {
-  showDesktopHint.value = false;
-  hintsStore.markAsShown("project-navigation-desktop");
-};
+  showDesktopHint.value = false
+  hintsStore.markAsShown('project-navigation-desktop')
+}
 
 /**
  * Hide mobile navigation hint and mark as shown
  */
 const hideMobileHint = () => {
-  showMobileHint.value = false;
-  hintsStore.markAsShown("project-navigation-mobile");
-};
+  showMobileHint.value = false
+  hintsStore.markAsShown('project-navigation-mobile')
+}
 
 /**
  * VueUse timeouts for hints auto-hide (4s after showing)
  */
 const { start: startDesktopHintAutoHide } = useTimeoutFn(hideDesktopHint, 4000, {
-  immediate: false,
-});
+  immediate: false
+})
 
 const { start: startMobileHintAutoHide } = useTimeoutFn(hideMobileHint, 4000, {
-  immediate: false,
-});
+  immediate: false
+})
 
 /**
  * Show navigation hints based on device type
@@ -212,21 +213,21 @@ const { start: startMobileHintAutoHide } = useTimeoutFn(hideMobileHint, 4000, {
 const showNavigationHints = () => {
   if (shouldShowNavigationHints.value) {
     if (
-      !hintsStore.hasShown("project-navigation-desktop") &&
-      !isMobile.value
+      !hintsStore.hasShown('project-navigation-desktop')
+      && !isMobile.value
     ) {
-      showDesktopHint.value = true;
+      showDesktopHint.value = true
       // Auto-hide after 4 seconds using VueUse
-      startDesktopHintAutoHide();
+      startDesktopHintAutoHide()
     }
 
-    if (!hintsStore.hasShown("project-navigation-mobile") && isMobile.value) {
-      showMobileHint.value = true;
+    if (!hintsStore.hasShown('project-navigation-mobile') && isMobile.value) {
+      showMobileHint.value = true
       // Auto-hide after 4 seconds using VueUse
-      startMobileHintAutoHide();
+      startMobileHintAutoHide()
     }
   }
-};
+}
 
 /**
  * VueUse timeout for initial delay before showing hints (2s)
@@ -235,26 +236,26 @@ const { start: startHintsInitialDelay } = useTimeoutFn(
   showNavigationHints,
   2000,
   { immediate: false }
-);
+)
 
 onMounted(() => {
   // Initialize keyboard navigation
-  window.addEventListener("keydown", handleKeydown, { passive: true });
+  window.addEventListener('keydown', handleKeydown, { passive: true })
 
   // Initialize swipe navigation
-  startSwipe();
+  startSwipe()
 
   // Initialize hints system
-  hintsStore.loadPersistedHints();
+  hintsStore.loadPersistedHints()
 
   // Show hints after initial delay using VueUse
-  startHintsInitialDelay();
-});
+  startHintsInitialDelay()
+})
 
 onBeforeUnmount(() => {
-  window.removeEventListener("keydown", handleKeydown);
-  stopSwipe();
-});
+  window.removeEventListener('keydown', handleKeydown)
+  stopSwipe()
+})
 
 // Inline debug object visible in UI (kept for debugging)
 const _debugInfo = computed(() => ({
@@ -268,30 +269,54 @@ const _debugInfo = computed(() => ({
     : null,
   navItemsCount: (navItems.value || []).length,
   navListCount: (navList.value || []).length,
-  navListPaths: (navList.value || []).map((i) => i.path),
-}));
+  navListPaths: (navList.value || []).map(i => i.path)
+}))
 </script>
 
 <template>
-  <section ref="pageRef" class="project-page pt-header">
-    <div v-if="status === 'pending'" class="project-page__loading">
+  <section
+    ref="pageRef"
+    class="project-page pt-header"
+  >
+    <div
+      v-if="status === 'pending'"
+      class="project-page__loading"
+    >
       Loading…
     </div>
-    <div v-else-if="error || !project" class="empty-state">
-      <div class="empty-state__wrapper" role="status" aria-live="polite">
-        <div class="empty-state__icon" aria-hidden="true">
+    <div
+      v-else-if="error || !project"
+      class="empty-state"
+    >
+      <div
+        class="empty-state__wrapper"
+        role="status"
+        aria-live="polite"
+      >
+        <div
+          class="empty-state__icon"
+          aria-hidden="true"
+        >
           <Icon name="mdi:file-search-outline" />
         </div>
-        <h2 class="empty-state__title">Project not found</h2>
+        <h2 class="empty-state__title">
+          Project not found
+        </h2>
         <p class="empty-state__copy">
           It may have been moved or renamed. Explore other projects or learn
           more about me.
         </p>
         <div class="empty-state__actions">
-          <NuxtLink to="/projects" class="btn-standard">
+          <NuxtLink
+            to="/projects"
+            class="btn-standard"
+          >
             <span>Browse Projects</span>
           </NuxtLink>
-          <NuxtLink to="/about" class="btn-standard-outlined">
+          <NuxtLink
+            to="/about"
+            class="btn-standard-outlined"
+          >
             <span>About</span>
           </NuxtLink>
         </div>
@@ -301,7 +326,10 @@ const _debugInfo = computed(() => ({
       <div class="project-page__body prose prose-invert">
         <ContentRenderer :value="project" />
 
-        <div v-if="liveLink" class="project-container">
+        <div
+          v-if="liveLink"
+          class="project-container"
+        >
           <div class="project-page__live-link">
             <NuxtLink
               :to="liveLink"
@@ -317,7 +345,10 @@ const _debugInfo = computed(() => ({
         </div>
 
         <!-- Bottom navigation: Previous / Next projects -->
-        <div v-if="prevProject || nextProject" class="project-container">
+        <div
+          v-if="prevProject || nextProject"
+          class="project-container"
+        >
           <div class="project-page__navigation">
             <NuxtLink
               v-if="prevProject"

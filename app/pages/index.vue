@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import HeroSection from "~/components/HeroSection.vue";
-import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
+import HeroSection from '~/components/HeroSection.vue'
+import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
 
 const services = [
-  "ART DIRECTION",
-  "CREATIVE DIRECTION",
-  "CONCEPT DEVELOPMENT",
-  "CONSULTING & GUIDANCE",
-  "USER EXPERIENCE DESIGN (UX)",
-  "DIGITAL DESIGN (UI)",
-  "INTERACTIVE DESIGN",
-  "DESIGN SYSTEMS & TOKENS",
-];
+  'ART DIRECTION',
+  'CREATIVE DIRECTION',
+  'CONCEPT DEVELOPMENT',
+  'CONSULTING & GUIDANCE',
+  'USER EXPERIENCE DESIGN (UX)',
+  'DIGITAL DESIGN (UI)',
+  'INTERACTIVE DESIGN',
+  'DESIGN SYSTEMS & TOKENS'
+]
 </script>
 
 <template>
@@ -27,35 +27,40 @@ const services = [
         <span class="text-[var(--theme-text-60)]"> – a</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> Danish</em>
         <span class="text-[var(--theme-text-100)] font-body font-[300]">
-          designer</span
-        >
+          designer</span>
         <span class="text-[var(--theme-text-60)]"> based in</span>
         <span class="text-[var(--theme-text-100)] font-[300]"> Tokyo</span>
         <span class="text-[var(--theme-text-60)]">
-          approaching today's challenges with a</span
-        >
+          approaching today's challenges with a</span>
         <span class="text-[var(--theme-text-100)] font-body font-[300]">
-          digital</span
-        >
+          digital</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]">-first</em>
         <span class="text-[var(--theme-text-60)]"> and</span>
         <span class="text-[var(--theme-text-100)] font-body font-[300]">
-          user</span
-        >
+          user</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]">-centred</em>
         <span class="text-[var(--theme-text-60)]"> mindset</span>
       </h1>
 
       <!-- Services list with tag styling -->
       <template #services>
-        <nav class="services-list pt-10 md:pt-0" aria-label="Services">
+        <nav
+          class="services-list pt-10 md:pt-0"
+          aria-label="Services"
+        >
           <div
             v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
             data-speed="0.95"
             class="flex flex-wrap gap-2 max-w-3xl"
           >
-            <div class="tag-label">Services</div>
-            <div v-for="service in services" :key="service" class="tag">
+            <div class="tag-label">
+              Services
+            </div>
+            <div
+              v-for="service in services"
+              :key="service"
+              class="tag"
+            >
               {{ service }}
             </div>
           </div>
@@ -64,7 +69,10 @@ const services = [
 
       <!-- Scroll down button (right side on desktop) -->
       <template #button>
-        <ScrollDownSVG v-page-fade:left data-speed="1" />
+        <ScrollDownSVG
+          v-page-fade:left
+          data-speed="1"
+        />
       </template>
     </HeroSection>
     <ServicesSection>
@@ -82,7 +90,9 @@ const services = [
       </template>
     </ServicesSection>
     <ClientsSection>
-      <template #label>Clients</template>
+      <template #label>
+        Clients
+      </template>
       <template #primary-clients>
         <p>
           Carlsberg, Coop, Lundbech Foundation, Munch Museet, Terma,
@@ -99,9 +109,11 @@ const services = [
         </p>
       </template>
     </ClientsSection>
-        <!-- Recommendations Section -->
-        <RecommendationsSection>
-      <template #label>Recommendations</template>
+    <!-- Recommendations Section -->
+    <RecommendationsSection>
+      <template #label>
+        Recommendations
+      </template>
 
       <RecommendationItem
         id="rec-1"
@@ -151,9 +163,11 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
         author-image="/assets/dummy/placeholder1.jpg"
       />
     </RecommendationsSection>
-     <!-- Awards & Recognition Section Test -->
-     <AwardsRecognitionSection>
-      <template #label>Awards &<br >Recognition</template>
+    <!-- Awards & Recognition Section Test -->
+    <AwardsRecognitionSection>
+      <template #label>
+        Awards &<br>Recognition
+      </template>
       <template #awards-column>
         <p>1 <span class="text-[var(--theme-text-60)]">x</span> Awwwards</p>
         <p>4 <span class="text-[var(--theme-text-60)]">x</span> Behance</p>
@@ -169,7 +183,9 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
       </template>
     </AwardsRecognitionSection>
     <BiographySection>
-      <template #label>Biography</template>
+      <template #label>
+        Biography
+      </template>
 
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -181,7 +197,10 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
         accusantium doloremque laudantium, totam rem aperiam.
       </p>
     </BiographySection>
-    <ExperienceSection view-more-text="View all" view-more-to="/about">
+    <ExperienceSection
+      view-more-text="View all"
+      view-more-to="/about"
+    >
       <ExperienceItem
         date-range="2023 – Current"
         title="Senior UX/UI Designer"
@@ -245,6 +264,5 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
       scroll-amount="180%"
       start-position="left"
     />
-   
   </div>
 </template>

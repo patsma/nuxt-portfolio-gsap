@@ -46,75 +46,76 @@
  */
 
 // Nuxt GSAP
-const { $gsap, $ScrollTrigger } = useNuxtApp();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
 
 // Loading store for first load detection
-const loadingStore = useLoadingStore();
+const loadingStore = useLoadingStore()
 
 // Refs
-const containerRef = ref(null);
-const textRef = ref(null);
+const containerRef = ref(null)
+const textRef = ref(null)
 
 // Rotation animation instance (stored for cleanup)
-let rotationAnimation = null;
-let scrollTriggerInstance = null;
+let rotationAnimation = null
+let scrollTriggerInstance = null
 
 onMounted(() => {
-  if (!textRef.value || !containerRef.value) return;
+  if (!textRef.value || !containerRef.value) return
 
   // Create infinite rotation animation (paused initially)
   rotationAnimation = $gsap.to(textRef.value, {
     rotation: 360,
     duration: 20,
     repeat: -1,
-    ease: "none",
+    ease: 'none',
     paused: true,
-    transformOrigin: "center center",
-  });
+    transformOrigin: 'center center'
+  })
 
   // ScrollTrigger: Pause/resume based on viewport visibility
   scrollTriggerInstance = $ScrollTrigger.create({
     trigger: containerRef.value,
-    start: "top bottom", // When top enters bottom of viewport
-    end: "bottom top", // When bottom leaves top of viewport
+    start: 'top bottom', // When top enters bottom of viewport
+    end: 'bottom top', // When bottom leaves top of viewport
     onEnter: () => rotationAnimation.resume(),
     onLeave: () => rotationAnimation.pause(),
     onEnterBack: () => rotationAnimation.resume(),
-    onLeaveBack: () => rotationAnimation.pause(),
-  });
+    onLeaveBack: () => rotationAnimation.pause()
+  })
 
   // Start rotation based on load type
   if (loadingStore.isFirstLoad) {
     // First load: wait for entrance animations to complete
     window.addEventListener(
-      "app:complete",
+      'app:complete',
       () => {
-        rotationAnimation.play();
+        rotationAnimation.play()
       },
       { once: true }
-    );
-  } else {
+    )
+  }
+  else {
     // Page navigation: delay for page transition to complete
     // setTimeout is simple and works reliably with v-page-fade timing
     setTimeout(() => {
-      rotationAnimation.play();
-    }, 600); // Matches typical page transition duration
+      rotationAnimation.play()
+    }, 600) // Matches typical page transition duration
   }
-});
+})
 
 onUnmounted(() => {
   // Clean up rotation animation
   if (rotationAnimation) {
-    rotationAnimation.kill();
-    rotationAnimation = null;
+    rotationAnimation.kill()
+    rotationAnimation = null
   }
 
   // Clean up ScrollTrigger
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

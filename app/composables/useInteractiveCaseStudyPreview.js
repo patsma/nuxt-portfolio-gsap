@@ -33,12 +33,12 @@
  * @returns {Object} Preview state and methods
  */
 
-import { ref, nextTick } from "vue";
-import { createPreviewLogger } from "~/utils/logger";
+import { ref, nextTick } from 'vue'
+import { createPreviewLogger } from '~/utils/logger'
 import {
   calculatePreviewPosition,
-  validateElements,
-} from "~/utils/previewPosition";
+  validateElements
+} from '~/utils/previewPosition'
 
 /**
  * Animation configuration constants
@@ -48,51 +48,51 @@ import {
 const ANIMATION_CONFIG = {
   clipReveal: {
     duration: 350, // ms - faster for smooth gallery feel
-    ease: "power2.out",
+    ease: 'power2.out'
   },
   clipClose: {
     duration: 350, // ms - faster for smooth gallery feel
-    ease: "power2.in",
+    ease: 'power2.in'
   },
   dualClip: {
     duration: 350, // ms - faster for smooth gallery feel
-    ease: "power2.inOut",
+    ease: 'power2.inOut'
   },
   aspectRatio: {
     duration: 400, // ms - slightly slower for smooth size morphing
-    ease: "power2.inOut", // Smooth in-out for size changes
+    ease: 'power2.inOut' // Smooth in-out for size changes
   },
   clipPath: {
     // Various clip-path states for different reveal directions
     center: {
-      closed: "inset(50% 50% 50% 50%)",
-      open: "inset(0% 0% 0% 0%)",
+      closed: 'inset(50% 50% 50% 50%)',
+      open: 'inset(0% 0% 0% 0%)'
     },
     left: {
-      closed: "inset(0% 100% 0% 0%)",
-      open: "inset(0% 0% 0% 0%)",
+      closed: 'inset(0% 100% 0% 0%)',
+      open: 'inset(0% 0% 0% 0%)'
     },
     right: {
-      closed: "inset(0% 0% 0% 100%)",
-      open: "inset(0% 0% 0% 0%)",
+      closed: 'inset(0% 0% 0% 100%)',
+      open: 'inset(0% 0% 0% 0%)'
     },
     top: {
-      closed: "inset(0% 0% 100% 0%)",
-      open: "inset(0% 0% 0% 0%)",
+      closed: 'inset(0% 0% 100% 0%)',
+      open: 'inset(0% 0% 0% 0%)'
     },
     bottom: {
-      closed: "inset(100% 0% 0% 0%)",
-      open: "inset(0% 0% 0% 0%)",
-    },
+      closed: 'inset(100% 0% 0% 0%)',
+      open: 'inset(0% 0% 0% 0%)'
+    }
   },
   position: {
     offsetX: 30, // px to the right
-    padding: 20, // viewport edge padding
+    padding: 20 // viewport edge padding
   },
   debounce: {
-    clearDelay: 100, // ms delay before hiding preview (allows rapid item switching)
-  },
-};
+    clearDelay: 100 // ms delay before hiding preview (allows rapid item switching)
+  }
+}
 
 /**
  * Resolve clip direction (handles 'random' option)
@@ -101,26 +101,26 @@ const ANIMATION_CONFIG = {
  */
 const resolveClipDirection = (direction) => {
   if (direction === 'random') {
-    const directions = ['center', 'left', 'right', 'top', 'bottom'];
-    return directions[Math.floor(Math.random() * directions.length)];
+    const directions = ['center', 'left', 'right', 'top', 'bottom']
+    return directions[Math.floor(Math.random() * directions.length)]
   }
-  return direction;
-};
+  return direction
+}
 
 export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
-  const log = createPreviewLogger();
+  const log = createPreviewLogger()
 
-  const currentImage = ref(null);
-  const nextImage = ref(null);
-  const currentImageActive = ref(true);
-  const showPreview = ref(false);
-  const previewMounted = ref(false);
-  const isTransitioning = ref(false);
-  const preloadedImages = new Map(); // Stores { img, aspectRatio }
-  const currentAspectRatio = ref(4 / 3); // Default aspect ratio (fallback)
-  const isNavigating = ref(false); // Prevents re-showing preview during navigation
-  const currentClipDirection = ref('center'); // Track current clip direction for animations
-  const forceHideUntil = ref(0); // Timestamp to block hover events after force hide
+  const currentImage = ref(null)
+  const nextImage = ref(null)
+  const currentImageActive = ref(true)
+  const showPreview = ref(false)
+  const previewMounted = ref(false)
+  const isTransitioning = ref(false)
+  const preloadedImages = new Map() // Stores { img, aspectRatio }
+  const currentAspectRatio = ref(4 / 3) // Default aspect ratio (fallback)
+  const isNavigating = ref(false) // Prevents re-showing preview during navigation
+  const currentClipDirection = ref('center') // Track current clip direction for animations
+  const forceHideUntil = ref(0) // Timestamp to block hover events after force hide
 
   /**
    * Preload image for instant display on hover
@@ -129,45 +129,45 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @returns {Promise<number>} Resolves with aspect ratio (width/height)
    */
   const preloadImage = (src) => {
-    const startTime = performance.now();
+    const startTime = performance.now()
 
     return new Promise((resolve, reject) => {
       // Check if already preloaded
       if (preloadedImages.has(src)) {
-        const cached = preloadedImages.get(src);
-        log.preload("cached", src);
-        resolve(cached.aspectRatio);
-        return;
+        const cached = preloadedImages.get(src)
+        log.preload('cached', src)
+        resolve(cached.aspectRatio)
+        return
       }
 
-      log.preload("loading", src);
+      log.preload('loading', src)
 
       // Create new image and preload
-      const img = new Image();
+      const img = new Image()
       img.onload = () => {
-        const duration = Math.round(performance.now() - startTime);
+        const duration = Math.round(performance.now() - startTime)
 
         // Calculate aspect ratio from natural dimensions
-        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        const aspectRatio = img.naturalWidth / img.naturalHeight
 
         // Store image and aspect ratio
         preloadedImages.set(src, {
           img,
-          aspectRatio,
-        });
+          aspectRatio
+        })
 
-        log.preload("cached", src, duration);
-        log.debug(`Aspect ratio detected: ${aspectRatio.toFixed(2)} (${img.naturalWidth}x${img.naturalHeight})`);
+        log.preload('cached', src, duration)
+        log.debug(`Aspect ratio detected: ${aspectRatio.toFixed(2)} (${img.naturalWidth}x${img.naturalHeight})`)
 
-        resolve(aspectRatio);
-      };
+        resolve(aspectRatio)
+      }
       img.onerror = () => {
-        log.preload("failed", src);
-        reject(new Error(`Failed to preload image: ${src}`));
-      };
-      img.src = src;
-    });
-  };
+        log.preload('failed', src)
+        reject(new Error(`Failed to preload image: ${src}`))
+      }
+      img.src = src
+    })
+  }
 
   // POSITION CALCULATION
 
@@ -186,16 +186,16 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       previewRect,
       offsetX: ANIMATION_CONFIG.position.offsetX,
       padding: ANIMATION_CONFIG.position.padding,
-      centerY: true, // Center preview on cursor (accounts for ScrollSmoother transform)
-    });
+      centerY: true // Center preview on cursor (accounts for ScrollSmoother transform)
+    })
 
     // Log if position was clamped
     if (position.clamped) {
-      log.position(position.original, position, position.clampReason);
+      log.position(position.original, position, position.clampReason)
     }
 
-    return position;
-  };
+    return position
+  }
 
   // ANIMATION HELPERS
 
@@ -207,26 +207,26 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const setInitialPosition = (refs, cursor) => {
     if (!refs.previewContainerRef || !refs.sectionRef) {
-      log.warn("Missing refs for initial position", {
+      log.warn('Missing refs for initial position', {
         hasPreview: !!refs.previewContainerRef,
-        hasSection: !!refs.sectionRef,
-      });
-      return;
+        hasSection: !!refs.sectionRef
+      })
+      return
     }
 
-    const sectionRect = refs.sectionRef.getBoundingClientRect();
-    const previewRect = refs.previewContainerRef.getBoundingClientRect();
-    const position = calculatePosition(cursor, sectionRect, previewRect);
+    const sectionRect = refs.sectionRef.getBoundingClientRect()
+    const previewRect = refs.previewContainerRef.getBoundingClientRect()
+    const position = calculatePosition(cursor, sectionRect, previewRect)
 
     gsap.set(refs.previewContainerRef, {
       x: position.x,
       y: position.y,
       xPercent: 100,
-      yPercent: 15,
-    });
+      yPercent: 15
+    })
 
-    log.position({ x: position.x, y: position.y });
-  };
+    log.position({ x: position.x, y: position.y })
+  }
 
   /**
    * Animate clip-path reveal
@@ -236,14 +236,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateClipReveal = (target, direction, onComplete) => {
     if (!target) {
-      log.error("animateClipReveal: target is null");
-      return;
+      log.error('animateClipReveal: target is null')
+      return
     }
 
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
-    log.animationStart("clip-reveal", ANIMATION_CONFIG.clipReveal.duration, {
-      direction,
-    });
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
+    log.animationStart('clip-reveal', ANIMATION_CONFIG.clipReveal.duration, {
+      direction
+    })
 
     gsap.fromTo(
       target,
@@ -255,14 +255,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         overwrite: true, // Kill all tweens on target for smooth interruption
         onComplete: () => {
           log.animationComplete(
-            "clip-reveal",
+            'clip-reveal',
             ANIMATION_CONFIG.clipReveal.duration
-          );
-          if (onComplete) onComplete();
-        },
+          )
+          if (onComplete) onComplete()
+        }
       }
-    );
-  };
+    )
+  }
 
   /**
    * Animate clip-path close
@@ -272,14 +272,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateClipClose = (target, direction, onComplete) => {
     if (!target) {
-      log.error("animateClipClose: target is null");
-      return;
+      log.error('animateClipClose: target is null')
+      return
     }
 
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
-    log.animationStart("clip-close", ANIMATION_CONFIG.clipClose.duration, {
-      direction,
-    });
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
+    log.animationStart('clip-close', ANIMATION_CONFIG.clipClose.duration, {
+      direction
+    })
 
     gsap.to(target, {
       clipPath: clipPaths.closed,
@@ -288,13 +288,13 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       overwrite: true, // Kill all tweens on target for smooth interruption
       onComplete: () => {
         log.animationComplete(
-          "clip-close",
+          'clip-close',
           ANIMATION_CONFIG.clipClose.duration
-        );
-        if (onComplete) onComplete();
-      },
-    });
-  };
+        )
+        if (onComplete) onComplete()
+      }
+    })
+  }
 
   /**
    * Animate dual clip-path transition (one closes, one opens)
@@ -306,33 +306,33 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const animateDualClip = (clipOutTarget, clipInTarget, outDirection, inDirection, onComplete) => {
     if (!clipOutTarget || !clipInTarget) {
-      log.error("animateDualClip: missing targets", {
+      log.error('animateDualClip: missing targets', {
         clipOut: !!clipOutTarget,
-        clipIn: !!clipInTarget,
-      });
-      return;
+        clipIn: !!clipInTarget
+      })
+      return
     }
 
-    const clipPathOut = ANIMATION_CONFIG.clipPath[outDirection];
-    const clipPathIn = ANIMATION_CONFIG.clipPath[inDirection];
+    const clipPathOut = ANIMATION_CONFIG.clipPath[outDirection]
+    const clipPathIn = ANIMATION_CONFIG.clipPath[inDirection]
 
-    log.animationStart("dual-clip", ANIMATION_CONFIG.dualClip.duration, {
+    log.animationStart('dual-clip', ANIMATION_CONFIG.dualClip.duration, {
       outDirection,
-      inDirection,
-    });
+      inDirection
+    })
 
     // Ensure new image wrapper is visible
-    gsap.set(clipInTarget, { opacity: 1 });
+    gsap.set(clipInTarget, { opacity: 1 })
 
     // Create timeline for dual clip-path transition
     const tl = gsap.timeline({
       onComplete: () => {
-        log.animationComplete("dual-clip", ANIMATION_CONFIG.dualClip.duration);
+        log.animationComplete('dual-clip', ANIMATION_CONFIG.dualClip.duration)
         // Hide old wrapper after transition
-        gsap.set(clipOutTarget, { opacity: 0 });
-        if (onComplete) onComplete();
-      },
-    });
+        gsap.set(clipOutTarget, { opacity: 0 })
+        if (onComplete) onComplete()
+      }
+    })
 
     // Clip out current image (0% → closed inset)
     tl.to(
@@ -341,10 +341,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         clipPath: clipPathOut.closed,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: true, // Kill all tweens on target for smooth interruption
+        overwrite: true // Kill all tweens on target for smooth interruption
       },
       0 // Position 0 - start immediately
-    );
+    )
 
     // Clip in next image (closed → 0% inset)
     tl.fromTo(
@@ -354,11 +354,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         clipPath: clipPathIn.open,
         duration: ANIMATION_CONFIG.dualClip.duration / 1000,
         ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: true, // Kill all tweens on target for smooth interruption
+        overwrite: true // Kill all tweens on target for smooth interruption
       },
       0 // Position 0 - start at same time as clip-out
-    );
-  };
+    )
+  }
 
   /**
    * Animate aspect ratio change
@@ -366,18 +366,18 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {number} newAspectRatio - Target aspect ratio (width/height)
    */
   const animateAspectRatio = (newAspectRatio) => {
-    const oldRatio = currentAspectRatio.value;
+    const oldRatio = currentAspectRatio.value
 
     // Skip if same ratio (avoid unnecessary animations)
     if (Math.abs(oldRatio - newAspectRatio) < 0.01) {
-      log.debug("Aspect ratio unchanged, skipping animation");
-      return;
+      log.debug('Aspect ratio unchanged, skipping animation')
+      return
     }
 
-    log.animationStart("aspect-ratio", ANIMATION_CONFIG.aspectRatio.duration, {
+    log.animationStart('aspect-ratio', ANIMATION_CONFIG.aspectRatio.duration, {
       from: oldRatio.toFixed(2),
-      to: newAspectRatio.toFixed(2),
-    });
+      to: newAspectRatio.toFixed(2)
+    })
 
     // Animate the reactive ref (component will react to changes)
     gsap.to(currentAspectRatio, {
@@ -387,12 +387,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
       overwrite: true, // Kill any existing aspect ratio tweens
       onComplete: () => {
         log.animationComplete(
-          "aspect-ratio",
+          'aspect-ratio',
           ANIMATION_CONFIG.aspectRatio.duration
-        );
-      },
-    });
-  };
+        )
+      }
+    })
+  }
 
   // TRANSITION HANDLERS
 
@@ -403,67 +403,67 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleFirstHover = async (preview, cursor, aspectRatio) => {
-    log.route("FIRST_HOVER", { image: preview.image });
-    log.state("IDLE", "REVEALING", { image: preview.image });
+    log.route('FIRST_HOVER', { image: preview.image })
+    log.state('IDLE', 'REVEALING', { image: preview.image })
 
     // Resolve clip direction (handles 'random')
-    const direction = resolveClipDirection(preview.clipDirection || 'random');
-    currentClipDirection.value = direction;
+    const direction = resolveClipDirection(preview.clipDirection || 'random')
+    currentClipDirection.value = direction
 
     // Set state
-    currentImage.value = preview;
-    nextImage.value = preview;
-    currentImageActive.value = true;
-    previewMounted.value = true;
-    showPreview.value = true;
+    currentImage.value = preview
+    nextImage.value = preview
+    currentImageActive.value = true
+    previewMounted.value = true
+    showPreview.value = true
 
     // Set initial aspect ratio (no animation on first hover)
-    currentAspectRatio.value = aspectRatio;
+    currentAspectRatio.value = aspectRatio
 
     // Wait for DOM update
-    await nextTick();
+    await nextTick()
 
     // Get fresh refs
-    const refs = getRefs();
+    const refs = getRefs()
 
     // Validate refs
     const validation = validateElements({
       currentImageWrapperRef: refs.currentImageWrapperRef,
       nextImageWrapperRef: refs.nextImageWrapperRef,
       previewContainerRef: refs.previewContainerRef,
-      sectionRef: refs.sectionRef,
-    });
+      sectionRef: refs.sectionRef
+    })
 
     log.refs({
       currentWrapper: !!refs.currentImageWrapperRef,
       nextWrapper: !!refs.nextImageWrapperRef,
       previewContainer: !!refs.previewContainerRef,
-      section: !!refs.sectionRef,
-    });
+      section: !!refs.sectionRef
+    })
 
     if (!validation.valid) {
-      log.error("Missing refs after mount, aborting animation", {
-        missing: validation.missing,
-      });
-      return;
+      log.error('Missing refs after mount, aborting animation', {
+        missing: validation.missing
+      })
+      return
     }
 
     // Set initial position at cursor
-    setInitialPosition(refs, cursor);
+    setInitialPosition(refs, cursor)
 
     // Set initial opacity and clip-path
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction];
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
     gsap.set(refs.currentImageWrapperRef, {
       opacity: 1,
-      clipPath: clipPaths.closed, // Start closed
-    });
-    gsap.set(refs.nextImageWrapperRef, { opacity: 0 });
+      clipPath: clipPaths.closed // Start closed
+    })
+    gsap.set(refs.nextImageWrapperRef, { opacity: 0 })
 
     // Animate clip-path reveal
     animateClipReveal(refs.currentImageWrapperRef, direction, () => {
-      log.state("REVEALING", "VISIBLE");
-    });
-  };
+      log.state('REVEALING', 'VISIBLE')
+    })
+  }
 
   /**
    * Handle re-entry after leaving section
@@ -472,39 +472,40 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleReentry = async (preview, sameImage, aspectRatio) => {
-    log.route("RE_ENTRY", { image: preview.image, sameImage });
-    log.state("IDLE", "REVEALING", { image: preview.image, reentry: true });
+    log.route('RE_ENTRY', { image: preview.image, sameImage })
+    log.state('IDLE', 'REVEALING', { image: preview.image, reentry: true })
 
     // Resolve clip direction for new animation
-    const direction = resolveClipDirection(preview.clipDirection || 'random');
-    currentClipDirection.value = direction;
+    const direction = resolveClipDirection(preview.clipDirection || 'random')
+    currentClipDirection.value = direction
 
-    showPreview.value = true;
-    isTransitioning.value = true;
+    showPreview.value = true
+    isTransitioning.value = true
 
     // If different image, update the inactive wrapper and animate aspect ratio
     if (!sameImage) {
       if (currentImageActive.value) {
-        nextImage.value = preview;
-      } else {
-        currentImage.value = preview;
+        nextImage.value = preview
+      }
+      else {
+        currentImage.value = preview
       }
       // Animate to new aspect ratio
-      animateAspectRatio(aspectRatio);
+      animateAspectRatio(aspectRatio)
     }
 
-    await nextTick();
+    await nextTick()
 
-    const refs = getRefs();
+    const refs = getRefs()
     const validation = validateElements({
       currentImageWrapperRef: refs.currentImageWrapperRef,
-      nextImageWrapperRef: refs.nextImageWrapperRef,
-    });
+      nextImageWrapperRef: refs.nextImageWrapperRef
+    })
 
     if (!validation.valid) {
-      log.error("Missing refs on re-entry", { missing: validation.missing });
-      isTransitioning.value = false;
-      return;
+      log.error('Missing refs on re-entry', { missing: validation.missing })
+      isTransitioning.value = false
+      return
     }
 
     // Get target wrapper (same if same image, opposite if different)
@@ -514,7 +515,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         : refs.nextImageWrapperRef
       : currentImageActive.value
         ? refs.nextImageWrapperRef
-        : refs.currentImageWrapperRef;
+        : refs.currentImageWrapperRef
 
     const hideTarget = sameImage
       ? currentImageActive.value
@@ -522,25 +523,25 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
         : refs.currentImageWrapperRef
       : currentImageActive.value
         ? refs.currentImageWrapperRef
-        : refs.nextImageWrapperRef;
+        : refs.nextImageWrapperRef
 
     // Set visibility
-    gsap.set(hideTarget, { opacity: 0 });
-    gsap.set(revealTarget, { opacity: 1 });
+    gsap.set(hideTarget, { opacity: 0 })
+    gsap.set(revealTarget, { opacity: 1 })
 
     // Animate clip-path reveal with new direction
     animateClipReveal(revealTarget, direction, () => {
       // Toggle active state if different image
       if (!sameImage) {
-        currentImageActive.value = !currentImageActive.value;
-        log.debug("Toggled active image", {
-          newActive: currentImageActive.value,
-        });
+        currentImageActive.value = !currentImageActive.value
+        log.debug('Toggled active image', {
+          newActive: currentImageActive.value
+        })
       }
-      isTransitioning.value = false;
-      log.state("REVEALING", "VISIBLE");
-    });
-  };
+      isTransitioning.value = false
+      log.state('REVEALING', 'VISIBLE')
+    })
+  }
 
   /**
    * Handle item switch with dual clip-path transition
@@ -548,123 +549,124 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * @param {number} aspectRatio - Image aspect ratio (width/height)
    */
   const handleItemSwitch = async (preview, aspectRatio) => {
-    log.route("ITEM_SWITCH", {
+    log.route('ITEM_SWITCH', {
       from: currentImageActive.value
         ? currentImage.value?.image
         : nextImage.value?.image,
-      to: preview.image,
-    });
-    log.state("VISIBLE", "TRANSITIONING", { image: preview.image });
+      to: preview.image
+    })
+    log.state('VISIBLE', 'TRANSITIONING', { image: preview.image })
 
     // Resolve new clip direction for incoming image
-    const newDirection = resolveClipDirection(preview.clipDirection || 'random');
-    const oldDirection = currentClipDirection.value; // Use previous direction for closing
-    currentClipDirection.value = newDirection; // Update for next animation
+    const newDirection = resolveClipDirection(preview.clipDirection || 'random')
+    const oldDirection = currentClipDirection.value // Use previous direction for closing
+    currentClipDirection.value = newDirection // Update for next animation
 
     // Get current refs for cleanup
-    let refs = getRefs();
+    let refs = getRefs()
 
     // Kill all running tweens to prevent conflicts
     if (refs.currentImageWrapperRef && refs.nextImageWrapperRef) {
-      log.debug("Killing active tweens");
+      log.debug('Killing active tweens')
       gsap.killTweensOf([
         refs.currentImageWrapperRef,
-        refs.nextImageWrapperRef,
-      ]);
+        refs.nextImageWrapperRef
+      ])
     }
 
     // Check for race condition
     if (isTransitioning.value) {
-      log.raceCondition("Transition already in progress, forcing reset", {
-        currentState: isTransitioning.value,
-      });
-      isTransitioning.value = false;
+      log.raceCondition('Transition already in progress, forcing reset', {
+        currentState: isTransitioning.value
+      })
+      isTransitioning.value = false
     }
 
-    isTransitioning.value = true;
+    isTransitioning.value = true
 
     // Update inactive image
     if (currentImageActive.value) {
-      nextImage.value = preview;
-    } else {
-      currentImage.value = preview;
+      nextImage.value = preview
+    }
+    else {
+      currentImage.value = preview
     }
 
     // Animate to new aspect ratio
-    animateAspectRatio(aspectRatio);
+    animateAspectRatio(aspectRatio)
 
-    await nextTick();
+    await nextTick()
 
     // Get fresh refs after DOM update
-    refs = getRefs();
+    refs = getRefs()
 
     const validation = validateElements({
       currentImageWrapperRef: refs.currentImageWrapperRef,
-      nextImageWrapperRef: refs.nextImageWrapperRef,
-    });
+      nextImageWrapperRef: refs.nextImageWrapperRef
+    })
 
     if (!validation.valid) {
-      log.error("Missing refs for item switch", {
-        missing: validation.missing,
-      });
-      isTransitioning.value = false;
-      return;
+      log.error('Missing refs for item switch', {
+        missing: validation.missing
+      })
+      isTransitioning.value = false
+      return
     }
 
     const clipOutTarget = currentImageActive.value
       ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef;
+      : refs.nextImageWrapperRef
 
     const clipInTarget = currentImageActive.value
       ? refs.nextImageWrapperRef
-      : refs.currentImageWrapperRef;
+      : refs.currentImageWrapperRef
 
     // Animate dual clip-path transition with different directions for variety
     animateDualClip(clipOutTarget, clipInTarget, oldDirection, newDirection, () => {
       // Toggle active state
-      currentImageActive.value = !currentImageActive.value;
-      isTransitioning.value = false;
-      log.debug("Toggled active image", {
-        newActive: currentImageActive.value,
-      });
-      log.state("TRANSITIONING", "VISIBLE");
-    });
-  };
+      currentImageActive.value = !currentImageActive.value
+      isTransitioning.value = false
+      log.debug('Toggled active image', {
+        newActive: currentImageActive.value
+      })
+      log.state('TRANSITIONING', 'VISIBLE')
+    })
+  }
 
   /**
    * Core clear logic (executed after debounce delay)
    * Animates clip-path close and hides preview
    */
   const executeClear = () => {
-    log.debug("Executing debounced clear", {
-      delay: ANIMATION_CONFIG.debounce.clearDelay,
-    });
+    log.debug('Executing debounced clear', {
+      delay: ANIMATION_CONFIG.debounce.clearDelay
+    })
 
     // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
-    isTransitioning.value = true;
-    log.state("VISIBLE", "CLOSING");
+    isTransitioning.value = true
+    log.state('VISIBLE', 'CLOSING')
 
     // Get currently visible wrapper
-    const refs = getRefs();
+    const refs = getRefs()
     const activeWrapper = currentImageActive.value
       ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef;
+      : refs.nextImageWrapperRef
 
     if (!activeWrapper) {
-      log.warn("No active wrapper for clear, instant hide");
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
-      return;
+      log.warn('No active wrapper for clear, instant hide')
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
+      return
     }
 
     // Animate clip-path close using current direction
     animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
-    });
-  };
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
+    })
+  }
 
   /**
    * Debounced clear using VueUse useTimeoutFn (provides cancel control)
@@ -674,7 +676,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     executeClear,
     ANIMATION_CONFIG.debounce.clearDelay,
     { immediate: false } // Don't start automatically
-  );
+  )
 
   // PUBLIC API
 
@@ -686,78 +688,79 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    */
   const setActivePreview = async (preview, cursor) => {
     if (!preview) {
-      log.warn("setActivePreview called with null preview");
-      return;
+      log.warn('setActivePreview called with null preview')
+      return
     }
 
     // Prevent showing preview during navigation
     if (isNavigating.value) {
-      log.debug("Navigation in progress, skipping hover");
-      return;
+      log.debug('Navigation in progress, skipping hover')
+      return
     }
 
     // Prevent showing preview if force-hide block is active
     if (Date.now() < forceHideUntil.value) {
-      log.debug("Force-hide block active, skipping hover", {
-        blockedFor: forceHideUntil.value - Date.now() + "ms"
-      });
-      return;
+      log.debug('Force-hide block active, skipping hover', {
+        blockedFor: forceHideUntil.value - Date.now() + 'ms'
+      })
+      return
     }
 
-    log.separator(`HOVER: ${preview.image}`);
+    log.separator(`HOVER: ${preview.image}`)
 
     // Cancel pending debounced clear (rapid item switching)
-    cancelClearTimeout();
-    log.debug("Cancelled pending clear timer", { wasScheduled: true });
+    cancelClearTimeout()
+    log.debug('Cancelled pending clear timer', { wasScheduled: true })
 
     // Preload image first and get aspect ratio
-    let aspectRatio = 4 / 3; // Fallback
+    let aspectRatio = 4 / 3 // Fallback
     try {
-      aspectRatio = await preloadImage(preview.image);
-    } catch (error) {
-      log.error("Image preload failed", {
+      aspectRatio = await preloadImage(preview.image)
+    }
+    catch (error) {
+      log.error('Image preload failed', {
         image: preview.image,
-        error: error.message,
-      });
+        error: error.message
+      })
       // Continue anyway - browser will load on-demand with fallback aspect ratio
     }
 
     // First hover - initialize
     if (!currentImage.value && !nextImage.value) {
-      return handleFirstHover(preview, cursor, aspectRatio);
+      return handleFirstHover(preview, cursor, aspectRatio)
     }
 
     // Get currently active image
     const currentActiveImage = currentImageActive.value
       ? currentImage.value
-      : nextImage.value;
-    const sameImage = currentActiveImage?.image === preview.image;
+      : nextImage.value
+    const sameImage = currentActiveImage?.image === preview.image
 
     // Same image check
     if (sameImage) {
       // If preview was hidden, re-show it
       if (!showPreview.value) {
-        log.route("SKIP", {
-          reason: "same image, re-entry",
-          image: preview.image,
-        });
-        return handleReentry(preview, true, aspectRatio);
+        log.route('SKIP', {
+          reason: 'same image, re-entry',
+          image: preview.image
+        })
+        return handleReentry(preview, true, aspectRatio)
       }
       // Already showing same image, do nothing
-      log.route("SKIP", { reason: "already showing", image: preview.image });
-      return;
+      log.route('SKIP', { reason: 'already showing', image: preview.image })
+      return
     }
 
     // Different image
     // If preview was hidden, show with reveal
     if (!showPreview.value) {
-      return handleReentry(preview, false, aspectRatio);
+      return handleReentry(preview, false, aspectRatio)
     }
 
     // REMOVED BLOCKING LOGIC - Let GSAP handle interruptions with overwrite: true
     // Always allow item switch for smooth gallery-like flow
-    return handleItemSwitch(preview, aspectRatio);
-  };
+    return handleItemSwitch(preview, aspectRatio)
+  }
 
   /**
    * Clear active preview - hide preview container with clip-path animation
@@ -765,15 +768,15 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * NOTE: Don't clear image data - keep it so toggle state persists
    */
   const clearActivePreview = () => {
-    log.separator("CLEAR");
+    log.separator('CLEAR')
 
     // Trigger debounced clear using VueUse useTimeoutFn
-    startClearTimeout();
+    startClearTimeout()
 
-    log.debug("Clear scheduled", {
-      delay: ANIMATION_CONFIG.debounce.clearDelay,
-    });
-  };
+    log.debug('Clear scheduled', {
+      delay: ANIMATION_CONFIG.debounce.clearDelay
+    })
+  }
 
   /**
    * Clear active preview immediately - no debounce
@@ -782,46 +785,46 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * Sets isNavigating flag to prevent hover events from re-showing preview
    */
   const clearActivePreviewImmediate = () => {
-    log.separator("CLEAR IMMEDIATE (Navigation)");
+    log.separator('CLEAR IMMEDIATE (Navigation)')
 
     // Set navigation flag to prevent hover events from re-showing preview
-    isNavigating.value = true;
+    isNavigating.value = true
 
     // Cancel any pending debounced clear using VueUse
-    cancelClearTimeout();
+    cancelClearTimeout()
 
     // Skip if already hidden
     if (!showPreview.value) {
-      log.debug("Preview already hidden, skipping");
-      return;
+      log.debug('Preview already hidden, skipping')
+      return
     }
 
-    isTransitioning.value = true;
-    log.state("VISIBLE", "CLOSING", { immediate: true });
+    isTransitioning.value = true
+    log.state('VISIBLE', 'CLOSING', { immediate: true })
 
     // Get currently visible wrapper
-    const refs = getRefs();
+    const refs = getRefs()
     const activeWrapper = currentImageActive.value
       ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef;
+      : refs.nextImageWrapperRef
 
     if (!activeWrapper) {
-      log.warn("No active wrapper for immediate clear, instant hide");
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
+      log.warn('No active wrapper for immediate clear, instant hide')
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
       // Keep isNavigating true - will be reset on page unload
-      return;
+      return
     }
 
     // Animate clip-path close immediately using current direction
     animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
       // Keep isNavigating true - will be reset on page unload
-    });
-  };
+    })
+  }
 
   /**
    * Clear active preview instantly - no debounce, WITH smooth animation
@@ -829,45 +832,45 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
    * Animates clip-path close smoothly WITHOUT setting navigation flag
    */
   const clearActivePreviewInstant = () => {
-    log.separator("CLEAR INSTANT (Scroll)");
+    log.separator('CLEAR INSTANT (Scroll)')
 
     // Cancel any pending debounced clear using VueUse
-    cancelClearTimeout();
+    cancelClearTimeout()
 
     // Skip if already hidden
     if (!showPreview.value) {
-      log.debug("Preview already hidden, skipping");
-      return;
+      log.debug('Preview already hidden, skipping')
+      return
     }
 
-    isTransitioning.value = true;
-    log.state("VISIBLE", "CLOSING", { scroll: true });
+    isTransitioning.value = true
+    log.state('VISIBLE', 'CLOSING', { scroll: true })
 
     // Get currently visible wrapper
-    const refs = getRefs();
+    const refs = getRefs()
     const activeWrapper = currentImageActive.value
       ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef;
+      : refs.nextImageWrapperRef
 
     if (!activeWrapper) {
-      log.warn("No active wrapper for scroll clear, immediate hide");
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
-      return;
+      log.warn('No active wrapper for scroll clear, immediate hide')
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
+      return
     }
 
     // Animate clip-path close SMOOTHLY using current direction
     animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      showPreview.value = false;
-      isTransitioning.value = false;
-      log.state("CLOSING", "IDLE");
+      showPreview.value = false
+      isTransitioning.value = false
+      log.state('CLOSING', 'IDLE')
       // Do NOT set isNavigating - allow re-entry on hover
-    });
+    })
 
     // Brief hover block to prevent immediate glitchy re-entry during animation
-    forceHideUntil.value = Date.now() + 100;
-  };
+    forceHideUntil.value = Date.now() + 100
+  }
 
   // RETURN PUBLIC API
 
@@ -888,6 +891,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }) => {
     calculatePosition,
 
     // Animation config (for external use if needed)
-    animationConfig: ANIMATION_CONFIG,
-  };
-};
+    animationConfig: ANIMATION_CONFIG
+  }
+}

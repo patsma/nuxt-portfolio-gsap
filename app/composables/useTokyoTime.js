@@ -5,7 +5,7 @@
  * @returns {{ tokyoTime: import('vue').Ref<string> }}
  */
 export function useTokyoTime() {
-  const tokyoTime = ref(getCurrentTokyoTime());
+  const tokyoTime = ref(getCurrentTokyoTime())
 
   /**
    * Get current Tokyo time formatted for display
@@ -14,11 +14,11 @@ export function useTokyoTime() {
    * @returns {string} Formatted Tokyo time string
    */
   function getCurrentTokyoTime() {
-    const now = new Date();
+    const now = new Date()
 
     // Tokyo is UTC+9
-    const tokyoOffset = 9 * 60;
-    now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + tokyoOffset);
+    const tokyoOffset = 9 * 60
+    now.setMinutes(now.getMinutes() + now.getTimezoneOffset() + tokyoOffset)
 
     return now.toLocaleString('en-US', {
       timeZone: 'Asia/Tokyo',
@@ -27,7 +27,7 @@ export function useTokyoTime() {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
-    });
+    })
   }
 
   /**
@@ -35,17 +35,17 @@ export function useTokyoTime() {
    * Called every second by VueUse useIntervalFn
    */
   const updateTime = () => {
-    tokyoTime.value = getCurrentTokyoTime();
-  };
+    tokyoTime.value = getCurrentTokyoTime()
+  }
 
   // Auto-start interval when composable is used, auto-cleanup on unmount
   // VueUse handles lifecycle automatically - no need for onMounted/onUnmounted
-  const { pause, resume, isActive } = useIntervalFn(updateTime, 1000);
+  const { pause, resume, isActive } = useIntervalFn(updateTime, 1000)
 
   return {
     tokyoTime,
-    pause,    // Exposed for manual control if needed
-    resume,   // Exposed for manual control if needed
-    isActive  // Exposed to check if interval is running
-  };
+    pause, // Exposed for manual control if needed
+    resume, // Exposed for manual control if needed
+    isActive // Exposed to check if interval is running
+  }
 }

@@ -11,64 +11,64 @@
  * @returns {Map<string,string>} Mapping from oldId -> newId
  */
 export function scopeSvgDefsIds(svgEl, prefix) {
-  if (!svgEl || !prefix) return new Map();
+  if (!svgEl || !prefix) return new Map()
 
-  const idMap = new Map();
-  const defsNodes = svgEl.querySelectorAll("defs");
+  const idMap = new Map()
+  const defsNodes = svgEl.querySelectorAll('defs')
 
   // Collect and rename IDs inside all <defs>
   defsNodes.forEach((defs) => {
-    defs.querySelectorAll("[id]").forEach((node) => {
-      const oldId = node.getAttribute("id");
-      if (!oldId) return;
-      const newId = `${prefix}-${oldId}`;
-      idMap.set(oldId, newId);
-      node.setAttribute("id", newId);
-    });
-  });
+    defs.querySelectorAll('[id]').forEach((node) => {
+      const oldId = node.getAttribute('id')
+      if (!oldId) return
+      const newId = `${prefix}-${oldId}`
+      idMap.set(oldId, newId)
+      node.setAttribute('id', newId)
+    })
+  })
 
-  if (idMap.size === 0) return idMap;
+  if (idMap.size === 0) return idMap
 
   // Attributes that may contain url(#id) or #id references
   const ATTRS = [
-    "fill",
-    "stroke",
-    "filter",
-    "clip-path",
-    "mask",
-    "href",
-    "xlink:href",
-    "marker-start",
-    "marker-mid",
-    "marker-end",
-    "style",
-  ];
+    'fill',
+    'stroke',
+    'filter',
+    'clip-path',
+    'mask',
+    'href',
+    'xlink:href',
+    'marker-start',
+    'marker-mid',
+    'marker-end',
+    'style'
+  ]
 
   // Update references across whole SVG tree
-  svgEl.querySelectorAll("*").forEach((node) => {
+  svgEl.querySelectorAll('*').forEach((node) => {
     ATTRS.forEach((attr) => {
-      const val = node.getAttribute(attr);
-      if (!val) return;
+      const val = node.getAttribute(attr)
+      if (!val) return
 
-      let newVal = val;
+      let newVal = val
       idMap.forEach((newId, oldId) => {
         // Replace url(#oldId)
         newVal = newVal.replace(
-          new RegExp(`url\\(#${oldId}\\)`, "g"),
+          new RegExp(`url\\(#${oldId}\\)`, 'g'),
           `url(#${newId})`
-        );
+        )
         // Replace bare #oldId (href/xlink:href)
         newVal = newVal.replace(
-          new RegExp(`#${oldId}(\\b)`, "g"),
+          new RegExp(`#${oldId}(\\b)`, 'g'),
           `#${newId}$1`
-        );
-      });
+        )
+      })
 
-      if (newVal !== val) node.setAttribute(attr, newVal);
-    });
-  });
+      if (newVal !== val) node.setAttribute(attr, newVal)
+    })
+  })
 
-  return idMap;
+  return idMap
 }
 
 /**
@@ -80,8 +80,8 @@ export function scopeSvgDefsIds(svgEl, prefix) {
  * @returns {string}
  */
 export function remapIdSelectors(selector, idMap) {
-  if (!selector || !idMap || idMap.size === 0) return selector;
+  if (!selector || !idMap || idMap.size === 0) return selector
   return selector.replace(/#([A-Za-z0-9_-]+)/g, (match, id) => {
-    return idMap.has(id) ? `#${idMap.get(id)}` : match;
-  });
+    return idMap.has(id) ? `#${idMap.get(id)}` : match
+  })
 }

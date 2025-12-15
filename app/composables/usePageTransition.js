@@ -13,8 +13,8 @@
  */
 
 export const usePageTransition = () => {
-  const { $gsap, $SplitText } = useNuxtApp();
-  const splitInstances = [];
+  const { $gsap, $SplitText } = useNuxtApp()
+  const splitInstances = []
 
   // ========================================
   // ANIMATION FUNCTIONS
@@ -36,35 +36,35 @@ export const usePageTransition = () => {
    */
   const animateSplit = (el, config, direction, timeline, position) => {
     if (!$SplitText) {
-      console.warn("⚠️ SplitText not available, skipping split animation");
-      return;
+      console.warn('⚠️ SplitText not available, skipping split animation')
+      return
     }
 
-    const splitType = config.splitType || "chars";
-    const stagger = config.stagger || 0.025;
-    const duration = config.duration || 0.6;
-    const ease = config.ease || "sine.out";
-    const y = config.y || 35;
-    const animateFrom = config.animateFrom; // 'below' | 'above' | undefined
+    const splitType = config.splitType || 'chars'
+    const stagger = config.stagger || 0.025
+    const duration = config.duration || 0.6
+    const ease = config.ease || 'sine.out'
+    const y = config.y || 35
+    const animateFrom = config.animateFrom // 'below' | 'above' | undefined
 
     // Lock height before SplitText to prevent Safari jump (~7px layout shift)
     // SplitText with masking wraps content in overflow:hidden containers which adds height
     // Locking height prevents visible layout shift during LEAVE transitions on Safari
-    const originalHeight = el.offsetHeight;
-    $gsap.set(el, { height: originalHeight });
+    const originalHeight = el.offsetHeight
+    $gsap.set(el, { height: originalHeight })
 
     // Create split
     const split = $SplitText.create(el, {
       type: splitType,
-      mask: splitType, // Use masking for clean reveals
-    });
-    splitInstances.push(split);
+      mask: splitType // Use masking for clean reveals
+    })
+    splitInstances.push(split)
 
     // SLIDE FROM MASK EFFECT - leverages SplitText masking for position-based reveals
-    if (animateFrom === "below" || animateFrom === "above") {
-      const yPercent = animateFrom === "below" ? 100 : -100;
+    if (animateFrom === 'below' || animateFrom === 'above') {
+      const yPercent = animateFrom === 'below' ? 100 : -100
 
-      if (direction === "out") {
+      if (direction === 'out') {
         // Animate OUT: slide away from center (opposite of entry)
         timeline.to(
           split[splitType],
@@ -72,19 +72,20 @@ export const usePageTransition = () => {
             yPercent: -yPercent, // Slide in opposite direction
             duration: duration * 0.7,
             stagger: stagger,
-            ease: "power2.in",
-            transformOrigin: "100% 0%",
-            rotate: 20,
+            ease: 'power2.in',
+            transformOrigin: '100% 0%',
+            rotate: 20
           },
           position
-        );
-      } else {
+        )
+      }
+      else {
         // Animate IN: slide from outside mask to center
         $gsap.set(split[splitType], {
           yPercent: yPercent,
           rotate: 20,
-          transformOrigin: "0% 0%",
-        });
+          transformOrigin: '0% 0%'
+        })
         timeline.to(
           split[splitType],
           {
@@ -92,15 +93,15 @@ export const usePageTransition = () => {
             duration: duration,
             stagger: stagger,
             ease: ease,
-            rotate: 0,
+            rotate: 0
           },
           position
-        );
+        )
       }
     }
     // DEFAULT FADE EFFECT - traditional opacity-based animation
     else {
-      if (direction === "out") {
+      if (direction === 'out') {
         // Animate OUT: fade up and disappear
         timeline.to(
           split[splitType],
@@ -109,13 +110,14 @@ export const usePageTransition = () => {
             opacity: 0,
             duration: duration * 0.7,
             stagger: stagger,
-            ease: "power2.in",
+            ease: 'power2.in'
           },
           position
-        );
-      } else {
+        )
+      }
+      else {
         // Animate IN: bounce down and appear
-        $gsap.set(split[splitType], { y: y, opacity: 0 });
+        $gsap.set(split[splitType], { y: y, opacity: 0 })
         timeline.to(
           split[splitType],
           {
@@ -123,13 +125,13 @@ export const usePageTransition = () => {
             opacity: 1,
             duration: duration,
             stagger: stagger,
-            ease: ease,
+            ease: ease
           },
           position
-        );
+        )
       }
     }
-  };
+  }
 
   /**
    * FADE ANIMATION
@@ -150,17 +152,17 @@ export const usePageTransition = () => {
     position,
     skipInitialState = false
   ) => {
-    const fadeDirection = config.direction || "up";
-    const distance = config.distance || 20;
-    const duration = config.duration || 0.6;
-    const ease = config.ease || "power2.out";
+    const fadeDirection = config.direction || 'up'
+    const distance = config.distance || 20
+    const duration = config.duration || 0.6
+    const ease = config.ease || 'power2.out'
 
     // Determine movement axis
-    const axis = fadeDirection === "up" || fadeDirection === "down" ? "y" : "x";
-    const multiplier =
-      fadeDirection === "up" || fadeDirection === "left" ? -1 : 1;
+    const axis = fadeDirection === 'up' || fadeDirection === 'down' ? 'y' : 'x'
+    const multiplier
+      = fadeDirection === 'up' || fadeDirection === 'left' ? -1 : 1
 
-    if (animDirection === "out") {
+    if (animDirection === 'out') {
       // Animate OUT: fade and move away
       timeline.to(
         el,
@@ -168,15 +170,16 @@ export const usePageTransition = () => {
           [axis]: multiplier * distance,
           opacity: 0,
           duration: duration * 0.7,
-          ease: "power2.in",
+          ease: 'power2.in'
         },
         position
-      );
-    } else {
+      )
+    }
+    else {
       // Animate IN: fade and move in from opposite
       // Only set initial state if not already set
       if (!skipInitialState) {
-        $gsap.set(el, { [axis]: -multiplier * distance, opacity: 0 });
+        $gsap.set(el, { [axis]: -multiplier * distance, opacity: 0 })
       }
       timeline.to(
         el,
@@ -184,12 +187,12 @@ export const usePageTransition = () => {
           [axis]: 0,
           opacity: 1,
           duration: duration,
-          ease: ease,
+          ease: ease
         },
         position
-      );
+      )
     }
-  };
+  }
 
   /**
    * CLIP-PATH ANIMATION
@@ -210,46 +213,47 @@ export const usePageTransition = () => {
     position,
     skipInitialState = false
   ) => {
-    const direction = config.direction || "top";
-    const duration = config.duration || 0.6;
-    const ease = config.ease || "power2.out";
+    const direction = config.direction || 'top'
+    const duration = config.duration || 0.6
+    const ease = config.ease || 'power2.out'
 
     // Clip-path values for each direction
     const clips = {
-      top: { out: "inset(0% 0% 100% 0%)", in: "inset(100% 0% 0% 0%)" },
-      bottom: { out: "inset(100% 0% 0% 0%)", in: "inset(0% 0% 100% 0%)" },
-      left: { out: "inset(0% 100% 0% 0%)", in: "inset(0% 0% 0% 100%)" },
-      right: { out: "inset(0% 0% 0% 100%)", in: "inset(0% 100% 0% 0%)" },
-    };
+      top: { out: 'inset(0% 0% 100% 0%)', in: 'inset(100% 0% 0% 0%)' },
+      bottom: { out: 'inset(100% 0% 0% 0%)', in: 'inset(0% 0% 100% 0%)' },
+      left: { out: 'inset(0% 100% 0% 0%)', in: 'inset(0% 0% 0% 100%)' },
+      right: { out: 'inset(0% 0% 0% 100%)', in: 'inset(0% 100% 0% 0%)' }
+    }
 
-    if (animDirection === "out") {
+    if (animDirection === 'out') {
       // Animate OUT: clip away
       timeline.to(
         el,
         {
           clipPath: clips[direction].out,
           duration: duration * 0.7,
-          ease: "power2.in",
+          ease: 'power2.in'
         },
         position
-      );
-    } else {
+      )
+    }
+    else {
       // Animate IN: clip reveal
       // Only set initial state if not already set
       if (!skipInitialState) {
-        $gsap.set(el, { clipPath: clips[direction].in });
+        $gsap.set(el, { clipPath: clips[direction].in })
       }
       timeline.to(
         el,
         {
-          clipPath: "inset(0% 0% 0% 0%)",
+          clipPath: 'inset(0% 0% 0% 0%)',
           duration: duration,
-          ease: ease,
+          ease: ease
         },
         position
-      );
+      )
     }
-  };
+  }
 
   /**
    * STAGGER ANIMATION
@@ -270,14 +274,14 @@ export const usePageTransition = () => {
     position,
     skipInitialState = false
   ) => {
-    const selector = config.selector || ":scope > *";
-    const stagger = config.stagger || 0.1;
-    const duration = config.duration || 0.5;
-    const ease = config.ease || "power2.out";
+    const selector = config.selector || ':scope > *'
+    const stagger = config.stagger || 0.1
+    const duration = config.duration || 0.5
+    const ease = config.ease || 'power2.out'
 
-    const children = el.querySelectorAll(selector);
+    const children = el.querySelectorAll(selector)
 
-    if (direction === "out") {
+    if (direction === 'out') {
       // Animate OUT: fade up
       timeline.to(
         children,
@@ -286,15 +290,16 @@ export const usePageTransition = () => {
           opacity: 0,
           duration: duration * 0.7,
           stagger: stagger * 0.8,
-          ease: "power2.in",
+          ease: 'power2.in'
         },
         position
-      );
-    } else {
+      )
+    }
+    else {
       // Animate IN: fade down
       // Only set initial state if not already set
       if (!skipInitialState) {
-        $gsap.set(children, { y: 15, opacity: 0 });
+        $gsap.set(children, { y: 15, opacity: 0 })
       }
       timeline.to(
         children,
@@ -303,20 +308,20 @@ export const usePageTransition = () => {
           opacity: 1,
           duration: duration,
           stagger: stagger,
-          ease: ease,
+          ease: ease
         },
         position
-      );
+      )
     }
-  };
+  }
 
   /**
    * Cleanup function to revert all SplitText instances
    */
   const cleanup = () => {
-    splitInstances.forEach((split) => split.revert?.());
-    splitInstances.length = 0;
-  };
+    splitInstances.forEach(split => split.revert?.())
+    splitInstances.length = 0
+  }
 
   // ========================================
   // PAGE TRANSITION HOOKS
@@ -327,7 +332,7 @@ export const usePageTransition = () => {
    * Recursively walks the entire DOM tree to find elements at any nesting level
    */
   const findAnimatedElements = (el) => {
-    const elements = [];
+    const elements = []
 
     // console.log('🔍 Finding animated elements in:', el)
 
@@ -335,22 +340,22 @@ export const usePageTransition = () => {
     const walk = (node) => {
       // Check if this node has animation config
       if (node._pageAnimation) {
-        elements.push(node);
+        elements.push(node)
         // console.log('🔍 Found:', node.tagName, 'with type:', node._pageAnimation.type)
       }
 
       // Walk all children recursively
       Array.from(node.children).forEach((child) => {
-        walk(child);
-      });
-    };
+        walk(child)
+      })
+    }
 
     // Start walking from root element
-    walk(el);
+    walk(el)
 
     // console.log('🔍 Found elements with directives:', elements.length)
-    return elements;
-  };
+    return elements
+  }
 
   /**
    * LEAVE Animation - Elements animate OUT
@@ -359,42 +364,42 @@ export const usePageTransition = () => {
     console.error('🚨 PAGE LEAVE TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
       path: window.location.pathname,
       timestamp: Date.now(),
-      stackTrace: new Error().stack,
-    });
+      stackTrace: new Error().stack
+    })
 
-    const elements = findAnimatedElements(el);
+    const elements = findAnimatedElements(el)
 
     if (elements.length === 0) {
-      console.warn("⚠️ No elements with page animation directives found");
-      done();
-      return;
+      console.warn('⚠️ No elements with page animation directives found')
+      done()
+      return
     }
 
-    const tl = $gsap.timeline({ onComplete: done });
+    const tl = $gsap.timeline({ onComplete: done })
 
     elements.forEach((element, index) => {
-      const { type, config } = element._pageAnimation;
-      const position = index * 0.06; // Stagger start times
+      const { type, config } = element._pageAnimation
+      const position = index * 0.06 // Stagger start times
 
       // Call appropriate animation function
       switch (type) {
-        case "split":
-          animateSplit(element, config, "out", tl, position);
-          break;
-        case "fade":
-          animateFade(element, config, "out", tl, position);
-          break;
-        case "clip":
-          animateClip(element, config, "out", tl, position);
-          break;
-        case "stagger":
-          animateStagger(element, config, "out", tl, position);
-          break;
+        case 'split':
+          animateSplit(element, config, 'out', tl, position)
+          break
+        case 'fade':
+          animateFade(element, config, 'out', tl, position)
+          break
+        case 'clip':
+          animateClip(element, config, 'out', tl, position)
+          break
+        case 'stagger':
+          animateStagger(element, config, 'out', tl, position)
+          break
         default:
-          console.warn(`⚠️ Unknown animation type: ${type}`);
+          console.warn(`⚠️ Unknown animation type: ${type}`)
       }
-    });
-  };
+    })
+  }
 
   /**
    * ENTER Animation - Elements animate IN
@@ -405,18 +410,18 @@ export const usePageTransition = () => {
   const enter = (el, done) => {
     console.error('🚨 PAGE ENTER TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
       path: window.location.pathname,
-      timestamp: Date.now(),
-    });
+      timestamp: Date.now()
+    })
 
     // Wait for directives to mount and store their configs
     nextTick(() => {
-      const elements = findAnimatedElements(el);
+      const elements = findAnimatedElements(el)
 
       if (elements.length === 0) {
-        console.warn("⚠️ No elements with page animation directives found");
-        $gsap.set(el, { visibility: "visible" }); // Show page even if no animations
-        done();
-        return;
+        console.warn('⚠️ No elements with page animation directives found')
+        $gsap.set(el, { visibility: 'visible' }) // Show page even if no animations
+        done()
+        return
       }
 
       // SAFARI FIX: Double requestAnimationFrame ensures Safari has fully painted DOM
@@ -424,30 +429,30 @@ export const usePageTransition = () => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           // Now Safari is ready - make page visible
-          $gsap.set(el, { visibility: "visible" });
+          $gsap.set(el, { visibility: 'visible' })
 
           // Refresh ScrollSmoother to recalculate data-speed/data-lag for new page
-          const { refreshSmoother } = useScrollSmootherManager();
-          refreshSmoother();
+          const { refreshSmoother } = useScrollSmootherManager()
+          refreshSmoother()
 
           // Get nuxtApp to access headroom
-          const nuxtApp = useNuxtApp();
+          const nuxtApp = useNuxtApp()
 
           // Create timeline - resume headroom when animation completes
           const tl = $gsap.timeline({
             onComplete: () => {
-              done();
+              done()
               // Resume headroom AFTER visual transition completes
               if (nuxtApp.$headroom?.resume) {
-                nuxtApp.$headroom.resume();
+                nuxtApp.$headroom.resume()
                 // console.log('[Transition] Resumed headroom after enter animation')
               }
-            },
-          });
+            }
+          })
 
           elements.forEach((element, index) => {
-            const { type, config } = element._pageAnimation;
-            const position = index * 0.08; // Stagger start times (slightly slower than leave)
+            const { type, config } = element._pageAnimation
+            const position = index * 0.08 // Stagger start times (slightly slower than leave)
 
             // Check if element should skip enter animation (only animate on leave)
             // Used for scroll-triggered elements that should only transition OUT
@@ -455,85 +460,88 @@ export const usePageTransition = () => {
               // Set initial hidden state but don't animate
               // This prevents flash of visible content
               // ScrollTrigger or other systems will handle the IN animation
-              if (type === "stagger") {
-                const selector = config.selector || ":scope > *";
-                const children = element.querySelectorAll(selector);
-                $gsap.set(children, { y: 15, opacity: 0 });
-              } else if (type === "fade") {
-                const direction = config.direction || "up";
-                const distance = config.distance || 20;
-                const axis = direction === "up" || direction === "down" ? "y" : "x";
-                const value = direction === "up" || direction === "left" ? distance : -distance;
-                $gsap.set(element, { [axis]: value, opacity: 0 });
-              } else if (type === "split") {
-                // Set split initial hidden state (ScrollTrigger will handle SplitText animation)
-                $gsap.set(element, { opacity: 0, y: 40 });
+              if (type === 'stagger') {
+                const selector = config.selector || ':scope > *'
+                const children = element.querySelectorAll(selector)
+                $gsap.set(children, { y: 15, opacity: 0 })
               }
-              return; // Skip animation
+              else if (type === 'fade') {
+                const direction = config.direction || 'up'
+                const distance = config.distance || 20
+                const axis = direction === 'up' || direction === 'down' ? 'y' : 'x'
+                const value = direction === 'up' || direction === 'left' ? distance : -distance
+                $gsap.set(element, { [axis]: value, opacity: 0 })
+              }
+              else if (type === 'split') {
+                // Set split initial hidden state (ScrollTrigger will handle SplitText animation)
+                $gsap.set(element, { opacity: 0, y: 40 })
+              }
+              return // Skip animation
             }
 
             // Call appropriate animation function
             // Animation functions will set their own initial states
             switch (type) {
-              case "split":
-                animateSplit(element, config, "in", tl, position);
-                break;
-              case "fade":
-                animateFade(element, config, "in", tl, position);
-                break;
-              case "clip":
-                animateClip(element, config, "in", tl, position);
-                break;
-              case "stagger":
-                animateStagger(element, config, "in", tl, position);
-                break;
+              case 'split':
+                animateSplit(element, config, 'in', tl, position)
+                break
+              case 'fade':
+                animateFade(element, config, 'in', tl, position)
+                break
+              case 'clip':
+                animateClip(element, config, 'in', tl, position)
+                break
+              case 'stagger':
+                animateStagger(element, config, 'in', tl, position)
+                break
               default:
-                console.warn(`⚠️ Unknown animation type: ${type}`);
+                console.warn(`⚠️ Unknown animation type: ${type}`)
             }
-          });
-        });
-      });
-    });
-  };
+          })
+        })
+      })
+    })
+  }
 
   /**
    * Before enter hook - hide page to prevent flash of content
    */
   const beforeEnter = (el) => {
     // Hide page immediately to prevent flash while Safari paints DOM
-    $gsap.set(el, { visibility: "hidden" });
-  };
+    $gsap.set(el, { visibility: 'hidden' })
+  }
 
   /**
    * After leave hook - cleanup and scroll to top
    */
   const afterLeave = (el) => {
     // Cleanup SplitText instances and GSAP properties
-    cleanup();
+    cleanup()
 
     if ($gsap && el) {
-      $gsap.set(el, { clearProps: "all" });
-      $gsap.set(el.querySelectorAll("*"), { clearProps: "all" });
+      $gsap.set(el, { clearProps: 'all' })
+      $gsap.set(el.querySelectorAll('*'), { clearProps: 'all' })
     }
 
     // Manually scroll to top AFTER leave animation completes
     // This happens between OUT and IN animations, so user doesn't see the jump
-    const { getSmoother } = useScrollSmootherManager();
-    const smoother = getSmoother();
+    const { getSmoother } = useScrollSmootherManager()
+    const smoother = getSmoother()
 
-    if (smoother && typeof smoother.scrollTop === "function") {
+    if (smoother && typeof smoother.scrollTop === 'function') {
       // Use ScrollSmoother's scrollTop method for instant scroll to 0
-      smoother.scrollTop(0);
+      smoother.scrollTop(0)
       // console.log('📍 Scrolled to top after leave animation')
-    } else {
+    }
+    else {
       // Fallback to window.scrollTo if ScrollSmoother not available
-      window.scrollTo(0, 0);
+      window.scrollTo(0, 0)
       // console.log('📍 Fallback: Scrolled to top using window.scrollTo')
     }
 
     // NOTE: We do NOT reset headroom here - it stays frozen in current state
     // Header will smoothly animate to top state in resume() after enter animation completes
-  };
+  }
 
-  return { leave, enter, beforeEnter, afterLeave };
-};
+  return { leave, enter, beforeEnter, afterLeave }
+}

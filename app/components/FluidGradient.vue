@@ -35,7 +35,7 @@
     </TresCanvas>
 
     <!-- Theme-aware overlay to add subtle neutral tones -->
-    <div class="gradient-overlay"/>
+    <div class="gradient-overlay" />
   </div>
 </template>
 
@@ -50,16 +50,16 @@
  */
 
 // Standard GSAP from Nuxt app
-const { $gsap } = useNuxtApp();
+const { $gsap } = useNuxtApp()
 
 // Theme store for centralized theme state
-const themeStore = useThemeStore();
+const themeStore = useThemeStore()
 
 // Core refs
-const containerRef = ref(null);
-const timeline = ref(null);
-const isMounted = ref(false);
-let gsapCtx = null;
+const containerRef = ref(null)
+const timeline = ref(null)
+const isMounted = ref(false)
+let gsapCtx = null
 
 /**
  * Gradient color palettes - normalized RGB values for Three.js (0-1 range)
@@ -71,15 +71,15 @@ const gradientColors = {
     tl: [1.0, 0.5, 0.7], // Rose/pink - warm
     tr: [0.5, 1.0, 0.6], // Mint green - fresh
     bl: [0.6, 0.5, 1.0], // Lavender - cool
-    br: [0.8, 1.0, 0.5], // Lime - energetic
+    br: [0.8, 1.0, 0.5] // Lime - energetic
   },
   dark: {
     tl: [0.25, 0.15, 0.4], // Rich purple (64, 38, 102)
     tr: [0.15, 0.25, 0.45], // Deep blue (38, 64, 115)
     bl: [0.35, 0.15, 0.25], // Deep magenta (89, 38, 64)
-    br: [0.15, 0.35, 0.3], // Deep teal (38, 89, 76)
-  },
-};
+    br: [0.15, 0.35, 0.3] // Deep teal (38, 89, 76)
+  }
+}
 
 /**
  * Shader uniforms (reactive so GSAP can tween nested .value)
@@ -91,8 +91,8 @@ const uniforms = reactive({
   colorTL: { value: [...gradientColors.light.tl] }, // Top-left (vec3)
   colorTR: { value: [...gradientColors.light.tr] }, // Top-right (vec3)
   colorBL: { value: [...gradientColors.light.bl] }, // Bottom-left (vec3)
-  colorBR: { value: [...gradientColors.light.br] }, // Bottom-right (vec3)
-});
+  colorBR: { value: [...gradientColors.light.br] } // Bottom-right (vec3)
+})
 
 /**
  * Minimal passthrough vertex shader
@@ -102,7 +102,7 @@ varying vec2 vUv;
 void main() {
   vUv = uv;
   gl_Position = vec4(position, 1.0);
-}`;
+}`
 
 /**
  * Fluid gradient fragment shader
@@ -146,7 +146,7 @@ vec3 getColor(vec2 uv, float t) {
 void main() {
   vec3 color = getColor(vUv, time);
   gl_FragColor = vec4(color, 1.0);
-}`;
+}`
 
 /**
  * Animate gradient colors to match theme
@@ -154,7 +154,7 @@ void main() {
  * @param {boolean} isDark - Whether dark theme is active
  */
 function animateToTheme(isDark) {
-  const targetColors = isDark ? gradientColors.dark : gradientColors.light;
+  const targetColors = isDark ? gradientColors.dark : gradientColors.light
 
   // Create a proxy object to animate, then update the uniform arrays
   // This ensures GSAP can properly interpolate the values
@@ -170,8 +170,8 @@ function animateToTheme(isDark) {
     blB: uniforms.colorBL.value[2],
     brR: uniforms.colorBR.value[0],
     brG: uniforms.colorBR.value[1],
-    brB: uniforms.colorBR.value[2],
-  };
+    brB: uniforms.colorBR.value[2]
+  }
 
   $gsap.to(proxy, {
     tlR: targetColors.tl[0],
@@ -187,23 +187,23 @@ function animateToTheme(isDark) {
     brG: targetColors.br[1],
     brB: targetColors.br[2],
     duration: 0.6,
-    ease: "power2.inOut",
+    ease: 'power2.inOut',
     onUpdate: () => {
       // Update the actual uniform arrays on every frame
-      uniforms.colorTL.value[0] = proxy.tlR;
-      uniforms.colorTL.value[1] = proxy.tlG;
-      uniforms.colorTL.value[2] = proxy.tlB;
-      uniforms.colorTR.value[0] = proxy.trR;
-      uniforms.colorTR.value[1] = proxy.trG;
-      uniforms.colorTR.value[2] = proxy.trB;
-      uniforms.colorBL.value[0] = proxy.blR;
-      uniforms.colorBL.value[1] = proxy.blG;
-      uniforms.colorBL.value[2] = proxy.blB;
-      uniforms.colorBR.value[0] = proxy.brR;
-      uniforms.colorBR.value[1] = proxy.brG;
-      uniforms.colorBR.value[2] = proxy.brB;
-    },
-  });
+      uniforms.colorTL.value[0] = proxy.tlR
+      uniforms.colorTL.value[1] = proxy.tlG
+      uniforms.colorTL.value[2] = proxy.tlB
+      uniforms.colorTR.value[0] = proxy.trR
+      uniforms.colorTR.value[1] = proxy.trG
+      uniforms.colorTR.value[2] = proxy.trB
+      uniforms.colorBL.value[0] = proxy.blR
+      uniforms.colorBL.value[1] = proxy.blG
+      uniforms.colorBL.value[2] = proxy.blB
+      uniforms.colorBR.value[0] = proxy.brR
+      uniforms.colorBR.value[1] = proxy.brG
+      uniforms.colorBR.value[2] = proxy.brB
+    }
+  })
 }
 
 /**
@@ -211,100 +211,100 @@ function animateToTheme(isDark) {
  * @returns {GSAPTimeline|null}
  */
 const createAnimation = () => {
-  if (!containerRef.value) return null;
+  if (!containerRef.value) return null
 
-  const tl = $gsap.timeline({ paused: false });
+  const tl = $gsap.timeline({ paused: false })
   // Advance time forever for continuous fluid motion
   tl.to(uniforms.time, {
-    value: "+=1000",
+    value: '+=1000',
     duration: 1000,
-    ease: "none",
-    repeat: -1,
-  });
+    ease: 'none',
+    repeat: -1
+  })
 
-  timeline.value = tl;
-  return tl;
-};
+  timeline.value = tl
+  return tl
+}
 
 // Watch theme store for changes and animate gradient colors
 watch(
   () => themeStore.isDark,
   (isDark) => {
-    animateToTheme(isDark);
+    animateToTheme(isDark)
   }
-);
+)
 
 // Lifecycle: mount and initialize fluid gradient animation
 onMounted(() => {
   // Setup entrance animation for first load
-  const { isFirstLoad } = useLoadingSequence();
+  const { isFirstLoad } = useLoadingSequence()
   if (isFirstLoad()) {
-    const { setupEntrance } = useEntranceAnimation();
+    const { setupEntrance } = useEntranceAnimation()
 
     setupEntrance(containerRef.value, {
-      position: "<-0.2", // Overlap header by 0.2s (can be changed)
+      position: '<-0.2', // Overlap header by 0.2s (can be changed)
       animate: (el) => {
-        const tl = $gsap.timeline();
+        const tl = $gsap.timeline()
 
         // Element already hidden by CSS
         // Animate to visible with opacity 1 (TresCanvas inside has opacity-50 class)
         tl.to(el, {
           autoAlpha: 1,
           duration: 0.8,
-          ease: "power2.out",
-        });
+          ease: 'power2.out'
+        })
 
-        return tl;
-      },
-    });
+        return tl
+      }
+    })
   }
 
   // Set mounted flag to allow TresCanvas to render
-  isMounted.value = true;
+  isMounted.value = true
 
   nextTick(() => {
     // Small delay to ensure TresCanvas is fully initialized
     setTimeout(() => {
-      if (!containerRef.value) return;
+      if (!containerRef.value) return
 
       // Set initial colors based on current theme from store (no animation)
       const initialColors = themeStore.isDark
         ? gradientColors.dark
-        : gradientColors.light;
-      uniforms.colorTL.value = [...initialColors.tl];
-      uniforms.colorTR.value = [...initialColors.tr];
-      uniforms.colorBL.value = [...initialColors.bl];
-      uniforms.colorBR.value = [...initialColors.br];
+        : gradientColors.light
+      uniforms.colorTL.value = [...initialColors.tl]
+      uniforms.colorTR.value = [...initialColors.tr]
+      uniforms.colorBL.value = [...initialColors.bl]
+      uniforms.colorBR.value = [...initialColors.br]
 
       gsapCtx = $gsap.context(() => {
-        const tl = createAnimation();
-        if (!tl) return;
+        const tl = createAnimation()
+        if (!tl) return
 
         // Auto-play the animation (no ScrollTrigger needed for background)
-        tl.play();
-      }, containerRef.value);
-    }, 100);
-  });
-});
+        tl.play()
+      }, containerRef.value)
+    }, 100)
+  })
+})
 
 // Cleanup
 onUnmounted(() => {
   // Pause and kill timeline
   if (timeline.value) {
-    timeline.value.pause();
-    timeline.value.kill();
-    timeline.value = null;
+    timeline.value.pause()
+    timeline.value.kill()
+    timeline.value = null
   }
 
   // Revert GSAP context
   if (gsapCtx) {
-    gsapCtx.revert();
-    gsapCtx = null;
+    gsapCtx.revert()
+    gsapCtx = null
   }
 
   // Clear mounted flag
-  isMounted.value = false;
-});
+  isMounted.value = false
+})
 
 // Public API for external control
 defineExpose({
@@ -314,8 +314,8 @@ defineExpose({
   pause: () => timeline.value?.pause(),
   restart: () => timeline.value?.restart(),
   reverse: () => timeline.value?.reverse(),
-  seek: (time) => timeline.value?.seek(time),
-});
+  seek: time => timeline.value?.seek(time)
+})
 </script>
 
 <style scoped>

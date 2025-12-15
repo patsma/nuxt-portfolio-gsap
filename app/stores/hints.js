@@ -7,7 +7,7 @@ import { defineStore } from 'pinia'
 export const useHintsStore = defineStore('hints', () => {
   // Track which hints have been shown to the user
   const shownHints = ref(new Set())
-  
+
   /**
    * Check if a specific hint has been shown
    * @param {string} hintKey - Unique identifier for the hint
@@ -16,7 +16,7 @@ export const useHintsStore = defineStore('hints', () => {
   const hasShown = (hintKey) => {
     return shownHints.value.has(hintKey)
   }
-  
+
   /**
    * Mark a hint as shown
    * @param {string} hintKey - Unique identifier for the hint
@@ -31,7 +31,8 @@ export const useHintsStore = defineStore('hints', () => {
           stored.push(hintKey)
           localStorage.setItem('ui-hints', JSON.stringify(stored))
         }
-      } catch {
+      }
+      catch {
         // Silently fail if localStorage is unavailable
       }
     }
@@ -45,7 +46,8 @@ export const useHintsStore = defineStore('hints', () => {
       try {
         const stored = JSON.parse(localStorage.getItem('ui-hints') || '[]')
         shownHints.value = new Set(stored)
-      } catch {
+      }
+      catch {
         // Silently fail if localStorage is unavailable
         shownHints.value = new Set()
       }
@@ -60,12 +62,13 @@ export const useHintsStore = defineStore('hints', () => {
     if (typeof window !== 'undefined') {
       try {
         localStorage.removeItem('ui-hints')
-      } catch {
+      }
+      catch {
         // Silently fail
       }
     }
   }
-  
+
   return {
     hasShown,
     markAsShown,

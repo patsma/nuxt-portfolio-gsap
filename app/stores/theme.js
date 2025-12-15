@@ -1,14 +1,14 @@
 // ~/stores/theme.js
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
 /**
  * Theme store - centralized theme state management
  * Uses Pinia hydration for SSR-safe initialization
  * Plugin handles HTML class, store only manages state
  */
-export const useThemeStore = defineStore("theme", {
+export const useThemeStore = defineStore('theme', {
   state: () => ({
-    isDark: false, // Default state, will be hydrated from localStorage
+    isDark: false // Default state, will be hydrated from localStorage
   }),
 
   /**
@@ -18,11 +18,11 @@ export const useThemeStore = defineStore("theme", {
    */
   hydrate(state) {
     if (import.meta.client) {
-      const stored = localStorage.getItem("theme");
+      const stored = localStorage.getItem('theme')
       const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      state.isDark = stored ? stored === "dark" : prefersDark;
+        '(prefers-color-scheme: dark)'
+      ).matches
+      state.isDark = stored ? stored === 'dark' : prefersDark
 
       // Debug logging
       // console.log('🍍 [Pinia Store] Theme hydrated:', state.isDark ? 'DARK' : 'LIGHT',
@@ -36,14 +36,14 @@ export const useThemeStore = defineStore("theme", {
      * Toggle theme between light and dark
      */
     toggle() {
-      this.isDark = !this.isDark;
+      this.isDark = !this.isDark
 
       if (import.meta.client) {
         // Persist to localStorage
-        localStorage.setItem("theme", this.isDark ? "dark" : "light");
+        localStorage.setItem('theme', this.isDark ? 'dark' : 'light')
 
         // Sync with HTML class
-        document.documentElement.classList.toggle("theme-dark", this.isDark);
+        document.documentElement.classList.toggle('theme-dark', this.isDark)
 
         // Debug logging
         // console.log(
@@ -59,12 +59,12 @@ export const useThemeStore = defineStore("theme", {
      * @param {boolean} isDark - Whether to set dark theme
      */
     setTheme(isDark) {
-      this.isDark = isDark;
+      this.isDark = isDark
 
       if (import.meta.client) {
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-        document.documentElement.classList.toggle("theme-dark", isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light')
+        document.documentElement.classList.toggle('theme-dark', isDark)
       }
-    },
-  },
-});
+    }
+  }
+})

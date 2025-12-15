@@ -80,13 +80,14 @@
     </g>
   </svg>
 </template>
+
 <script setup lang="ts">
 // We expose both svgRef and svgRootRef for consistency with components
 // that expect a `svgRootRef` public API (e.g. advanced GSAP setups).
 // Both point to the same root <svg> element.
-const svgRef = ref<SVGSVGElement | null>(null);
+const svgRef = ref<SVGSVGElement | null>(null)
 defineExpose({
   svgRef,
-  svgRootRef: svgRef,
-});
+  svgRootRef: svgRef
+})
 </script>

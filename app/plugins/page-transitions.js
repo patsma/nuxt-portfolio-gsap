@@ -14,21 +14,21 @@
  * - v-page-stagger: Stagger child elements with any animation type
  */
 
-import vPageSplit from "~/directives/v-page-split";
-import vPageFade from "~/directives/v-page-fade";
-import vPageClip from "~/directives/v-page-clip";
-import vPageStagger from "~/directives/v-page-stagger";
+import vPageSplit from '~/directives/v-page-split'
+import vPageFade from '~/directives/v-page-fade'
+import vPageClip from '~/directives/v-page-clip'
+import vPageStagger from '~/directives/v-page-stagger'
 
 export default defineNuxtPlugin((nuxtApp) => {
   // Register all page transition directives
-  nuxtApp.vueApp.directive("page-split", vPageSplit);
-  nuxtApp.vueApp.directive("page-fade", vPageFade);
-  nuxtApp.vueApp.directive("page-clip", vPageClip);
-  nuxtApp.vueApp.directive("page-stagger", vPageStagger);
+  nuxtApp.vueApp.directive('page-split', vPageSplit)
+  nuxtApp.vueApp.directive('page-fade', vPageFade)
+  nuxtApp.vueApp.directive('page-clip', vPageClip)
+  nuxtApp.vueApp.directive('page-stagger', vPageStagger)
 
   // console.log('✅ Page transition directives registered!')
   // console.log('   - v-page-split:chars | :words | :lines')
   // console.log('   - v-page-fade:in | :out | :up | :down | :left | :right')
   // console.log('   - v-page-clip:top | :bottom | :left | :right')
   // console.log('   - v-page-stagger:fade | :clip | :scale')
-});
+})

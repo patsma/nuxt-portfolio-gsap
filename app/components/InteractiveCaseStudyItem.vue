@@ -46,14 +46,22 @@
     class="case-study-card flex md:hidden"
   >
     <div class="card-image-container">
-      <NuxtImg :src="image" :alt="imageAlt" class="card-image" loading="lazy" />
+      <NuxtImg
+        :src="image"
+        :alt="imageAlt"
+        class="card-image"
+        loading="lazy"
+      />
     </div>
     <div class="card-content">
       <div class="card-header">
         <h2 class="card-title pp-eiko-mobile-h2">
           {{ title }}
         </h2>
-        <span v-if="tag" class="card-tag ibm-plex-sans-jp-mobile-custom-labels">
+        <span
+          v-if="tag"
+          class="card-tag ibm-plex-sans-jp-mobile-custom-labels"
+        >
           {{ tag }}
         </span>
       </div>
@@ -115,7 +123,7 @@ const props = defineProps({
    */
   title: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Optional tag (e.g., "APP", "REDESIGN", "INTRANET")
@@ -124,7 +132,7 @@ const props = defineProps({
    */
   tag: {
     type: String,
-    default: "",
+    default: ''
   },
   /**
    * Project description or role (e.g., "Art direction & UI")
@@ -132,7 +140,7 @@ const props = defineProps({
    */
   description: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Image source path
@@ -140,7 +148,7 @@ const props = defineProps({
    */
   image: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Alt text for image (accessibility)
@@ -148,7 +156,7 @@ const props = defineProps({
    */
   imageAlt: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Navigation path (e.g., "/work/project-name")
@@ -157,7 +165,7 @@ const props = defineProps({
    */
   to: {
     type: String,
-    default: "/contact",
+    default: '/contact'
   },
   /**
    * Clip animation direction for preview reveal
@@ -167,15 +175,15 @@ const props = defineProps({
    */
   clipDirection: {
     type: String,
-    default: "random",
-    validator: (value) =>
-      ["center", "left", "right", "top", "bottom", "random"].includes(value),
-  },
-});
+    default: 'random',
+    validator: value =>
+      ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value)
+  }
+})
 
 // Inject context from parent InteractiveCaseStudySection
-const setActivePreview = inject("setActivePreview");
-const clearActivePreview = inject("clearActivePreview");
+const setActivePreview = inject('setActivePreview')
+const clearActivePreview = inject('clearActivePreview')
 
 /**
  * Handle mouse enter (desktop only)
@@ -186,10 +194,10 @@ const handleMouseEnter = () => {
     setActivePreview({
       image: props.image,
       imageAlt: props.imageAlt,
-      clipDirection: props.clipDirection,
-    });
+      clipDirection: props.clipDirection
+    })
   }
-};
+}
 
 /**
  * Handle mouse leave (desktop only)
@@ -197,7 +205,7 @@ const handleMouseEnter = () => {
  */
 const handleMouseLeave = () => {
   if (clearActivePreview) {
-    clearActivePreview();
+    clearActivePreview()
   }
-};
+}
 </script>

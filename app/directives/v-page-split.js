@@ -27,44 +27,44 @@
  */
 
 export default {
-  name: "page-split",
+  name: 'page-split',
 
   // SSR support - skip during server rendering
   getSSRProps() {
-    return {};
+    return {}
   },
 
   mounted(el, binding) {
-    const splitType = binding.arg || "chars";
-    const config = binding.value || {};
+    const splitType = binding.arg || 'chars'
+    const config = binding.value || {}
 
     // Default values based on split type
     const defaults = {
       chars: { y: 35, stagger: 0.025 },
       words: { y: 15, stagger: 0.03 },
-      lines: { y: 20, stagger: 0.04 },
-    };
+      lines: { y: 20, stagger: 0.04 }
+    }
 
-    const typeDefaults = defaults[splitType] || defaults.chars;
+    const typeDefaults = defaults[splitType] || defaults.chars
 
     // Store config on element for page transitions to read
     el._pageAnimation = {
-      type: "split",
+      type: 'split',
       config: {
         splitType,
         stagger:
           config.stagger !== undefined ? config.stagger : typeDefaults.stagger,
         duration: config.duration || 0.9,
-        ease: config.ease || "back.out(1.2)",
+        ease: config.ease || 'back.out(1.2)',
         y: config.y !== undefined ? config.y : typeDefaults.y,
         animateFrom: config.animateFrom, // 'below' | 'above' | undefined
-        leaveOnly: config.leaveOnly || false, // Only animate on page leave, skip enter
-      },
-    };
+        leaveOnly: config.leaveOnly || false // Only animate on page leave, skip enter
+      }
+    }
   },
 
   unmounted(el) {
     // Clean up config
-    delete el._pageAnimation;
-  },
-};
+    delete el._pageAnimation
+  }
+}

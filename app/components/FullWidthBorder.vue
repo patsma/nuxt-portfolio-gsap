@@ -2,7 +2,7 @@
   <div
     class="full-width-border-line full-width"
     :style="{
-      marginBottom: spacing,
+      marginBottom: spacing
     }"
   />
 </template>
@@ -39,7 +39,7 @@ defineProps({
   opacity: {
     type: Number,
     default: 15,
-    validator: (value) => value >= 0 && value <= 100,
+    validator: value => value >= 0 && value <= 100
   },
   /**
    * Bottom margin spacing (CSS variable or value)
@@ -49,9 +49,9 @@ defineProps({
    */
   spacing: {
     type: String,
-    default: '0',
-  },
-});
+    default: '0'
+  }
+})
 </script>
 
 <style scoped>

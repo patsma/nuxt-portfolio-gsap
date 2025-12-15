@@ -15,9 +15,18 @@
         gradientTransform="translate(0 -465.89)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0.01" stop-color="#ba2025" />
-        <stop offset="0.58" stop-color="#c52026" />
-        <stop offset="1" stop-color="#ed1b2e" />
+        <stop
+          offset="0.01"
+          stop-color="#ba2025"
+        />
+        <stop
+          offset="0.58"
+          stop-color="#c52026"
+        />
+        <stop
+          offset="1"
+          stop-color="#ed1b2e"
+        />
       </linearGradient>
       <linearGradient
         id="linear-gradient-2"
@@ -28,10 +37,22 @@
         gradientTransform="translate(0 -465.89)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0.01" stop-color="#203063" />
-        <stop offset="0.38" stop-color="#1859a1" />
-        <stop offset="0.58" stop-color="#266da7" />
-        <stop offset="1" stop-color="#2c88c1" />
+        <stop
+          offset="0.01"
+          stop-color="#203063"
+        />
+        <stop
+          offset="0.38"
+          stop-color="#1859a1"
+        />
+        <stop
+          offset="0.58"
+          stop-color="#266da7"
+        />
+        <stop
+          offset="1"
+          stop-color="#2c88c1"
+        />
       </linearGradient>
       <clipPath id="clip-path">
         <path
@@ -47,31 +68,116 @@
         y2="455.81"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0" stop-color="#fff" stop-opacity="0" />
-        <stop offset="0.2" stop-color="#fff" stop-opacity="0.01" />
-        <stop offset="0.28" stop-color="#fff" stop-opacity="0.03" />
-        <stop offset="0.33" stop-color="#fff" stop-opacity="0.08" />
-        <stop offset="0.37" stop-color="#fff" stop-opacity="0.15" />
-        <stop offset="0.4" stop-color="#fff" stop-opacity="0.23" />
-        <stop offset="0.44" stop-color="#fff" stop-opacity="0.34" />
-        <stop offset="0.47" stop-color="#fff" stop-opacity="0.47" />
-        <stop offset="0.49" stop-color="#fff" stop-opacity="0.61" />
-        <stop offset="0.51" stop-color="#fff" stop-opacity="0.7" />
-        <stop offset="0.52" stop-color="#fff" stop-opacity="0.61" />
-        <stop offset="0.54" stop-color="#fff" stop-opacity="0.47" />
-        <stop offset="0.57" stop-color="#fff" stop-opacity="0.34" />
-        <stop offset="0.6" stop-color="#fff" stop-opacity="0.23" />
-        <stop offset="0.64" stop-color="#fff" stop-opacity="0.15" />
-        <stop offset="0.68" stop-color="#fff" stop-opacity="0.08" />
-        <stop offset="0.73" stop-color="#fff" stop-opacity="0.03" />
-        <stop offset="0.8" stop-color="#fff" stop-opacity="0.01" />
-        <stop offset="1" stop-color="#fff" stop-opacity="0" />
+        <stop
+          offset="0"
+          stop-color="#fff"
+          stop-opacity="0"
+        />
+        <stop
+          offset="0.2"
+          stop-color="#fff"
+          stop-opacity="0.01"
+        />
+        <stop
+          offset="0.28"
+          stop-color="#fff"
+          stop-opacity="0.03"
+        />
+        <stop
+          offset="0.33"
+          stop-color="#fff"
+          stop-opacity="0.08"
+        />
+        <stop
+          offset="0.37"
+          stop-color="#fff"
+          stop-opacity="0.15"
+        />
+        <stop
+          offset="0.4"
+          stop-color="#fff"
+          stop-opacity="0.23"
+        />
+        <stop
+          offset="0.44"
+          stop-color="#fff"
+          stop-opacity="0.34"
+        />
+        <stop
+          offset="0.47"
+          stop-color="#fff"
+          stop-opacity="0.47"
+        />
+        <stop
+          offset="0.49"
+          stop-color="#fff"
+          stop-opacity="0.61"
+        />
+        <stop
+          offset="0.51"
+          stop-color="#fff"
+          stop-opacity="0.7"
+        />
+        <stop
+          offset="0.52"
+          stop-color="#fff"
+          stop-opacity="0.61"
+        />
+        <stop
+          offset="0.54"
+          stop-color="#fff"
+          stop-opacity="0.47"
+        />
+        <stop
+          offset="0.57"
+          stop-color="#fff"
+          stop-opacity="0.34"
+        />
+        <stop
+          offset="0.6"
+          stop-color="#fff"
+          stop-opacity="0.23"
+        />
+        <stop
+          offset="0.64"
+          stop-color="#fff"
+          stop-opacity="0.15"
+        />
+        <stop
+          offset="0.68"
+          stop-color="#fff"
+          stop-opacity="0.08"
+        />
+        <stop
+          offset="0.73"
+          stop-color="#fff"
+          stop-opacity="0.03"
+        />
+        <stop
+          offset="0.8"
+          stop-color="#fff"
+          stop-opacity="0.01"
+        />
+        <stop
+          offset="1"
+          stop-color="#fff"
+          stop-opacity="0"
+        />
       </linearGradient>
     </defs>
-    <g id="Layer_2" data-name="Layer 2">
+    <g
+      id="Layer_2"
+      data-name="Layer 2"
+    >
       <g id="zaksa-logo">
         <g id="dummy">
-          <rect x="47.3" y="45.44" width="334" height="374" fill="none" />
+          <rect
+            x="47.3"
+            y="45.44"
+            width="334"
+            height="374"
+            fill="none"
+          />
         </g>
         <path
           id="logo-background-blue"
@@ -278,12 +384,20 @@
         </g>
       </g>
     </g>
-    <path id="bounce" fill="none" stroke="none" />
-    <path id="squash" fill="none" stroke="none" />
+    <path
+      id="bounce"
+      fill="none"
+      stroke="none"
+    />
+    <path
+      id="squash"
+      fill="none"
+      stroke="none"
+    />
   </svg>
 </template>
 
 <script setup>
-const svgRootRef = ref(null);
-defineExpose({ svgRootRef });
+const svgRootRef = ref(null)
+defineExpose({ svgRootRef })
 </script>

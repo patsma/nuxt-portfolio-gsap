@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HeroSection from "~/components/HeroSection.vue";
-import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
+import HeroSection from '~/components/HeroSection.vue'
+import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
 </script>
 
 <template>
@@ -14,20 +14,15 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         <span class="text-[var(--theme-text-60)]">Feel</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
         <span class="text-[var(--theme-text-60)]">
-          to use my lab projects as your own. They are</span
-        >
+          to use my lab projects as your own. They are</span>
         <span class="text-[var(--theme-text-100)] font-body font-[300]">
-          based</span
-        >
+          based</span>
         <span class="text-[var(--theme-text-60)]"> on Morten</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> logic</em>
         <span class="text-[var(--theme-text-60)]"> and</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]">
-          experience</em
-        >
-        <span class="text-[var(--theme-text-60)]"
-          >, but still experimental and always evolving</span
-        >
+          experience</em>
+        <span class="text-[var(--theme-text-60)]">, but still experimental and always evolving</span>
       </h1>
       <template #button>
         <ScrollDownSVG v-page-fade:left />
@@ -35,7 +30,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
     </HeroSection>
 
     <!-- Spacer -->
-    <div class="h-[30vh]"/>
+    <div class="h-[30vh]" />
 
     <!-- Parallax Tests -->
     <div class="content-grid">
@@ -63,7 +58,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         </section>
 
         <!-- Spacer -->
-        <div class="h-[40vh]"/>
+        <div class="h-[40vh]" />
 
         <!-- Video Parallax -->
         <section class="grid gap-[var(--space-l)]">
@@ -91,7 +86,7 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         </section>
 
         <!-- Spacer -->
-        <div class="h-[50vh]"/>
+        <div class="h-[50vh]" />
       </div>
     </div>
   </div>

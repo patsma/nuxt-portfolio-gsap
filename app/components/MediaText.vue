@@ -9,7 +9,7 @@
             y: 16,
             duration: 0.7,
             stagger: 0.15,
-            ease: 'power2.out',
+            ease: 'power2.out'
           }"
           :class="[
             'grid items-center gap-[var(--space-l)] md:gap-[var(--space-xl)]',
@@ -17,7 +17,7 @@
               ? flipped
                 ? 'md:grid-cols-2 md:[&>*:first-child]:order-2'
                 : 'md:grid-cols-2'
-              : '',
+              : ''
           ]"
         >
           <!-- Media -->
@@ -45,7 +45,9 @@
               <h2
                 class="font-serif-display text-step-3 md:text-step-4 lg:text-step-6 leading-[var(--leading-display)] tracking-[var(--tracking-widest)] text-center font-semibold"
               >
-                <slot name="title">{{ title }}</slot>
+                <slot name="title">
+                  {{ title }}
+                </slot>
               </h2>
             </div>
             <div
@@ -62,38 +64,38 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  imageSrc?: string;
-  imageAlt?: string;
-  title?: string;
-  paragraph?: string;
-  flipped?: boolean;
+  imageSrc?: string
+  imageAlt?: string
+  title?: string
+  paragraph?: string
+  flipped?: boolean
   width?:
-    | "content"
-    | "breakout1"
-    | "breakout2"
-    | "breakout3"
-    | "breakout4"
-    | "full";
-}>();
+    | 'content'
+    | 'breakout1'
+    | 'breakout2'
+    | 'breakout3'
+    | 'breakout4'
+    | 'full'
+}>()
 
 const widthClass = computed(() => {
   const map: Record<NonNullable<typeof props.width>, string> = {
-    content: "",
-    breakout1: "breakout1",
-    breakout2: "breakout2",
-    breakout3: "breakout3",
-    breakout4: "breakout4",
-    full: "full-width",
-  };
-  return map[props.width ?? "breakout3"];
-});
+    content: '',
+    breakout1: 'breakout1',
+    breakout2: 'breakout2',
+    breakout3: 'breakout3',
+    breakout4: 'breakout4',
+    full: 'full-width'
+  }
+  return map[props.width ?? 'breakout3']
+})
 
-const flipped = computed(() => props.flipped === true);
-const imageAlt = computed(() => props.imageAlt ?? "");
-const hasTitle = computed(() => !!useSlots().title || !!props.title);
+const flipped = computed(() => props.flipped === true)
+const imageAlt = computed(() => props.imageAlt ?? '')
+const hasTitle = computed(() => !!useSlots().title || !!props.title)
 const hasImage = computed(
-  () => typeof props.imageSrc === "string" && props.imageSrc.length > 0
-);
+  () => typeof props.imageSrc === 'string' && props.imageSrc.length > 0
+)
 </script>
 
 <style scoped>

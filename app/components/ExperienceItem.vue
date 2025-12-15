@@ -111,7 +111,7 @@ defineProps({
    */
   dateRange: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Job title or position
@@ -119,7 +119,7 @@ defineProps({
    */
   title: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Company or organization name
@@ -127,7 +127,7 @@ defineProps({
    */
   company: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Location (city, country, or both)
@@ -135,7 +135,7 @@ defineProps({
    */
   location: {
     type: String,
-    required: true,
-  },
-});
+    required: true
+  }
+})
 </script>

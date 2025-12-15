@@ -8,7 +8,9 @@
   -->
     <!-- Section: Font family switcher using semantic role utilities -->
     <section class="space-y-2">
-      <h2 class="text-step-4 font-display">Font family switcher (semantic)</h2>
+      <h2 class="text-step-4 font-display">
+        Font family switcher (semantic)
+      </h2>
       <p class="text-sm text-stone-600">
         Base: font-body → md:font-display → lg:font-body
       </p>
@@ -19,7 +21,9 @@
 
     <!-- Section: Full style switcher between IBM ↔ PP Eiko across breakpoints -->
     <section class="space-y-2">
-      <h2 class="text-step-4 font-display">Style switcher (IBM ↔ PP Eiko)</h2>
+      <h2 class="text-step-4 font-display">
+        Style switcher (IBM ↔ PP Eiko)
+      </h2>
       <p class="text-sm text-stone-600">
         Base: PP Eiko Mobile/H2 → md: IBM Laptop/H1 → lg: PP Eiko Desktop/H2
       </p>
@@ -32,7 +36,9 @@
 
     <!-- Section: Raw step utilities switching to validate scale and layout sync -->
     <section class="space-y-2">
-      <h2 class="text-step-4 font-display">Step utilities switcher</h2>
+      <h2 class="text-step-4 font-display">
+        Step utilities switcher
+      </h2>
       <p class="text-sm text-stone-600">
         Base: step-2 → md: step-5 → lg: step-8 → xl: step-11
       </p>
@@ -45,7 +51,9 @@
 
     <!-- Section: Body tracking tokens across sizes (IBM caption → IBM caption desktop) -->
     <section class="space-y-2">
-      <h2 class="text-step-4 font-display">Body tracking scaling (IBM)</h2>
+      <h2 class="text-step-4 font-display">
+        Body tracking scaling (IBM)
+      </h2>
       <p class="text-sm text-stone-600">
         Base: IBM Mobile/Caption → md: IBM Desktop/Caption
       </p>
@@ -62,7 +70,9 @@
         Navigation labels (caption/subcaption)
       </h2>
       <div class="grid gap-2">
-        <p class="text-sm text-stone-600">Mobile labels → Desktop labels</p>
+        <p class="text-sm text-stone-600">
+          Mobile labels → Desktop labels
+        </p>
         <p
           class="ibm-plex-sans-jp-mobile-custom-navigation-caption md:ibm-plex-sans-jp-desktop-custom-navigation-caption"
         >

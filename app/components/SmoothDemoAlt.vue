@@ -5,7 +5,10 @@
     - Blockquotes, callouts, and advanced text formatting
     - Demonstrates grid order changes and complex content patterns
   -->
-  <section aria-labelledby="alt-smooth-heading" class="w-full">
+  <section
+    aria-labelledby="alt-smooth-heading"
+    class="w-full"
+  >
     <div class="content-grid">
       <div
         class="breakout3 py-[var(--space-l)] md:py-[var(--space-xl)] grid gap-[var(--space-xl)]"
@@ -51,13 +54,9 @@
               class="mt-[var(--space-2xs)] ibm-plex-sans-jp-mobile-caption md:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
             >
               Image with
-              <code class="px-1 bg-[var(--theme-15)] rounded text-xs"
-                >auto speed</code
-              >
+              <code class="px-1 bg-[var(--theme-15)] rounded text-xs">auto speed</code>
               and
-              <code class="px-1 bg-[var(--theme-15)] rounded text-xs"
-                >0.25 lag</code
-              >
+              <code class="px-1 bg-[var(--theme-15)] rounded text-xs">0.25 lag</code>
             </figcaption>
           </figure>
 
@@ -74,9 +73,7 @@
             >
               This layout uses <strong>CSS Grid</strong> with responsive
               breakpoints. The image on the left has a different
-              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm"
-                >data-lag</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm">data-lag</code>
               value than the text, creating <em>subtle depth</em> while
               scrolling.
             </p>
@@ -100,7 +97,10 @@
         </div>
 
         <!-- Blockquote Section -->
-        <div class="max-w-3xl mx-auto" data-speed="0.98">
+        <div
+          class="max-w-3xl mx-auto"
+          data-speed="0.98"
+        >
           <blockquote
             class="pl-[var(--space-m)] border-l-[var(--border-width-thick)] border-[var(--theme-text-15)]"
           >
@@ -119,7 +119,10 @@
         </div>
 
         <!-- Info Callout Box -->
-        <div class="max-w-3xl mx-auto" data-speed="1.04">
+        <div
+          class="max-w-3xl mx-auto"
+          data-speed="1.04"
+        >
           <div
             class="flex items-start gap-[var(--space-s)] p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)]"
           >
@@ -138,13 +141,9 @@
                 class="ibm-plex-sans-jp-mobile-caption md:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)]"
               >
                 Use
-                <code class="px-1 bg-[var(--theme-15)] rounded text-xs"
-                  >icon-60</code
-                >
+                <code class="px-1 bg-[var(--theme-15)] rounded text-xs">icon-60</code>
                 for 60% opacity icons, or
-                <code class="px-1 bg-[var(--theme-15)] rounded text-xs"
-                  >icon-100</code
-                >
+                <code class="px-1 bg-[var(--theme-15)] rounded text-xs">icon-100</code>
                 for full opacity
               </p>
             </div>
@@ -170,35 +169,25 @@
               Image appears above text.
               <strong class="text-[var(--theme-text-100)]">Desktop:</strong>
               Order reverses using
-              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm"
-                >md:order-*</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm">md:order-*</code>
               utilities.
             </p>
             <p
               class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-30)]"
               data-speed="1.05"
             >
-              <strong class="text-[var(--theme-text-100)]"
-                >Subtle scroll effects:</strong
-              >
+              <strong class="text-[var(--theme-text-100)]">Subtle scroll effects:</strong>
               Keep
-              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm"
-                >data-speed</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm">data-speed</code>
               values close to
-              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm"
-                >1.0</code
-              >
+              <code class="px-1 py-0.5 bg-[var(--theme-30)] rounded text-sm">1.0</code>
               (like 0.95 or 1.05) for gentle motion that doesn't distract.
             </p>
             <p
               class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-15)]"
               data-speed="0.97"
             >
-              <strong class="text-[var(--theme-text-100)]"
-                >Very subtle text:</strong
-              >
+              <strong class="text-[var(--theme-text-100)]">Very subtle text:</strong>
               Perfect for secondary details or disclaimers.
             </p>
 
@@ -214,32 +203,28 @@
               >
                 <span
                   class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-caption"
-                  >5% background</span
-                >
+                >5% background</span>
               </div>
               <div
                 class="p-[var(--space-xs)] bg-[var(--theme-15)] border border-[var(--theme-text-15)] rounded"
               >
                 <span
                   class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-caption"
-                  >15% background</span
-                >
+                >15% background</span>
               </div>
               <div
                 class="p-[var(--space-xs)] bg-[var(--theme-30)] border border-[var(--theme-text-15)] rounded"
               >
                 <span
                   class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-caption"
-                  >30% background</span
-                >
+                >30% background</span>
               </div>
               <div
                 class="p-[var(--space-xs)] bg-[var(--theme-50)] border border-[var(--theme-text-15)] rounded"
               >
                 <span
                   class="text-[var(--theme-text-100)] ibm-plex-sans-jp-mobile-caption"
-                  >50% background</span
-                >
+                >50% background</span>
               </div>
             </div>
           </article>
@@ -269,16 +254,13 @@
             data-speed="0.94"
           >
             Standard paragraph with
-            <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm"
-              >inline code</code
-            >
+            <code class="px-1 py-0.5 bg-[var(--theme-15)] rounded text-sm">inline code</code>
             styling. Notice how
             <a
               href="/dev/typography-test"
               class="nav-link text-[var(--theme-text-100)]"
               :data-active="false"
-              >hyperlinks</a
-            >
+            >hyperlinks</a>
             smoothly fade to 50% opacity on hover using
             <strong>CSS-only approach</strong> (no JavaScript).
           </p>
@@ -303,13 +285,9 @@
                 class="ibm-plex-sans-jp-mobile-caption md:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)]"
               >
                 This box uses
-                <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                  >--theme-15</code
-                >
+                <code class="px-1 bg-[var(--theme-30)] rounded text-xs">--theme-15</code>
                 background with
-                <code class="px-1 bg-[var(--theme-30)] rounded text-xs"
-                  >--theme-text-30</code
-                >
+                <code class="px-1 bg-[var(--theme-30)] rounded text-xs">--theme-text-30</code>
                 border
               </p>
             </div>
@@ -317,7 +295,10 @@
         </article>
 
         <!-- Code Block Example -->
-        <div class="max-w-3xl mx-auto" data-speed="0.98">
+        <div
+          class="max-w-3xl mx-auto"
+          data-speed="0.98"
+        >
           <h4
             class="pp-eiko-mobile-h3 text-[var(--theme-text-100)] mb-[var(--space-s)]"
           >
@@ -335,7 +316,10 @@ const heading = {
         </div>
 
         <!-- Feature Grid -->
-        <div class="grid gap-[var(--space-s)] md:grid-cols-3" data-speed="1.06">
+        <div
+          class="grid gap-[var(--space-s)] md:grid-cols-3"
+          data-speed="1.06"
+        >
           <div
             v-once
             class="p-[var(--space-m)] bg-[var(--theme-5)] rounded-lg border border-[var(--theme-text-15)] text-center"
@@ -396,7 +380,10 @@ const heading = {
         </div>
 
         <!-- Final CTA -->
-        <div class="text-center mt-[var(--space-xl)]" data-speed="0.96">
+        <div
+          class="text-center mt-[var(--space-xl)]"
+          data-speed="0.96"
+        >
           <p
             class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)] mb-[var(--space-m)]"
           >
@@ -408,7 +395,10 @@ const heading = {
               class="nav-link text-[var(--theme-text-100)] px-[var(--space-m)] py-[var(--space-s)] bg-[var(--theme-15)] rounded-md ibm-plex-sans-jp-mobile-button inline-flex items-center gap-[var(--space-xs)]"
               :data-active="false"
             >
-              <Icon name="heroicons:swatch-20-solid" class="icon icon-base" />
+              <Icon
+                name="heroicons:swatch-20-solid"
+                class="icon icon-base"
+              />
               Color System
             </a>
             <a
@@ -432,8 +422,8 @@ const heading = {
 <script setup>
 // Define component name for better DevTools debugging
 defineOptions({
-  name: "SmoothDemoAlt",
-});
+  name: 'SmoothDemoAlt'
+})
 
 // No component logic necessary - all interactions handled by:
 // - CSS hover via .nav-link class (see base.scss)

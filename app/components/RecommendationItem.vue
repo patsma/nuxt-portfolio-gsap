@@ -16,7 +16,10 @@
         @mouseenter="handleMouseEnter"
         @mouseleave="handleMouseLeave"
       >
-        <div ref="marqueeTrackRef" class="marquee-track">
+        <div
+          ref="marqueeTrackRef"
+          class="marquee-track"
+        >
           <!-- Unit 1: Quote → Image → Name -->
           <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ quote }}
@@ -145,7 +148,7 @@ const props = defineProps({
    */
   id: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Item index (0-based) for determining scroll direction
@@ -154,7 +157,7 @@ const props = defineProps({
    */
   index: {
     type: Number,
-    required: true,
+    required: true
   },
   /**
    * Short quote text to display in the marquee
@@ -162,7 +165,7 @@ const props = defineProps({
    */
   quote: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Full recommendation text shown when expanded
@@ -170,7 +173,7 @@ const props = defineProps({
    */
   fullRecommendation: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Recommender's first name (styled with IBM Plex Sans JP)
@@ -178,7 +181,7 @@ const props = defineProps({
    */
   authorFirstName: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Recommender's last name (styled with PP Eiko)
@@ -186,7 +189,7 @@ const props = defineProps({
    */
   authorLastName: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Recommender's title and/or company
@@ -194,7 +197,7 @@ const props = defineProps({
    */
   authorTitle: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Recommender's profile image URL
@@ -202,32 +205,32 @@ const props = defineProps({
    */
   authorImage: {
     type: String,
-    default: '',
-  },
-});
+    default: ''
+  }
+})
 
-const nuxtApp = useNuxtApp();
-const { $gsap, $ScrollTrigger } = nuxtApp;
+const nuxtApp = useNuxtApp()
+const { $gsap, $ScrollTrigger } = nuxtApp
 
 // Horizontal loop composable for marquee animation (pass GSAP instance)
-const { createLoop } = useHorizontalLoop($gsap);
+const { createLoop } = useHorizontalLoop($gsap)
 
 // Inject accordion state from parent RecommendationsSection
-const activeItemId = inject('activeItemId');
-const setActiveItem = inject('setActiveItem');
-const requestRefresh = inject('requestRefresh');
+const activeItemId = inject('activeItemId')
+const setActiveItem = inject('setActiveItem')
+const requestRefresh = inject('requestRefresh')
 
 // Refs for DOM elements
-const marqueeContainerRef = ref(null);
-const marqueeTrackRef = ref(null);
-const expandedContentRef = ref(null);
+const marqueeContainerRef = ref(null)
+const marqueeTrackRef = ref(null)
+const expandedContentRef = ref(null)
 
 // Marquee animation instances
-let marqueeAnimation = null;
-let scrollTriggerInstance = null;
+let marqueeAnimation = null
+let scrollTriggerInstance = null
 
 // Computed property to check if this item is currently expanded
-const isExpanded = computed(() => activeItemId.value === props.id);
+const isExpanded = computed(() => activeItemId.value === props.id)
 
 /**
  * Toggle accordion expansion
@@ -237,13 +240,12 @@ const isExpanded = computed(() => activeItemId.value === props.id);
 const toggle = (event) => {
   // Prevent any default behavior
   if (event) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
   }
 
-  setActiveItem(isExpanded.value ? null : props.id);
-};
-
+  setActiveItem(isExpanded.value ? null : props.id)
+}
 
 /**
  * Setup marquee animation with ScrollTrigger control
@@ -251,30 +253,30 @@ const toggle = (event) => {
  * Alternating directions: even index (0,2,4) left-to-right, odd index (1,3,5) right-to-left
  */
 onMounted(() => {
-  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return;
+  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return
 
   // Wait for next tick to ensure DOM is fully rendered
   nextTick(() => {
     // Get all children in the track (should be 9 elements: 3 quotes + 3 images + 3 names)
-    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name');
-    if (items.length === 0) return;
+    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name')
+    if (items.length === 0) return
 
     // Create seamless loop using useHorizontalLoop composable
     // Alternate directions: even index (0,2,4) = left-to-right, odd index (1,3,5) = right-to-left
     // IMPORTANT: Use 'reversed' config, NOT negative speed (negative speed breaks GSAP durations)
-    const shouldReverse = props.index % 2 !== 0;
+    const shouldReverse = props.index % 2 !== 0
 
     // Calculate gap size to match CSS var(--space-l-xl) = clamp(36px, 48px, 66px)
     // Use middle value for consistent spacing between loop cycles
-    const gapSize = 48; // Matches Figma spec, middle of fluid range
+    const gapSize = 48 // Matches Figma spec, middle of fluid range
 
     marqueeAnimation = createLoop(items, {
       repeat: -1, // Infinite repeat
       speed: 1, // Always positive - direction controlled by 'reversed' config
       reversed: shouldReverse, // true = right-to-left, false = left-to-right
       paddingRight: gapSize, // Add gap between loop cycles for seamless connection
-      paused: true, // Start paused
-    });
+      paused: true // Start paused
+    })
 
     // Debug: Uncomment to verify marquee direction setup
     // console.log(`🎬 Marquee ${props.index}: ${shouldReverse ? 'REVERSED (right-to-left)' : 'FORWARD (left-to-right)'}, tl.reversed()=${marqueeAnimation.reversed()}, timeScale=${marqueeAnimation.timeScale()}`);
@@ -288,30 +290,30 @@ onMounted(() => {
       end: 'bottom top', // Ends when bottom of element leaves top of viewport
       onEnter: () => {
         // Element entered viewport from below - start animation
-        marqueeAnimation?.resume();
+        marqueeAnimation?.resume()
       },
       onLeave: () => {
         // Element left viewport from top - pause animation
-        marqueeAnimation?.pause();
+        marqueeAnimation?.pause()
       },
       onEnterBack: () => {
         // Element re-entered viewport from above - resume animation
-        marqueeAnimation?.resume();
+        marqueeAnimation?.resume()
       },
       onLeaveBack: () => {
         // Element left viewport from bottom - pause animation
-        marqueeAnimation?.pause();
-      },
-    });
-  });
-});
+        marqueeAnimation?.pause()
+      }
+    })
+  })
+})
 
 /**
  * Pause marquee on hover
  */
 const handleMouseEnter = () => {
-  marqueeAnimation?.pause();
-};
+  marqueeAnimation?.pause()
+}
 
 /**
  * Resume marquee on mouse leave
@@ -320,9 +322,9 @@ const handleMouseEnter = () => {
  */
 const handleMouseLeave = () => {
   if (scrollTriggerInstance?.isActive) {
-    marqueeAnimation?.resume();
+    marqueeAnimation?.resume()
   }
-};
+}
 
 /**
  * Watch expanded state and animate height/opacity
@@ -332,19 +334,19 @@ const handleMouseLeave = () => {
  * This prevents pinning issues in subsequent scroll-based sections (ImageScalingSection, VideoScalingSection)
  */
 watch(isExpanded, (expanded) => {
-  if (!expandedContentRef.value) return;
+  if (!expandedContentRef.value) return
 
   // Check if page transition is active (this should NOT be happening during accordion)
-  const pageTransitionStore = usePageTransitionStore();
+  const pageTransitionStore = usePageTransitionStore()
   if (pageTransitionStore?.isTransitioning) {
     console.error('[RecommendationItem] ⚠️ WARNING: Page transition is ACTIVE during accordion animation!', {
       id: props.id,
-      isTransitioning: pageTransitionStore.isTransitioning,
-    });
+      isTransitioning: pageTransitionStore.isTransitioning
+    })
   }
 
   // Pause headroom before animation starts to prevent header from reacting to content height changes
-  nuxtApp.$headroom?.pause();
+  nuxtApp.$headroom?.pause()
 
   if (expanded) {
     // Expand: Animate to auto height with opacity fade in
@@ -356,11 +358,12 @@ watch(isExpanded, (expanded) => {
       onComplete: () => {
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
         requestRefresh(() => {
-          nuxtApp.$headroom?.unpause();
-        });
-      },
-    });
-  } else {
+          nuxtApp.$headroom?.unpause()
+        })
+      }
+    })
+  }
+  else {
     // Collapse: Animate to 0 height with opacity fade out
     $gsap.to(expandedContentRef.value, {
       height: 0,
@@ -370,24 +373,24 @@ watch(isExpanded, (expanded) => {
       onComplete: () => {
         // Request refresh for pinned sections below (ImageScalingSection, etc.)
         requestRefresh(() => {
-          nuxtApp.$headroom?.unpause();
-        });
-      },
-    });
+          nuxtApp.$headroom?.unpause()
+        })
+      }
+    })
   }
-});
+})
 
 // Cleanup animations on unmount
 onUnmounted(() => {
   if (marqueeAnimation) {
-    marqueeAnimation.kill();
-    marqueeAnimation = null;
+    marqueeAnimation.kill()
+    marqueeAnimation = null
   }
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

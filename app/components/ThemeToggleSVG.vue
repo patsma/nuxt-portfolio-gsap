@@ -1,18 +1,24 @@
 <script>
 // Module-level counter (shared across all instances)
 // This ensures consistent ID generation during SSR and client hydration
-let instanceCounter = 0;
+let instanceCounter = 0
 </script>
 
 <script setup>
 // Generate unique ID for this instance to avoid conflicts when multiple instances exist
 // Counter increments in the same order on both server and client, preventing hydration mismatches
-const uid = `theme-toggle-${++instanceCounter}`;
+const uid = `theme-toggle-${++instanceCounter}`
 </script>
 
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.28 21.83">
-    <g :id="`${uid}-Layer_2`" data-name="Layer 2">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 42.28 21.83"
+  >
+    <g
+      :id="`${uid}-Layer_2`"
+      data-name="Layer 2"
+    >
       <g :id="`${uid}-toggle-theme`">
         <!-- Background pill shape - GSAP controls fill -->
         <path
@@ -22,7 +28,12 @@ const uid = `theme-toggle-${++instanceCounter}`;
         />
 
         <!-- Moon (right side) - light circle -->
-        <circle :id="`${uid}-moon-white`" cx="31.14" cy="10.91" r="8" />
+        <circle
+          :id="`${uid}-moon-white`"
+          cx="31.14"
+          cy="10.91"
+          r="8"
+        />
 
         <!-- Moon crescent (dark) - will morph to sun-dark -->
         <path
@@ -69,10 +80,22 @@ const uid = `theme-toggle-${++instanceCounter}`;
         </g>
 
         <!-- Sun dark circle (hidden initially) -->
-        <circle :id="`${uid}-sun-dark`" class="sun-dark-element" cx="11.14" cy="10.91" r="8" />
+        <circle
+          :id="`${uid}-sun-dark`"
+          class="sun-dark-element"
+          cx="11.14"
+          cy="10.91"
+          r="8"
+        />
 
         <!-- Invisible rect for consistent viewBox -->
-        <rect :id="`${uid}-dummy`" width="42.28" height="21.83" fill="none" opacity="0" />
+        <rect
+          :id="`${uid}-dummy`"
+          width="42.28"
+          height="21.83"
+          fill="none"
+          opacity="0"
+        />
       </g>
     </g>
   </svg>

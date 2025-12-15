@@ -56,7 +56,10 @@
     </section>
 
     <!-- Background Variants Section -->
-    <section aria-labelledby="bg-heading" class="max-w-7xl mx-auto">
+    <section
+      aria-labelledby="bg-heading"
+      class="max-w-7xl mx-auto"
+    >
       <h2
         id="bg-heading"
         class="font-display text-step-3 font-medium mb-[var(--space-m)] text-[var(--theme-text-100)] tracking-[var(--tracking-display-1)]"
@@ -99,23 +102,23 @@
 <script setup>
 // Text color swatches using the theme system
 const textSwatches = [
-  { name: "100% Text", varName: "var(--theme-text-100)", opacity: "100%" },
-  { name: "60% Text", varName: "var(--theme-text-60)", opacity: "60%" },
-  { name: "50% Text", varName: "var(--theme-text-50)", opacity: "50%" },
-  { name: "40% Text", varName: "var(--theme-text-40)", opacity: "40%" },
-  { name: "30% Text", varName: "var(--theme-text-30)", opacity: "30%" },
-  { name: "15% Text", varName: "var(--theme-text-15)", opacity: "15%" },
-  { name: "5% Text", varName: "var(--theme-text-5)", opacity: "5%" },
-];
+  { name: '100% Text', varName: 'var(--theme-text-100)', opacity: '100%' },
+  { name: '60% Text', varName: 'var(--theme-text-60)', opacity: '60%' },
+  { name: '50% Text', varName: 'var(--theme-text-50)', opacity: '50%' },
+  { name: '40% Text', varName: 'var(--theme-text-40)', opacity: '40%' },
+  { name: '30% Text', varName: 'var(--theme-text-30)', opacity: '30%' },
+  { name: '15% Text', varName: 'var(--theme-text-15)', opacity: '15%' },
+  { name: '5% Text', varName: 'var(--theme-text-5)', opacity: '5%' }
+]
 
 // Background color swatches using the theme system
 const bgSwatches = [
-  { name: "100% Background", varName: "var(--theme-100)", opacity: "100%" },
-  { name: "60% Background", varName: "var(--theme-60)", opacity: "60%" },
-  { name: "50% Background", varName: "var(--theme-50)", opacity: "50%" },
-  { name: "40% Background", varName: "var(--theme-40)", opacity: "40%" },
-  { name: "30% Background", varName: "var(--theme-30)", opacity: "30%" },
-  { name: "15% Background", varName: "var(--theme-15)", opacity: "15%" },
-  { name: "5% Background", varName: "var(--theme-5)", opacity: "5%" },
-];
+  { name: '100% Background', varName: 'var(--theme-100)', opacity: '100%' },
+  { name: '60% Background', varName: 'var(--theme-60)', opacity: '60%' },
+  { name: '50% Background', varName: 'var(--theme-50)', opacity: '50%' },
+  { name: '40% Background', varName: 'var(--theme-40)', opacity: '40%' },
+  { name: '30% Background', varName: 'var(--theme-30)', opacity: '30%' },
+  { name: '15% Background', varName: 'var(--theme-15)', opacity: '15%' },
+  { name: '5% Background', varName: 'var(--theme-5)', opacity: '5%' }
+]
 </script>

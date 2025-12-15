@@ -47,10 +47,10 @@
  */
 
 // Module-level state for master timeline and queue
-let masterTimeline = null;
-let animationQueue = [];
-let isInitialized = false;
-let isPlaying = false;
+let masterTimeline = null
+let animationQueue = []
+let isInitialized = false
+let isPlaying = false
 
 /**
  * Check if element is in viewport on page load
@@ -58,30 +58,30 @@ let isPlaying = false;
  * @returns {boolean} - True if element is in viewport
  */
 const isInViewport = (el) => {
-  if (!el) return false;
+  if (!el) return false
 
-  const rect = el.getBoundingClientRect();
-  const windowHeight =
-    window.innerHeight || document.documentElement.clientHeight;
+  const rect = el.getBoundingClientRect()
+  const windowHeight
+    = window.innerHeight || document.documentElement.clientHeight
 
   // Element is in viewport if its top is above bottom of viewport
   // and its bottom is below top of viewport
-  return rect.top < windowHeight && rect.bottom > 0;
-};
+  return rect.top < windowHeight && rect.bottom > 0
+}
 
 /**
  * Main composable for entrance animation system
  */
 export const useEntranceAnimation = () => {
-  const nuxtApp = useNuxtApp();
-  const { $gsap } = nuxtApp;
-  const { isFirstLoad } = useLoadingSequence();
+  const nuxtApp = useNuxtApp()
+  const { $gsap } = nuxtApp
+  const { isFirstLoad } = useLoadingSequence()
 
   /**
    * Initialize the master timeline and event listeners
    */
   const initialize = () => {
-    if (isInitialized) return;
+    if (isInitialized) return
 
     // Create master timeline (paused, will play after entrance-ready event)
     masterTimeline = $gsap.timeline({
@@ -91,65 +91,66 @@ export const useEntranceAnimation = () => {
 
         // Remove is-first-load class from html element
         // This stops CSS from hiding elements on subsequent navigations
-        document.documentElement.classList.remove("is-first-load");
+        document.documentElement.classList.remove('is-first-load')
         // console.log(
         //   "🔓 Removed is-first-load class - page transitions can now handle visibility"
         // );
 
         // Fire completion event
-        window.dispatchEvent(new CustomEvent("app:entrance-complete"));
-      },
-    });
+        window.dispatchEvent(new CustomEvent('app:entrance-complete'))
+      }
+    })
 
     // Add initial label for positioning
-    masterTimeline.add("start", 0);
+    masterTimeline.add('start', 0)
 
     // Listen for app:start-animations event (fired by loading system)
     // This triggers after loader completes, starting all entrance animations together
     window.addEventListener(
-      "app:start-animations",
+      'app:start-animations',
       () => {
         if (!isPlaying && animationQueue.length > 0) {
-          playEntranceAnimations();
+          playEntranceAnimations()
         }
       },
       { once: true }
-    );
+    )
 
-    isInitialized = true;
+    isInitialized = true
     // console.log("🎬 Entrance animation system initialized");
-  };
+  }
 
   /**
    * Play all queued entrance animations
    */
   const playEntranceAnimations = () => {
-    if (isPlaying || !masterTimeline || animationQueue.length === 0) return;
+    if (isPlaying || !masterTimeline || animationQueue.length === 0) return
 
-    isPlaying = true;
+    isPlaying = true
     // console.log(`🎬 Playing ${animationQueue.length} entrance animations`);
 
     // Add all queued animations to master timeline
     animationQueue.forEach(({ element, animateFn, position }) => {
       try {
         // Call the animation function (returns tween or timeline)
-        const animation = animateFn(element);
+        const animation = animateFn(element)
 
         // Add to master timeline at specified position
         if (animation) {
-          masterTimeline.add(animation, position);
+          masterTimeline.add(animation, position)
         }
-      } catch (error) {
-        console.error("❌ Error creating entrance animation:", error);
       }
-    });
+      catch (error) {
+        console.error('❌ Error creating entrance animation:', error)
+      }
+    })
 
     // Clear queue after adding to timeline
-    animationQueue = [];
+    animationQueue = []
 
     // Play the master timeline
-    masterTimeline.play();
-  };
+    masterTimeline.play()
+  }
 
   /**
    * Setup entrance animation for a component
@@ -162,19 +163,19 @@ export const useEntranceAnimation = () => {
    */
   const setupEntrance = (element, options = {}) => {
     if (!element) {
-      console.warn("⚠️ setupEntrance: No element provided");
-      return;
+      console.warn('⚠️ setupEntrance: No element provided')
+      return
     }
 
     const {
-      position = "+=0.15", // Default: 0.15s after previous animation
+      position = '+=0.15', // Default: 0.15s after previous animation
       animate,
-      scrollTrigger,
-    } = options;
+      scrollTrigger
+    } = options
 
-    if (typeof animate !== "function") {
-      console.warn("⚠️ setupEntrance: animate must be a function");
-      return;
+    if (typeof animate !== 'function') {
+      console.warn('⚠️ setupEntrance: animate must be a function')
+      return
     }
 
     // Only run on first page load
@@ -183,17 +184,17 @@ export const useEntranceAnimation = () => {
 
       // If ScrollTrigger config provided, set it up as fallback
       if (scrollTrigger) {
-        setupScrollTriggerFallback(element, animate, scrollTrigger);
+        setupScrollTriggerFallback(element, animate, scrollTrigger)
       }
 
-      return;
+      return
     }
 
     // Initialize system if not already done
-    initialize();
+    initialize()
 
     // Check if element is in viewport
-    const inViewport = isInViewport(element);
+    const inViewport = isInViewport(element)
 
     if (inViewport) {
       // Queue for entrance animation
@@ -201,9 +202,10 @@ export const useEntranceAnimation = () => {
       animationQueue.push({
         element,
         animateFn: animate,
-        position,
-      });
-    } else {
+        position
+      })
+    }
+    else {
       // Element not in viewport, use ScrollTrigger if provided
       // console.log(
       //   "👁️ Element not in viewport, using ScrollTrigger fallback:",
@@ -211,18 +213,20 @@ export const useEntranceAnimation = () => {
       // );
 
       if (scrollTrigger) {
-        setupScrollTriggerFallback(element, animate, scrollTrigger);
-      } else {
+        setupScrollTriggerFallback(element, animate, scrollTrigger)
+      }
+      else {
         // No ScrollTrigger config, just run animation immediately
         // (useful for elements that should be visible but not animated on scroll)
         try {
-          animate(element);
-        } catch (error) {
-          console.error("❌ Error running immediate animation:", error);
+          animate(element)
+        }
+        catch (error) {
+          console.error('❌ Error running immediate animation:', error)
         }
       }
     }
-  };
+  }
 
   /**
    * Setup ScrollTrigger animation as fallback
@@ -236,57 +240,58 @@ export const useEntranceAnimation = () => {
     animateFn,
     scrollTriggerConfig
   ) => {
-    const { $ScrollTrigger } = nuxtApp;
+    const { $ScrollTrigger } = nuxtApp
 
     if (!$ScrollTrigger) {
-      console.warn("⚠️ ScrollTrigger not available for fallback");
-      return;
+      console.warn('⚠️ ScrollTrigger not available for fallback')
+      return
     }
 
     try {
       // Create animation
-      const animation = animateFn(element);
+      const animation = animateFn(element)
 
-      if (!animation) return;
+      if (!animation) return
 
       // Attach ScrollTrigger
       $ScrollTrigger.create({
         trigger: element,
-        start: "top 80%",
+        start: 'top 80%',
         ...scrollTriggerConfig,
         animation,
-        once: true, // Only animate once
-      });
+        once: true // Only animate once
+      })
 
       // console.log("✅ ScrollTrigger fallback setup for element:", element);
-    } catch (error) {
-      console.error("❌ Error setting up ScrollTrigger fallback:", error);
     }
-  };
+    catch (error) {
+      console.error('❌ Error setting up ScrollTrigger fallback:', error)
+    }
+  }
 
   /**
    * Get master timeline (useful for debugging)
    * @returns {gsap.core.Timeline|null}
    */
-  const getTimeline = () => masterTimeline;
+  const getTimeline = () => masterTimeline
 
   /**
    * Reset system (useful for testing or cleanup)
    */
   const reset = () => {
     if (masterTimeline) {
-      masterTimeline.kill();
-      masterTimeline = null;
+      masterTimeline.kill()
+      masterTimeline = null
     }
-    animationQueue = [];
-    isInitialized = false;
-    isPlaying = false;
+    animationQueue = []
+    isInitialized = false
+    isPlaying = false
     // console.log("🔄 Entrance animation system reset");
-  };
+  }
 
   return {
     setupEntrance,
     getTimeline,
-    reset,
-  };
-};
+    reset
+  }
+}

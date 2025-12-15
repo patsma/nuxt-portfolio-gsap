@@ -12,7 +12,10 @@
       data-entrance-animate="true"
     >
       <!-- Animated background - reveals from bottom to top when menu opens -->
-      <div ref="backgroundRef" class="header-grid__background"/>
+      <div
+        ref="backgroundRef"
+        class="header-grid__background"
+      />
       <div class="content-grid">
         <div class="breakout3 header-grid__inner">
           <!-- Top row: shared row for both desktop and mobile -->
@@ -35,21 +38,25 @@
               />
             </button>
             <!-- Single logo used for both desktop and mobile -->
-            <NuxtLink to="/" class="header-grid__brand">
+            <NuxtLink
+              to="/"
+              class="header-grid__brand"
+            >
               <div class="flex flex-col">
                 <span
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                  >Morten Christensen</span
-                >
+                >Morten Christensen</span>
                 <span
                   ref="titleElementRef"
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
-                  >{{ titleStore.currentText }}</span
-                >
+                >{{ titleStore.currentText }}</span>
               </div>
             </NuxtLink>
             <!-- Desktop nav centered (hidden on mobile) -->
-            <nav class="header-grid__nav" aria-label="Primary">
+            <nav
+              class="header-grid__nav"
+              aria-label="Primary"
+            >
               <NuxtLink
                 to="/"
                 class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
@@ -96,13 +103,11 @@
               <div class="hidden md:flex flex-col items-end">
                 <span
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                  >Tokyo, JP</span
-                >
+                >Tokyo, JP</span>
                 <span
                   v-if="isClient"
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
-                  >{{ tokyoTime }}</span
-                >
+                >{{ tokyoTime }}</span>
               </div>
               <!-- Mobile: Theme toggle -->
               <ClientOnly>
@@ -148,53 +153,53 @@
 
 <script setup lang="js">
 // Import the provided SVG-based hamburger icon for mobile
-import HamburgerSVG from "./SVG/HamburgerSVG.vue";
-import ThemeToggleSVG from "./ThemeToggleSVG.vue";
-import { useLoadingStore } from "~/stores/loading";
-import { useLoadingSequence } from "~/composables/useLoadingSequence";
-import { useTokyoTime } from "~/composables/useTokyoTime";
-import { useTitleRotationStore } from "~/stores/title-rotation";
+import HamburgerSVG from './SVG/HamburgerSVG.vue'
+import ThemeToggleSVG from './ThemeToggleSVG.vue'
+import { useLoadingStore } from '~/stores/loading'
+import { useLoadingSequence } from '~/composables/useLoadingSequence'
+import { useTokyoTime } from '~/composables/useTokyoTime'
+import { useTitleRotationStore } from '~/stores/title-rotation'
 
 // Loading store for font readiness check
-const loadingStore = useLoadingStore();
+const loadingStore = useLoadingStore()
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
-const nuxtApp = useNuxtApp();
-const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp;
+const nuxtApp = useNuxtApp()
+const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp
 
 // Loading system integration
-const { isFirstLoad } = useLoadingSequence();
+const { isFirstLoad } = useLoadingSequence()
 
 // Dynamic time display for Tokyo
-const { tokyoTime } = useTokyoTime();
+const { tokyoTime } = useTokyoTime()
 
 // Animated title rotation system
-const titleStore = useTitleRotationStore();
+const titleStore = useTitleRotationStore()
 
 // Client-side only flag for SSR safety
-const isClient = ref(false);
+const isClient = ref(false)
 
 /**
  * Shared menu state for consistent header behavior
  * @type {import('vue').Ref<boolean>}
  */
-const isOpen = useState("headerMenuOpen", () => false);
+const isOpen = useState('headerMenuOpen', () => false)
 
 // Refs to animate
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const containerRef = ref(null);
+const containerRef = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const hamburgerBtn = ref(null);
+const hamburgerBtn = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const overlayRef = ref(null);
+const overlayRef = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const backgroundRef = ref(null);
+const backgroundRef = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const titleElementRef = ref(null);
+const titleElementRef = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const themeToggleDesktopRef = ref(null);
+const themeToggleDesktopRef = ref(null)
 /** @type {import('vue').Ref<HTMLElement|null>} */
-const themeToggleMobileRef = ref(null);
+const themeToggleMobileRef = ref(null)
 
 // Reference to child SVG component to access its root SVG via exposed ref
 /**
@@ -202,40 +207,40 @@ const themeToggleMobileRef = ref(null);
  * @typedef {{ svgRootRef?: MaybeRefSvg, svgRef?: MaybeRefSvg }} HamburgerSVGExposed
  */
 /** @type {import('vue').Ref<HamburgerSVGExposed|null>} */
-const hamburgerSvgComponent = ref(null);
+const hamburgerSvgComponent = ref(null)
 
 // Internal handles
 /** @type {any} */
-let hamburgerTl = null;
+let hamburgerTl = null
 /** @type {any} */
-let menuTl = null; // Unified timeline for background + overlay + nav items
+let menuTl = null // Unified timeline for background + overlay + nav items
 /** @type {any} */
-let navSplitInstance = null; // SplitText instance for nav links
+let navSplitInstance = null // SplitText instance for nav links
 /** @type {any} */
-let titleTl = null; // Timeline for animated title rotation
+let titleTl = null // Timeline for animated title rotation
 /** @type {any} */
-let titleSplitInstance = null; // SplitText instance for title text
+let titleSplitInstance = null // SplitText instance for title text
 /** @type {{ revert?: () => void } | null} */
-let gsapCtx = null;
+let gsapCtx = null
 
 // Navigation items — main pages for page transition demo
 /** @typedef {{ label: string, href: string }} NavItem */
 /** @type {NavItem[]} */
 const items = [
-  { label: "Work", href: "/" },
-  { label: "About", href: "/about" },
-  { label: "Lab", href: "/lab" },
-  { label: "Contact", href: "/contact" },
-];
+  { label: 'Work', href: '/' },
+  { label: 'About', href: '/about' },
+  { label: 'Lab', href: '/lab' },
+  { label: 'Contact', href: '/contact' }
+]
 
 // Active route highlighting
-const route = useRoute();
+const route = useRoute()
 /**
  * @param {string} href
  * @returns {boolean}
  */
 function isActive(href) {
-  return route.path === href;
+  return route.path === href
 }
 
 /**
@@ -246,15 +251,16 @@ function isActive(href) {
 async function waitForFonts() {
   // If fonts are already ready, return immediately
   if (loadingStore.fontsReady) {
-    return;
+    return
   }
 
   // Wait for fonts to be ready
-  if (typeof document !== "undefined") {
+  if (typeof document !== 'undefined') {
     try {
-      await document.fonts.ready;
-    } catch (error) {
-      console.warn("⚠️ Font loading wait failed:", error);
+      await document.fonts.ready
+    }
+    catch (error) {
+      console.warn('⚠️ Font loading wait failed:', error)
     }
   }
 }
@@ -264,70 +270,70 @@ async function waitForFonts() {
  * Creates a timeline that fades characters in and out, then cycles to next title
  */
 async function setupTitleAnimation() {
-  if (!titleElementRef.value || !$SplitText || !$gsap) return;
+  if (!titleElementRef.value || !$SplitText || !$gsap) return
 
   // CRITICAL: Wait for fonts to be loaded before creating SplitText
   // This prevents "SplitText called before fonts loaded" warning
-  await waitForFonts();
+  await waitForFonts()
 
   // Clean up previous SplitText instance
   if (titleSplitInstance) {
-    titleSplitInstance.revert?.();
+    titleSplitInstance.revert?.()
   }
 
   // Create new SplitText instance
   titleSplitInstance = new $SplitText(titleElementRef.value, {
-    type: "chars",
-  });
+    type: 'chars'
+  })
 
   // Create animation timeline with infinite repeat
   if (titleTl) {
-    titleTl.kill();
+    titleTl.kill()
   }
 
   titleTl = $gsap.timeline({
     repeat: -1,
-    repeatDelay: 1,
-  });
+    repeatDelay: 1
+  })
 
   // Fade in characters with stagger
   titleTl.from(titleSplitInstance.chars, {
     duration: 2,
     opacity: 0,
     stagger: 0.1,
-    ease: "power2.out",
-  });
+    ease: 'power2.out'
+  })
 
   // Fade out characters with stagger, then update to next title
   titleTl.to(titleSplitInstance.chars, {
     duration: 2,
     opacity: 0,
     stagger: 0.1,
-    ease: "power2.in",
+    ease: 'power2.in',
     onComplete: () => {
       // Advance to next title in rotation
-      titleStore.updateText();
-    },
-  });
+      titleStore.updateText()
+    }
+  })
 }
 
 onMounted(() => {
   // Set client flag for SSR safety
-  isClient.value = true;
+  isClient.value = true
 
-  if (!$gsap) return;
+  if (!$gsap) return
 
-  const scopeEl = containerRef.value || undefined;
+  const scopeEl = containerRef.value || undefined
 
   nextTick(() => {
     // Initialize theme switch
-    const { initThemeSwitch } = useThemeSwitch();
-    initThemeSwitch();
+    const { initThemeSwitch } = useThemeSwitch()
+    initThemeSwitch()
 
     gsapCtx = $gsap.context(async () => {
       // CRITICAL: Wait for fonts before creating SplitText
       // This prevents "SplitText called before fonts loaded" warning
-      await waitForFonts();
+      await waitForFonts()
 
       /**
        * Helper to unwrap child-exposed refs safely
@@ -335,49 +341,49 @@ onMounted(() => {
        * @returns {SVGSVGElement | null}
        */
       const getExposedSvgEl = (exp) => {
-        if (!exp) return null;
-        const candidate = exp.svgRootRef ?? exp.svgRef;
-        if (candidate == null) return null;
-        return Object.prototype.hasOwnProperty.call(candidate, "value")
+        if (!exp) return null
+        const candidate = exp.svgRootRef ?? exp.svgRef
+        if (candidate == null) return null
+        return Object.prototype.hasOwnProperty.call(candidate, 'value')
           ? /** @type {{ value: SVGSVGElement | null }} */ (candidate).value
-          : /** @type {SVGSVGElement | null} */ (candidate);
-      };
+          : /** @type {SVGSVGElement | null} */ (candidate)
+      }
 
       // Prefer animating via child component's exposed svgRootRef for reliability
       /** @type {SVGSVGElement | null} */
-      const svgRoot =
-        getExposedSvgEl(hamburgerSvgComponent.value) ||
-        /** @type {SVGSVGElement | null} */ (
-          hamburgerBtn.value?.querySelector("svg") || null
-        );
+      const svgRoot
+        = getExposedSvgEl(hamburgerSvgComponent.value)
+          || hamburgerBtn.value?.querySelector('svg')
+          || null
 
       if (!svgRoot) {
-        console.warn("HeaderGrid: hamburger SVG root not found");
-        return;
+        console.warn('HeaderGrid: hamburger SVG root not found')
+        return
       }
 
       // Cross-draw between #closed and #opened path sets using DrawSVG
-      const closedPaths = svgRoot.querySelectorAll("#closed path");
-      const openedPaths = svgRoot.querySelectorAll("#opened path");
+      const closedPaths = svgRoot.querySelectorAll('#closed path')
+      const openedPaths = svgRoot.querySelectorAll('#opened path')
 
       if (!closedPaths.length || !openedPaths.length) {
         console.warn(
-          "HeaderGrid: expected #closed and #opened path groups in HamburgerSVG"
-        );
-        return;
+          'HeaderGrid: expected #closed and #opened path groups in HamburgerSVG'
+        )
+        return
       }
 
       // Read durations from CSS variables - handle both 's' and 'ms' units
-      const html = document.documentElement;
+      const html = document.documentElement
       const hoverDurationRaw = getComputedStyle(html)
-        .getPropertyValue("--duration-hover")
-        .trim();
+        .getPropertyValue('--duration-hover')
+        .trim()
 
-      let hoverDuration = 0.3; // Default fallback
-      if (hoverDurationRaw.endsWith("ms")) {
-        hoverDuration = parseFloat(hoverDurationRaw) / 1000; // Convert ms to seconds
-      } else if (hoverDurationRaw.endsWith("s")) {
-        hoverDuration = parseFloat(hoverDurationRaw); // Already in seconds
+      let hoverDuration = 0.3 // Default fallback
+      if (hoverDurationRaw.endsWith('ms')) {
+        hoverDuration = parseFloat(hoverDurationRaw) / 1000 // Convert ms to seconds
+      }
+      else if (hoverDurationRaw.endsWith('s')) {
+        hoverDuration = parseFloat(hoverDurationRaw) // Already in seconds
       }
 
       // Nav link hover effects are now handled by CSS (see base.scss)
@@ -385,12 +391,12 @@ onMounted(() => {
 
       const tl = $gsap.timeline({
         paused: true,
-        defaults: { ease: "power2.inOut" },
-      });
+        defaults: { ease: 'power2.inOut' }
+      })
       if ($DrawSVGPlugin) {
         // Initialize states
-        $gsap.set(closedPaths, { autoAlpha: 1, drawSVG: "100%" });
-        $gsap.set(openedPaths, { autoAlpha: 1, drawSVG: 0 });
+        $gsap.set(closedPaths, { autoAlpha: 1, drawSVG: '100%' })
+        $gsap.set(openedPaths, { autoAlpha: 1, drawSVG: 0 })
 
         // Animate out closed, then in opened using CSS variable duration
         tl.to(
@@ -399,12 +405,13 @@ onMounted(() => {
           0
         ).to(
           openedPaths,
-          { drawSVG: "100%", duration: hoverDuration * 1.07, stagger: 0.04 },
-          "<+0.06"
-        );
-      } else {
+          { drawSVG: '100%', duration: hoverDuration * 1.07, stagger: 0.04 },
+          '<+0.06'
+        )
+      }
+      else {
         // Fallback without DrawSVG: simple crossfade
-        $gsap.set(openedPaths, { autoAlpha: 0 });
+        $gsap.set(openedPaths, { autoAlpha: 0 })
         tl.to(
           closedPaths,
           { autoAlpha: 0, duration: hoverDuration * 0.6 },
@@ -412,71 +419,71 @@ onMounted(() => {
         ).to(
           openedPaths,
           { autoAlpha: 1, duration: hoverDuration * 0.73 },
-          "<+0.05"
-        );
+          '<+0.05'
+        )
       }
-      hamburgerTl = tl;
+      hamburgerTl = tl
 
       // Unified menu animation - combines background, overlay, and nav items
       if (overlayRef.value && backgroundRef.value) {
-        const menuTimeline = $gsap.timeline({ paused: true });
-        const links = overlayRef.value.querySelectorAll("a");
+        const menuTimeline = $gsap.timeline({ paused: true })
+        const links = overlayRef.value.querySelectorAll('a')
 
         // Set initial states for both backgrounds
         $gsap.set(backgroundRef.value, {
-          clipPath: "inset(100% 0 0 0)", // Hidden at bottom
-          willChange: "clip-path",
-        });
+          clipPath: 'inset(100% 0 0 0)', // Hidden at bottom
+          willChange: 'clip-path'
+        })
 
         $gsap.set(overlayRef.value, {
           opacity: 1,
-          clipPath: "inset(100% 0 0 0)", // Hidden at bottom
-          willChange: "clip-path",
-        });
+          clipPath: 'inset(100% 0 0 0)', // Hidden at bottom
+          willChange: 'clip-path'
+        })
 
         // Apply SplitText to nav links for masked reveal
         if ($SplitText && links.length > 0) {
           // Combine all link text for unified splitting
           navSplitInstance = $SplitText.create(links, {
-            type: "lines",
-            mask: "lines", // Use masking for clean reveals
-          });
+            type: 'lines',
+            mask: 'lines' // Use masking for clean reveals
+          })
 
           // Set initial state: text positioned below mask with rotation
           $gsap.set(navSplitInstance.lines, {
             yPercent: 100,
             rotate: 20,
-            transformOrigin: "0% 0%",
-          });
+            transformOrigin: '0% 0%'
+          })
         }
 
         // Animation sequence
         // Phase 1: Both backgrounds clip up from bottom to top simultaneously
         menuTimeline
-          .add("clipReveal") // Label for this phase
+          .add('clipReveal') // Label for this phase
           .to(
             backgroundRef.value,
             {
-              clipPath: "inset(0% 0 0 0)",
+              clipPath: 'inset(0% 0 0 0)',
               duration: hoverDuration * 1.17,
-              ease: "power2.out",
+              ease: 'power2.out'
             },
-            "clipReveal"
+            'clipReveal'
           )
           .to(
             overlayRef.value,
             {
-              clipPath: "inset(0% 0 0 0)", // Full reveal from bottom to top
+              clipPath: 'inset(0% 0 0 0)', // Full reveal from bottom to top
               duration: hoverDuration * 2.17,
-              ease: "power2.out",
+              ease: 'power2.out'
             },
-            "clipReveal" // Start at same time as background
-          );
+            'clipReveal' // Start at same time as background
+          )
 
         // Phase 2: Nav items reveal with SplitText (starts slightly before clips finish)
         if (navSplitInstance && navSplitInstance.lines) {
           menuTimeline
-            .add("itemsReveal", "-=0.25") // Overlap by 0.25s for smooth flow
+            .add('itemsReveal', '-=0.25') // Overlap by 0.25s for smooth flow
             .to(
               navSplitInstance.lines,
               {
@@ -484,14 +491,14 @@ onMounted(() => {
                 rotate: 0,
                 duration: hoverDuration * 1.2,
                 stagger: 0.08,
-                ease: "back.out(1.2)", // Bouncy, premium feel like HeroSection
+                ease: 'back.out(1.2)' // Bouncy, premium feel like HeroSection
               },
-              "itemsReveal"
-            );
+              'itemsReveal'
+            )
         }
 
         // Store unified timeline
-        menuTl = menuTimeline;
+        menuTl = menuTimeline
 
         // Add GSDevTools for debugging in development
         if (import.meta.dev && $GSDevTools) {
@@ -505,43 +512,43 @@ onMounted(() => {
       // Create initial load animation if this is the first load
       if (isFirstLoad()) {
         // Use entrance animation system for unified control
-        const { setupEntrance } = useEntranceAnimation();
+        const { setupEntrance } = useEntranceAnimation()
 
         setupEntrance(containerRef.value, {
-          position: "1.5",
+          position: '1.5',
           animate: (el) => {
             const tl = $gsap.timeline({
               // onStart: () =>
               //   console.log("🎬 Header entrance animation started"),
               // onComplete: () => console.log("✨ Header entrance complete"),
-            });
+            })
 
             // Elements are already hidden by CSS + is-first-load class
             // Just set initial transform states
-            const brandEl = el.querySelector(".header-grid__brand");
-            const navLinks = el.querySelectorAll(".header-grid__nav");
-            const spacerEl = el.querySelector(".header-grid__spacer");
-            const hamburgerEl = el.querySelector(".header-grid__hamburger");
+            const brandEl = el.querySelector('.header-grid__brand')
+            const navLinks = el.querySelectorAll('.header-grid__nav')
+            const spacerEl = el.querySelector('.header-grid__spacer')
+            const hamburgerEl = el.querySelector('.header-grid__hamburger')
 
-            if (brandEl) $gsap.set(brandEl, { x: -20, autoAlpha: 0 });
-            if (navLinks) $gsap.set(navLinks, { y: -10, autoAlpha: 0 });
-            if (spacerEl) $gsap.set(spacerEl, { x: 20, autoAlpha: 0 });
+            if (brandEl) $gsap.set(brandEl, { x: -20, autoAlpha: 0 })
+            if (navLinks) $gsap.set(navLinks, { y: -10, autoAlpha: 0 })
+            if (spacerEl) $gsap.set(spacerEl, { x: 20, autoAlpha: 0 })
             if (hamburgerEl)
-              $gsap.set(hamburgerEl, { scale: 0.8, autoAlpha: 0 });
+              $gsap.set(hamburgerEl, { scale: 0.8, autoAlpha: 0 })
 
             // Desktop theme toggle (separate from nav links for proper animation)
             if (themeToggleDesktopRef.value)
               $gsap.set(themeToggleDesktopRef.value, {
                 scale: 0.8,
-                autoAlpha: 0,
-              });
+                autoAlpha: 0
+              })
 
             // Animate container in first
             tl.to(el, {
               autoAlpha: 1,
               duration: 0.6,
-              ease: "power2.out",
-            });
+              ease: 'power2.out'
+            })
 
             // Then animate individual elements
             if (brandEl) {
@@ -551,10 +558,10 @@ onMounted(() => {
                   autoAlpha: 1,
                   x: 0,
                   duration: 0.8,
-                  ease: "power3.out",
+                  ease: 'power3.out'
                 },
-                "-=0.4"
-              );
+                '-=0.4'
+              )
             }
 
             if (navLinks) {
@@ -564,11 +571,11 @@ onMounted(() => {
                   autoAlpha: 1,
                   y: 0,
                   duration: 0.6,
-                  ease: "power2.out",
-                  stagger: 0.08,
+                  ease: 'power2.out',
+                  stagger: 0.08
                 },
-                "-=0.5"
-              );
+                '-=0.5'
+              )
             }
 
             // Desktop theme toggle animates with nav links (cohesive sequence)
@@ -579,10 +586,10 @@ onMounted(() => {
                   autoAlpha: 1,
                   scale: 1,
                   duration: 0.6,
-                  ease: "power2.out",
+                  ease: 'power2.out'
                 },
-                "-=0.6"
-              );
+                '-=0.6'
+              )
             }
 
             if (hamburgerEl) {
@@ -592,10 +599,10 @@ onMounted(() => {
                   autoAlpha: 1,
                   scale: 1,
                   duration: 0.5,
-                  ease: "back.out(1.5)",
+                  ease: 'back.out(1.5)'
                 },
-                "-=0.6"
-              );
+                '-=0.6'
+              )
             }
 
             if (spacerEl) {
@@ -605,51 +612,52 @@ onMounted(() => {
                   autoAlpha: 1,
                   x: 0,
                   duration: 0.7,
-                  ease: "power3.out",
+                  ease: 'power3.out'
                 },
-                "-=0.4"
-              );
+                '-=0.4'
+              )
             }
 
-            return tl;
-          },
-        });
+            return tl
+          }
+        })
       }
 
       // Set up title animation (runs after entrance animation completes on first load)
       // Use nextTick to ensure DOM is ready after entrance animation
       nextTick(() => {
-        setupTitleAnimation();
-      });
-    }, scopeEl);
-  });
-});
+        setupTitleAnimation()
+      })
+    }, scopeEl)
+  })
+})
 
 watch(isOpen, (open) => {
   // Animate hamburger icon
   if (hamburgerTl) {
-    if (open) hamburgerTl.play();
-    else hamburgerTl.reverse();
+    if (open) hamburgerTl.play()
+    else hamburgerTl.reverse()
   }
 
   // Animate unified menu (background + overlay + nav items)
   // Plays as one cohesive timeline, reverses smoothly
   if (menuTl) {
-    if (open) menuTl.play();
-    else menuTl.reverse();
+    if (open) menuTl.play()
+    else menuTl.reverse()
   }
 
   // Pause/resume headroom when menu toggles
   if (nuxtApp.$headroom) {
     if (open) {
       // Menu opening: pause headroom so header stays visible and stable
-      nuxtApp.$headroom.pause();
-    } else {
+      nuxtApp.$headroom.pause()
+    }
+    else {
       // Menu closing: resume headroom for normal scroll behavior
-      nuxtApp.$headroom.resume();
+      nuxtApp.$headroom.resume()
     }
   }
-});
+})
 
 // Watch for title text changes and re-animate
 // This is triggered by the animation timeline's onComplete callback
@@ -659,43 +667,43 @@ watch(
     // Only re-animate if this is not the initial setup
     if (oldVal !== undefined) {
       nextTick(() => {
-        setupTitleAnimation();
-      });
+        setupTitleAnimation()
+      })
     }
   }
-);
+)
 
 // Menu interactions
 function toggle() {
-  isOpen.value = !isOpen.value;
+  isOpen.value = !isOpen.value
 }
 
 function close() {
-  isOpen.value = false;
+  isOpen.value = false
 }
 
 onUnmounted(() => {
   // Clean up GSAP context
-  if (gsapCtx && typeof gsapCtx.revert === "function") {
-    gsapCtx.revert();
+  if (gsapCtx && typeof gsapCtx.revert === 'function') {
+    gsapCtx.revert()
   }
 
   // Clean up SplitText instance for nav links
   if (navSplitInstance) {
-    navSplitInstance.revert?.();
-    navSplitInstance = null;
+    navSplitInstance.revert?.()
+    navSplitInstance = null
   }
 
   // Clean up title animation timeline and SplitText
   if (titleTl) {
-    titleTl.kill();
-    titleTl = null;
+    titleTl.kill()
+    titleTl = null
   }
   if (titleSplitInstance) {
-    titleSplitInstance.revert?.();
-    titleSplitInstance = null;
+    titleSplitInstance.revert?.()
+    titleSplitInstance = null
   }
-});
+})
 </script>
 
 <style scoped lang="scss"></style>

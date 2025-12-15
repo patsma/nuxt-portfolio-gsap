@@ -13,7 +13,9 @@
         v-page-split:lines="{ leaveOnly: true }"
         class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
       >
-        <slot name="label">Biography</slot>
+        <slot name="label">
+          Biography
+        </slot>
       </h2>
 
       <!-- Biography content (right column on laptop+) -->
@@ -37,26 +39,26 @@ const props = defineProps({
    */
   animateOnScroll: {
     type: Boolean,
-    default: true,
-  },
-});
+    default: true
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
-const loadingStore = useLoadingStore();
-const pageTransitionStore = usePageTransitionStore();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
-const sectionRef = ref(null);
-const labelRef = ref(null);
-const contentRef = ref(null);
+const sectionRef = ref(null)
+const labelRef = ref(null)
+const contentRef = ref(null)
 
-let scrollTriggerInstance = null;
+let scrollTriggerInstance = null
 
 /**
  * Create reusable animation function for label + content
  * Used by ScrollTrigger for scroll-linked animations
  */
 const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   // Animate label (fade + y offset)
   // Using .fromTo() to explicitly define both start and end states
@@ -68,15 +70,15 @@ const createSectionAnimation = () => {
         opacity: 1,
         y: 0,
         duration: 0.6,
-        ease: "power2.out",
+        ease: 'power2.out'
       }
-    );
+    )
   }
 
   // Animate content children (stagger fade + y offset)
   // Query direct children using same selector as v-page-stagger directive
   if (contentRef.value) {
-    const children = contentRef.value.querySelectorAll(":scope > *");
+    const children = contentRef.value.querySelectorAll(':scope > *')
     if (children.length > 0) {
       tl.fromTo(
         children,
@@ -86,15 +88,15 @@ const createSectionAnimation = () => {
           y: 0,
           duration: 0.6,
           stagger: 0.08, // Stagger child element reveals
-          ease: "power2.out",
+          ease: 'power2.out'
         },
-        "<+0.2" // Start 0.2s after label animation begins
-      );
+        '<+0.2' // Start 0.2s after label animation begins
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 onMounted(() => {
   // SCROLL MODE: Animate when scrolling into view (default)
@@ -105,50 +107,51 @@ onMounted(() => {
     const createScrollTrigger = () => {
       // Kill existing ScrollTrigger if present
       if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill();
-        scrollTriggerInstance = null;
+        scrollTriggerInstance.kill()
+        scrollTriggerInstance = null
       }
 
       // CRITICAL: Clear inline GSAP styles from page transitions
       // The v-page-split and v-page-stagger directives leave inline styles (opacity, transform)
       // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
       if (labelRef.value) {
-        $gsap.set(labelRef.value, { clearProps: "all" });
-        $gsap.set(labelRef.value, { opacity: 0, y: 40 });
+        $gsap.set(labelRef.value, { clearProps: 'all' })
+        $gsap.set(labelRef.value, { opacity: 0, y: 40 })
       }
       if (contentRef.value) {
         // Query direct children using same selector as v-page-stagger directive
-        const children = contentRef.value.querySelectorAll(":scope > *");
+        const children = contentRef.value.querySelectorAll(':scope > *')
         if (children.length > 0) {
-          $gsap.set(children, { clearProps: "all" });
-          $gsap.set(children, { opacity: 0, y: 40 });
+          $gsap.set(children, { clearProps: 'all' })
+          $gsap.set(children, { opacity: 0, y: 40 })
         }
       }
 
       // Create timeline with fromTo() defining both start and end states
       // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation();
+      const scrollTimeline = createSectionAnimation()
 
       // Create ScrollTrigger with animation timeline
       scrollTriggerInstance = $ScrollTrigger.create({
         trigger: sectionRef.value,
-        start: "top 80%", // Animate when section is 80% down viewport
-        end: "bottom top+=25%", // Complete animation when bottom reaches top
+        start: 'top 80%', // Animate when section is 80% down viewport
+        end: 'bottom top+=25%', // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
-        toggleActions: "play pause resume reverse",
+        toggleActions: 'play pause resume reverse',
         // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
-        invalidateOnRefresh: true, // Recalculate on window resize/refresh
-      });
-    };
+        invalidateOnRefresh: true // Recalculate on window resize/refresh
+      })
+    }
 
     // Coordinate with page transition system
     // First load: Create immediately after mount
     // Navigation: Recreate after page transition completes
     if (loadingStore.isFirstLoad) {
       nextTick(() => {
-        createScrollTrigger();
-      });
-    } else {
+        createScrollTrigger()
+      })
+    }
+    else {
       // After page navigation, wait for page transition to complete
       // Watch pageTransitionStore.isTransitioning for proper timing
       const unwatch = watch(
@@ -157,22 +160,22 @@ onMounted(() => {
           // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
           if (!isTransitioning) {
             nextTick(() => {
-              createScrollTrigger();
-            });
-            unwatch(); // Stop watching
+              createScrollTrigger()
+            })
+            unwatch() // Stop watching
           }
         },
         { immediate: true }
-      );
+      )
     }
   }
-});
+})
 
 // Cleanup ScrollTrigger on unmount
 onUnmounted(() => {
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>

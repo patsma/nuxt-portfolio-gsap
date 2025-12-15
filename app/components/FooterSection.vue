@@ -14,7 +14,10 @@
     </FooterHeroSection>
 
     <!-- Section 2: Marquee (Multilingual "Get in touch") -->
-    <div ref="marqueeWrapperRef" class="marquee-wrapper full-width-content">
+    <div
+      ref="marqueeWrapperRef"
+      class="marquee-wrapper full-width-content"
+    >
       <FullWidthBorder :opacity="15" />
       <FooterMarquee ref="marqueeRef" />
     </div>
@@ -38,7 +41,9 @@
               <slot name="email">Contact@mschritsensen.com</slot>
             </a>
             <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
-              <slot name="email-desc">Got a project or something else?</slot>
+              <slot name="email-desc">
+                Got a project or something else?
+              </slot>
             </p>
           </div>
         </div>
@@ -58,7 +63,9 @@
               <slot name="linkedin">LinkedIn</slot>
             </a>
             <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
-              <slot name="linkedin-desc">Let's connect? Also, my online resumé</slot>
+              <slot name="linkedin-desc">
+                Let's connect? Also, my online resumé
+              </slot>
             </p>
           </div>
         </div>
@@ -78,7 +85,9 @@
               <slot name="behance">Behance</slot>
             </a>
             <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
-              <slot name="behance-desc">My latest projects</slot>
+              <slot name="behance-desc">
+                My latest projects
+              </slot>
             </p>
           </div>
         </div>
@@ -107,7 +116,11 @@
           <div class="special-thanks lg:text-right">
             <p>
               <slot name="thanks">
-                Special thanks to <a class="underline pb-1"  href="https://patryksmakosz.com/" target="_blank">Patryk Smakosz </a> for the collaboration
+                Special thanks to <a
+                  class="underline pb-1"
+                  href="https://patryksmakosz.com/"
+                  target="_blank"
+                >Patryk Smakosz </a> for the collaboration
               </slot>
             </p>
           </div>
@@ -177,8 +190,8 @@
  * </FooterSection>
  */
 
-import FooterMarquee from '~/components/FooterMarquee.vue';
-import FullWidthBorder from '~/components/FullWidthBorder.vue';
+import FooterMarquee from '~/components/FooterMarquee.vue'
+import FullWidthBorder from '~/components/FullWidthBorder.vue'
 
 const props = defineProps({
   /**
@@ -187,24 +200,24 @@ const props = defineProps({
    */
   animateOnScroll: {
     type: Boolean,
-    default: true,
-  },
-});
+    default: true
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
-const loadingStore = useLoadingStore();
-const pageTransitionStore = usePageTransitionStore();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
-const linksListRef = ref(null);
-const marqueeRef = ref(null);
-const marqueeWrapperRef = ref(null);
+const linksListRef = ref(null)
+const marqueeRef = ref(null)
+const marqueeWrapperRef = ref(null)
 
-let scrollTriggerInstance = null;
-let marqueeScrollTriggerInstance = null;
-let unhookPageStart = null;
+let scrollTriggerInstance = null
+let marqueeScrollTriggerInstance = null
+let unhookPageStart = null
 
 // Computed property for dynamic copyright year
-const currentYear = computed(() => new Date().getFullYear());
+const currentYear = computed(() => new Date().getFullYear())
 
 /**
  * Create reusable animation function for links section
@@ -212,11 +225,11 @@ const currentYear = computed(() => new Date().getFullYear());
  * Used by ScrollTrigger for scroll-linked animations
  */
 const createLinksAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   // Animate link items (stagger fade + y offset)
   if (linksListRef.value) {
-    const items = linksListRef.value.querySelectorAll('.link-item');
+    const items = linksListRef.value.querySelectorAll('.link-item')
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -226,14 +239,14 @@ const createLinksAnimation = () => {
           y: 0,
           duration: 0.6,
           stagger: 0.08, // Stagger item reveals
-          ease: 'power2.out',
+          ease: 'power2.out'
         }
-      );
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 /**
  * Handle page leave animation
@@ -246,30 +259,30 @@ const handlePageLeave = () => {
     $gsap.to(marqueeWrapperRef.value, {
       opacity: 0,
       duration: 0.5,
-      ease: 'power2.in',
-    });
+      ease: 'power2.in'
+    })
   }
 
   // Fade out links
   if (linksListRef.value) {
-    const items = linksListRef.value.querySelectorAll('.link-item');
+    const items = linksListRef.value.querySelectorAll('.link-item')
     if (items.length > 0) {
       $gsap.to(items, {
         opacity: 0,
         duration: 0.5,
         stagger: 0.05,
-        ease: 'power2.in',
-      });
+        ease: 'power2.in'
+      })
     }
   }
-};
+}
 
 /**
  * Create marquee scroll animation
  * Animates marquee wrapper (border + marquee) from opacity: 0 to 1 when entering viewport
  */
 const createMarqueeAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   if (marqueeWrapperRef.value) {
     tl.fromTo(
@@ -278,51 +291,51 @@ const createMarqueeAnimation = () => {
       {
         opacity: 1,
         duration: 0.6,
-        ease: 'power2.out',
+        ease: 'power2.out'
       }
-    );
+    )
   }
 
-  return tl;
-};
+  return tl
+}
 
 onMounted(() => {
   // Hook into page:start to trigger leave animation
-  const nuxtApp = useNuxtApp();
-  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
+  const nuxtApp = useNuxtApp()
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave)
 
   // MARQUEE ScrollTrigger: Fade in when entering viewport
   if (marqueeWrapperRef.value && $ScrollTrigger) {
     const createMarqueeScrollTrigger = () => {
       // Kill existing ScrollTrigger
       if (marqueeScrollTriggerInstance) {
-        marqueeScrollTriggerInstance.kill();
-        marqueeScrollTriggerInstance = null;
+        marqueeScrollTriggerInstance.kill()
+        marqueeScrollTriggerInstance = null
       }
 
       // Clear inline styles from page leave animation
-      $gsap.set(marqueeWrapperRef.value, { clearProps: 'all' });
-      $gsap.set(marqueeWrapperRef.value, { opacity: 0 });
+      $gsap.set(marqueeWrapperRef.value, { clearProps: 'all' })
+      $gsap.set(marqueeWrapperRef.value, { opacity: 0 })
 
       // Create ScrollTrigger animation
-      const marqueeTimeline = createMarqueeAnimation();
+      const marqueeTimeline = createMarqueeAnimation()
 
       marqueeScrollTriggerInstance = $ScrollTrigger.create({
         trigger: marqueeWrapperRef.value,
         start: 'top 80%',
         animation: marqueeTimeline,
         toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true,
-      });
-    };
+        invalidateOnRefresh: true
+      })
+    }
 
     // Coordinate with page transitions
     // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
     if (loadingStore.isFirstLoad) {
       // First load: create immediately
       nextTick(() => {
-        createMarqueeScrollTrigger();
-      });
+        createMarqueeScrollTrigger()
+      })
     }
 
     // Set up persistent watch for ALL subsequent page transitions
@@ -333,11 +346,11 @@ onMounted(() => {
         // When transition completes, recreate ScrollTrigger
         if (!isTransitioning && !loadingStore.isFirstLoad) {
           nextTick(() => {
-            createMarqueeScrollTrigger();
-          });
+            createMarqueeScrollTrigger()
+          })
         }
       }
-    );
+    )
   }
 
   // SCROLL MODE: Animate links section when scrolling into view (default)
@@ -348,24 +361,24 @@ onMounted(() => {
     const createScrollTrigger = () => {
       // Kill existing ScrollTrigger if present
       if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill();
-        scrollTriggerInstance = null;
+        scrollTriggerInstance.kill()
+        scrollTriggerInstance = null
       }
 
       // CRITICAL: Clear inline GSAP styles from page transitions on links
       // handlePageLeave() leaves inline styles (opacity, transform)
       // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
       if (linksListRef.value) {
-        const items = linksListRef.value.querySelectorAll('.link-item');
+        const items = linksListRef.value.querySelectorAll('.link-item')
         if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' });
-          $gsap.set(items, { opacity: 0, y: 40 });
+          $gsap.set(items, { clearProps: 'all' })
+          $gsap.set(items, { opacity: 0, y: 40 })
         }
       }
 
       // Create timeline with fromTo() defining both start and end states
       // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createLinksAnimation();
+      const scrollTimeline = createLinksAnimation()
 
       // Create ScrollTrigger with animation timeline
       scrollTriggerInstance = $ScrollTrigger.create({
@@ -374,9 +387,9 @@ onMounted(() => {
         end: 'bottom top+=25%', // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
         toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true, // Recalculate on window resize/refresh
-      });
-    };
+        invalidateOnRefresh: true // Recalculate on window resize/refresh
+      })
+    }
 
     // Coordinate with page transition system
     // First load: Create immediately after mount
@@ -384,8 +397,8 @@ onMounted(() => {
     // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
     if (loadingStore.isFirstLoad) {
       nextTick(() => {
-        createScrollTrigger();
-      });
+        createScrollTrigger()
+      })
     }
 
     // Set up persistent watch for ALL subsequent page transitions
@@ -396,34 +409,34 @@ onMounted(() => {
         // When transition completes, recreate ScrollTrigger
         if (!isTransitioning && !loadingStore.isFirstLoad) {
           nextTick(() => {
-            createScrollTrigger();
-          });
+            createScrollTrigger()
+          })
         }
       }
-    );
+    )
   }
-});
+})
 
 // Cleanup ScrollTriggers and hooks on unmount
 onUnmounted(() => {
   // Unhook page:start listener
   if (unhookPageStart) {
-    unhookPageStart();
-    unhookPageStart = null;
+    unhookPageStart()
+    unhookPageStart = null
   }
 
   // Kill marquee ScrollTrigger
   if (marqueeScrollTriggerInstance) {
-    marqueeScrollTriggerInstance.kill();
-    marqueeScrollTriggerInstance = null;
+    marqueeScrollTriggerInstance.kill()
+    marqueeScrollTriggerInstance = null
   }
 
   // Kill links ScrollTrigger
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

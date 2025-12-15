@@ -80,7 +80,7 @@ const props = defineProps({
    */
   imageSrc: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Alt text for accessibility (required)
@@ -88,7 +88,7 @@ const props = defineProps({
    */
   imageAlt: {
     type: String,
-    required: true,
+    required: true
   },
   /**
    * Starting width in viewport units (vw)
@@ -96,7 +96,7 @@ const props = defineProps({
    */
   startWidth: {
     type: Number,
-    default: 25,
+    default: 25
   },
   /**
    * Starting height in viewport units (vh)
@@ -104,7 +104,7 @@ const props = defineProps({
    */
   startHeight: {
     type: Number,
-    default: 25,
+    default: 25
   },
   /**
    * Scroll distance for animation
@@ -113,7 +113,7 @@ const props = defineProps({
    */
   scrollAmount: {
     type: String,
-    default: "120%",
+    default: '120%'
   },
   /**
    * Starting position of the image (left or right side)
@@ -121,70 +121,70 @@ const props = defineProps({
    */
   startPosition: {
     type: String,
-    default: "left",
-    validator: (value) => ["left", "right"].includes(value),
-  },
-});
+    default: 'left',
+    validator: value => ['left', 'right'].includes(value)
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
 
-const sectionRef = ref(null);
-const containerRef = ref(null);
-const imageRef = ref(null);
+const sectionRef = ref(null)
+const containerRef = ref(null)
+const imageRef = ref(null)
 
-let imageScrollTrigger = null;
+let imageScrollTrigger = null
 
 onMounted(() => {
-  if (!sectionRef.value || !containerRef.value || !imageRef.value || !$ScrollTrigger) return;
+  if (!sectionRef.value || !containerRef.value || !imageRef.value || !$ScrollTrigger) return
 
   // Calculate initial position based on startPosition prop
-  const initialPosition = props.startPosition === "right"
-    ? { left: "100%", top: 0, xPercent: -100 } // Align to right edge
-    : { left: 0, top: 0 }; // Align to left edge
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 } // Align to right edge
+    : { left: 0, top: 0 } // Align to left edge
 
   // Set initial state: small size positioned at chosen corner
   $gsap.set(containerRef.value, {
     width: `${props.startWidth}vw`,
     height: `${props.startHeight}vh`,
     ...initialPosition,
-    position: "absolute",
-  });
+    position: 'absolute'
+  })
 
   // Set initial image position for parallax
   // Start at 0 (top aligned) to prevent clipping
   $gsap.set(imageRef.value.$el, {
-    yPercent: 0,
-  });
+    yPercent: 0
+  })
 
   // Main timeline: Grow container dimensions as user scrolls
   const tl = $gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
-      start: "top top",
+      start: 'top top',
       end: `+=${props.scrollAmount}`,
       pin: true,
       scrub: 1,
       anticipatePin: 1,
       markers: false,
-      invalidateOnRefresh: true,
-    },
-  });
+      invalidateOnRefresh: true
+    }
+  })
 
   // Dimension animation: grow from small to full viewport, center position
   tl.to(
     containerRef.value,
     {
-      width: "100vw",
-      height: "100vh",
-      left: "50%",
-      top: "50%",
+      width: '100vw',
+      height: '100vh',
+      left: '50%',
+      top: '50%',
       xPercent: -50,
       yPercent: -50,
-      ease: "power2.out",
-      duration: 1,
+      ease: 'power2.out',
+      duration: 1
     },
     0
-  );
+  )
 
   // Parallax animation: move image vertically for parallax effect
   // Synced with container growth (runs at same time, position 0)
@@ -194,21 +194,21 @@ onMounted(() => {
     imageRef.value.$el,
     {
       yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% image = 28.57%)
-      ease: "power2.out",
-      duration: 1,
+      ease: 'power2.out',
+      duration: 1
     },
     0
-  );
+  )
 
-  imageScrollTrigger = tl.scrollTrigger;
-});
+  imageScrollTrigger = tl.scrollTrigger
+})
 
 onUnmounted(() => {
   if (imageScrollTrigger) {
-    imageScrollTrigger.kill();
-    imageScrollTrigger = null;
+    imageScrollTrigger.kill()
+    imageScrollTrigger = null
   }
-});
+})
 </script>
 
 <style scoped>

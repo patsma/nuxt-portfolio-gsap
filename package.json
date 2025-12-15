@@ -12,6 +12,7 @@
     "styles:watch": "sass --no-source-map --load-path app/assets/css app/assets/css/pre.scss:app/assets/css/pre.css app/assets/css/post.scss:app/assets/css/post.css --watch",
     "prebuild": "npm run styles:build",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {

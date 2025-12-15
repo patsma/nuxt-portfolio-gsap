@@ -4,7 +4,10 @@
     class="marquee-container full-width overflow-hidden"
     data-footer-marquee
   >
-    <div ref="marqueeTrackRef" class="marquee-track">
+    <div
+      ref="marqueeTrackRef"
+      class="marquee-track"
+    >
       <!-- Unit 1: Japanese → Danish → English -->
       <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
@@ -74,18 +77,18 @@
  * - Wrapper div animated as a unit (border + marquee together)
  */
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
 
 // Horizontal loop composable for marquee animation (pass GSAP instance)
-const { createLoop } = useHorizontalLoop($gsap);
+const { createLoop } = useHorizontalLoop($gsap)
 
 // Refs for DOM elements
-const marqueeContainerRef = ref(null);
-const marqueeTrackRef = ref(null);
+const marqueeContainerRef = ref(null)
+const marqueeTrackRef = ref(null)
 
 // Marquee animation instance
-let marqueeAnimation = null;
-let scrollTriggerInstance = null;
+let marqueeAnimation = null
+let scrollTriggerInstance = null
 
 /**
  * Setup marquee animation with ScrollTrigger control
@@ -93,18 +96,18 @@ let scrollTriggerInstance = null;
  * NOTE: Page transition animations handled by parent FooterSection
  */
 onMounted(() => {
-  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return;
+  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return
 
   // Wait for next tick to ensure DOM is fully rendered
   nextTick(() => {
     // Get all text spans in the track (should be 9 elements: 3 sets of 3 languages)
-    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text');
-    if (items.length === 0) return;
+    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text')
+    if (items.length === 0) return
 
     // Calculate gap size dynamically from CSS variable --space-l-xl
     // Read computed style to get the actual resolved fluid clamp() value
-    const computedGap = window.getComputedStyle(marqueeTrackRef.value).gap;
-    const gapSize = parseFloat(computedGap) || 48; // Fallback to 48px if parsing fails
+    const computedGap = window.getComputedStyle(marqueeTrackRef.value).gap
+    const gapSize = parseFloat(computedGap) || 48 // Fallback to 48px if parsing fails
 
     // Create seamless loop using useHorizontalLoop composable
     // IMPORTANT: Direction is ALWAYS right-to-left for footer marquee (reversed: true)
@@ -113,8 +116,8 @@ onMounted(() => {
       speed: 1, // Speed multiplier (always positive)
       reversed: true, // Right-to-left direction
       paddingRight: gapSize, // Gap between loop cycles for seamless connection
-      paused: true, // Start paused
-    });
+      paused: true // Start paused
+    })
 
     // ScrollTrigger: Control marquee based on viewport visibility
     // IMPORTANT: Use resume() instead of play() to respect reversed state
@@ -124,35 +127,35 @@ onMounted(() => {
       end: 'bottom top', // Ends when bottom of element leaves top of viewport
       onEnter: () => {
         // Element entered viewport from below - start animation
-        marqueeAnimation?.resume();
+        marqueeAnimation?.resume()
       },
       onLeave: () => {
         // Element left viewport from top - pause animation
-        marqueeAnimation?.pause();
+        marqueeAnimation?.pause()
       },
       onEnterBack: () => {
         // Element re-entered viewport from above - resume animation
-        marqueeAnimation?.resume();
+        marqueeAnimation?.resume()
       },
       onLeaveBack: () => {
         // Element left viewport from bottom - pause animation
-        marqueeAnimation?.pause();
-      },
-    });
-  });
-});
+        marqueeAnimation?.pause()
+      }
+    })
+  })
+})
 
 // Cleanup animations on unmount
 onUnmounted(() => {
   if (marqueeAnimation) {
-    marqueeAnimation.kill();
-    marqueeAnimation = null;
+    marqueeAnimation.kill()
+    marqueeAnimation = null
   }
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

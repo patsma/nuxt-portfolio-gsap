@@ -9,7 +9,9 @@
       v-page-split:lines="{ leaveOnly: true }"
       class="breakout3 ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] mb-[var(--space-m)] md:mb-[var(--space-l)]"
     >
-      <slot name="label">Recommendations</slot>
+      <slot name="label">
+        Recommendations
+      </slot>
     </h2>
 
     <!-- Recommendations list container -->
@@ -72,67 +74,67 @@ const props = defineProps({
    */
   animateOnScroll: {
     type: Boolean,
-    default: true,
-  },
-});
+    default: true
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
-const loadingStore = useLoadingStore();
-const pageTransitionStore = usePageTransitionStore();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
-const sectionRef = ref(null);
-const labelRef = ref(null);
-const listRef = ref(null);
+const sectionRef = ref(null)
+const labelRef = ref(null)
+const listRef = ref(null)
 
-let scrollTriggerInstance = null;
+let scrollTriggerInstance = null
 
 /**
  * Accordion state management
  * Track which recommendation item is currently expanded
  * Only one item can be open at a time
  */
-const activeItemId = ref(null);
+const activeItemId = ref(null)
 
 const setActiveItem = (id) => {
   // If clicking the same item, close it (toggle behavior)
   // If clicking a different item, open it and close the previous one
-  activeItemId.value = activeItemId.value === id ? null : id;
-};
+  activeItemId.value = activeItemId.value === id ? null : id
+}
 
 /**
  * Smart ScrollTrigger refresh for accordion animations
  * Ensures entrance ScrollTrigger is fully destroyed before refreshing
  * This prevents iOS Safari from triggering timeline reversal
  */
-let pendingCallbacks = [];
+let pendingCallbacks = []
 
 const executeRefresh = () => {
   // CRITICAL iOS Safari Fix: Ensure entrance ScrollTrigger is DEAD before refresh
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
 
   // TARGETED REFRESH: Only refresh ScrollTriggers with pin: true
   // This avoids affecting marquee ScrollTriggers (RecommendationItem animations)
   // Marquees don't need refreshing - they only care about their own element's viewport position
-  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
+  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin)
 
   pinnedTriggers.forEach((trigger) => {
-    trigger.refresh();
-  });
+    trigger.refresh()
+  })
 
   // Execute queued callbacks
-  const callbacks = [...pendingCallbacks];
-  pendingCallbacks = [];
+  const callbacks = [...pendingCallbacks]
+  pendingCallbacks = []
 
   callbacks.forEach((cb) => {
-    cb();
-  });
-};
+    cb()
+  })
+}
 
 // Debounce with 100ms delay to let once:true fully clean up
-const debouncedRefresh = useDebounceFn(executeRefresh, 100);
+const debouncedRefresh = useDebounceFn(executeRefresh, 100)
 
 /**
  * Public API for child components to request refresh
@@ -140,15 +142,15 @@ const debouncedRefresh = useDebounceFn(executeRefresh, 100);
  */
 const requestRefresh = (callback) => {
   if (callback) {
-    pendingCallbacks.push(callback);
+    pendingCallbacks.push(callback)
   }
-  debouncedRefresh();
-};
+  debouncedRefresh()
+}
 
 // Provide accordion state to child RecommendationItem components
-provide('activeItemId', activeItemId);
-provide('setActiveItem', setActiveItem);
-provide('requestRefresh', requestRefresh);
+provide('activeItemId', activeItemId)
+provide('setActiveItem', setActiveItem)
+provide('requestRefresh', requestRefresh)
 
 /**
  * Create reusable animation function for recommendations section
@@ -156,7 +158,7 @@ provide('requestRefresh', requestRefresh);
  * Used by ScrollTrigger for scroll-linked animations
  */
 const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   // Animate label (fade + y offset)
   if (labelRef.value) {
@@ -167,15 +169,15 @@ const createSectionAnimation = () => {
         opacity: 1,
         y: 0,
         duration: 0.6,
-        ease: 'power2.out',
+        ease: 'power2.out'
       }
-    );
+    )
   }
 
   // Animate recommendation items (stagger fade + y offset)
   // Query all .recommendation-item children within the list
   if (listRef.value) {
-    const items = listRef.value.querySelectorAll('.recommendation-item');
+    const items = listRef.value.querySelectorAll('.recommendation-item')
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -185,15 +187,15 @@ const createSectionAnimation = () => {
           y: 0,
           duration: 0.6,
           stagger: 0.08, // Stagger item reveals
-          ease: 'power2.out',
+          ease: 'power2.out'
         },
         '<+0.2' // Start 0.2s after label animation begins
-      );
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 onMounted(() => {
   // SCROLL MODE: Animate when scrolling into view (default)
@@ -204,28 +206,28 @@ onMounted(() => {
     const createScrollTrigger = () => {
       // Kill existing ScrollTrigger if present
       if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill();
-        scrollTriggerInstance = null;
+        scrollTriggerInstance.kill()
+        scrollTriggerInstance = null
       }
 
       // CRITICAL: Clear inline GSAP styles from page transitions
       // The v-page-stagger directive leaves inline styles (opacity, transform)
       // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
       if (labelRef.value) {
-        $gsap.set(labelRef.value, { clearProps: 'all' });
-        $gsap.set(labelRef.value, { opacity: 0, y: 40 });
+        $gsap.set(labelRef.value, { clearProps: 'all' })
+        $gsap.set(labelRef.value, { opacity: 0, y: 40 })
       }
       if (listRef.value) {
-        const items = listRef.value.querySelectorAll('.recommendation-item');
+        const items = listRef.value.querySelectorAll('.recommendation-item')
         if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' });
-          $gsap.set(items, { opacity: 0, y: 40 });
+          $gsap.set(items, { clearProps: 'all' })
+          $gsap.set(items, { opacity: 0, y: 40 })
         }
       }
 
       // Create timeline with fromTo() defining both start and end states
       // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation();
+      const scrollTimeline = createSectionAnimation()
 
       // Create ScrollTrigger with animation timeline
       // CRITICAL: Use 'once: true' to auto-destroy after entrance animation completes
@@ -237,18 +239,19 @@ onMounted(() => {
         end: 'bottom top+=25%', // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
         once: true, // Auto-destroy after first trigger (prevents reversal)
-        invalidateOnRefresh: true, // Recalculate on window resize/refresh
-      });
-    };
+        invalidateOnRefresh: true // Recalculate on window resize/refresh
+      })
+    }
 
     // Coordinate with page transition system
     // First load: Create immediately after mount
     // Navigation: Recreate after page transition completes
     if (loadingStore.isFirstLoad) {
       nextTick(() => {
-        createScrollTrigger();
-      });
-    } else {
+        createScrollTrigger()
+      })
+    }
+    else {
       // After page navigation, wait for page transition to complete
       // Watch pageTransitionStore.isTransitioning for proper timing
       const unwatch = watch(
@@ -257,24 +260,24 @@ onMounted(() => {
           // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
           if (!isTransitioning) {
             nextTick(() => {
-              createScrollTrigger();
-            });
-            unwatch(); // Stop watching
+              createScrollTrigger()
+            })
+            unwatch() // Stop watching
           }
         },
         { immediate: true }
-      );
+      )
     }
   }
-});
+})
 
 // Cleanup ScrollTrigger on unmount
 onUnmounted(() => {
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>

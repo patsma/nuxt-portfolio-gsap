@@ -9,26 +9,26 @@
 const {
   data: posts,
   status,
-  error,
+  error
 } = await useAsyncData(
-  () => "blog-index",
-  () => queryCollection("blog").all()
-);
+  () => 'blog-index',
+  () => queryCollection('blog').all()
+)
 
-useHead({ title: "Blog" });
+useHead({ title: 'Blog' })
 
 // Sort posts client-side by date (newest first) to satisfy content security
 const postsSorted = computed(() => {
-  const list = (posts.value || []).slice();
+  const list = (posts.value || []).slice()
   list.sort((a, b) => {
-    const timeA = new Date(a?.date || 0).getTime();
-    const timeB = new Date(b?.date || 0).getTime();
+    const timeA = new Date(a?.date || 0).getTime()
+    const timeB = new Date(b?.date || 0).getTime()
     return (
       (Number.isNaN(timeB) ? 0 : timeB) - (Number.isNaN(timeA) ? 0 : timeA)
-    );
-  });
-  return list;
-});
+    )
+  })
+  return list
+})
 
 /**
  * Format ISO date to a readable short date.
@@ -37,28 +37,29 @@ const postsSorted = computed(() => {
  */
 const parseISODate = (iso) => {
   // Ensure stable parsing even on server by forcing UTC midnight for YYYY-MM-DD
-  if (!iso) return null;
-  const isShort = /^\d{4}-\d{2}-\d{2}$/.test(iso);
-  const safe = isShort ? `${iso}T00:00:00Z` : iso;
-  const d = new Date(safe);
-  return Number.isNaN(d.getTime()) ? null : d;
-};
+  if (!iso) return null
+  const isShort = /^\d{4}-\d{2}-\d{2}$/.test(iso)
+  const safe = isShort ? `${iso}T00:00:00Z` : iso
+  const d = new Date(safe)
+  return Number.isNaN(d.getTime()) ? null : d
+}
 
 const formatDate = (iso) => {
-  const d = parseISODate(iso);
-  if (!d) return iso || "";
+  const d = parseISODate(iso)
+  if (!d) return iso || ''
   try {
-    return new Intl.DateTimeFormat("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    }).format(d);
-  } catch {
-    return `${d.getUTCDate().toString().padStart(2, "0")} ${d
-      .toLocaleString("en", { month: "short", timeZone: "UTC" })
-      .replace(".", "")} ${d.getUTCFullYear()}`;
+    return new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }).format(d)
   }
-};
+  catch {
+    return `${d.getUTCDate().toString().padStart(2, '0')} ${d
+      .toLocaleString('en', { month: 'short', timeZone: 'UTC' })
+      .replace('.', '')} ${d.getUTCFullYear()}`
+  }
+}
 </script>
 
 <template>
@@ -110,19 +111,31 @@ const formatDate = (iso) => {
         </header>
 
         <!-- Loading & Error States -->
-        <div v-if="status === 'pending'" class="blog-loading">
-          <div class="loading-spinner"/>
+        <div
+          v-if="status === 'pending'"
+          class="blog-loading"
+        >
+          <div class="loading-spinner" />
           <p>Crafting pixels...</p>
         </div>
-        <div v-else-if="error" class="blog-error">
-          <h2 class="blog-error__title">Oops! Something went sideways</h2>
+        <div
+          v-else-if="error"
+          class="blog-error"
+        >
+          <h2 class="blog-error__title">
+            Oops! Something went sideways
+          </h2>
           <p class="blog-error__message">
             Failed to load posts. The internet gremlins are at it again.
           </p>
         </div>
 
         <!-- Blog Posts Grid -->
-        <div v-else class="blog-content" data-lag="0.05">
+        <div
+          v-else
+          class="blog-content"
+          data-lag="0.05"
+        >
           <div class="blog-grid">
             <article
               v-for="(post, index) in postsSorted"
@@ -147,7 +160,10 @@ const formatDate = (iso) => {
                       >
                         {{ formatDate(post.date) }}
                       </time>
-                      <div v-if="post.tags?.length" class="blog-card__tags">
+                      <div
+                        v-if="post.tags?.length"
+                        class="blog-card__tags"
+                      >
                         <span
                           v-for="t in post.tags.slice(0, 2)"
                           :key="t"
@@ -158,17 +174,23 @@ const formatDate = (iso) => {
                       </div>
                     </div>
                     <h2 class="blog-card__title">{{ post.title }}</h2>
-                    <p v-if="post.excerpt" class="blog-card__excerpt">
+                    <p
+                      v-if="post.excerpt"
+                      class="blog-card__excerpt"
+                    >
                       {{ post.excerpt }}
                     </p>
                   </div>
                   <div class="blog-card__arrow">
                     <div class="arrow-circle">
-                      <Icon name="tabler:arrow-up-right" class="arrow-icon" />
+                      <Icon
+                        name="tabler:arrow-up-right"
+                        class="arrow-icon"
+                      />
                     </div>
                   </div>
                 </div>
-                <div class="blog-card__glow"/>
+                <div class="blog-card__glow" />
               </NuxtLink>
             </article>
           </div>

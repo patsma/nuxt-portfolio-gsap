@@ -21,7 +21,7 @@
  * - Page transitions → Non-conflicting integration
  */
 
-import { useLoadingStore } from "~/stores/loading";
+import { useLoadingStore } from '~/stores/loading'
 
 /**
  * @typedef {Object} LoadingSequenceOptions
@@ -31,8 +31,8 @@ import { useLoadingStore } from "~/stores/loading";
  */
 
 export const useLoadingSequence = () => {
-  const loadingStore = useLoadingStore();
-  const { $gsap } = useNuxtApp();
+  const loadingStore = useLoadingStore()
+  const { $gsap } = useNuxtApp()
 
   /**
    * Initialize the loading sequence
@@ -44,57 +44,61 @@ export const useLoadingSequence = () => {
     const {
       checkFonts = true,
       minLoadTime = 800, // Default minimum display time (can be overridden in app.vue)
-      animateOnReady = true,
-    } = options;
+      animateOnReady = true
+    } = options
 
     // Start loading process
-    loadingStore.startLoading();
-    const startTime = Date.now();
+    loadingStore.startLoading()
+    const startTime = Date.now()
 
     // CRITICAL: Ensure loader is visible before continuing
     // Wait for next frame to ensure loader is painted
-    await new Promise((resolve) =>
+    await new Promise(resolve =>
       requestAnimationFrame(() => requestAnimationFrame(resolve))
-    );
+    )
 
     // Check GSAP availability
     if ($gsap) {
-      loadingStore.setGsapReady();
-    } else {
-      console.warn("⚠️ GSAP not available during initialization");
+      loadingStore.setGsapReady()
+    }
+    else {
+      console.warn('⚠️ GSAP not available during initialization')
       // Try again after a delay
       setTimeout(() => {
         if (useNuxtApp().$gsap) {
-          loadingStore.setGsapReady();
+          loadingStore.setGsapReady()
         }
-      }, 100);
+      }, 100)
     }
 
     // Check font loading if needed
-    if (checkFonts && typeof document !== "undefined") {
+    if (checkFonts && typeof document !== 'undefined') {
       try {
-        await document.fonts.ready;
-        loadingStore.setFontsReady();
-      } catch (error) {
-        console.warn("⚠️ Font loading check failed:", error);
-        loadingStore.setFontsReady(); // Mark as ready anyway
+        await document.fonts.ready
+        loadingStore.setFontsReady()
       }
-    } else {
-      loadingStore.setFontsReady();
+      catch (error) {
+        console.warn('⚠️ Font loading check failed:', error)
+        loadingStore.setFontsReady() // Mark as ready anyway
+      }
+    }
+    else {
+      loadingStore.setFontsReady()
     }
 
     // CRITICAL: Always enforce minimum display time
     // This ensures the loader is visible even on fast connections
     // Provides consistent UX and prevents jarring flashes
-    const elapsed = Date.now() - startTime;
-    const remainingTime = Math.max(minLoadTime - elapsed, 0);
+    const elapsed = Date.now() - startTime
+    const remainingTime = Math.max(minLoadTime - elapsed, 0)
 
     if (remainingTime > 0) {
       // console.log(
       //   `⏱️ Resources loaded in ${elapsed}ms, waiting ${remainingTime}ms more (minLoadTime: ${minLoadTime}ms)`
       // );
-      await new Promise((resolve) => setTimeout(resolve, remainingTime));
-    } else {
+      await new Promise(resolve => setTimeout(resolve, remainingTime))
+    }
+    else {
       // console.log(
       //   `⏱️ Resources loaded in ${elapsed}ms (exceeded minLoadTime: ${minLoadTime}ms)`
       // );
@@ -104,43 +108,43 @@ export const useLoadingSequence = () => {
 
     // CRITICAL: Fire app:ready event AFTER minimum time is enforced
     // This ensures loader stays visible for the full duration
-    if (typeof window !== "undefined") {
-      const totalDuration = Date.now() - startTime;
+    if (typeof window !== 'undefined') {
+      const totalDuration = Date.now() - startTime
       window.dispatchEvent(
-        new CustomEvent("app:ready", {
+        new CustomEvent('app:ready', {
           detail: {
             duration: totalDuration,
-            isFirstLoad: loadingStore.isFirstLoad,
-          },
+            isFirstLoad: loadingStore.isFirstLoad
+          }
         })
-      );
-      console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`);
+      )
+      console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`)
     }
 
     // Auto-start animations if configured
     if (animateOnReady && loadingStore.isReady) {
       // Small delay to ensure DOM is ready
       setTimeout(() => {
-        startInitialAnimations();
-      }, 100);
+        startInitialAnimations()
+      }, 100)
     }
-  };
+  }
 
   /**
    * Mark ScrollSmoother as initialized
    * Called from layout after ScrollSmoother is created
    */
   const markScrollSmootherReady = () => {
-    loadingStore.setScrollSmootherReady();
-  };
+    loadingStore.setScrollSmootherReady()
+  }
 
   /**
    * Mark page content as ready
    * Called when page component is mounted
    */
   const markPageReady = () => {
-    loadingStore.setPageReady();
-  };
+    loadingStore.setPageReady()
+  }
 
   /**
    * Create the initial entrance timeline
@@ -150,24 +154,24 @@ export const useLoadingSequence = () => {
    */
   const createEntranceTimeline = () => {
     if (!$gsap) {
-      console.warn("⚠️ GSAP not available for entrance timeline");
-      return null;
+      console.warn('⚠️ GSAP not available for entrance timeline')
+      return null
     }
 
     const tl = $gsap.timeline({
       paused: true,
       onStart: () => {
-        loadingStore.startAnimating();
-        console.log("🎬 Entrance timeline started");
+        loadingStore.startAnimating()
+        console.log('🎬 Entrance timeline started')
       },
       onComplete: () => {
-        loadingStore.setAnimationsComplete();
-        console.log("✨ Entrance timeline complete");
-      },
-    });
+        loadingStore.setAnimationsComplete()
+        console.log('✨ Entrance timeline complete')
+      }
+    })
 
-    return tl;
-  };
+    return tl
+  }
 
   /**
    * Start the initial animations
@@ -175,17 +179,17 @@ export const useLoadingSequence = () => {
    */
   const startInitialAnimations = () => {
     if (!loadingStore.isReady) {
-      console.warn("⚠️ Cannot start animations - app not ready");
-      return;
+      console.warn('⚠️ Cannot start animations - app not ready')
+      return
     }
 
     // Dispatch event for components to start their animations
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("app:start-animations"));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('app:start-animations'))
     }
 
-    loadingStore.startAnimating();
-  };
+    loadingStore.startAnimating()
+  }
 
   /**
    * Wait for app to be ready
@@ -196,28 +200,28 @@ export const useLoadingSequence = () => {
   const waitForReady = () => {
     return new Promise((resolve) => {
       if (loadingStore.isReady) {
-        resolve();
-        return;
+        resolve()
+        return
       }
 
       // Listen for ready event
       const handler = () => {
-        window.removeEventListener("app:ready", handler);
-        resolve();
-      };
+        window.removeEventListener('app:ready', handler)
+        resolve()
+      }
 
-      if (typeof window !== "undefined") {
-        window.addEventListener("app:ready", handler);
+      if (typeof window !== 'undefined') {
+        window.addEventListener('app:ready', handler)
 
         // Timeout fallback
         setTimeout(() => {
-          window.removeEventListener("app:ready", handler);
-          loadingStore.forceReady();
-          resolve();
-        }, 5000);
+          window.removeEventListener('app:ready', handler)
+          loadingStore.forceReady()
+          resolve()
+        }, 5000)
       }
-    });
-  };
+    })
+  }
 
   /**
    * Create a staggered animation helper
@@ -233,23 +237,23 @@ export const useLoadingSequence = () => {
     animationProps = {},
     options = {}
   ) => {
-    if (!$gsap || !elements || elements.length === 0) return null;
+    if (!$gsap || !elements || elements.length === 0) return null
 
     const {
       stagger = 0.1,
       duration = 0.8,
-      ease = "power2.out",
-      from = "start",
-    } = options;
+      ease = 'power2.out',
+      from = 'start'
+    } = options
 
-    const tl = $gsap.timeline();
+    const tl = $gsap.timeline()
 
     // Set initial state (hidden)
     $gsap.set(elements, {
       autoAlpha: 0,
       y: 20,
-      ...animationProps.from,
-    });
+      ...animationProps.from
+    })
 
     // Animate in
     tl.to(elements, {
@@ -259,31 +263,31 @@ export const useLoadingSequence = () => {
       ease,
       stagger: {
         each: stagger,
-        from,
+        from
       },
-      ...animationProps.to,
-    });
+      ...animationProps.to
+    })
 
-    return tl;
-  };
+    return tl
+  }
 
   /**
    * Helper to check if this is the first load
    * @returns {boolean}
    */
-  const isFirstLoad = () => loadingStore.isFirstLoad;
+  const isFirstLoad = () => loadingStore.isFirstLoad
 
   /**
    * Helper to check if app is ready
    * @returns {boolean}
    */
-  const isAppReady = () => loadingStore.isReady;
+  const isAppReady = () => loadingStore.isReady
 
   /**
    * Helper to check if animations are complete
    * @returns {boolean}
    */
-  const isAnimationComplete = () => loadingStore.isComplete;
+  const isAnimationComplete = () => loadingStore.isComplete
 
   return {
     // Main functions
@@ -303,6 +307,6 @@ export const useLoadingSequence = () => {
     isAnimationComplete,
 
     // Direct store access if needed
-    loadingStore: readonly(loadingStore),
-  };
-};
+    loadingStore: readonly(loadingStore)
+  }
+}

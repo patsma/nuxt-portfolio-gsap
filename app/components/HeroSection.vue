@@ -17,7 +17,10 @@
 
         <!-- Named slot for optional scroll button (right side on desktop) -->
         <!-- ml-auto pushes button to the right, works with or without services -->
-        <div ref="buttonSlotRef" class="md:ml-auto">
+        <div
+          ref="buttonSlotRef"
+          class="md:ml-auto"
+        >
           <slot name="button" />
         </div>
       </div>
@@ -77,7 +80,7 @@ const props = defineProps({
    */
   animateEntrance: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * GSAP position parameter for animation timing
@@ -90,24 +93,24 @@ const props = defineProps({
    */
   position: {
     type: String,
-    default: "<-0.3", // Overlap header by 0.3s for smooth flow
-  },
-});
+    default: '<-0.3' // Overlap header by 0.3s for smooth flow
+  }
+})
 
 // Nuxt GSAP
-const { $gsap, $SplitText } = useNuxtApp();
+const { $gsap, $SplitText } = useNuxtApp()
 
 // Entrance animation system
-const { setupEntrance } = useEntranceAnimation();
+const { setupEntrance } = useEntranceAnimation()
 
 // Refs
-const heroRef = ref(null);
-const servicesSlotRef = ref(null);
-const buttonSlotRef = ref(null);
-const splitInstance = ref(null);
+const heroRef = ref(null)
+const servicesSlotRef = ref(null)
+const buttonSlotRef = ref(null)
+const splitInstance = ref(null)
 
 onMounted(() => {
-  if (!props.animateEntrance || !heroRef.value) return;
+  if (!props.animateEntrance || !heroRef.value) return
 
   // Setup entrance animation with SplitText
   // This runs on FIRST LOAD only - v-page-split directive handles PAGE NAVIGATION
@@ -115,40 +118,40 @@ onMounted(() => {
     position: props.position,
     animate: (el) => {
       // Find element to animate (e.g., h1 with text content)
-      const textElement = el.querySelector("h1");
+      const textElement = el.querySelector('h1')
 
       if (!textElement || !$SplitText) {
         // Fallback to simple fade if no text element or SplitText not available
-        const tl = $gsap.timeline();
-        $gsap.set(el, { y: 40 });
-        tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8, ease: "power2.out" });
-        return tl;
+        const tl = $gsap.timeline()
+        $gsap.set(el, { y: 40 })
+        tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' })
+        return tl
       }
 
       // Lock height before SplitText to prevent layout shift
-      const originalHeight = textElement.offsetHeight;
-      $gsap.set(textElement, { height: originalHeight });
+      const originalHeight = textElement.offsetHeight
+      $gsap.set(textElement, { height: originalHeight })
 
       // Apply SplitText with masking (split by lines)
       const split = $SplitText.create(textElement, {
-        type: "lines",
-        mask: "lines", // Use masking for clean reveals
-      });
-      splitInstance.value = split;
+        type: 'lines',
+        mask: 'lines' // Use masking for clean reveals
+      })
+      splitInstance.value = split
 
       // Create timeline
-      const tl = $gsap.timeline();
+      const tl = $gsap.timeline()
 
       // Element is already hidden by CSS (data-entrance-animate attribute)
       // Set initial state: text positioned below mask with rotation
       $gsap.set(split.lines, {
         yPercent: 100,
         rotate: 20,
-        transformOrigin: "0% 0%",
-      });
+        transformOrigin: '0% 0%'
+      })
 
       // Make container visible
-      $gsap.set(el, { autoAlpha: 1 });
+      $gsap.set(el, { autoAlpha: 1 })
 
       // Animate: slide up from below mask with rotation straightening
       tl.to(split.lines, {
@@ -156,15 +159,15 @@ onMounted(() => {
         rotate: 0,
         duration: 1,
         stagger: 0.08,
-        ease: "back.out(1.2)",
-      });
+        ease: 'back.out(1.2)'
+      })
 
       // Services animation (if slot is filled)
       if (servicesSlotRef.value && servicesSlotRef.value.children.length > 0) {
-        const tags = servicesSlotRef.value.querySelectorAll(".tag, .tag-label");
+        const tags = servicesSlotRef.value.querySelectorAll('.tag, .tag-label')
         if (tags.length > 0) {
           // Set initial state for tags
-          $gsap.set(tags, { opacity: 0, y: 20 });
+          $gsap.set(tags, { opacity: 0, y: 20 })
 
           // Animate tags with stagger (similar to page transitions)
           tl.to(
@@ -174,19 +177,19 @@ onMounted(() => {
               y: 0,
               duration: 0.5,
               stagger: 0.08,
-              ease: "power2.out",
+              ease: 'power2.out'
             },
-            "<+0.3" // Start 0.3s after h1 animation begins
-          );
+            '<+0.3' // Start 0.3s after h1 animation begins
+          )
         }
       }
 
       // Button animation (if slot is filled)
       if (buttonSlotRef.value && buttonSlotRef.value.children.length > 0) {
-        const button = buttonSlotRef.value.querySelector(".scroll-down");
+        const button = buttonSlotRef.value.querySelector('.scroll-down')
         if (button) {
           // Set initial state for button
-          $gsap.set(button, { opacity: 0, scale: 0.9 });
+          $gsap.set(button, { opacity: 0, scale: 0.9 })
 
           // Animate button with subtle scale
           tl.to(
@@ -195,23 +198,23 @@ onMounted(() => {
               opacity: 1,
               scale: 1,
               duration: 0.6,
-              ease: "back.out(1.5)",
+              ease: 'back.out(1.5)'
             },
-            "<+0.8" // Start 0.2s after services animation begins
-          );
+            '<+0.8' // Start 0.2s after services animation begins
+          )
         }
       }
 
-      return tl;
-    },
-  });
-});
+      return tl
+    }
+  })
+})
 
 onUnmounted(() => {
   // Clean up SplitText instance
   if (splitInstance.value) {
-    splitInstance.value.revert?.();
-    splitInstance.value = null;
+    splitInstance.value.revert?.()
+    splitInstance.value = null
   }
-});
+})
 </script>

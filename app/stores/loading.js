@@ -20,7 +20,7 @@
  * useLoadingSequence after enforcing minimum display time.
  */
 
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
 /**
  * @typedef {Object} LoadingState
@@ -34,17 +34,17 @@ import { defineStore } from "pinia";
  * @property {number|null} readyTime - Ready state timestamp
  */
 
-export const useLoadingStore = defineStore("loading", {
+export const useLoadingStore = defineStore('loading', {
   state: () =>
     /** @type {LoadingState} */ ({
-      status: "initial",
+      status: 'initial',
       gsapReady: false,
       scrollSmootherReady: false,
       pageReady: false,
       fontsReady: false,
       isFirstLoad: true,
       startTime: null,
-      readyTime: null,
+      readyTime: null
     }),
 
   getters: {
@@ -52,26 +52,26 @@ export const useLoadingStore = defineStore("loading", {
      * Check if app is fully ready for animations
      * @returns {boolean}
      */
-    isReady: (state) =>
-      state.status === "ready" ||
-      state.status === "animating" ||
-      state.status === "complete",
+    isReady: state =>
+      state.status === 'ready'
+      || state.status === 'animating'
+      || state.status === 'complete',
 
     /**
      * Check if initial load animations are complete
      * @returns {boolean}
      */
-    isComplete: (state) => state.status === "complete",
+    isComplete: state => state.status === 'complete',
 
     /**
      * Check if all critical resources are loaded
      * @returns {boolean}
      */
-    allResourcesReady: (state) =>
-      state.gsapReady &&
-      state.scrollSmootherReady &&
-      state.pageReady &&
-      state.fontsReady,
+    allResourcesReady: state =>
+      state.gsapReady
+      && state.scrollSmootherReady
+      && state.pageReady
+      && state.fontsReady,
 
     /**
      * Get loading duration in ms
@@ -79,10 +79,10 @@ export const useLoadingStore = defineStore("loading", {
      */
     loadingDuration: (state) => {
       if (state.startTime && state.readyTime) {
-        return state.readyTime - state.startTime;
+        return state.readyTime - state.startTime
       }
-      return null;
-    },
+      return null
+    }
   },
 
   actions: {
@@ -90,8 +90,8 @@ export const useLoadingStore = defineStore("loading", {
      * Start the loading process
      */
     startLoading() {
-      this.status = "loading";
-      this.startTime = Date.now();
+      this.status = 'loading'
+      this.startTime = Date.now()
       // console.log("🔄 Loading started");
     },
 
@@ -99,36 +99,36 @@ export const useLoadingStore = defineStore("loading", {
      * Mark GSAP as ready
      */
     setGsapReady() {
-      this.gsapReady = true;
+      this.gsapReady = true
       // console.log("✅ GSAP ready");
-      this.checkReadyState();
+      this.checkReadyState()
     },
 
     /**
      * Mark ScrollSmoother as ready
      */
     setScrollSmootherReady() {
-      this.scrollSmootherReady = true;
+      this.scrollSmootherReady = true
       // console.log("✅ ScrollSmoother ready");
-      this.checkReadyState();
+      this.checkReadyState()
     },
 
     /**
      * Mark page content as ready
      */
     setPageReady() {
-      this.pageReady = true;
+      this.pageReady = true
       // console.log("✅ Page content ready");
-      this.checkReadyState();
+      this.checkReadyState()
     },
 
     /**
      * Mark fonts as ready
      */
     setFontsReady() {
-      this.fontsReady = true;
+      this.fontsReady = true
       // console.log("✅ Fonts ready");
-      this.checkReadyState();
+      this.checkReadyState()
     },
 
     /**
@@ -136,9 +136,9 @@ export const useLoadingStore = defineStore("loading", {
      * NOTE: This only marks as ready internally, event is fired later after minLoadTime
      */
     checkReadyState() {
-      if (this.allResourcesReady && this.status === "loading") {
-        this.status = "ready";
-        this.readyTime = Date.now();
+      if (this.allResourcesReady && this.status === 'loading') {
+        this.status = 'ready'
+        this.readyTime = Date.now()
 
         // const duration = this.loadingDuration;
         // console.log(`✅ All resources loaded! Took ${duration}ms`);
@@ -153,8 +153,8 @@ export const useLoadingStore = defineStore("loading", {
      * Start initial animations
      */
     startAnimating() {
-      if (this.status === "ready") {
-        this.status = "animating";
+      if (this.status === 'ready') {
+        this.status = 'animating'
         // console.log("🎬 Initial animations started");
       }
     },
@@ -163,14 +163,14 @@ export const useLoadingStore = defineStore("loading", {
      * Mark initial animations as complete
      */
     setAnimationsComplete() {
-      if (this.status === "animating") {
-        this.status = "complete";
-        this.isFirstLoad = false; // Next loads won't be first
+      if (this.status === 'animating') {
+        this.status = 'complete'
+        this.isFirstLoad = false // Next loads won't be first
         // console.log("✨ Initial animations complete");
 
         // Emit complete event
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("app:complete"));
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('app:complete'))
         }
       }
     },
@@ -179,13 +179,13 @@ export const useLoadingStore = defineStore("loading", {
      * Reset loading state (useful for testing or manual reload)
      */
     reset() {
-      this.status = "initial";
-      this.gsapReady = false;
-      this.scrollSmootherReady = false;
-      this.pageReady = false;
-      this.fontsReady = false;
-      this.startTime = null;
-      this.readyTime = null;
+      this.status = 'initial'
+      this.gsapReady = false
+      this.scrollSmootherReady = false
+      this.pageReady = false
+      this.fontsReady = false
+      this.startTime = null
+      this.readyTime = null
       // console.log("🔄 Loading state reset");
     },
 
@@ -193,12 +193,12 @@ export const useLoadingStore = defineStore("loading", {
      * Force ready state (fallback for timeout scenarios)
      */
     forceReady() {
-      console.warn("⚠️ Forcing ready state (fallback)");
-      this.gsapReady = true;
-      this.scrollSmootherReady = true;
-      this.pageReady = true;
-      this.fontsReady = true;
-      this.checkReadyState();
-    },
-  },
-});
+      console.warn('⚠️ Forcing ready state (fallback)')
+      this.gsapReady = true
+      this.scrollSmootherReady = true
+      this.pageReady = true
+      this.fontsReady = true
+      this.checkReadyState()
+    }
+  }
+})

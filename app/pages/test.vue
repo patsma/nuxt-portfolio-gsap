@@ -1,13 +1,22 @@
 <template>
-  <section key="test-page" aria-labelledby="test-heading">
-    <h1 id="test-heading" class="sr-only">Test</h1>
+  <section
+    key="test-page"
+    aria-labelledby="test-heading"
+  >
+    <h1
+      id="test-heading"
+      class="sr-only"
+    >
+      Test
+    </h1>
 
     <!-- Clients Section Test -->
-  
 
     <!-- Recommendations Section Test -->
     <RecommendationsSection>
-      <template #label>Recommendations</template>
+      <template #label>
+        Recommendations
+      </template>
 
       <RecommendationItem
         id="rec-1"
@@ -59,7 +68,10 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
     </RecommendationsSection>
 
     <!-- Experience Section Test -->
-    <ExperienceSection view-more-text="View all" view-more-to="/about">
+    <ExperienceSection
+      view-more-text="View all"
+      view-more-to="/about"
+    >
       <ExperienceItem
         date-range="2023 – Current"
         title="Senior UX/UI Designer"
@@ -84,17 +96,18 @@ I have always been impressed by the speed and thoroughness that Morten shows in 
     <SmoothDemo />
   </section>
 </template>
+
 <script setup>
 useHead({
-  title: "Test",
+  title: 'Test',
   meta: [
     {
-      name: "description",
+      name: 'description',
       content:
-        "Explore TastySites’ interactive components, animations, and recent work on the test page.",
-    },
-  ],
-});
+        'Explore TastySites’ interactive components, animations, and recent work on the test page.'
+    }
+  ]
+})
 // Use default layout so ScrollSmoother structure (#smooth-wrapper / #smooth-content) is present
-definePageMeta({ layout: "default" });
+definePageMeta({ layout: 'default' })
 </script>

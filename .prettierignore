@@ -1,3 +1,12 @@
+# Let ESLint handle code formatting (prevents ESLint/Prettier conflicts)
+*.vue
+*.js
+*.ts
+*.mjs
+*.cjs
+*.jsx
+*.tsx
+
 # Prevent Prettier from formatting Nuxt Content MDC files
 # MDC syntax (e.g., ::Component ... ::) can be broken by standard markdown formatting
 content/**/*.md

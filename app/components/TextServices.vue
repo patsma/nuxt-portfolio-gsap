@@ -47,18 +47,18 @@
 
 // Services split into two columns
 const servicesColumn1 = [
-  "Art Direction",
-  "Creative Direction",
-  "Concept Development",
-  "Consulting & Guidance",
-];
+  'Art Direction',
+  'Creative Direction',
+  'Concept Development',
+  'Consulting & Guidance'
+]
 
 const servicesColumn2 = [
-  "User Experience Design (UX)",
-  "Digital Design (UI)",
-  "Interactive Design",
-  "Design Systems & Tokens",
-];
+  'User Experience Design (UX)',
+  'Digital Design (UI)',
+  'Interactive Design',
+  'Design Systems & Tokens'
+]
 </script>
 
 <style scoped lang="scss">

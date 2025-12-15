@@ -78,7 +78,7 @@ export const useHorizontalLoop = (gsap) => {
         repeat: config.repeat,
         paused: config.paused,
         defaults: { ease: 'none' },
-        onReverseComplete: () => tl.totalTime(tl.rawTime() + tl.duration() * 100),
+        onReverseComplete: () => tl.totalTime(tl.rawTime() + tl.duration() * 100)
       }),
       length = items.length,
       startX = items[0].offsetLeft,
@@ -87,8 +87,8 @@ export const useHorizontalLoop = (gsap) => {
       xPercents = [],
       curIndex = 0,
       pixelsPerSecond = (config.speed || 1) * 100,
-      snap =
-        config.snap === false ? (v) => v : $gsap.utils.snap(config.snap || 1),
+      snap
+        = config.snap === false ? v => v : $gsap.utils.snap(config.snap || 1),
       totalWidth,
       curX,
       distanceToStart,
@@ -101,39 +101,39 @@ export const useHorizontalLoop = (gsap) => {
       xPercent: (i, el) => {
         let w = (widths[i] = parseFloat($gsap.getProperty(el, 'width', 'px')))
         xPercents[i] = snap(
-          (parseFloat($gsap.getProperty(el, 'x', 'px')) / w) * 100 +
-            $gsap.getProperty(el, 'xPercent')
+          (parseFloat($gsap.getProperty(el, 'x', 'px')) / w) * 100
+          + $gsap.getProperty(el, 'xPercent')
         )
         return xPercents[i]
-      },
+      }
     })
 
     // Reset x position
     $gsap.set(items, { x: 0 })
 
     // Calculate total width including padding
-    totalWidth =
-      items[length - 1].offsetLeft +
-      (xPercents[length - 1] / 100) * widths[length - 1] -
-      startX +
-      items[length - 1].offsetWidth *
-        $gsap.getProperty(items[length - 1], 'scaleX') +
-      (parseFloat(config.paddingRight) || 0)
+    totalWidth
+      = items[length - 1].offsetLeft
+        + (xPercents[length - 1] / 100) * widths[length - 1]
+        - startX
+        + items[length - 1].offsetWidth
+        * $gsap.getProperty(items[length - 1], 'scaleX')
+        + (parseFloat(config.paddingRight) || 0)
 
     // Create seamless loop animation for each item
     for (i = 0; i < length; i++) {
       item = items[i]
       curX = (xPercents[i] / 100) * widths[i]
       distanceToStart = item.offsetLeft + curX - startX
-      distanceToLoop =
-        distanceToStart + widths[i] * $gsap.getProperty(item, 'scaleX')
+      distanceToLoop
+        = distanceToStart + widths[i] * $gsap.getProperty(item, 'scaleX')
 
       // Animate from current position to loop end
       tl.to(
         item,
         {
           xPercent: snap(((curX - distanceToLoop) / widths[i]) * 100),
-          duration: distanceToLoop / pixelsPerSecond,
+          duration: distanceToLoop / pixelsPerSecond
         },
         0
       )
@@ -143,13 +143,13 @@ export const useHorizontalLoop = (gsap) => {
           {
             xPercent: snap(
               ((curX - distanceToLoop + totalWidth) / widths[i]) * 100
-            ),
+            )
           },
           {
             xPercent: xPercents[i],
             duration:
               (curX - distanceToLoop + totalWidth - curX) / pixelsPerSecond,
-            immediateRender: false,
+            immediateRender: false
           },
           distanceToLoop / pixelsPerSecond
         )
@@ -166,11 +166,11 @@ export const useHorizontalLoop = (gsap) => {
      */
     function toIndex(index, vars) {
       vars = vars || {}
-      Math.abs(index - curIndex) > length / 2 &&
-        (index += index > curIndex ? -length : length)
+      Math.abs(index - curIndex) > length / 2
+      && (index += index > curIndex ? -length : length)
       let newIndex = $gsap.utils.wrap(0, length, index),
         time = times[newIndex]
-      if (time > tl.time() !== index > curIndex) {
+      if ((time > tl.time()) !== (index > curIndex)) {
         vars.modifiers = { time: $gsap.utils.wrap(0, tl.duration()) }
         time += tl.duration() * (index > curIndex ? 1 : -1)
       }
@@ -180,8 +180,8 @@ export const useHorizontalLoop = (gsap) => {
     }
 
     // Add helper methods to timeline
-    tl.next = (vars) => toIndex(curIndex + 1, vars)
-    tl.previous = (vars) => toIndex(curIndex - 1, vars)
+    tl.next = vars => toIndex(curIndex + 1, vars)
+    tl.previous = vars => toIndex(curIndex - 1, vars)
     tl.current = () => curIndex
     tl.toIndex = (index, vars) => toIndex(index, vars)
     tl.times = times
@@ -199,6 +199,6 @@ export const useHorizontalLoop = (gsap) => {
   }
 
   return {
-    createLoop,
+    createLoop
   }
 }

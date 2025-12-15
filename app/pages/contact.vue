@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HeroSection from "~/components/HeroSection.vue";
-import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
+import HeroSection from '~/components/HeroSection.vue'
+import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
 </script>
 
 <template>
@@ -15,11 +15,9 @@ import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
         <span class="text-[var(--theme-text-60)]">Feel</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
         <span class="text-[var(--theme-text-60)]">
-          to reach out if you want to</span
-        >
+          to reach out if you want to</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]">
-          collaborate</em
-        >
+          collaborate</em>
         <span class="text-[var(--theme-text-60)]">,</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> hire</em>
         <span class="text-[var(--theme-text-60)]">, or simply</span>

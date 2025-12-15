@@ -35,7 +35,10 @@
         ref="playButtonRef"
         class="play-button-overlay grid place-items-center pointer-events-none"
       >
-        <div class="pointer-events-auto" @click="handlePlayPause">
+        <div
+          class="pointer-events-auto"
+          @click="handlePlayPause"
+        >
           <CursorPlaySVG />
         </div>
       </div>
@@ -107,7 +110,7 @@ const props = defineProps({
    */
   videoSrc: {
     type: String,
-    default: "/assets/dummy/sample1.mp4",
+    default: '/assets/dummy/sample1.mp4'
   },
   /**
    * Poster image (native HTML5 placeholder shown while loading)
@@ -115,7 +118,7 @@ const props = defineProps({
    */
   posterSrc: {
     type: String,
-    default: "",
+    default: ''
   },
   /**
    * Starting width in viewport units (vw)
@@ -123,7 +126,7 @@ const props = defineProps({
    */
   startWidth: {
     type: Number,
-    default: 25,
+    default: 25
   },
   /**
    * Starting height in viewport units (vh)
@@ -131,7 +134,7 @@ const props = defineProps({
    */
   startHeight: {
     type: Number,
-    default: 25,
+    default: 25
   },
   /**
    * Scroll distance for animation and pin duration
@@ -141,7 +144,7 @@ const props = defineProps({
    */
   scrollAmount: {
     type: String,
-    default: "500%",
+    default: '500%'
   },
   /**
    * Starting position of the video (left or right side)
@@ -149,114 +152,116 @@ const props = defineProps({
    */
   startPosition: {
     type: String,
-    default: "left",
-    validator: (value) => ["left", "right"].includes(value),
-  },
-});
+    default: 'left',
+    validator: value => ['left', 'right'].includes(value)
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
 
-const sectionRef = ref(null);
-const containerRef = ref(null);
-const videoRef = ref(null);
-const playButtonRef = ref(null);
+const sectionRef = ref(null)
+const containerRef = ref(null)
+const videoRef = ref(null)
+const playButtonRef = ref(null)
 
-const isPlaying = ref(false);
-const hasEnded = ref(false);
+const isPlaying = ref(false)
+const hasEnded = ref(false)
 
-let videoScrollTrigger = null;
-let buttonTimeline = null;
-let buttonAnimated = false;
+let videoScrollTrigger = null
+let buttonTimeline = null
+let buttonAnimated = false
 
 const handlePlayPause = () => {
-  if (!videoRef.value) return;
+  if (!videoRef.value) return
 
   if (hasEnded.value) {
-    videoRef.value.currentTime = 0;
-    hasEnded.value = false;
+    videoRef.value.currentTime = 0
+    hasEnded.value = false
   }
 
   if (videoRef.value.paused) {
-    videoRef.value.play();
-  } else {
-    videoRef.value.pause();
+    videoRef.value.play()
   }
-};
+  else {
+    videoRef.value.pause()
+  }
+}
 
 const handleVideoEnded = () => {
-  hasEnded.value = true;
-  isPlaying.value = false;
-};
+  hasEnded.value = true
+  isPlaying.value = false
+}
 
 // Update button visibility based on scroll progress and video state
 const updateButtonVisibility = () => {
-  if (!buttonTimeline) return;
+  if (!buttonTimeline) return
 
   // Show button if: scroll reached threshold AND video not playing
-  const shouldShow = buttonAnimated && !isPlaying.value;
+  const shouldShow = buttonAnimated && !isPlaying.value
 
   if (shouldShow && buttonTimeline.progress() < 1) {
-    buttonTimeline.play();
-  } else if (!shouldShow && buttonTimeline.progress() > 0) {
-    buttonTimeline.reverse();
+    buttonTimeline.play()
   }
-};
+  else if (!shouldShow && buttonTimeline.progress() > 0) {
+    buttonTimeline.reverse()
+  }
+}
 
 // Pause video when leaving section (scrolling past in either direction)
 const handleLeaveSection = () => {
-  if (!videoRef.value) return;
+  if (!videoRef.value) return
 
   if (!videoRef.value.paused) {
-    videoRef.value.pause(); // Triggers @pause → isPlaying = false → watch → updateButtonVisibility
+    videoRef.value.pause() // Triggers @pause → isPlaying = false → watch → updateButtonVisibility
   }
 
   if (hasEnded.value) {
-    hasEnded.value = false;
+    hasEnded.value = false
   }
-};
+}
 
 // Watch video playing state for smooth button transitions
 watch(isPlaying, () => {
-  updateButtonVisibility();
-});
+  updateButtonVisibility()
+})
 
 onMounted(() => {
-  if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return;
+  if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return
 
   // Calculate initial position based on startPosition prop
-  const initialPosition = props.startPosition === "right"
-    ? { left: "100%", top: 0, xPercent: -100 } // Align to right edge
-    : { left: 0, top: 0 }; // Align to left edge
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 } // Align to right edge
+    : { left: 0, top: 0 } // Align to left edge
 
   // Set initial state: small size positioned at chosen corner
   $gsap.set(containerRef.value, {
     width: `${props.startWidth}vw`,
     height: `${props.startHeight}vh`,
     ...initialPosition,
-    position: "absolute",
-  });
+    position: 'absolute'
+  })
 
   // Set initial video position for parallax
   // Start at 0 (top aligned) to prevent clipping
   $gsap.set(videoRef.value, {
-    yPercent: 0,
-  });
+    yPercent: 0
+  })
 
   // Button timeline: created once, controlled via play/reverse
-  buttonTimeline = $gsap.timeline({ paused: true });
+  buttonTimeline = $gsap.timeline({ paused: true })
   buttonTimeline.to(playButtonRef.value, {
     opacity: 1,
-    visibility: "visible",
+    visibility: 'visible',
     scale: 1,
     duration: 0.6,
-    ease: "back.out(1.5)",
-  });
+    ease: 'back.out(1.5)'
+  })
 
   // Main timeline: Phase 1 (40% scale) + Phase 2 (60% hold)
   const tl = $gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
-      start: "top top",
+      start: 'top top',
       end: `+=${props.scrollAmount}`,
       pin: true,
       scrub: 1,
@@ -265,40 +270,41 @@ onMounted(() => {
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         // Update button animation threshold at 35% scroll progress
-        const wasAnimated = buttonAnimated;
+        const wasAnimated = buttonAnimated
 
         if (self.progress > 0.35) {
-          buttonAnimated = true;
-        } else {
-          buttonAnimated = false;
+          buttonAnimated = true
+        }
+        else {
+          buttonAnimated = false
         }
 
         // Trigger smooth transition if threshold crossed
         if (wasAnimated !== buttonAnimated) {
-          updateButtonVisibility();
+          updateButtonVisibility()
         }
       },
       onLeave: handleLeaveSection,
-      onLeaveBack: handleLeaveSection,
-    },
-  });
+      onLeaveBack: handleLeaveSection
+    }
+  })
 
   // Phase 1: Container dimension animation (1.8 units = 72% of 2.5 total)
   // This takes 360vh of scroll (3x slower than ImageScalingSection for gradual reveal)
   tl.to(
     containerRef.value,
     {
-      width: "100vw",
-      height: "100vh",
-      left: "50%",
-      top: "50%",
+      width: '100vw',
+      height: '100vh',
+      left: '50%',
+      top: '50%',
       xPercent: -50,
       yPercent: -50,
-      ease: "power2.out",
-      duration: 1.8,
+      ease: 'power2.out',
+      duration: 1.8
     },
     0
-  );
+  )
 
   // Phase 1: Video parallax animation (synchronized with container growth)
   // Video is 140% tall, so 40% extra space = 28.57% of video height
@@ -307,38 +313,38 @@ onMounted(() => {
     videoRef.value,
     {
       yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% video = 28.57%)
-      ease: "power2.out",
-      duration: 1.8,
+      ease: 'power2.out',
+      duration: 1.8
     },
     0
-  );
+  )
 
   // Phase 2: Extend timeline to keep pinned (0.7 units = 28% of 2.5 total)
   // This ensures Phase 1 (duration 1.8) takes 72% of scroll (360vh of 500vh)
   // and Phase 2 (duration 0.7) takes 28% of scroll (140vh of 500vh)
   // Much slower animation provides natural, gradual reveal matching image feel
-  tl.to({}, { duration: 0.7 }, 1.8);
+  tl.to({}, { duration: 0.7 }, 1.8)
 
-  videoScrollTrigger = tl.scrollTrigger;
-});
+  videoScrollTrigger = tl.scrollTrigger
+})
 
 onUnmounted(() => {
   if (videoScrollTrigger) {
-    videoScrollTrigger.kill();
-    videoScrollTrigger = null;
+    videoScrollTrigger.kill()
+    videoScrollTrigger = null
   }
 
   if (buttonTimeline) {
-    buttonTimeline.kill();
-    buttonTimeline = null;
+    buttonTimeline.kill()
+    buttonTimeline = null
   }
 
-  buttonAnimated = false;
+  buttonAnimated = false
 
   if (videoRef.value) {
-    videoRef.value.pause();
+    videoRef.value.pause()
   }
-});
+})
 </script>
 
 <style scoped>

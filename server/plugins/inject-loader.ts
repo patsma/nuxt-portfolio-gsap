@@ -20,7 +20,7 @@
  */
 
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.hooks.hook("render:html", (html) => {
+  nitroApp.hooks.hook('render:html', (html) => {
     // Inject blocking script BEFORE loader to detect theme instantly
     // This prevents FOUC by setting theme class before loader renders
     html.bodyAppend.unshift(`
@@ -51,10 +51,10 @@ export default defineNitroPlugin((nitroApp) => {
       <div id="app-initial-loader">
         <div class="app-loader-gradient"></div>
       </div>
-    `);
+    `)
 
     // console.log(
     //   "🎨 [Nitro] Theme detection script + Loader HTML injected into SSR response"
     // );
-  });
-});
+  })
+})

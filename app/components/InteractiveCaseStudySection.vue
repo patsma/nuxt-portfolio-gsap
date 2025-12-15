@@ -10,7 +10,9 @@
       v-page-split:lines="{ leaveOnly: true }"
       class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
     >
-      <slot name="title">Work</slot>
+      <slot name="title">
+        Work
+      </slot>
     </h2>
 
     <div
@@ -22,7 +24,10 @@
     </div>
 
     <!-- Teleport to body for scroll support, visibility with smooth fade transition -->
-    <Teleport v-if="previewMounted" to="body">
+    <Teleport
+      v-if="previewMounted"
+      to="body"
+    >
       <Transition name="preview-fade">
         <div
           v-show="showPreview"
@@ -31,7 +36,10 @@
           :class="{ active: showPreview }"
           :style="{ aspectRatio: currentAspectRatio }"
         >
-          <div ref="currentImageWrapperRef" class="preview-image-wrapper">
+          <div
+            ref="currentImageWrapperRef"
+            class="preview-image-wrapper"
+          >
             <NuxtImg
               v-if="currentImage"
               :src="currentImage.image"
@@ -42,7 +50,10 @@
             />
           </div>
 
-          <div ref="nextImageWrapperRef" class="preview-image-wrapper">
+          <div
+            ref="nextImageWrapperRef"
+            class="preview-image-wrapper"
+          >
             <NuxtImg
               v-if="nextImage"
               :src="nextImage.image"
@@ -69,8 +80,8 @@
  * - animateOnScroll: Use ScrollTrigger animation when scrolling into view (default)
  * - position: GSAP position parameter for entrance timeline timing
  */
-import { useInteractiveCaseStudyPreview } from "~/composables/useInteractiveCaseStudyPreview";
-import { calculatePreviewPosition } from "~/utils/previewPosition";
+import { useInteractiveCaseStudyPreview } from '~/composables/useInteractiveCaseStudyPreview'
+import { calculatePreviewPosition } from '~/utils/previewPosition'
 
 // Props
 const props = defineProps({
@@ -80,7 +91,7 @@ const props = defineProps({
    */
   animateEntrance: {
     type: Boolean,
-    default: false,
+    default: false
   },
   /**
    * Enable scroll-triggered animation when section enters viewport
@@ -88,7 +99,7 @@ const props = defineProps({
    */
   animateOnScroll: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * GSAP position parameter for entrance animation timing
@@ -100,33 +111,33 @@ const props = defineProps({
    */
   position: {
     type: String,
-    default: "<-0.5",
-  },
-});
+    default: '<-0.5'
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
-const loadingStore = useLoadingStore();
-const pageTransitionStore = usePageTransitionStore();
-const { isMobile } = useIsMobile();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
+const { isMobile } = useIsMobile()
 
-const sectionRef = ref(null);
-const titleRef = ref(null);
-const itemsListRef = ref(null);
-const previewContainerRef = ref(null);
-const currentImageWrapperRef = ref(null);
-const nextImageWrapperRef = ref(null);
+const sectionRef = ref(null)
+const titleRef = ref(null)
+const itemsListRef = ref(null)
+const previewContainerRef = ref(null)
+const currentImageWrapperRef = ref(null)
+const nextImageWrapperRef = ref(null)
 
-const cursorX = ref(0);
-const cursorY = ref(0);
+const cursorX = ref(0)
+const cursorY = ref(0)
 
-let scrollTriggerInstance = null;
+let scrollTriggerInstance = null
 
 const getRefs = () => ({
   sectionRef: sectionRef.value,
   previewContainerRef: previewContainerRef.value,
   currentImageWrapperRef: currentImageWrapperRef.value,
-  nextImageWrapperRef: nextImageWrapperRef.value,
-});
+  nextImageWrapperRef: nextImageWrapperRef.value
+})
 
 const {
   currentImage,
@@ -139,22 +150,22 @@ const {
   clearActivePreview: clearActivePreviewComposable,
   clearActivePreviewImmediate,
   clearActivePreviewInstant,
-  animationConfig,
+  animationConfig
 } = useInteractiveCaseStudyPreview({
   gsap: $gsap,
-  getRefs,
-});
+  getRefs
+})
 
 // Track cursor and animate preview position (getBoundingClientRect accounts for ScrollSmoother)
 const handleMouseMove = (event) => {
-  cursorX.value = event.clientX;
-  cursorY.value = event.clientY;
+  cursorX.value = event.clientX
+  cursorY.value = event.clientY
 
   if (!showPreview.value || !previewContainerRef.value || !sectionRef.value)
-    return;
+    return
 
-  const sectionRect = sectionRef.value.getBoundingClientRect();
-  const previewRect = previewContainerRef.value.getBoundingClientRect();
+  const sectionRect = sectionRef.value.getBoundingClientRect()
+  const previewRect = previewContainerRef.value.getBoundingClientRect()
 
   const position = calculatePreviewPosition({
     cursorX: cursorX.value,
@@ -163,8 +174,8 @@ const handleMouseMove = (event) => {
     previewRect,
     offsetX: animationConfig.position.offsetX,
     padding: animationConfig.position.padding,
-    centerY: true,
-  });
+    centerY: true
+  })
 
   $gsap.to(previewContainerRef.value, {
     x: position.x,
@@ -172,65 +183,66 @@ const handleMouseMove = (event) => {
     xPercent: 0,
     yPercent: 0,
     duration: 0.6,
-    ease: "power2.out",
-    overwrite: "auto",
-  });
-};
+    ease: 'power2.out',
+    overwrite: 'auto'
+  })
+}
 
 /**
  * Navigation delay timeout using VueUse
  * Allows clip animation to complete before route change (350ms)
  */
-let pendingNavigation = null;
-const { start: startNavigationDelay, stop: _cancelNavigationDelay } =
-  useTimeoutFn(
+let pendingNavigation = null
+const { start: startNavigationDelay, stop: _cancelNavigationDelay }
+  = useTimeoutFn(
     () => {
       if (pendingNavigation) {
-        pendingNavigation();
-        pendingNavigation = null;
+        pendingNavigation()
+        pendingNavigation = null
       }
     },
     350,
     { immediate: false } // Don't start automatically
-  );
+  )
 
 // Delay navigation until clip animation completes (350ms)
 onBeforeRouteLeave((to, from, next) => {
   if (showPreview.value) {
-    clearActivePreviewImmediate();
+    clearActivePreviewImmediate()
     // Store next callback and start delay using VueUse
-    pendingNavigation = next;
-    startNavigationDelay();
-  } else {
-    next();
+    pendingNavigation = next
+    startNavigationDelay()
   }
-});
+  else {
+    next()
+  }
+})
 
 // Provide preview control to child items (adds cursor position)
 const setActivePreview = (preview) => {
-  if (!preview) return;
+  if (!preview) return
   setActivePreviewComposable(preview, {
     x: cursorX.value,
-    y: cursorY.value,
-  });
-};
+    y: cursorY.value
+  })
+}
 
 const clearActivePreview = () => {
-  clearActivePreviewComposable();
-};
+  clearActivePreviewComposable()
+}
 
-provide("setActivePreview", setActivePreview);
-provide("clearActivePreview", clearActivePreview);
+provide('setActivePreview', setActivePreview)
+provide('clearActivePreview', clearActivePreview)
 
 // Entrance animation system (optional, for consistency with HeroSection)
-const { setupEntrance } = useEntranceAnimation();
+const { setupEntrance } = useEntranceAnimation()
 
 /**
  * Create reusable animation function for title + items
  * Used by both entrance animation and scroll animation
  */
 const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   // Animate title (fade + y offset)
   // Using .fromTo() to explicitly define both start and end states
@@ -242,9 +254,9 @@ const createSectionAnimation = () => {
         opacity: 1,
         y: 0,
         duration: 0.6,
-        ease: "power2.out",
+        ease: 'power2.out'
       }
-    );
+    )
   }
 
   // Animate items (stagger fade + y offset)
@@ -253,8 +265,8 @@ const createSectionAnimation = () => {
   // - Desktop: .case-study-item (visible on desktop only)
   // Using .fromTo() to explicitly define both start and end states
   if (itemsListRef.value) {
-    const selector = isMobile.value ? ".case-study-card" : ".case-study-item";
-    const items = itemsListRef.value.querySelectorAll(selector);
+    const selector = isMobile.value ? '.case-study-card' : '.case-study-item'
+    const items = itemsListRef.value.querySelectorAll(selector)
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -264,15 +276,15 @@ const createSectionAnimation = () => {
           y: 0,
           duration: 0.6,
           stagger: 0.1,
-          ease: "power2.out",
+          ease: 'power2.out'
         },
-        "<+0.2" // Start 0.2s after title animation begins
-      );
+        '<+0.2' // Start 0.2s after title animation begins
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 // Hide preview smoothly when scrolling out of section (prevents stuck previews)
 // Monitors cursor position continuously and hides with animation if outside section
@@ -284,10 +296,11 @@ onMounted(() => {
     if (sectionRef.value) {
       setupEntrance(sectionRef.value, {
         position: props.position,
-        animate: () => createSectionAnimation(),
-      });
+        animate: () => createSectionAnimation()
+      })
     }
-  } else if (props.animateOnScroll) {
+  }
+  else if (props.animateOnScroll) {
     // SCROLL MODE: Animate when scrolling into view (default)
     // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
     // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
@@ -296,52 +309,53 @@ onMounted(() => {
       const createScrollTrigger = () => {
         // Kill existing ScrollTrigger if present
         if (scrollTriggerInstance) {
-          scrollTriggerInstance.kill();
-          scrollTriggerInstance = null;
+          scrollTriggerInstance.kill()
+          scrollTriggerInstance = null
         }
 
         // CRITICAL: Clear inline GSAP styles from page transitions
         // The v-page-stagger directive leaves inline styles (opacity, transform) on elements
         // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
         if (titleRef.value) {
-          $gsap.set(titleRef.value, { clearProps: "all" });
-          $gsap.set(titleRef.value, { opacity: 0, y: 40 });
+          $gsap.set(titleRef.value, { clearProps: 'all' })
+          $gsap.set(titleRef.value, { opacity: 0, y: 40 })
         }
         if (itemsListRef.value) {
           const selector = isMobile.value
-            ? ".case-study-card"
-            : ".case-study-item";
-          const items = itemsListRef.value.querySelectorAll(selector);
+            ? '.case-study-card'
+            : '.case-study-item'
+          const items = itemsListRef.value.querySelectorAll(selector)
           if (items.length > 0) {
-            $gsap.set(items, { clearProps: "all" });
-            $gsap.set(items, { opacity: 0, y: 40 });
+            $gsap.set(items, { clearProps: 'all' })
+            $gsap.set(items, { opacity: 0, y: 40 })
           }
         }
 
         // Create timeline with fromTo() defining both start and end states
         // Initial state already set above, timeline will animate based on scroll position
-        const scrollTimeline = createSectionAnimation();
+        const scrollTimeline = createSectionAnimation()
 
         // Create ScrollTrigger with animation timeline
         scrollTriggerInstance = $ScrollTrigger.create({
           trigger: sectionRef.value,
-          start: "top center", // Animate when section is 80% down viewport
-          end: "bottom top+=25%", // Complete animation when bottom of section reaches top of viewport
+          start: 'top center', // Animate when section is 80% down viewport
+          end: 'bottom top+=25%', // Complete animation when bottom of section reaches top of viewport
           animation: scrollTimeline, // Link timeline to scroll position
-          toggleActions: "play pause resume reverse",
+          toggleActions: 'play pause resume reverse',
           // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
-          invalidateOnRefresh: true, // Recalculate on window resize/refresh
-        });
-      };
+          invalidateOnRefresh: true // Recalculate on window resize/refresh
+        })
+      }
 
       // Coordinate with page transition system
       // First load: Create immediately after mount
       // Navigation: Recreate after page transition completes
       if (loadingStore.isFirstLoad) {
         nextTick(() => {
-          createScrollTrigger();
-        });
-      } else {
+          createScrollTrigger()
+        })
+      }
+      else {
         // After page navigation, wait for page transition to complete
         // Watch pageTransitionStore.isTransitioning for proper timing
         const unwatch = watch(
@@ -350,13 +364,13 @@ onMounted(() => {
             // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
             if (!isTransitioning) {
               nextTick(() => {
-                createScrollTrigger();
-              });
-              unwatch(); // Stop watching
+                createScrollTrigger()
+              })
+              unwatch() // Stop watching
             }
           },
           { immediate: true }
-        );
+        )
       }
 
       // Watch for breakpoint changes to recreate ScrollTrigger with correct selector
@@ -364,10 +378,10 @@ onMounted(() => {
       watch(isMobile, () => {
         if (scrollTriggerInstance) {
           nextTick(() => {
-            createScrollTrigger();
-          });
+            createScrollTrigger()
+          })
         }
-      });
+      })
     }
   }
 
@@ -375,46 +389,46 @@ onMounted(() => {
   if ($ScrollTrigger) {
     $ScrollTrigger.create({
       trigger: sectionRef.value,
-      start: "top top",
-      end: "bottom bottom",
+      start: 'top top',
+      end: 'bottom bottom',
       onLeave: () => {
         // User scrolled past section (down) - hide with smooth animation
         if (showPreview.value) {
-          clearActivePreviewInstant();
+          clearActivePreviewInstant()
         }
       },
       onLeaveBack: () => {
         // User scrolled past section (up) - hide with smooth animation
         if (showPreview.value) {
-          clearActivePreviewInstant();
+          clearActivePreviewInstant()
         }
       },
       onUpdate: () => {
         // Failsafe: Continuously check if cursor is outside section while preview is visible
         // This catches rapid hover + scroll edge cases that leave preview stuck
-        if (!showPreview.value || !sectionRef.value) return;
+        if (!showPreview.value || !sectionRef.value) return
 
-        const sectionRect = sectionRef.value.getBoundingClientRect();
-        const cursorInSection =
-          cursorY.value >= sectionRect.top &&
-          cursorY.value <= sectionRect.bottom &&
-          cursorX.value >= sectionRect.left &&
-          cursorX.value <= sectionRect.right;
+        const sectionRect = sectionRef.value.getBoundingClientRect()
+        const cursorInSection
+          = cursorY.value >= sectionRect.top
+            && cursorY.value <= sectionRect.bottom
+            && cursorX.value >= sectionRect.left
+            && cursorX.value <= sectionRect.right
 
         // If preview visible but cursor is outside section bounds - hide smoothly
         if (!cursorInSection) {
-          clearActivePreviewInstant();
+          clearActivePreviewInstant()
         }
-      },
-    });
+      }
+    })
   }
-});
+})
 
 // Cleanup ScrollTrigger on unmount
 onUnmounted(() => {
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>

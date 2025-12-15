@@ -7,37 +7,37 @@
  */
 
 // Page transition composable for route changes
-const { leave, enter, beforeEnter, afterLeave } = usePageTransition();
+const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 
 // ScrollSmoother manager for smooth scrolling
-const { createSmoother, killSmoother, scrollToTop } =
-  useScrollSmootherManager();
+const { createSmoother, killSmoother, scrollToTop }
+  = useScrollSmootherManager()
 
 // Loading sequence manager
-const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad } =
-  useLoadingSequence();
+const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad }
+  = useLoadingSequence()
 
 // Access Nuxt app for $headroom plugin
-const nuxtApp = useNuxtApp();
+const nuxtApp = useNuxtApp()
 
 onMounted(() => {
   // Wait for next tick to ensure DOM elements are ready
   nextTick(() => {
     // Verify wrapper elements exist
-    const wrapper = document.getElementById("smooth-wrapper");
-    const content = document.getElementById("smooth-content");
+    const wrapper = document.getElementById('smooth-wrapper')
+    const content = document.getElementById('smooth-content')
 
     if (!wrapper || !content) {
-      console.error("⚠️ ScrollSmoother wrapper elements not found in layout");
+      console.error('⚠️ ScrollSmoother wrapper elements not found in layout')
       // Mark as ready anyway to prevent blocking
-      markScrollSmootherReady();
-      return;
+      markScrollSmootherReady()
+      return
     }
 
     // Create ScrollSmoother instance with headroom integration
     createSmoother({
-      wrapper: "#smooth-wrapper",
-      content: "#smooth-content",
+      wrapper: '#smooth-wrapper',
+      content: '#smooth-content',
       smooth: 1, // Optimized for consistent 60fps across all browsers (higher values can drop to 14fps on Safari)
       effects: true, // Enable data-speed and data-lag attributes
       normalizeScroll: true, // Significantly improves Safari performance and touch behavior
@@ -46,36 +46,39 @@ onMounted(() => {
       // Headroom integration: update header visibility on scroll
       onUpdate: (self) => {
         if (nuxtApp.$headroom?.updateHeader) {
-          const currentScroll = self.scrollTop();
-          nuxtApp.$headroom.updateHeader(currentScroll);
+          const currentScroll = self.scrollTop()
+          nuxtApp.$headroom.updateHeader(currentScroll)
         }
-      },
-    });
+      }
+    })
 
     // CRITICAL: Scroll to top after creating ScrollSmoother
     // This ensures the page starts at scrollTop 0, not at some random offset
     nextTick(() => {
-      scrollToTop();
+      scrollToTop()
       // console.log("✅ Page scroll position reset to top");
-    });
+    })
 
     // Mark ScrollSmoother as ready in loading sequence
-    markScrollSmootherReady();
-  });
+    markScrollSmootherReady()
+  })
 
   // Mark page as ready (content is mounted)
-  markPageReady();
-});
+  markPageReady()
+})
 
 onUnmounted(() => {
   // Cleanup ScrollSmoother when layout is destroyed
-  killSmoother();
-});
+  killSmoother()
+})
 </script>
 
 <template>
   <!-- ScrollSmoother wrapper - REQUIRED for smooth scrolling -->
-  <div id="smooth-wrapper" class="min-h-screen text-[var(--color-ink)]">
+  <div
+    id="smooth-wrapper"
+    class="min-h-screen text-[var(--color-ink)]"
+  >
     <NuxtLoadingIndicator
       :height="6"
       color="#0089d0"
@@ -105,17 +108,22 @@ onUnmounted(() => {
               onBeforeEnter: beforeEnter,
               onEnter: enter,
               onLeave: leave,
-              onAfterLeave: afterLeave,
+              onAfterLeave: afterLeave
             }"
           />
         </div>
       </div>
       <FooterSection>
-     
-      <template #linkedin>linkedin.com/in/mortengust</template>
-      <template #behance>behance.net/mortengust</template>
-      <template #email>hello@mortengust.com</template>
-    </FooterSection>
+        <template #linkedin>
+          linkedin.com/in/mortengust
+        </template>
+        <template #behance>
+          behance.net/mortengust
+        </template>
+        <template #email>
+          hello@mortengust.com
+        </template>
+      </FooterSection>
       <!-- <div class="spacer h-screen"></div> -->
     </div>
   </div>

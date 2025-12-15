@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HeroSection from "~/components/HeroSection.vue";
-import ScrollDownSVG from "~/components/SVG/ScrollDownSVG.vue";
-import VideoScalingSection from "~/components/VideoScalingSection.vue";
+import HeroSection from '~/components/HeroSection.vue'
+import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
+import VideoScalingSection from '~/components/VideoScalingSection.vue'
 </script>
 
 <template>
@@ -16,8 +16,7 @@ import VideoScalingSection from "~/components/VideoScalingSection.vue";
         <em class="text-[var(--theme-text-100)] italic font-[300]"> passion</em>
         <span class="text-[var(--theme-text-60)]"> for design, I craft</span>
         <span class="text-[var(--theme-text-60)]">
-          compelling solutions backed by</span
-        >
+          compelling solutions backed by</span>
         <span class="text-[var(--theme-text-100)] font-[300]"> insights</span>
         <span class="text-[var(--theme-text-60)]"> and</span>
         <span class="text-[var(--theme-text-100)] font-[300]"> real data</span>
@@ -44,6 +43,5 @@ import VideoScalingSection from "~/components/VideoScalingSection.vue";
     />
 
     <!-- Footer Hero Section - Scroll-triggered variant for testing -->
-   
   </div>
 </template>

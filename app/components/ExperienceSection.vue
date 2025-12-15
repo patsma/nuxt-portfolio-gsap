@@ -86,7 +86,7 @@ const props = defineProps({
    */
   animateOnScroll: {
     type: Boolean,
-    default: true,
+    default: true
   },
   /**
    * Text for "View more" link (e.g., "View all", "View more")
@@ -95,7 +95,7 @@ const props = defineProps({
    */
   viewMoreText: {
     type: String,
-    default: '',
+    default: ''
   },
   /**
    * URL for "View more" link
@@ -104,30 +104,30 @@ const props = defineProps({
    */
   viewMoreTo: {
     type: String,
-    default: '',
-  },
-});
+    default: ''
+  }
+})
 
-const { $gsap, $ScrollTrigger } = useNuxtApp();
-const loadingStore = useLoadingStore();
-const pageTransitionStore = usePageTransitionStore();
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
-const sectionRef = ref(null);
-const listRef = ref(null);
+const sectionRef = ref(null)
+const listRef = ref(null)
 
-let scrollTriggerInstance = null;
+let scrollTriggerInstance = null
 
 /**
  * Create reusable animation function for experience list items
  * Used by ScrollTrigger for scroll-linked animations
  */
 const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
   // Animate experience items (stagger fade + y offset)
   // Query all .experience-item children within the list
   if (listRef.value) {
-    const items = listRef.value.querySelectorAll('.experience-item');
+    const items = listRef.value.querySelectorAll('.experience-item')
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -137,14 +137,14 @@ const createSectionAnimation = () => {
           y: 0,
           duration: 0.6,
           stagger: 0.08, // Stagger item reveals
-          ease: 'power2.out',
+          ease: 'power2.out'
         }
-      );
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 onMounted(() => {
   // SCROLL MODE: Animate when scrolling into view (default)
@@ -155,24 +155,24 @@ onMounted(() => {
     const createScrollTrigger = () => {
       // Kill existing ScrollTrigger if present
       if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill();
-        scrollTriggerInstance = null;
+        scrollTriggerInstance.kill()
+        scrollTriggerInstance = null
       }
 
       // CRITICAL: Clear inline GSAP styles from page transitions
       // The v-page-stagger directive leaves inline styles (opacity, transform)
       // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
       if (listRef.value) {
-        const items = listRef.value.querySelectorAll('.experience-item');
+        const items = listRef.value.querySelectorAll('.experience-item')
         if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' });
-          $gsap.set(items, { opacity: 0, y: 40 });
+          $gsap.set(items, { clearProps: 'all' })
+          $gsap.set(items, { opacity: 0, y: 40 })
         }
       }
 
       // Create timeline with fromTo() defining both start and end states
       // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation();
+      const scrollTimeline = createSectionAnimation()
 
       // Create ScrollTrigger with animation timeline
       scrollTriggerInstance = $ScrollTrigger.create({
@@ -181,18 +181,19 @@ onMounted(() => {
         end: 'bottom top+=25%', // Complete animation when bottom reaches top
         animation: scrollTimeline, // Link timeline to scroll position
         toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true, // Recalculate on window resize/refresh
-      });
-    };
+        invalidateOnRefresh: true // Recalculate on window resize/refresh
+      })
+    }
 
     // Coordinate with page transition system
     // First load: Create immediately after mount
     // Navigation: Recreate after page transition completes
     if (loadingStore.isFirstLoad) {
       nextTick(() => {
-        createScrollTrigger();
-      });
-    } else {
+        createScrollTrigger()
+      })
+    }
+    else {
       // After page navigation, wait for page transition to complete
       // Watch pageTransitionStore.isTransitioning for proper timing
       const unwatch = watch(
@@ -201,24 +202,24 @@ onMounted(() => {
           // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
           if (!isTransitioning) {
             nextTick(() => {
-              createScrollTrigger();
-            });
-            unwatch(); // Stop watching
+              createScrollTrigger()
+            })
+            unwatch() // Stop watching
           }
         },
         { immediate: true }
-      );
+      )
     }
   }
-});
+})
 
 // Cleanup ScrollTrigger on unmount
 onUnmounted(() => {
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 </script>
 
 <style scoped>
