@@ -1,13 +1,6 @@
-<script>
-// Module-level counter (shared across all instances)
-// This ensures consistent ID generation during SSR and client hydration
-let instanceCounter = 0
-</script>
-
 <script setup lang="ts">
-// Generate unique ID for this instance to avoid conflicts when multiple instances exist
-// Counter increments in the same order on both server and client, preventing hydration mismatches
-const uid = `theme-toggle-${++instanceCounter}`
+// SSR-safe unique ID using Nuxt's built-in composable
+const uid = useId()
 </script>
 
 <template>
