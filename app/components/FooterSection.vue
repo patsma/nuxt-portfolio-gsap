@@ -3,10 +3,14 @@
     <!-- Section 1: Hero CTA (Reusing HeroSection component) -->
     <FooterHeroSection>
       <h1 class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter">
-        <span class="text-[var(--theme-text-60)]">This is a</span>
-        <em class="text-[var(--theme-text-100)] italic font-[300]"> scroll-triggered</em>
-        <span class="text-[var(--theme-text-60)]"> hero section for</span>
-        <span class="text-[var(--theme-text-100)] font-[300]"> testing</span>
+        <span class="text-[var(--theme-text-60)]">Feel</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> free</span>
+        <span class="text-[var(--theme-text-60)]"> to reach out if you want to</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> collaborate, hire,</em>
+        <span class="text-[var(--theme-text-60)]"> or</span>
+        <span class="text-[var(--theme-text-100)] font-[300]"> simply</span>
+        <em class="text-[var(--theme-text-100)] italic font-[300]"> have a chat</em>
+        <span class="text-[var(--theme-text-60)]"> with me</span>
       </h1>
       <template #button>
         <ScrollDownSVG />
