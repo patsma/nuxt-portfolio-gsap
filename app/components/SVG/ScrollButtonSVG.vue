@@ -131,7 +131,8 @@ const handleClick = () => {
         duration,
         ease: SCROLL_UP_EASE
       })
-    } else {
+    }
+    else {
       // Fallback: animate window scroll position
       const startPos = window.scrollY
       $gsap.to({ y: startPos }, {
@@ -143,7 +144,8 @@ const handleClick = () => {
         }
       })
     }
-  } else if (props.direction === 'down') {
+  }
+  else if (props.direction === 'down') {
     // Scroll down 100vh with gentle, fixed duration
     const currentScroll = smoother ? smoother.scrollTop() : window.scrollY
     const targetScroll = currentScroll + window.innerHeight
@@ -155,7 +157,8 @@ const handleClick = () => {
         duration: SCROLL_DOWN_DURATION,
         ease: SCROLL_DOWN_EASE
       })
-    } else {
+    }
+    else {
       // Fallback: animate window scroll position
       $gsap.to({ y: currentScroll }, {
         y: targetScroll,

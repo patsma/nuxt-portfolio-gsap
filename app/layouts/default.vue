@@ -96,6 +96,9 @@ onUnmounted(() => {
     <!-- Header positioned outside smooth-content for proper fixed positioning -->
     <HeaderGrid />
 
+    <!-- Cursor dot follows mouse and expands on hover (desktop only) -->
+    <CursorDot />
+
     <!-- ScrollSmoother content wrapper -->
     <div id="smooth-content">
       <div class="layout-wrapper">
