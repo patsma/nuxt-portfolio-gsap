@@ -13,7 +13,7 @@
         <span class="text-[var(--theme-text-60)]"> with me</span>
       </h1>
       <template #button>
-        <ScrollDownSVG />
+        <ScrollButtonSVG direction="up" />
       </template>
     </FooterHeroSection>
 

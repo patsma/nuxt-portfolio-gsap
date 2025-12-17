@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeroSection from '~/components/HeroSection.vue'
-import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
+import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
 import VideoScalingSection from '~/components/VideoScalingSection.vue'
 </script>
 
@@ -28,7 +28,7 @@ import VideoScalingSection from '~/components/VideoScalingSection.vue'
         <span class="text-[var(--theme-text-60)]"> end-product</span>
       </h1>
       <template #button>
-        <ScrollDownSVG v-page-fade:left />
+        <ScrollButtonSVG v-page-fade:left />
       </template>
     </HeroSection>
 

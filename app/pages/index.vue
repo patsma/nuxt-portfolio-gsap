@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeroSection from '~/components/HeroSection.vue'
-import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
+import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
 
 const services = [
   'ART DIRECTION',
@@ -69,7 +69,7 @@ const services = [
 
       <!-- Scroll down button (right side on desktop) -->
       <template #button>
-        <ScrollDownSVG
+        <ScrollButtonSVG
           v-page-fade:left
           data-speed="1"
         />

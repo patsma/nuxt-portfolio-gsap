@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HeroSection from '~/components/HeroSection.vue'
-import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
+import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
 </script>
 
 <template>
@@ -25,7 +25,7 @@ import ScrollDownSVG from '~/components/SVG/ScrollDownSVG.vue'
         <span class="text-[var(--theme-text-60)]">, but still experimental and always evolving</span>
       </h1>
       <template #button>
-        <ScrollDownSVG v-page-fade:left />
+        <ScrollButtonSVG v-page-fade:left />
       </template>
     </HeroSection>
 
