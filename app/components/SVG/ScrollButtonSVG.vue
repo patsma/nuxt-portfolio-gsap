@@ -3,6 +3,7 @@
     ref="containerRef"
     class="scroll-button grid justify-end"
     data-hover-text="Scroll"
+    @click="handleClick"
   >
     <svg
       class="w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32"
@@ -37,6 +38,10 @@
  * Features:
  * - Infinite rotation of circular text (viewport-aware with ScrollTrigger)
  * - Arrow direction controlled via prop (up, down, left, right)
+ * - Click behavior: organic smooth scroll using GSAP + ScrollSmoother
+ *   - 'up': scrolls to top with distance-based duration (0.8-2.5s)
+ *   - 'down': scrolls down 100vh with gentle 1.2s animation
+ *   - 'left'/'right': reserved for future use
  * - Theme-aware colors
  * - Responsive sizing
  * - Integrates with both entrance animations (first load) and page transitions
@@ -50,11 +55,24 @@
  * - Proper cleanup on unmount
  */
 
+import { clampedNormalize } from '~/utils/math'
+
+// Scroll animation config
+const SCROLL_DOWN_DURATION = 1.2
+const SCROLL_DOWN_EASE = 'power2.inOut'
+const SCROLL_UP_MIN_DURATION = 1.2
+const SCROLL_UP_MAX_DURATION = 3.5
+const SCROLL_UP_DISTANCE_MAX = 4000 // scales faster for typical pages
+const SCROLL_UP_EASE = 'power2.inOut'
+
 // Nuxt GSAP
 const { $gsap, $ScrollTrigger } = useNuxtApp()
 
 // Loading store for first load detection
 const loadingStore = useLoadingStore()
+
+// ScrollSmoother manager for smooth scroll behavior
+const { getSmoother } = useScrollSmootherManager()
 
 // Props
 const props = withDefaults(defineProps<{
@@ -84,6 +102,73 @@ const arrowStyle = computed(() => {
     transformOrigin: '60px 60px'
   }
 })
+
+/**
+ * Handle click - organic smooth scroll based on direction
+ * Uses GSAP tween for full control over duration and easing
+ * - up: scroll to top with distance-based duration (longer pages = longer animation)
+ * - down: scroll down 100vh with gentle fixed 1.2s animation
+ * - left/right: reserved for future horizontal scrolling
+ */
+const handleClick = () => {
+  const smoother = getSmoother()
+
+  if (props.direction === 'up') {
+    // Calculate duration based on scroll distance for organic feel
+    const scrollDistance = smoother ? smoother.scrollTop() : window.scrollY
+    const duration = clampedNormalize(
+      scrollDistance,
+      0,
+      SCROLL_UP_DISTANCE_MAX,
+      SCROLL_UP_MIN_DURATION,
+      SCROLL_UP_MAX_DURATION
+    )
+
+    if (smoother) {
+      // Use GSAP tween for organic duration/easing
+      $gsap.to(smoother, {
+        scrollTop: 0,
+        duration,
+        ease: SCROLL_UP_EASE
+      })
+    } else {
+      // Fallback: animate window scroll position
+      const startPos = window.scrollY
+      $gsap.to({ y: startPos }, {
+        y: 0,
+        duration,
+        ease: SCROLL_UP_EASE,
+        onUpdate() {
+          window.scrollTo(0, this.targets()[0].y)
+        }
+      })
+    }
+  } else if (props.direction === 'down') {
+    // Scroll down 100vh with gentle, fixed duration
+    const currentScroll = smoother ? smoother.scrollTop() : window.scrollY
+    const targetScroll = currentScroll + window.innerHeight
+
+    if (smoother) {
+      // Use GSAP tween for organic duration/easing
+      $gsap.to(smoother, {
+        scrollTop: targetScroll,
+        duration: SCROLL_DOWN_DURATION,
+        ease: SCROLL_DOWN_EASE
+      })
+    } else {
+      // Fallback: animate window scroll position
+      $gsap.to({ y: currentScroll }, {
+        y: targetScroll,
+        duration: SCROLL_DOWN_DURATION,
+        ease: SCROLL_DOWN_EASE,
+        onUpdate() {
+          window.scrollTo(0, this.targets()[0].y)
+        }
+      })
+    }
+  }
+  // left/right: no scroll behavior (reserved for future horizontal scrolling)
+}
 
 onMounted(() => {
   if (!textRef.value || !containerRef.value) return
