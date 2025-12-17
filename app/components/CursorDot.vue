@@ -5,11 +5,20 @@
     :class="{ 'is-hidden': shouldHide }"
   >
     <!-- Small dot (default state) - 10px -->
-    <div ref="dotRef" class="cursor-dot__dot" />
+    <div
+      ref="dotRef"
+      class="cursor-dot__dot"
+    />
 
     <!-- Expanded circle with text (hover state) - 80px -->
-    <div ref="expandedRef" class="cursor-dot__expanded">
-      <span ref="textRef" class="cursor-dot__text">{{ hoverText }}</span>
+    <div
+      ref="expandedRef"
+      class="cursor-dot__expanded"
+    >
+      <span
+        ref="textRef"
+        class="cursor-dot__text"
+      >{{ hoverText }}</span>
     </div>
   </div>
 </template>
@@ -56,10 +65,10 @@ const isTouchDevice = ref(false)
 // Computed
 const shouldHide = computed(() => isMobile.value || isTouchDevice.value)
 
-// Animation instances
+// Animation instances (typed as any due to nuxt-gsap type limitations)
 let xTo: ((value: number) => void) | null = null
 let yTo: ((value: number) => void) | null = null
-let expandTimeline: gsap.core.Timeline | null = null
+let expandTimeline: ReturnType<typeof $gsap.timeline> | null = null
 
 /**
  * Walk up DOM tree to find element with data-hover-text attribute
@@ -133,12 +142,15 @@ const setupAnimations = () => {
   })
 
   // Create quickTo functions for smooth cursor following
-  xTo = $gsap.quickTo(cursorRef.value, 'x', {
+  // Cast needed - quickTo exists at runtime but not in nuxt-gsap types
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const gsap = $gsap as any
+  xTo = gsap.quickTo(cursorRef.value, 'x', {
     duration: 0.3,
     ease: 'power3.out'
   })
 
-  yTo = $gsap.quickTo(cursorRef.value, 'y', {
+  yTo = gsap.quickTo(cursorRef.value, 'y', {
     duration: 0.3,
     ease: 'power3.out'
   })

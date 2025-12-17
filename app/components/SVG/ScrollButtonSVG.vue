@@ -86,8 +86,10 @@ const containerRef = ref(null)
 const textRef = ref(null)
 
 // Rotation animation instance (stored for cleanup)
-let rotationAnimation: gsap.core.Tween | null = null
-let scrollTriggerInstance: ScrollTrigger | null = null
+// Using any type - GSAPTween type doesn't include all runtime methods (resume, pause, etc.)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let rotationAnimation: any = null
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
 
 // Computed arrow rotation based on direction
 const arrowStyle = computed(() => {
@@ -111,7 +113,8 @@ const arrowStyle = computed(() => {
  * - left/right: reserved for future horizontal scrolling
  */
 const handleClick = () => {
-  const smoother = getSmoother()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const smoother = getSmoother() as any // Cast needed - scrollTop() exists at runtime
 
   if (props.direction === 'up') {
     // Calculate duration based on scroll distance for organic feel
@@ -134,13 +137,13 @@ const handleClick = () => {
     }
     else {
       // Fallback: animate window scroll position
-      const startPos = window.scrollY
-      $gsap.to({ y: startPos }, {
+      const scrollObj = { y: window.scrollY }
+      $gsap.to(scrollObj, {
         y: 0,
         duration,
         ease: SCROLL_UP_EASE,
-        onUpdate() {
-          window.scrollTo(0, this.targets()[0].y)
+        onUpdate: () => {
+          window.scrollTo(0, scrollObj.y)
         }
       })
     }
@@ -160,12 +163,13 @@ const handleClick = () => {
     }
     else {
       // Fallback: animate window scroll position
-      $gsap.to({ y: currentScroll }, {
+      const scrollObj = { y: currentScroll }
+      $gsap.to(scrollObj, {
         y: targetScroll,
         duration: SCROLL_DOWN_DURATION,
         ease: SCROLL_DOWN_EASE,
-        onUpdate() {
-          window.scrollTo(0, this.targets()[0].y)
+        onUpdate: () => {
+          window.scrollTo(0, scrollObj.y)
         }
       })
     }
