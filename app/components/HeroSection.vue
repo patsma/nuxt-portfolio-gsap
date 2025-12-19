@@ -186,7 +186,7 @@ onMounted(() => {
 
       // Button animation (if slot is filled)
       if (buttonSlotRef.value && buttonSlotRef.value.children.length > 0) {
-        const button = buttonSlotRef.value.querySelector('.scroll-down')
+        const button = buttonSlotRef.value.querySelector('.scroll-button')
         if (button) {
           // Set initial state for button
           $gsap.set(button, { opacity: 0, scale: 0.9 })
@@ -200,7 +200,7 @@ onMounted(() => {
               duration: 0.6,
               ease: 'back.out(1.5)'
             },
-            '<+0.8' // Start 0.2s after services animation begins
+            '<+1.5' // Start after services animation settles
           )
         }
       }
