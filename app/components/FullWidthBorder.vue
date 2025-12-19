@@ -2,7 +2,8 @@
   <div
     class="full-width-border-line full-width"
     :style="{
-      marginBottom: spacing
+      marginBottom: spacing,
+      '--border-opacity': opacity + '%'
     }"
   />
 </template>
@@ -60,14 +61,14 @@ defineProps({
  * - Uses grid-column: full-width to span entire content-grid
  * - 1px height for thin divider line
  * - Theme-aware color via CSS custom property
- * - Opacity controlled via inline style with v-bind
+ * - Opacity controlled via inline CSS custom property (--border-opacity)
  */
 .full-width-border-line {
   grid-column: full-width;
   height: 1px;
   background-color: color-mix(
     in srgb,
-    var(--theme-text-100) v-bind(opacity + '%'),
+    var(--theme-text-100) var(--border-opacity, 15%),
     transparent
   );
 }
