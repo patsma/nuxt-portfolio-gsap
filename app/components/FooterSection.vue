@@ -20,7 +20,7 @@
     <!-- Section 2: Marquee (Multilingual "Get in touch") -->
     <div
       ref="marqueeWrapperRef"
-      class="marquee-wrapper full-width-content"
+      class="marquee-wrapper full-width-content relative"
     >
       <FullWidthBorder :opacity="15" />
       <FooterMarquee ref="marqueeRef" />

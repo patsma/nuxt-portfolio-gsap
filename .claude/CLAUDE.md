@@ -278,6 +278,7 @@ Missing logs indicate:
 - `.claude/PAGE_TRANSITIONS.md` - Page transition system
 - `.claude/SCROLL_SYSTEM.md` - Scroll system
 - `.claude/COMPONENT_PATTERNS.md` - Reusable section component patterns
+- `.claude/ELASTIC_BORDER.md` - Physics-based elastic border effect
 - `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
 
 ### Code Documentation

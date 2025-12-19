@@ -2,7 +2,7 @@
   <svg
     ref="svgRef"
     class="full-width-border-svg full-width"
-    :style="{ marginBottom: spacing }"
+    :style="{ '--border-spacing': spacing || '0px' }"
   >
     <path
       ref="pathRef"
@@ -288,17 +288,22 @@ onUnmounted(() => {
 /**
  * Full-width border SVG styles
  * - Uses grid-column: full-width to span entire content-grid
- * - Height includes space for bend effect (80px bend range + margin)
- * - Negative margins to keep visual line in same position
+ * - Height includes space for bend effect (100px total, line at center)
+ * - position: absolute + transform: translate(0, -50%) centers the line
+ * - margin-bottom adds user spacing below
  * - pointer-events: none to not interfere with content below
  */
 .full-width-border-svg {
+  --border-spacing: 0px;
   grid-column: full-width;
   width: 100%;
   height: 100px;
-  margin-top: -50px;
-  margin-bottom: -50px;
+  margin-bottom: calc(-50px + var(--border-spacing));
   pointer-events: none;
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(0, -50%);
 }
 </style>

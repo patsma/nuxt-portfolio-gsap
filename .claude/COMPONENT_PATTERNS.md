@@ -15,56 +15,53 @@ Reusable component architectures and layout patterns for building consistent, ma
 
 ### FullWidthBorder Component
 
-**Purpose:** Theme-aware full-width horizontal border dividers that span entire content-grid width.
+**Purpose:** Theme-aware full-width horizontal border dividers with physics-based elastic wobble effect.
 
 **File:** `app/components/FullWidthBorder.vue`
 
 **Props:**
-- `opacity` (Number, default: 15): Opacity percentage (0-100) for border color
-- `spacing` (String, default: 'var(--space-s)'): Bottom margin spacing
+- `opacity` (Number, default: 15): Opacity percentage (0-100) for stroke color
+- `spacing` (String, default: '0'): Bottom margin spacing
 
 **Features:**
-- Uses `color-mix()` for theme-aware transparency
+- **Elastic wobble effect:** Borders bend organically when mouse hovers near
+- **Physics simulation:** Spring-based with velocity sensitivity
+- **SVG bezier curve:** Single quadratic curve for rope-like bending
+- Uses `color-mix()` for theme-aware stroke color
 - Spans full-width via `grid-column: full-width`
-- 1px height for clean divider lines
-- Configurable opacity and spacing
+- Disabled on mobile/touch devices
 
 **Usage:**
 ```vue
-<!-- Default: 15% opacity, space-s margin -->
+<!-- Default: 15% opacity, no extra spacing -->
 <FullWidthBorder />
 
 <!-- Custom: 10% opacity, space-m margin -->
 <FullWidthBorder :opacity="10" spacing="var(--space-m)" />
 ```
 
+**Critical: Parent Positioning**
+
+Parent elements must have `position: relative` for the border to position correctly:
+
+```vue
+<!-- ✅ CORRECT -->
+<div class="full-width-content relative">
+  <FullWidthBorder />
+</div>
+
+<!-- ❌ WRONG - border will be mispositioned -->
+<div class="full-width-content">
+  <FullWidthBorder />
+</div>
+```
+
 **Why Abstracted:**
-- Previously duplicated in InteractiveCaseStudySection SCSS
-- Now reused in ExperienceSection, InteractiveCaseStudySection
+- Reused in ExperienceSection, InteractiveCaseStudySection, FooterSection
 - Follows DRY principle, single source of truth
 - Easier to update globally
 
-**Implementation:**
-```vue
-<template>
-  <div
-    class="full-width-border-line full-width"
-    :style="{ marginBottom: spacing }"
-  ></div>
-</template>
-
-<style scoped>
-.full-width-border-line {
-  grid-column: full-width;
-  height: 1px;
-  background-color: color-mix(
-    in srgb,
-    var(--theme-text-100) v-bind(opacity + '%'),
-    transparent
-  );
-}
-</style>
-```
+📖 **Full Documentation:** `.claude/ELASTIC_BORDER.md`
 
 ---
 
