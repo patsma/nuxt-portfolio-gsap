@@ -1,4 +1,4 @@
-@use "../tokens/breakpoints.scss" as bp;
+@use '../tokens/breakpoints.scss' as bp;
 
 /* ============================================
    Interactive Case Study Section
@@ -36,7 +36,7 @@
 /* Hide section elements on first load when entrance animation is enabled */
 /* This prevents FOUC (Flash Of Unstyled Content) before animations run */
 /* Only applies when html.is-first-load class exists (removed after first load) */
-html.is-first-load [data-entrance-animate="true"] {
+html.is-first-load [data-entrance-animate='true'] {
   .section-title {
     opacity: 0;
     visibility: hidden;
@@ -300,7 +300,7 @@ html.is-first-load [data-entrance-animate="true"] {
 
   /* More generous spacing */
   .case-study-item {
-    padding: 0 0 var(--space-m) 0; /* Fluid 27-33px top and bottom */
+    padding: var(--space-m) 0; /* Fluid 27-33px top and bottom */
   }
 
   .item-content {
