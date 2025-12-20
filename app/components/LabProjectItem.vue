@@ -62,50 +62,52 @@
       class="expanded-content overflow-hidden breakout3"
       style="height: 0; opacity: 0;"
     >
-      <div class="expanded-inner py-[var(--space-l)] grid gap-[var(--space-m)] lg:grid-cols-[1fr_1fr] lg:gap-[var(--space-xl)] items-start">
-        <!-- Left column: Large image -->
-        <div class="aspect-video overflow-hidden rounded-lg">
-          <img
+      <div class="expanded-inner py-[var(--space-l)] flex flex-col gap-[var(--space-l)]">
+        <!-- Title (big, full width) -->
+        <h3 class="pp-eiko-mobile-h1 md:pp-eiko-laptop-h1 2xl:pp-eiko-desktop-h1 text-[var(--theme-text-100)]">
+          {{ fullTitle }}
+        </h3>
+
+        <!-- Large image (full width, 1184:666 aspect ratio from design) -->
+        <div class="overflow-hidden rounded-lg aspect-[1184/666]">
+          <NuxtImg
             :src="cover || thumbnail"
             :alt="fullTitle"
             class="w-full h-full object-cover"
-          >
+            loading="lazy"
+            sizes="100vw md:90vw lg:80vw"
+          />
         </div>
 
-        <!-- Right column: Title, Description, Tags, Link button -->
-        <div class="flex flex-col gap-[var(--space-m)]">
-          <h3 class="pp-eiko-mobile-h3 md:pp-eiko-laptop-h3 text-[var(--theme-text-100)]">
-            {{ fullTitle }}
-          </h3>
+        <!-- Tags (below image) -->
+        <div
+          v-if="tags?.length"
+          class="flex flex-wrap gap-[var(--space-xs)]"
+        >
+          <span
+            v-for="tag in tags"
+            :key="tag"
+            class="tag"
+          >
+            {{ tag }}
+          </span>
+        </div>
 
+        <!-- Description + Arrow row -->
+        <div class="grid grid-cols-[1fr_auto] md:grid-cols-[10fr_1fr] gap-[var(--space-xl)] md:gap-[var(--space-2xl)] items-start">
+          <!-- Left: Description -->
           <p class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed">
             {{ description }}
           </p>
 
-          <!-- Tags (optional) -->
-          <div
-            v-if="tags?.length"
-            class="flex flex-wrap gap-[var(--space-xs)]"
+          <!-- Right: Link button -->
+          <NuxtLink
+            :to="`/lab/${slug}`"
+            class="inline-block justify-self-end"
+            @click.stop
           >
-            <span
-              v-for="tag in tags"
-              :key="tag"
-              class="tag"
-            >
-              {{ tag }}
-            </span>
-          </div>
-
-          <!-- Link button (arrow pointing right) -->
-          <div class="mt-auto pt-[var(--space-m)]">
-            <NuxtLink
-              :to="`/lab/${slug}`"
-              class="inline-block"
-              @click.stop
-            >
-              <ScrollButtonSVG direction="right" />
-            </NuxtLink>
-          </div>
+            <ScrollButtonSVG direction="right" />
+          </NuxtLink>
         </div>
       </div>
     </div>
