@@ -55,9 +55,11 @@ export default defineContentConfig({
         shortTitle: z.string(), // Short title for marquee (italic)
         thumbnail: z.string(), // Small image for marquee
         cover: z.string().optional(), // Large image for expanded view
+        images: z.array(z.string()).optional(), // Bento grid images (3 images: 1 large + 2 small)
         description: z.string(), // Description text for expanded view
         date: z.string().optional(), // ISO date string
         tags: z.array(z.string()).optional(),
+        category: z.string().optional(), // Category tag (e.g., "Template", "Animation")
         status: z.enum(['experimental', 'stable', 'deprecated']).optional()
       })
     })

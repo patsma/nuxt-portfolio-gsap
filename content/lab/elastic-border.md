@@ -4,9 +4,14 @@ slug: "elastic-border"
 shortTitle: "Elastic Border Effect"
 thumbnail: "/assets/dummy/placeholder3.jpg"
 cover: "/assets/dummy/placeholder3.jpg"
+images:
+  - "/assets/dummy/placeholder3.jpg"
+  - "/assets/dummy/placeholder.jpg"
+  - "/assets/dummy/placeholder2.jpg"
 description: "A spring-physics simulation that makes border lines bend organically when the mouse hovers near them. Uses velocity tracking for natural movement and momentum, creating a playful yet sophisticated interaction that brings static layouts to life."
 date: "2025-10-05"
 tags: ["animation", "physics", "gsap", "vue"]
+category: "Animation"
 status: "experimental"
 ---
 

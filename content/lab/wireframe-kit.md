@@ -1,12 +1,17 @@
 ---
-title: "Wireframe Kit for UX – An easy kickstarter"
+title: "Wireframing starter kit for UX designers"
 slug: "wireframe-kit"
 shortTitle: "Wireframe Kit for UX"
 thumbnail: "/assets/dummy/placeholder2.jpg"
 cover: "/assets/dummy/placeholder2.jpg"
-description: "A comprehensive wireframe kit designed to accelerate the UX design process. Built with simplicity in mind, it provides all the essential building blocks needed to quickly prototype and communicate ideas without getting lost in visual details."
+images:
+  - "/assets/dummy/placeholder2.jpg"
+  - "/assets/dummy/placeholder3.jpg"
+  - "/assets/dummy/placeholder1.jpg"
+description: "Accelerate in the wireframing stage by using this bundle of basic website components to work faster and to avoid time wasting. However, don't limit yourself to the template – continue to use your imagination and collaborate closely with your team to bring forth those industry breaking concepts and ideas."
 date: "2025-11-20"
 tags: ["figma", "wireframe", "ux"]
+category: "Template"
 status: "stable"
 ---
 

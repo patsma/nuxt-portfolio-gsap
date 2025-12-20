@@ -7,7 +7,7 @@
  */
 
 const route = useRoute()
-const slug = computed(() => String(route.params.slug || ''))
+const slug = String(route.params.slug || '')
 
 // Fetch the lab project by its path
 const {
@@ -15,21 +15,21 @@ const {
   status,
   error
 } = await useAsyncData(
-  () => `lab-${slug.value}`,
-  () => queryCollection('lab').path(`/lab/${slug.value}`).first()
+  `lab-project-${slug}`,
+  () => queryCollection('lab').path(`/lab/${slug}`).first()
 )
 
-const pageTitle = computed(() => project.value?.title || slug.value)
+const pageTitle = computed(() => project.value?.title || slug)
 useHead({ title: `${pageTitle.value} • Lab` })
 
 // Build minimal navigation list from all projects, sorted by date
 const { data: allProjects } = await useAsyncData(
-  () => 'lab-all',
+  'lab-all-nav',
   () => queryCollection('lab').all()
 )
 
 const normalizePath = p => String(p || '').replace(/\/+$/, '')
-const currentPath = computed(() => normalizePath(`/lab/${slug.value}`))
+const currentPath = computed(() => normalizePath(`/lab/${slug}`))
 const navList = computed(() => {
   const list = (allProjects.value || []).slice()
   // Sort chronologically DESC (newest -> oldest) for intuitive "Next" = newer
@@ -95,7 +95,7 @@ const scrollToTop = () => {
 </script>
 
 <template>
-  <div class="pt-header">
+  <div>
     <!-- Loading State -->
     <section
       v-if="status === 'pending'"
@@ -142,137 +142,147 @@ const scrollToTop = () => {
     <!-- Project Content -->
     <section
       v-else
+      v-page-fade
       class="lab-project content-grid"
     >
-      <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
-        <!-- Project Header -->
-        <header class="lab-project__header mb-[var(--space-xl)]">
-          <!-- Breadcrumb -->
-          <NuxtLink
-            to="/lab"
-            class="inline-flex items-center gap-[var(--space-xs)] ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-60)] transition-colors mb-[var(--space-m)]"
-          >
-            <span>&larr;</span>
-            <span>Lab</span>
-          </NuxtLink>
+      <!-- Bento Image Grid (full width) -->
+      <div
+        v-if="project.images?.length >= 3"
+        class="full-width py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-[var(--space-s)] md:gap-[var(--space-m)]">
+          <!-- Large image (left) -->
+          <div class="overflow-hidden rounded-lg aspect-[4/3] md:aspect-auto md:row-span-2">
+            <NuxtImg
+              :src="project.images[0]"
+              :alt="project.title"
+              class="w-full h-full object-cover"
+              loading="eager"
+              sizes="100vw md:60vw"
+            />
+          </div>
+          <!-- Small image 1 (top right) -->
+          <div class="overflow-hidden rounded-lg aspect-[16/9]">
+            <NuxtImg
+              :src="project.images[1]"
+              :alt="`${project.title} - detail 1`"
+              class="w-full h-full object-cover"
+              loading="eager"
+              sizes="100vw md:40vw"
+            />
+          </div>
+          <!-- Small image 2 (bottom right) -->
+          <div class="overflow-hidden rounded-lg aspect-[16/9]">
+            <NuxtImg
+              :src="project.images[2]"
+              :alt="`${project.title} - detail 2`"
+              class="w-full h-full object-cover"
+              loading="lazy"
+              sizes="100vw md:40vw"
+            />
+          </div>
+        </div>
+      </div>
 
-          <!-- Meta: Date + Tags -->
-          <div class="flex flex-wrap items-center gap-[var(--space-m)] mb-[var(--space-m)]">
-            <time
-              v-if="project.date"
-              :datetime="project.date"
-              class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
-            >
-              {{ formatDate(project.date) }}
-            </time>
-            <div
-              v-if="project.tags?.length"
-              class="flex flex-wrap gap-[var(--space-xs)]"
-            >
-              <span
-                v-for="t in project.tags"
-                :key="t"
-                class="tag"
-              >
-                {{ t }}
-              </span>
-            </div>
+      <!-- Fallback: Single cover image -->
+      <div
+        v-else-if="project.cover || project.thumbnail"
+        class="full-width py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+      >
+        <div class="overflow-hidden rounded-lg aspect-[1184/666]">
+          <NuxtImg
+            :src="project.cover || project.thumbnail"
+            :alt="project.title"
+            class="w-full h-full object-cover"
+            loading="eager"
+            sizes="100vw"
+          />
+        </div>
+      </div>
+
+      <!-- Project Info: 3-column grid -->
+      <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
+        <div class="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-[var(--space-m)] md:gap-[var(--space-xl)] items-start">
+          <!-- Column 1: Label -->
+          <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+            Lab projects
+          </p>
+
+          <!-- Column 2: Category tag -->
+          <div>
             <span
-              v-if="project.status"
+              v-if="project.category"
               class="tag"
-              :class="{
-                'bg-green-500/10 text-green-600': project.status === 'stable',
-                'bg-yellow-500/10 text-yellow-600': project.status === 'experimental',
-                'bg-red-500/10 text-red-600': project.status === 'deprecated'
-              }"
             >
-              {{ project.status }}
+              {{ project.category }}
             </span>
           </div>
 
-          <!-- Title -->
-          <h1 class="pp-eiko-mobile-h1 md:pp-eiko-laptop-h1 text-[var(--theme-text-100)]">
-            {{ project.title }}
-          </h1>
+          <!-- Column 3: Title + Description -->
+          <div class="flex flex-col gap-[var(--space-m)]">
+            <h1 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)]">
+              {{ project.title }}
+            </h1>
 
-          <!-- Description -->
-          <p
-            v-if="project.description"
-            class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] mt-[var(--space-m)] max-w-prose leading-relaxed"
-          >
-            {{ project.description }}
-          </p>
-        </header>
-
-        <!-- Cover Image -->
-        <div
-          v-if="project.cover || project.thumbnail"
-          class="lab-project__cover mb-[var(--space-xl)] rounded-lg overflow-hidden"
-        >
-          <img
-            :src="project.cover || project.thumbnail"
-            :alt="project.title"
-            class="w-full h-auto"
-          >
+            <p
+              v-if="project.description"
+              class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
+            >
+              {{ project.description }}
+            </p>
+          </div>
         </div>
+      </div>
 
-        <!-- Article Content (Markdown) -->
-        <article class="lab-project__content prose prose-light max-w-prose">
+      <!-- Article Content (Markdown) -->
+      <article
+        v-if="project.body"
+        class="breakout3 pb-[var(--space-2xl)]"
+      >
+        <div class="prose prose-light max-w-prose">
           <ContentRenderer
             :value="project"
             class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-80)]"
           />
-        </article>
-
-        <!-- Navigation -->
-        <nav
-          v-if="prevProject || nextProject"
-          class="lab-project__nav mt-[var(--space-2xl)] pt-[var(--space-xl)] border-t border-[var(--theme-15)]"
-        >
-          <div class="grid md:grid-cols-2 gap-[var(--space-l)]">
-            <!-- Previous Project -->
-            <NuxtLink
-              v-if="prevProject"
-              :to="prevProject.path"
-              class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors"
-            >
-              <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-                &larr; Previous
-              </span>
-              <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
-                {{ prevProject.title }}
-              </span>
-            </NuxtLink>
-            <div v-else />
-
-            <!-- Next Project -->
-            <NuxtLink
-              v-if="nextProject"
-              :to="nextProject.path"
-              class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors text-right"
-            >
-              <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-                Next &rarr;
-              </span>
-              <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
-                {{ nextProject.title }}
-              </span>
-            </NuxtLink>
-          </div>
-        </nav>
-
-        <!-- Back to top -->
-        <div class="lab-project__footer mt-[var(--space-xl)] flex justify-center">
-          <button
-            class="inline-flex items-center gap-[var(--space-xs)] ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-60)] transition-colors"
-            aria-label="Scroll to top"
-            @click="scrollToTop"
-          >
-            <span>&uarr;</span>
-            <span>Back to top</span>
-          </button>
         </div>
-      </div>
+      </article>
+
+      <!-- Navigation -->
+      <nav
+        v-if="prevProject || nextProject"
+        class="breakout3 pt-[var(--space-xl)] pb-[var(--space-2xl)] border-t border-[var(--theme-15)]"
+      >
+        <div class="grid md:grid-cols-2 gap-[var(--space-l)]">
+          <!-- Previous Project -->
+          <NuxtLink
+            v-if="prevProject"
+            :to="prevProject.path"
+            class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors"
+          >
+            <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+              &larr; Previous
+            </span>
+            <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
+              {{ prevProject.title }}
+            </span>
+          </NuxtLink>
+          <div v-else />
+
+          <!-- Next Project -->
+          <NuxtLink
+            v-if="nextProject"
+            :to="nextProject.path"
+            class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors text-right"
+          >
+            <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+              Next &rarr;
+            </span>
+            <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
+              {{ nextProject.title }}
+            </span>
+          </NuxtLink>
+        </div>
+      </nav>
     </section>
   </div>
 </template>

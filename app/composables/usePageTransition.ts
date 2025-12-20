@@ -371,12 +371,6 @@ export const usePageTransition = (): PageTransitionReturn => {
    * LEAVE Animation - Elements animate OUT
    */
   const leave = (el: HTMLElement, done: () => void): void => {
-    console.error('🚨 PAGE LEAVE TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
-      path: window.location.pathname,
-      timestamp: Date.now(),
-      stackTrace: new Error().stack
-    })
-
     const elements = findAnimatedElements(el)
 
     if (elements.length === 0) {
@@ -415,11 +409,6 @@ export const usePageTransition = (): PageTransitionReturn => {
    * ENTER Animation - Elements animate IN
    */
   const enter = (el: HTMLElement, done: () => void): void => {
-    console.error('🚨 PAGE ENTER TRANSITION TRIGGERED! This should ONLY fire on navigation, NOT on accordion!', {
-      path: window.location.pathname,
-      timestamp: Date.now()
-    })
-
     // Wait for directives to mount and store their configs
     nextTick(() => {
       const elements = findAnimatedElements(el)

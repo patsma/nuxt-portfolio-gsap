@@ -72,8 +72,5 @@ useHead({ title: 'Lab' })
         :tags="project.tags"
       />
     </RecommendationsSection>
-
-    <!-- Bottom border -->
-    <FullWidthBorder :opacity="10" />
   </div>
 </template>

@@ -1,12 +1,17 @@
 ---
-title: "Advanced design system for websites – built in Figma"
+title: "Project based design system for websites – Built in Figma"
 slug: "design-system"
 shortTitle: "Advanced design system"
 thumbnail: "/assets/dummy/placeholder.jpg"
 cover: "/assets/dummy/placeholder.jpg"
-description: "For the past four years I have been working on perfecting a template to kickstart website projects, but also to build a better bridge of communication between designer and developer. Over time that perspective expanded to also include how I could optimise the process in the design-phase and the workflow, plus ensuring the documentation of the design was as much covered as possible to avoid basic questions, such as; \"How does the grid behave?\", \"What is the typography hierarchy?\", \"How does this component look on mobile/in this media query?\", \"Where can I get the logo, colours, overview of the buttons, form elements, and much more...?\"."
+images:
+  - "/assets/dummy/placeholder.jpg"
+  - "/assets/dummy/placeholder2.jpg"
+  - "/assets/dummy/placeholder3.jpg"
+description: "Kickstart your next website project and build a better bridge between designer and developer. By using this free design system template you will save time and deliver faster, cover all of the basics exactly how the developers want it, and gain more time to focus on being a creative while remaining structured and making that almost near perfect design handoff to the developers."
 date: "2025-12-15"
 tags: ["figma", "design-system", "ui"]
+category: "Template"
 status: "stable"
 ---
 

@@ -4,9 +4,14 @@ slug: "scroll-animations"
 shortTitle: "Scroll Animations"
 thumbnail: "/assets/dummy/placeholder1.jpg"
 cover: "/assets/dummy/placeholder1.jpg"
+images:
+  - "/assets/dummy/placeholder1.jpg"
+  - "/assets/dummy/placeholder2.jpg"
+  - "/assets/dummy/placeholder3.jpg"
 description: "A curated collection of scroll-driven animations and effects. From subtle parallax movements to complex reveal sequences, these patterns can be adapted and combined to create engaging scroll experiences on any website."
 date: "2025-09-15"
 tags: ["animation", "scroll", "gsap", "scrolltrigger"]
+category: "Animation"
 status: "stable"
 ---
 
