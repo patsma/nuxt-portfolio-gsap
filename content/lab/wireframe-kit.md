@@ -13,6 +13,15 @@ date: "2025-11-20"
 tags: ["figma", "wireframe", "ux"]
 category: "Template"
 status: "stable"
+entries:
+  - type: "Template"
+    link: "https://figma.com/community"
+    title: "Wireframing starter kit for UX designers"
+    description: "Bundle of basic website components to accelerate your wireframing stage."
+  - type: "Template"
+    link: "https://figma.com/community"
+    title: "Mobile wireframe collection"
+    description: "Responsive patterns and flows optimized for mobile-first design."
 ---
 
 ## Overview

@@ -13,6 +13,15 @@ date: "2025-12-15"
 tags: ["figma", "design-system", "ui"]
 category: "Template"
 status: "stable"
+entries:
+  - type: "Template"
+    link: "https://figma.com/community"
+    title: "Project based design system for websites"
+    description: "Build a better bridge between designer and developer with this comprehensive Figma template."
+  - type: "Template"
+    link: "https://figma.com/community"
+    title: "Design tokens documentation"
+    description: "Learn how to export and use design tokens in your development workflow."
 ---
 
 ## Overview

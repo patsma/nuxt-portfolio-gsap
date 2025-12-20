@@ -92,6 +92,23 @@ const formatDate = (iso) => {
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+/**
+ * Project entries - supports multiple downloadable items per project
+ * Falls back to single entry from project frontmatter if no entries array
+ */
+const projectEntries = computed(() => {
+  if (project.value?.entries && Array.isArray(project.value.entries)) {
+    return project.value.entries
+  }
+  // Fallback to single entry from project data
+  return [{
+    type: project.value?.category || 'Template',
+    link: null,
+    title: project.value?.title || '',
+    description: project.value?.description || ''
+  }]
+})
 </script>
 
 <template>
@@ -143,42 +160,68 @@ const scrollToTop = () => {
     <section
       v-else
       v-page-fade
-      class="lab-project content-grid"
+      class="lab-project"
     >
-      <!-- Bento Image Grid (full width) -->
-      <div
+      <!-- Hero Section with styled text -->
+      <HeroSection>
+        <h1
+          v-page-split:lines="{ animateFrom: 'below' }"
+          class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
+        >
+          <span class="text-[var(--theme-text-60)]">Feel</span>
+          <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
+          <span class="text-[var(--theme-text-60)]"> to use my lab projects</span>
+          <span class="text-[var(--theme-text-100)] font-body font-[300]"> as your own.</span>
+          <span class="text-[var(--theme-text-60)]"> They are</span>
+          <span class="text-[var(--theme-text-100)] font-body font-[300]"> based</span>
+          <span class="text-[var(--theme-text-60)]"> on Morten</span>
+          <em class="text-[var(--theme-text-100)] italic font-[300]"> logic</em>
+          <span class="text-[var(--theme-text-60)]"> and</span>
+          <em class="text-[var(--theme-text-100)] italic font-[300]"> experience</em>
+          <span class="text-[var(--theme-text-60)]">, but still experimental and always evolving</span>
+        </h1>
+        <template #button>
+          <ScrollButtonSVG v-page-fade:left />
+        </template>
+      </HeroSection>
+
+      <!-- Content below hero -->
+      <div class="content-grid">
+        <!-- Bento Image Grid -->
+        <div
         v-if="project.images?.length >= 3"
-        class="full-width py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
       >
-        <div class="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-[var(--space-s)] md:gap-[var(--space-m)]">
-          <!-- Large image (left) -->
-          <div class="overflow-hidden rounded-lg aspect-[4/3] md:aspect-auto md:row-span-2">
+        <!-- Mobile: stacked, Desktop: bento grid -->
+        <div class="bento-grid">
+          <!-- Large image (left, spans 2 rows on desktop) -->
+          <div class="bento-left overflow-hidden rounded-lg">
             <NuxtImg
               :src="project.images[0]"
               :alt="project.title"
               class="w-full h-full object-cover"
               loading="eager"
-              sizes="100vw md:60vw"
+              sizes="100vw md:50vw"
             />
           </div>
-          <!-- Small image 1 (top right) -->
-          <div class="overflow-hidden rounded-lg aspect-[16/9]">
+          <!-- Top right image -->
+          <div class="bento-top-right overflow-hidden rounded-lg">
             <NuxtImg
               :src="project.images[1]"
               :alt="`${project.title} - detail 1`"
               class="w-full h-full object-cover"
               loading="eager"
-              sizes="100vw md:40vw"
+              sizes="100vw md:50vw"
             />
           </div>
-          <!-- Small image 2 (bottom right) -->
-          <div class="overflow-hidden rounded-lg aspect-[16/9]">
+          <!-- Bottom right image -->
+          <div class="bento-bottom-right overflow-hidden rounded-lg">
             <NuxtImg
               :src="project.images[2]"
               :alt="`${project.title} - detail 2`"
               class="w-full h-full object-cover"
               loading="lazy"
-              sizes="100vw md:40vw"
+              sizes="100vw md:50vw"
             />
           </div>
         </div>
@@ -187,7 +230,7 @@ const scrollToTop = () => {
       <!-- Fallback: Single cover image -->
       <div
         v-else-if="project.cover || project.thumbnail"
-        class="full-width py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
       >
         <div class="overflow-hidden rounded-lg aspect-[1184/666]">
           <NuxtImg
@@ -200,71 +243,64 @@ const scrollToTop = () => {
         </div>
       </div>
 
-      <!-- Project Info: 3-column grid -->
+      <!-- Project Entries: 3-column grid with multiple entries support -->
       <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
-        <div class="grid grid-cols-1 md:grid-cols-[auto_auto_1fr] gap-[var(--space-m)] md:gap-[var(--space-xl)] items-start">
-          <!-- Column 1: Label -->
-          <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+        <div
+          v-for="(entry, index) in projectEntries"
+          :key="index"
+          class="lab-entry-grid"
+          :class="{ 'mt-[var(--space-2xl)]': index > 0 }"
+        >
+          <!-- Column 1: Label (only visible on first row) -->
+          <p
+            class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
+            :class="{ 'md:invisible': index > 0 }"
+          >
             Lab projects
           </p>
 
-          <!-- Column 2: Category tag -->
-          <div>
-            <span
-              v-if="project.category"
-              class="tag"
-            >
-              {{ project.category }}
-            </span>
-          </div>
+          <!-- Column 2: Download button/link -->
+          <a
+            :href="entry.link || '#'"
+            :target="entry.link ? '_blank' : undefined"
+            :rel="entry.link ? 'noopener' : undefined"
+            class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-100)] transition-colors cursor-pointer"
+            :class="{ 'underline underline-offset-4': entry.link }"
+          >
+            {{ entry.type || project.category || 'Template' }}
+          </a>
 
           <!-- Column 3: Title + Description -->
           <div class="flex flex-col gap-[var(--space-m)]">
-            <h1 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)]">
-              {{ project.title }}
-            </h1>
+            <h2 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] leading-none md:-mt-[0.15em]">
+              {{ entry.title }}
+            </h2>
 
             <p
-              v-if="project.description"
+              v-if="entry.description"
               class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
             >
-              {{ project.description }}
+              {{ entry.description }}
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Article Content (Markdown) -->
-      <article
-        v-if="project.body"
-        class="breakout3 pb-[var(--space-2xl)]"
-      >
-        <div class="prose prose-light max-w-prose">
-          <ContentRenderer
-            :value="project"
-            class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-80)]"
-          />
-        </div>
-      </article>
-
-      <!-- Navigation -->
+      <!-- Navigation (simple prev/next) -->
       <nav
         v-if="prevProject || nextProject"
-        class="breakout3 pt-[var(--space-xl)] pb-[var(--space-2xl)] border-t border-[var(--theme-15)]"
+        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
       >
-        <div class="grid md:grid-cols-2 gap-[var(--space-l)]">
+        <div class="flex justify-between items-center">
           <!-- Previous Project -->
           <NuxtLink
             v-if="prevProject"
             :to="prevProject.path"
-            class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors"
+            class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
           >
-            <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-              &larr; Previous
-            </span>
-            <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
-              {{ prevProject.title }}
-            </span>
+            <span class="text-xl">&larr;</span>
+            <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Prev</span>
+            <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ prevProject.title }}</span>
           </NuxtLink>
           <div v-else />
 
@@ -272,17 +308,15 @@ const scrollToTop = () => {
           <NuxtLink
             v-if="nextProject"
             :to="nextProject.path"
-            class="group flex flex-col gap-[var(--space-xs)] p-[var(--space-m)] rounded-lg hover:bg-[var(--theme-bg-5)] transition-colors text-right"
+            class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
           >
-            <span class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
-              Next &rarr;
-            </span>
-            <span class="pp-eiko-mobile-h4 text-[var(--theme-text-100)] group-hover:text-[var(--theme-text-80)] transition-colors">
-              {{ nextProject.title }}
-            </span>
+            <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Next</span>
+            <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ nextProject.title }}</span>
+            <span class="text-xl">&rarr;</span>
           </NuxtLink>
         </div>
       </nav>
+      </div><!-- /.content-grid -->
     </section>
   </div>
 </template>
@@ -308,94 +342,64 @@ const scrollToTop = () => {
   }
 }
 
-/* Prose styles for markdown content */
-.prose :deep(h2) {
-  font-family: 'PP Eiko', serif;
-  font-weight: 300;
-  font-size: clamp(1.5rem, 1.25rem + 1vw, 2rem);
-  color: var(--theme-text-100);
-  margin-top: var(--space-xl);
-  margin-bottom: var(--space-m);
+/**
+ * Bento Grid Layout
+ * Mobile: stacked images
+ * Desktop: left image spans 2 rows, right column has 2 images
+ */
+.bento-grid {
+  display: grid;
+  gap: var(--space-s);
 }
 
-.prose :deep(h3) {
-  font-family: 'PP Eiko', serif;
-  font-weight: 300;
-  font-size: clamp(1.25rem, 1rem + 0.75vw, 1.5rem);
-  color: var(--theme-text-100);
-  margin-top: var(--space-l);
-  margin-bottom: var(--space-s);
+.bento-left,
+.bento-top-right,
+.bento-bottom-right {
+  aspect-ratio: 4 / 3;
 }
 
-.prose :deep(p) {
-  margin-bottom: var(--space-m);
-  line-height: 1.7;
+@media (min-width: 768px) {
+  .bento-grid {
+    gap: var(--space-m);
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+      "left top-right"
+      "left bottom-right";
+    aspect-ratio: 16 / 9; /* Container aspect ratio controls overall height */
+  }
+
+  .bento-left {
+    grid-area: left;
+    aspect-ratio: unset;
+  }
+
+  .bento-top-right {
+    grid-area: top-right;
+    aspect-ratio: unset;
+  }
+
+  .bento-bottom-right {
+    grid-area: bottom-right;
+    aspect-ratio: unset;
+  }
 }
 
-.prose :deep(ul),
-.prose :deep(ol) {
-  margin-bottom: var(--space-m);
-  padding-left: var(--space-l);
+/**
+ * Lab Entry Grid Layout
+ * 3-column grid: Label | Download button | Title + Description
+ */
+.lab-entry-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-m);
 }
 
-.prose :deep(li) {
-  margin-bottom: var(--space-xs);
-}
-
-.prose :deep(code) {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9em;
-  background: var(--theme-bg-5);
-  padding: 0.125em 0.375em;
-  border-radius: 0.25rem;
-}
-
-.prose :deep(pre) {
-  background: var(--theme-bg-5);
-  padding: var(--space-m);
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  margin-bottom: var(--space-m);
-}
-
-.prose :deep(pre code) {
-  background: transparent;
-  padding: 0;
-}
-
-.prose :deep(a) {
-  color: var(--theme-text-100);
-  text-decoration: underline;
-  text-decoration-color: var(--theme-text-40);
-  text-underline-offset: 0.2em;
-  transition: text-decoration-color 0.2s;
-}
-
-.prose :deep(a:hover) {
-  text-decoration-color: var(--theme-text-100);
-}
-
-.prose :deep(blockquote) {
-  border-left: 2px solid var(--theme-15);
-  padding-left: var(--space-m);
-  margin: var(--space-l) 0;
-  font-style: italic;
-  color: var(--theme-text-60);
-}
-
-.prose :deep(hr) {
-  border: none;
-  border-top: 1px solid var(--theme-15);
-  margin: var(--space-xl) 0;
-}
-
-.prose :deep(img) {
-  border-radius: 0.5rem;
-  margin: var(--space-l) 0;
-}
-
-.prose :deep(strong) {
-  color: var(--theme-text-100);
-  font-weight: 500;
+@media (min-width: 768px) {
+  .lab-entry-grid {
+    grid-template-columns: auto auto 1fr;
+    gap: var(--space-xl);
+    align-items: start;
+  }
 }
 </style>

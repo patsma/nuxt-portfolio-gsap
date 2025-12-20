@@ -60,7 +60,13 @@ export default defineContentConfig({
         date: z.string().optional(), // ISO date string
         tags: z.array(z.string()).optional(),
         category: z.string().optional(), // Category tag (e.g., "Template", "Animation")
-        status: z.enum(['experimental', 'stable', 'deprecated']).optional()
+        status: z.enum(['experimental', 'stable', 'deprecated']).optional(),
+        entries: z.array(z.object({
+          type: z.string(),
+          link: z.string().nullable().optional(),
+          title: z.string(),
+          description: z.string()
+        })).optional()
       })
     })
   }
