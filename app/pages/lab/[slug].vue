@@ -316,6 +316,11 @@ const projectEntries = computed(() => {
           </NuxtLink>
         </div>
       </nav>
+
+      <!-- Bottom border separator -->
+      <div class="full-width relative">
+        <FullWidthBorder />
+      </div>
       </div><!-- /.content-grid -->
     </section>
   </div>

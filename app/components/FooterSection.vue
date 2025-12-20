@@ -99,7 +99,7 @@
     </div>
 
     <!-- Section 4: Socket (Copyright + Cookie Policy + Special Thanks) -->
-    <div class="socket-section full-width-content">
+    <div class="socket-section full-width-content relative">
       <FullWidthBorder :opacity="15" />
       <div class="socket-wrapper content-grid w-full">
         <div
