@@ -40,6 +40,26 @@ export default defineContentConfig({
         cover: z.string().optional(),
         author: z.string().optional()
       })
+    }),
+    // Lab collection: experimental projects and tools
+    lab: defineCollection({
+      type: 'page',
+      source: {
+        include: 'lab/*.md',
+        prefix: '/lab'
+      },
+      // Schema for lab projects with marquee display data
+      schema: z.object({
+        title: z.string(), // Full project title
+        slug: z.string(), // URL slug
+        shortTitle: z.string(), // Short title for marquee (italic)
+        thumbnail: z.string(), // Small image for marquee
+        cover: z.string().optional(), // Large image for expanded view
+        description: z.string(), // Description text for expanded view
+        date: z.string().optional(), // ISO date string
+        tags: z.array(z.string()).optional(),
+        status: z.enum(['experimental', 'stable', 'deprecated']).optional()
+      })
     })
   }
 })

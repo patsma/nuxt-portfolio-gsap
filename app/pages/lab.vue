@@ -1,11 +1,32 @@
 <script setup lang="ts">
 import HeroSection from '~/components/HeroSection.vue'
 import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
+import RecommendationsSection from '~/components/RecommendationsSection.vue'
+import LabProjectItem from '~/components/LabProjectItem.vue'
+
+// Fetch all lab projects from content collection
+const { data: labProjects } = await useAsyncData(
+  'lab-index',
+  () => queryCollection('lab').all()
+)
+
+// Sort by date (newest first)
+const projectsSorted = computed(() => {
+  const list = (labProjects.value || []).slice()
+  list.sort((a, b) => {
+    const timeA = new Date(a?.date || 0).getTime()
+    const timeB = new Date(b?.date || 0).getTime()
+    return (Number.isNaN(timeB) ? 0 : timeB) - (Number.isNaN(timeA) ? 0 : timeA)
+  })
+  return list
+})
+
+useHead({ title: 'Lab' })
 </script>
 
 <template>
   <div>
-    <!-- Hero section with different content, NO services -->
+    <!-- Hero section with lab-specific content -->
     <HeroSection>
       <h1
         v-page-split:lines="{ animateFrom: 'below' }"
@@ -14,7 +35,10 @@ import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
         <span class="text-[var(--theme-text-60)]">Feel</span>
         <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
         <span class="text-[var(--theme-text-60)]">
-          to use my lab projects as your own. They are</span>
+          to use my lab projects</span>
+        <span class="text-[var(--theme-text-100)] font-body font-[300]">
+          as your own.</span>
+        <span class="text-[var(--theme-text-60)]"> They are</span>
         <span class="text-[var(--theme-text-100)] font-body font-[300]">
           based</span>
         <span class="text-[var(--theme-text-60)]"> on Morten</span>
@@ -29,65 +53,27 @@ import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
       </template>
     </HeroSection>
 
-    <!-- Spacer -->
-    <div class="h-[30vh]" />
+    <!-- Lab Projects Section -->
+    <RecommendationsSection>
+      <template #label>
+        Lab projects
+      </template>
+      <LabProjectItem
+        v-for="(project, index) in projectsSorted"
+        :key="project.slug"
+        :id="project.slug"
+        :index="index"
+        :slug="project.slug"
+        :short-title="project.shortTitle"
+        :full-title="project.title"
+        :thumbnail="project.thumbnail"
+        :cover="project.cover"
+        :description="project.description"
+        :tags="project.tags"
+      />
+    </RecommendationsSection>
 
-    <!-- Parallax Tests -->
-    <div class="content-grid">
-      <div class="breakout3 grid gap-[var(--space-4xl)]">
-        <!-- Image Parallax -->
-        <section class="grid gap-[var(--space-l)]">
-          <h2
-            class="font-display text-4xl text-[var(--theme-text-100)] tracking-tight"
-          >
-            Image Parallax
-          </h2>
-          <!-- Wrapper controls height -->
-          <div class="h-[60vh] rounded-lg">
-            <!-- Container fills wrapper (100%) -->
-            <div class="parallax-container">
-              <!-- Image is 120% of container -->
-              <img
-                src="/assets/dummy/placeholder2.jpg"
-                data-speed="auto"
-                class="parallax-media"
-                alt="Parallax test image"
-              >
-            </div>
-          </div>
-        </section>
-
-        <!-- Spacer -->
-        <div class="h-[40vh]" />
-
-        <!-- Video Parallax -->
-        <section class="grid gap-[var(--space-l)]">
-          <h2
-            class="font-display text-4xl text-[var(--theme-text-100)] tracking-tight"
-          >
-            Video Parallax
-          </h2>
-          <!-- Wrapper controls height -->
-          <div class="h-[60vh] rounded-lg">
-            <!-- Container fills wrapper (100%) -->
-            <div class="parallax-container">
-              <!-- Video is 120% of container -->
-              <video
-                src="/assets/dummy/sample1.mp4"
-                data-speed="auto"
-                class="parallax-media w-full"
-                autoplay
-                loop
-                muted
-                playsinline
-              />
-            </div>
-          </div>
-        </section>
-
-        <!-- Spacer -->
-        <div class="h-[50vh]" />
-      </div>
-    </div>
+    <!-- Bottom border -->
+    <FullWidthBorder :opacity="10" />
   </div>
 </template>
