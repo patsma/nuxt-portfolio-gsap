@@ -74,6 +74,13 @@ Reusable component architectures and layout patterns for building consistent sec
 
 📖 **See** `.claude/COMPONENT_PATTERNS.md`
 
+### Magnetic Effect
+Spring physics composable for organic magnetic hover effects.
+
+**Features:** Spring physics with timeScale, velocity tracking, auto-disabled on mobile, reusable composable
+
+📖 **See** `.claude/MAGNETIC_EFFECT.md`
+
 ## Architecture
 
 ### File Structure

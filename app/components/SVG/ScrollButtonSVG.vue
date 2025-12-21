@@ -56,6 +56,7 @@
  */
 
 import { clampedNormalize } from '~/utils/math'
+import useMagnetic from '~/composables/useMagnetic'
 
 // Scroll animation config
 const SCROLL_DOWN_DURATION = 1.2
@@ -82,8 +83,19 @@ const props = withDefaults(defineProps<{
 })
 
 // Refs
-const containerRef = ref(null)
+const containerRef = ref<HTMLElement | null>(null)
 const textRef = ref(null)
+
+// Magnetic hover effect - bouncy spring feel stretched in time
+useMagnetic(containerRef, {
+  threshold: 150,
+  maxDisplacement: 28,
+  strength: 0.5,
+  stiffness: 0.08,       // Original bouncy stiffness
+  damping: 0.82,         // Original bouncy damping (nice oscillation)
+  velocityInfluence: 1.5,
+  timeScale: 0.4         // Slow motion - same spring character, 40% speed
+})
 
 // Rotation animation instance (stored for cleanup)
 // Using any type - GSAPTween type doesn't include all runtime methods (resume, pause, etc.)
