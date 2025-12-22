@@ -59,7 +59,7 @@
  * Animation Timeline:
  * - 0-360vh (72%): Container grows from startWidth×startHeight to 100vw×100vh
  * - Simultaneous: Video moves UP (yPercent: 0 to -28.57) revealing bottom portion
- * - ~175vh: Play button appears (triggered by scroll progress at 35%)
+ * - Section enters viewport: Play button fades in with magnetic effect
  * - 360-500vh (28%): Video pinned at 100% for comfortable viewing and interaction
  *
  * Props:
@@ -72,7 +72,8 @@
  *
  * Features:
  * - Native video poster support (browser-managed loading state)
- * - Custom play/pause button with replay
+ * - Play button with magnetic hover effect (spring physics)
+ * - Scroll-triggered play button entrance animation
  * - Manual parallax via ScrollTrigger timeline (works in pinned sections)
  * - Dimension-based animation (not scale) for consistent sizing
  * - Configurable start position (left or right corner)
@@ -85,6 +86,7 @@
  * - Video is 140% height with overflow:hidden for parallax range (40% extra space)
  * - Container overflow:hidden prevents video cutoff issues
  * - Start position uses left/xPercent for consistent animation path
+ * - Magnetic effect auto-disabled on mobile/touch devices
  *
  * Usage:
  * <VideoScalingSection
@@ -157,6 +159,8 @@ const props = defineProps({
   }
 })
 
+import useMagnetic from '~/composables/useMagnetic'
+
 const { $gsap, $ScrollTrigger } = useNuxtApp()
 
 const sectionRef = ref(null)
@@ -167,9 +171,21 @@ const playButtonRef = ref(null)
 const isPlaying = ref(false)
 const hasEnded = ref(false)
 
-let videoScrollTrigger = null
-let buttonTimeline = null
-let buttonAnimated = false
+let videoScrollTrigger: ScrollTrigger | null = null
+let entranceScrollTrigger: ScrollTrigger | null = null
+let buttonTimeline: gsap.core.Timeline | null = null
+
+// Apply magnetic effect to play button (like ScrollButtonSVG)
+// Must be called at top level - composable has its own onMounted
+useMagnetic(playButtonRef, {
+  threshold: 150,
+  maxDisplacement: 28,
+  strength: 0.5,
+  stiffness: 0.08,
+  damping: 0.82,
+  velocityInfluence: 1.5,
+  timeScale: 0.4
+})
 
 const handlePlayPause = () => {
   if (!videoRef.value) return
@@ -192,18 +208,16 @@ const handleVideoEnded = () => {
   isPlaying.value = false
 }
 
-// Update button visibility based on scroll progress and video state
-const updateButtonVisibility = () => {
+// Update button visibility based on video playing state
+// Button hides when video plays, shows when paused/ended
+const updateButtonVisibility = (playing: boolean) => {
   if (!buttonTimeline) return
 
-  // Show button if: scroll reached threshold AND video not playing
-  const shouldShow = buttonAnimated && !isPlaying.value
-
-  if (shouldShow && buttonTimeline.progress() < 1) {
-    buttonTimeline.play()
+  if (playing) {
+    buttonTimeline.play() // Fade out when playing
   }
-  else if (!shouldShow && buttonTimeline.progress() > 0) {
-    buttonTimeline.reverse()
+  else {
+    buttonTimeline.reverse() // Fade back in when paused
   }
 }
 
@@ -221,8 +235,8 @@ const handleLeaveSection = () => {
 }
 
 // Watch video playing state for smooth button transitions
-watch(isPlaying, () => {
-  updateButtonVisibility()
+watch(isPlaying, (playing) => {
+  updateButtonVisibility(playing)
 })
 
 onMounted(() => {
@@ -247,17 +261,39 @@ onMounted(() => {
     yPercent: 0
   })
 
-  // Button timeline: created once, controlled via play/reverse
-  buttonTimeline = $gsap.timeline({ paused: true })
-  buttonTimeline.to(playButtonRef.value, {
-    opacity: 1,
-    visibility: 'visible',
-    scale: 1,
-    duration: 0.6,
-    ease: 'back.out(1.5)'
+  // Set initial button state for entrance animation
+  $gsap.set(playButtonRef.value, {
+    opacity: 0,
+    scale: 0.8
   })
 
-  // Main timeline: Phase 1 (40% scale) + Phase 2 (60% hold)
+  // Scroll-triggered entrance animation for play button
+  // Fades in when section enters viewport
+  entranceScrollTrigger = $ScrollTrigger.create({
+    trigger: sectionRef.value,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      $gsap.to(playButtonRef.value, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        ease: 'back.out(1.5)'
+      })
+    }
+  })
+
+  // Button visibility timeline: hides button when video plays
+  // Starts from visible state, plays to hide, reverses to show
+  buttonTimeline = $gsap.timeline({ paused: true })
+  buttonTimeline.to(playButtonRef.value, {
+    opacity: 0,
+    scale: 0.9,
+    duration: 0.4,
+    ease: 'power2.out'
+  })
+
+  // Main timeline: Phase 1 (72% scale) + Phase 2 (28% hold)
   const tl = $gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
@@ -268,22 +304,6 @@ onMounted(() => {
       anticipatePin: 1,
       markers: false,
       invalidateOnRefresh: true,
-      onUpdate: (self) => {
-        // Update button animation threshold at 35% scroll progress
-        const wasAnimated = buttonAnimated
-
-        if (self.progress > 0.35) {
-          buttonAnimated = true
-        }
-        else {
-          buttonAnimated = false
-        }
-
-        // Trigger smooth transition if threshold crossed
-        if (wasAnimated !== buttonAnimated) {
-          updateButtonVisibility()
-        }
-      },
       onLeave: handleLeaveSection,
       onLeaveBack: handleLeaveSection
     }
@@ -334,12 +354,15 @@ onUnmounted(() => {
     videoScrollTrigger = null
   }
 
+  if (entranceScrollTrigger) {
+    entranceScrollTrigger.kill()
+    entranceScrollTrigger = null
+  }
+
   if (buttonTimeline) {
     buttonTimeline.kill()
     buttonTimeline = null
   }
-
-  buttonAnimated = false
 
   if (videoRef.value) {
     videoRef.value.pause()
@@ -371,9 +394,8 @@ onUnmounted(() => {
 }
 
 .play-button-overlay {
-  /* Hidden by CSS - GSAP animates to visible */
-  opacity: 0;
-  visibility: hidden;
+  /* Initial state set by GSAP (opacity: 0, scale: 0.8) */
+  /* Entrance animation fades in when section enters viewport */
   z-index: 10;
 }
 
