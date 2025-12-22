@@ -81,7 +81,7 @@ onUnmounted(() => {
   >
     <NuxtLoadingIndicator
       :height="6"
-      color="#0089d0"
+      color="var(--theme-text-60)"
       style="top: auto; bottom: 0"
     />
 
