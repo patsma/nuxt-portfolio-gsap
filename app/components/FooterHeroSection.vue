@@ -1,7 +1,7 @@
 <template>
   <section
     ref="sectionRef"
-    class="content-grid w-full min-h-[100dvh] grid items-center"
+    class="content-grid w-full min-h-[65dvh] grid items-center"
   >
     <div class="breakout3 translate-y-[var(--space-xl)]">
       <div ref="contentRef">
