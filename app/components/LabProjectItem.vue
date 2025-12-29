@@ -101,13 +101,16 @@
           </p>
 
           <!-- Right: Link button -->
-          <NuxtLink
-            :to="`/lab/${slug}`"
+          <div
             class="inline-block justify-self-end"
             @click.stop
           >
-            <ScrollButtonSVG direction="right" />
-          </NuxtLink>
+            <ScrollButtonSVG
+              variant="view"
+              direction="right"
+              :href="`/lab/${slug}`"
+            />
+          </div>
         </div>
       </div>
     </div>
