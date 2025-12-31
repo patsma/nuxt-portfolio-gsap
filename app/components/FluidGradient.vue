@@ -49,8 +49,8 @@
  * - Theme-aware: Colors animate smoothly on theme toggle
  */
 
-// Standard GSAP from Nuxt app
-const { $gsap } = useNuxtApp()
+// GSAP and ScrollTrigger from Nuxt app
+const { $gsap, $ScrollTrigger } = useNuxtApp()
 
 // Theme store for centralized theme state
 const themeStore = useThemeStore()
@@ -84,15 +84,23 @@ const gradientColors = {
 
 /**
  * Shader uniforms (reactive so GSAP can tween nested .value)
- * Includes time and 4 corner colors for theme-aware gradient
+ * Includes time, scroll-reactive values, and 4 corner colors
  * Start with light colors by default - will be set correctly in onMounted
  */
 const uniforms = reactive({
+  // Animation timing
   time: { value: 0 },
-  colorTL: { value: [...gradientColors.light.tl] }, // Top-left (vec3)
-  colorTR: { value: [...gradientColors.light.tr] }, // Top-right (vec3)
-  colorBL: { value: [...gradientColors.light.bl] }, // Bottom-left (vec3)
-  colorBR: { value: [...gradientColors.light.br] } // Bottom-right (vec3)
+
+  // Scroll-reactive values
+  scrollInfluence: { value: 0 }, // 0-1 global scroll progress
+  sectionIntensity: { value: 1.0 }, // Section-specific brightness multiplier
+  noiseScale: { value: 4.3 }, // Noise pattern tightness
+
+  // Theme-aware corner colors (vec3)
+  colorTL: { value: [...gradientColors.light.tl] }, // Top-left
+  colorTR: { value: [...gradientColors.light.tr] }, // Top-right
+  colorBL: { value: [...gradientColors.light.bl] }, // Bottom-left
+  colorBR: { value: [...gradientColors.light.br] } // Bottom-right
 })
 
 /**
@@ -108,18 +116,22 @@ void main() {
 /**
  * Desktop fragment shader - full quality
  * Uses rotation and complex noise for fluid effect
+ * Scroll-reactive: noiseScale affects pattern, sectionIntensity affects brightness
  */
 const fragmentShaderDesktop = `
 precision mediump float;
 uniform float time;
+uniform float scrollInfluence;
+uniform float sectionIntensity;
+uniform float noiseScale;
 uniform vec3 colorTL;
 uniform vec3 colorTR;
 uniform vec3 colorBL;
 uniform vec3 colorBR;
 varying vec2 vUv;
 
-float noise(vec2 uv, float t) {
-  return (1.0 + sin(uv.x * 4.3 + t) + cos(uv.y * 4.3 + t)) * 0.5;
+float noise(vec2 uv, float t, float scale) {
+  return (1.0 + sin(uv.x * scale + t) + cos(uv.y * scale + t)) * 0.5;
 }
 
 vec2 rotate(vec2 v, float a) {
@@ -129,23 +141,24 @@ vec2 rotate(vec2 v, float a) {
 }
 
 vec3 getColor(vec2 uv, float t) {
-  // Use uniform colors from theme system (animated by GSAP)
   vec3 topLeft = colorTL;
   vec3 topRight = colorTR;
   vec3 bottomLeft = colorBL;
   vec3 bottomRight = colorBR;
 
   vec2 center = vec2(0.5, 0.5);
-  vec2 offset = vec2(0.5) - center;
   vec2 rotatedUV = rotate(uv - center, t * 0.05) + center;
 
-  vec2 noiseUV = vec2(noise(rotatedUV, t * 0.5), noise(rotatedUV, t * 0.75));
+  // Use noiseScale uniform for dynamic pattern control
+  vec2 noiseUV = vec2(noise(rotatedUV, t * 0.5, noiseScale), noise(rotatedUV, t * 0.75, noiseScale));
   vec3 color = mix(mix(topLeft, topRight, noiseUV.x), mix(bottomLeft, bottomRight, noiseUV.x), noiseUV.y);
   return color;
 }
 
 void main() {
   vec3 color = getColor(vUv, time);
+  // Apply section intensity (brightness multiplier)
+  color *= sectionIntensity;
   gl_FragColor = vec4(color, 1.0);
 }`
 
@@ -153,10 +166,12 @@ void main() {
  * Mobile fragment shader - simplified for performance
  * Removes rotation, uses simpler noise (single sin instead of sin+cos)
  * ~85% GPU reduction compared to desktop shader
+ * Scroll-reactive: sectionIntensity affects brightness
  */
 const fragmentShaderMobile = `
 precision mediump float;
 uniform float time;
+uniform float sectionIntensity;
 uniform vec3 colorTL;
 uniform vec3 colorTR;
 uniform vec3 colorBL;
@@ -171,7 +186,8 @@ void main() {
   float n = noise(vUv, time * 0.5);
   vec3 top = mix(colorTL, colorTR, vUv.x);
   vec3 bottom = mix(colorBL, colorBR, vUv.x);
-  gl_FragColor = vec4(mix(top, bottom, n), 1.0);
+  vec3 color = mix(top, bottom, n) * sectionIntensity;
+  gl_FragColor = vec4(color, 1.0);
 }`
 
 /**
@@ -249,6 +265,53 @@ watch(
   }
 )
 
+// Store ScrollTrigger instances for cleanup
+let scrollTriggers: ReturnType<typeof $ScrollTrigger.create>[] = []
+
+/**
+ * Setup scroll-based gradient effects
+ * Creates ScrollTriggers that modify gradient parameters based on scroll position
+ */
+function setupScrollTracking() {
+  if (!$ScrollTrigger) return
+
+  // Get smooth-content for ScrollSmoother compatibility
+  const smoothContent = document.getElementById('smooth-content')
+  if (!smoothContent) {
+    console.warn('[FluidGradient] No smooth-content found, scroll tracking disabled')
+    return
+  }
+
+  // Global scroll progress tracker using smooth-content
+  const globalTracker = $ScrollTrigger.create({
+    trigger: smoothContent,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.5,
+    onUpdate: (self: { progress: number }) => {
+      const progress = self.progress
+
+      uniforms.scrollInfluence.value = progress
+
+      // Dramatic noise scale variation (2.0 at top, 7.0 at bottom)
+      uniforms.noiseScale.value = 2.0 + progress * 5.0
+
+      // Visible intensity pulse (brighter in middle of page)
+      uniforms.sectionIntensity.value = 0.85 + Math.sin(progress * Math.PI) * 0.35
+    }
+  })
+
+  scrollTriggers.push(globalTracker)
+}
+
+/**
+ * Cleanup ScrollTrigger instances
+ */
+function cleanupScrollTracking() {
+  scrollTriggers.forEach(trigger => trigger.kill())
+  scrollTriggers = []
+}
+
 // Lifecycle: mount and initialize fluid gradient
 onMounted(() => {
   // Setup entrance animation for first load
@@ -282,11 +345,15 @@ onMounted(() => {
     uniforms.colorTR.value = [...initialColors.tr]
     uniforms.colorBL.value = [...initialColors.bl]
     uniforms.colorBR.value = [...initialColors.br]
+
+    // Setup scroll tracking after initial colors are set
+    setupScrollTracking()
   })
 })
 
 // Cleanup
 onUnmounted(() => {
+  cleanupScrollTracking()
   isMounted.value = false
 })
 

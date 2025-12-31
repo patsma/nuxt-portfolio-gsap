@@ -42,6 +42,9 @@ interface UniformValue<T> {
 interface Props {
   uniforms: {
     time: UniformValue<number>
+    scrollInfluence: UniformValue<number>
+    sectionIntensity: UniformValue<number>
+    noiseScale: UniformValue<number>
     colorTL: UniformValue<number[]>
     colorTR: UniformValue<number[]>
     colorBL: UniformValue<number[]>
@@ -56,6 +59,10 @@ const props = defineProps<Props>()
 
 const { $gsap } = useNuxtApp()
 const { advance } = useTres()
+
+// Type assertion for GSAP ticker (available at runtime but not in Nuxt GSAP types)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const gsapWithTicker = $gsap as any
 
 // Animation state (non-reactive for performance)
 let isActive = true
@@ -82,6 +89,7 @@ function onTick(time: number, deltaTime: number): void {
 
   // Update time uniform (convert deltaTime ms to reasonable increment)
   // Using a small multiplier to keep the animation speed similar to before
+  // eslint-disable-next-line vue/no-mutating-props -- Intentional: Three.js uniforms must be mutated in place
   props.uniforms.time.value += deltaTime * 0.001
 
   // Trigger TresJS render
@@ -90,12 +98,12 @@ function onTick(time: number, deltaTime: number): void {
 
 onMounted(() => {
   // Register ticker callback
-  $gsap.ticker.add(onTick)
+  gsapWithTicker.ticker.add(onTick)
 })
 
 onUnmounted(() => {
   // Stop animation and clean up
   isActive = false
-  $gsap.ticker.remove(onTick)
+  gsapWithTicker.ticker.remove(onTick)
 })
 </script>
