@@ -293,11 +293,16 @@ function setupScrollTracking() {
 
       uniforms.scrollInfluence.value = progress
 
-      // Dramatic noise scale variation (2.0 at top, 7.0 at bottom)
-      uniforms.noiseScale.value = 2.0 + progress * 5.0
+      // Organic noise scale - oscillates between 3.0 and 5.5 with multiple waves
+      // Creates a "breathing" pattern as you scroll
+      const wave1 = Math.sin(progress * Math.PI * 4) * 0.8 // Fast wave
+      const wave2 = Math.sin(progress * Math.PI * 1.5) * 0.4 // Slow wave
+      uniforms.noiseScale.value = 4.3 + wave1 + wave2
 
-      // Visible intensity pulse (brighter in middle of page)
-      uniforms.sectionIntensity.value = 0.85 + Math.sin(progress * Math.PI) * 0.35
+      // Gentle intensity variation - subtle breathing, not linear increase
+      // Oscillates around 1.0 (neutral) with gentle waves
+      const breathe = Math.sin(progress * Math.PI * 3) * 0.08
+      uniforms.sectionIntensity.value = 1.0 + breathe
     }
   })
 
