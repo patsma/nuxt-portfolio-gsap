@@ -123,7 +123,8 @@ const trackVelocity = (e: MouseEvent) => {
   if (dt > 0 && dt < 100) {
     // Calculate velocity, normalized to approximate frame time (~16ms)
     mouseVelocityY = ((e.clientY - lastMouseY) / dt) * 16
-  } else {
+  }
+  else {
     // Reset velocity if too much time passed
     mouseVelocityY = 0
   }
@@ -152,14 +153,15 @@ const runPhysicsLoop = () => {
   }
 
   // Continue animation if still moving significantly
-  const isMoving =
-    Math.abs(spring.velocity) > 0.05 ||
-    Math.abs(spring.target - spring.position) > 0.5 ||
-    Math.abs(spring.targetX - spring.controlX) > 1
+  const isMoving
+    = Math.abs(spring.velocity) > 0.05
+      || Math.abs(spring.target - spring.position) > 0.5
+      || Math.abs(spring.targetX - spring.controlX) > 1
 
   if (isMoving) {
     physicsFrame = requestAnimationFrame(runPhysicsLoop)
-  } else {
+  }
+  else {
     spring.isAnimating = false
     physicsFrame = null
 
@@ -220,7 +222,8 @@ const handleMouseMove = (e: MouseEvent) => {
 
     // Start physics loop
     startPhysicsLoop()
-  } else {
+  }
+  else {
     // Mouse moved away - spring back to straight
     spring.target = 0
     spring.targetX = svgWidth.value / 2

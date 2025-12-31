@@ -112,7 +112,8 @@ export function useMagnetic(
       // Normalize velocity to ~16ms (one frame) for consistent feel
       mouseVelocityX = ((e.clientX - lastMouseX) / dt) * 16
       mouseVelocityY = ((e.clientY - lastMouseY) / dt) * 16
-    } else {
+    }
+    else {
       // Reset if too much time passed (mouse was idle)
       mouseVelocityX = 0
       mouseVelocityY = 0
@@ -126,7 +127,7 @@ export function useMagnetic(
   /**
    * Get element center position (accounting for current offset)
    */
-  const getElementCenter = (): { x: number; y: number } | null => {
+  const getElementCenter = (): { x: number, y: number } | null => {
     if (!elementRef.value) return null
 
     const rect = elementRef.value.getBoundingClientRect()
@@ -182,15 +183,16 @@ export function useMagnetic(
     }
 
     // Check if animation should continue
-    const isMoving =
-      Math.abs(spring.velocityX) > 0.01 ||
-      Math.abs(spring.velocityY) > 0.01 ||
-      Math.abs(spring.targetX - spring.x) > 0.1 ||
-      Math.abs(spring.targetY - spring.y) > 0.1
+    const isMoving
+      = Math.abs(spring.velocityX) > 0.01
+        || Math.abs(spring.velocityY) > 0.01
+        || Math.abs(spring.targetX - spring.x) > 0.1
+        || Math.abs(spring.targetY - spring.y) > 0.1
 
     if (isMoving) {
       animationFrame = requestAnimationFrame(runPhysics)
-    } else {
+    }
+    else {
       animationFrame = null
       // Snap to final position when settled
       if (!isActive.value) {
@@ -254,13 +256,15 @@ export function useMagnetic(
         const scale = config.maxDisplacement / magnitude
         spring.targetX = targetX * scale
         spring.targetY = targetY * scale
-      } else {
+      }
+      else {
         spring.targetX = targetX
         spring.targetY = targetY
       }
 
       startPhysics()
-    } else {
+    }
+    else {
       // Outside threshold - return to origin
       if (isActive.value) {
         isActive.value = false
@@ -331,7 +335,8 @@ export function useMagnetic(
       if (elementRef.value) {
         elementRef.value.style.transform = ''
       }
-    } else if (!isTouchDevice.value) {
+    }
+    else if (!isTouchDevice.value) {
       // Re-enable when switching to desktop
       window.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseleave', handleMouseLeave)

@@ -72,7 +72,7 @@ const parseISODate = (iso) => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-const formatDate = (iso) => {
+const _formatDate = (iso) => {
   const d = parseISODate(iso)
   if (!d) return iso || ''
   try {
@@ -89,7 +89,7 @@ const formatDate = (iso) => {
   }
 }
 
-const scrollToTop = () => {
+const _scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
@@ -189,138 +189,138 @@ const projectEntries = computed(() => {
       <div class="content-grid">
         <!-- Bento Image Grid -->
         <div
-        v-if="project.images?.length >= 3"
-        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
-      >
-        <!-- Mobile: stacked, Desktop: bento grid -->
-        <div class="bento-grid">
-          <!-- Large image (left, spans 2 rows on desktop) -->
-          <div class="bento-left overflow-hidden rounded-lg">
+          v-if="project.images?.length >= 3"
+          class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        >
+          <!-- Mobile: stacked, Desktop: bento grid -->
+          <div class="bento-grid">
+            <!-- Large image (left, spans 2 rows on desktop) -->
+            <div class="bento-left overflow-hidden rounded-lg">
+              <NuxtImg
+                :src="project.images[0]"
+                :alt="project.title"
+                class="w-full h-full object-cover"
+                loading="eager"
+                sizes="100vw md:50vw"
+              />
+            </div>
+            <!-- Top right image -->
+            <div class="bento-top-right overflow-hidden rounded-lg">
+              <NuxtImg
+                :src="project.images[1]"
+                :alt="`${project.title} - detail 1`"
+                class="w-full h-full object-cover"
+                loading="eager"
+                sizes="100vw md:50vw"
+              />
+            </div>
+            <!-- Bottom right image -->
+            <div class="bento-bottom-right overflow-hidden rounded-lg">
+              <NuxtImg
+                :src="project.images[2]"
+                :alt="`${project.title} - detail 2`"
+                class="w-full h-full object-cover"
+                loading="lazy"
+                sizes="100vw md:50vw"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Fallback: Single cover image -->
+        <div
+          v-else-if="project.cover || project.thumbnail"
+          class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        >
+          <div class="overflow-hidden rounded-lg aspect-[1184/666]">
             <NuxtImg
-              :src="project.images[0]"
+              :src="project.cover || project.thumbnail"
               :alt="project.title"
               class="w-full h-full object-cover"
               loading="eager"
-              sizes="100vw md:50vw"
-            />
-          </div>
-          <!-- Top right image -->
-          <div class="bento-top-right overflow-hidden rounded-lg">
-            <NuxtImg
-              :src="project.images[1]"
-              :alt="`${project.title} - detail 1`"
-              class="w-full h-full object-cover"
-              loading="eager"
-              sizes="100vw md:50vw"
-            />
-          </div>
-          <!-- Bottom right image -->
-          <div class="bento-bottom-right overflow-hidden rounded-lg">
-            <NuxtImg
-              :src="project.images[2]"
-              :alt="`${project.title} - detail 2`"
-              class="w-full h-full object-cover"
-              loading="lazy"
-              sizes="100vw md:50vw"
+              sizes="100vw"
             />
           </div>
         </div>
-      </div>
 
-      <!-- Fallback: Single cover image -->
-      <div
-        v-else-if="project.cover || project.thumbnail"
-        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
-      >
-        <div class="overflow-hidden rounded-lg aspect-[1184/666]">
-          <NuxtImg
-            :src="project.cover || project.thumbnail"
-            :alt="project.title"
-            class="w-full h-full object-cover"
-            loading="eager"
-            sizes="100vw"
-          />
-        </div>
-      </div>
-
-      <!-- Project Entries: 3-column grid with multiple entries support -->
-      <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
-        <div
-          v-for="(entry, index) in projectEntries"
-          :key="index"
-          class="lab-entry-grid"
-          :class="{ 'mt-[var(--space-2xl)]': index > 0 }"
-        >
-          <!-- Column 1: Label (only visible on first row) -->
-          <p
-            class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
-            :class="{ 'md:invisible': index > 0 }"
+        <!-- Project Entries: 3-column grid with multiple entries support -->
+        <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
+          <div
+            v-for="(entry, index) in projectEntries"
+            :key="index"
+            class="lab-entry-grid"
+            :class="{ 'mt-[var(--space-2xl)]': index > 0 }"
           >
-            Lab projects
-          </p>
-
-          <!-- Column 2: Download button/link -->
-          <a
-            :href="entry.link || '#'"
-            :target="entry.link ? '_blank' : undefined"
-            :rel="entry.link ? 'noopener' : undefined"
-            class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-100)] transition-colors cursor-pointer"
-            :class="{ 'underline underline-offset-4': entry.link }"
-          >
-            {{ entry.type || project.category || 'Template' }}
-          </a>
-
-          <!-- Column 3: Title + Description -->
-          <div class="flex flex-col gap-[var(--space-m)]">
-            <h2 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] leading-none md:-mt-[0.15em]">
-              {{ entry.title }}
-            </h2>
-
+            <!-- Column 1: Label (only visible on first row) -->
             <p
-              v-if="entry.description"
-              class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
+              class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
+              :class="{ 'md:invisible': index > 0 }"
             >
-              {{ entry.description }}
+              Lab projects
             </p>
+
+            <!-- Column 2: Download button/link -->
+            <a
+              :href="entry.link || '#'"
+              :target="entry.link ? '_blank' : undefined"
+              :rel="entry.link ? 'noopener' : undefined"
+              class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-100)] transition-colors cursor-pointer"
+              :class="{ 'underline underline-offset-4': entry.link }"
+            >
+              {{ entry.type || project.category || 'Template' }}
+            </a>
+
+            <!-- Column 3: Title + Description -->
+            <div class="flex flex-col gap-[var(--space-m)]">
+              <h2 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] leading-none md:-mt-[0.15em]">
+                {{ entry.title }}
+              </h2>
+
+              <p
+                v-if="entry.description"
+                class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
+              >
+                {{ entry.description }}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Navigation (simple prev/next) -->
-      <nav
-        v-if="prevProject || nextProject"
-        class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
-      >
-        <div class="flex justify-between items-center">
-          <!-- Previous Project -->
-          <NuxtLink
-            v-if="prevProject"
-            :to="prevProject.path"
-            class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
-          >
-            <span class="text-xl">&larr;</span>
-            <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Prev</span>
-            <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ prevProject.title }}</span>
-          </NuxtLink>
-          <div v-else />
+        <!-- Navigation (simple prev/next) -->
+        <nav
+          v-if="prevProject || nextProject"
+          class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        >
+          <div class="flex justify-between items-center">
+            <!-- Previous Project -->
+            <NuxtLink
+              v-if="prevProject"
+              :to="prevProject.path"
+              class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
+            >
+              <span class="text-xl">&larr;</span>
+              <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Prev</span>
+              <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ prevProject.title }}</span>
+            </NuxtLink>
+            <div v-else />
 
-          <!-- Next Project -->
-          <NuxtLink
-            v-if="nextProject"
-            :to="nextProject.path"
-            class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
-          >
-            <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Next</span>
-            <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ nextProject.title }}</span>
-            <span class="text-xl">&rarr;</span>
-          </NuxtLink>
+            <!-- Next Project -->
+            <NuxtLink
+              v-if="nextProject"
+              :to="nextProject.path"
+              class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
+            >
+              <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Next</span>
+              <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ nextProject.title }}</span>
+              <span class="text-xl">&rarr;</span>
+            </NuxtLink>
+          </div>
+        </nav>
+
+        <!-- Bottom border separator -->
+        <div class="full-width relative">
+          <FullWidthBorder />
         </div>
-      </nav>
-
-      <!-- Bottom border separator -->
-      <div class="full-width relative">
-        <FullWidthBorder />
-      </div>
       </div><!-- /.content-grid -->
     </section>
   </div>

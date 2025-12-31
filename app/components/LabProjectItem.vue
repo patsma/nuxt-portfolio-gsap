@@ -239,10 +239,9 @@ const props = defineProps({
   },
   /**
    * Optional tags to display
-   * @type {string[]}
    */
   tags: {
-    type: Array,
+    type: Array as PropType<string[]>,
     default: () => []
   }
 })

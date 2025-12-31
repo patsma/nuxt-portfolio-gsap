@@ -60,8 +60,8 @@ useHead({ title: 'Lab' })
       </template>
       <LabProjectItem
         v-for="(project, index) in projectsSorted"
-        :key="project.slug"
         :id="project.slug"
+        :key="project.slug"
         :index="index"
         :slug="project.slug"
         :short-title="project.shortTitle"
