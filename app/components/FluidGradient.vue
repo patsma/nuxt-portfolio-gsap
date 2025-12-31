@@ -55,12 +55,32 @@ const { $gsap, $ScrollTrigger } = useNuxtApp()
 // Theme store for centralized theme state
 const themeStore = useThemeStore()
 
+// Page transition store for opacity masking during transitions
+const pageTransitionStore = usePageTransitionStore()
+
 // Mobile detection for performance optimization
 const { isMobile } = useIsMobile()
 
 // Core refs
 const containerRef = ref(null)
 const isMounted = ref(false)
+
+// Mask rapid color changes during page transitions with opacity fade
+watch(
+  () => pageTransitionStore.isTransitioning,
+  (transitioning) => {
+    if (!containerRef.value || !$gsap) return
+
+    if (transitioning) {
+      // Fade out slightly during transition to hide color jumps
+      $gsap.to(containerRef.value, { opacity: 0.5, duration: 0.3 })
+    }
+    else {
+      // Fade back in after transition completes
+      $gsap.to(containerRef.value, { opacity: 1, duration: 0.4, delay: 0.2 })
+    }
+  }
+)
 
 /**
  * Gradient color palettes - normalized RGB values for Three.js (0-1 range)

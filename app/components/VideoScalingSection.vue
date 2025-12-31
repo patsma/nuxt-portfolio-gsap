@@ -5,7 +5,7 @@
   >
     <div
       ref="containerRef"
-      v-page-clip:bottom="{ duration: 0.8 }"
+      v-page-clip:bottom="{ duration: 0.8, leaveOnly: true }"
       class="video-container breakout3 relative will-change-transform"
     >
       <div class="parallax-container">
@@ -27,7 +27,7 @@
 
     <!-- Wrapper for page transitions (prevents animation conflicts) -->
     <div
-      v-page-fade="{ duration: 0.6 }"
+      v-page-fade="{ duration: 0.6, leaveOnly: true }"
       class="play-button-wrapper absolute inset-0 grid place-items-center pointer-events-none"
     >
       <!-- Inner element for scroll-triggered animation -->
@@ -163,6 +163,8 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
 const sectionRef = ref(null)
 const containerRef = ref(null)
@@ -240,8 +242,29 @@ watch(isPlaying, (playing) => {
   updateButtonVisibility(playing)
 })
 
-onMounted(() => {
+/**
+ * Initialize ScrollTrigger animation
+ * Called after page transition completes to avoid clip-path conflicts
+ */
+const initScrollTrigger = () => {
   if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return
+
+  // Kill existing ScrollTriggers/timelines if present (for page navigation back)
+  if (videoScrollTrigger) {
+    videoScrollTrigger.kill()
+    videoScrollTrigger = null
+  }
+  if (entranceScrollTrigger) {
+    entranceScrollTrigger.kill()
+    entranceScrollTrigger = null
+  }
+  if (buttonTimeline) {
+    buttonTimeline.kill()
+    buttonTimeline = null
+  }
+
+  // CRITICAL: Clear any clip-path from page transitions before setting up ScrollTrigger
+  $gsap.set(containerRef.value, { clearProps: 'clipPath' })
 
   // Calculate initial position based on startPosition prop
   const initialPosition = props.startPosition === 'right'
@@ -347,6 +370,33 @@ onMounted(() => {
   tl.to({}, { duration: 0.7 }, 1.8)
 
   videoScrollTrigger = tl.scrollTrigger
+}
+
+// Initialize on mount, coordinating with page transitions
+onMounted(() => {
+  // First load: Create immediately after mount
+  if (loadingStore.isFirstLoad) {
+    nextTick(() => {
+      initScrollTrigger()
+    })
+  }
+  else {
+    // After page navigation, wait for page transition to complete
+    // Watch pageTransitionStore.isTransitioning for proper timing
+    const unwatch = watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        // When transition completes (isTransitioning becomes false), initialize
+        if (!isTransitioning) {
+          nextTick(() => {
+            initScrollTrigger()
+          })
+          unwatch()
+        }
+      },
+      { immediate: true }
+    )
+  }
 })
 
 onUnmounted(() => {

@@ -5,7 +5,7 @@
   >
     <div
       ref="containerRef"
-      v-page-clip:bottom="{ duration: 0.8 }"
+      v-page-clip:bottom="{ duration: 0.8, leaveOnly: true }"
       class="image-container breakout3 relative will-change-transform"
     >
       <div class="parallax-container">
@@ -127,6 +127,8 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
 
 const sectionRef = ref(null)
 const containerRef = ref(null)
@@ -134,8 +136,15 @@ const imageRef = ref(null)
 
 let imageScrollTrigger = null
 
-onMounted(() => {
+/**
+ * Initialize ScrollTrigger animation
+ * Called after page transition completes to avoid clip-path conflicts
+ */
+const initScrollTrigger = () => {
   if (!sectionRef.value || !containerRef.value || !imageRef.value || !$ScrollTrigger) return
+
+  // CRITICAL: Clear any clip-path from page transitions before setting up ScrollTrigger
+  $gsap.set(containerRef.value, { clearProps: 'clipPath' })
 
   // Calculate initial position based on startPosition prop
   const initialPosition = props.startPosition === 'right'
@@ -155,6 +164,12 @@ onMounted(() => {
   $gsap.set(imageRef.value.$el, {
     yPercent: 0
   })
+
+  // Kill existing ScrollTrigger if present (for page navigation back)
+  if (imageScrollTrigger) {
+    imageScrollTrigger.kill()
+    imageScrollTrigger = null
+  }
 
   // Main timeline: Grow container dimensions as user scrolls
   const tl = $gsap.timeline({
@@ -201,6 +216,33 @@ onMounted(() => {
   )
 
   imageScrollTrigger = tl.scrollTrigger
+}
+
+// Initialize on mount, coordinating with page transitions
+onMounted(() => {
+  // First load: Create immediately after mount
+  if (loadingStore.isFirstLoad) {
+    nextTick(() => {
+      initScrollTrigger()
+    })
+  }
+  else {
+    // After page navigation, wait for page transition to complete
+    // Watch pageTransitionStore.isTransitioning for proper timing
+    const unwatch = watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        // When transition completes (isTransitioning becomes false), initialize
+        if (!isTransitioning) {
+          nextTick(() => {
+            initScrollTrigger()
+          })
+          unwatch()
+        }
+      },
+      { immediate: true }
+    )
+  }
 })
 
 onUnmounted(() => {
