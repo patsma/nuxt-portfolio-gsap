@@ -1,13 +1,13 @@
 <template>
   <section
     ref="sectionRef"
+    v-page-fade="{ duration: 0.5, leaveOnly: true }"
     class="interactive-case-study-section content-grid w-full min-h-screen relative py-12 md:py-16 lg:py-20"
     :data-entrance-animate="animateEntrance ? 'true' : undefined"
     @mousemove="handleMouseMove"
   >
     <h2
       ref="titleRef"
-      v-page-split:lines="{ leaveOnly: true }"
       class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
     >
       <slot name="title">
@@ -17,7 +17,6 @@
 
     <div
       ref="itemsListRef"
-      v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
       class="case-study-list full-width-content"
     >
       <slot />

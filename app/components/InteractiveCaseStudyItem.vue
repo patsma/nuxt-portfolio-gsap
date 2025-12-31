@@ -41,7 +41,6 @@
 
   <!-- Mobile: Card with image -->
   <NuxtLink
-    v-page-clip:bottom="{ duration: 0.8, leaveOnly: true }"
     :to="to"
     class="case-study-card flex md:hidden"
   >
