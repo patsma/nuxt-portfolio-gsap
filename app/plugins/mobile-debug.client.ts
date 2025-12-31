@@ -6,6 +6,9 @@
  * Toggle with triple-tap anywhere on screen.
  */
 
+// Toggle this to enable/disable the mobile debug console
+const DEBUG_ENABLED = false
+
 interface LogEntry {
   type: 'log' | 'error' | 'warn' | 'info'
   timestamp: string
@@ -13,6 +16,8 @@ interface LogEntry {
 }
 
 export default defineNuxtPlugin((nuxtApp) => {
+  if (!DEBUG_ENABLED) return
+
   if (typeof window === 'undefined') return
 
   // Only enable on mobile devices (optional - remove if you want it on desktop too)

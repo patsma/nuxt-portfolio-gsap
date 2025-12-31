@@ -25,7 +25,8 @@ export const LogLevel = {
   DEBUG: 0,
   INFO: 1,
   WARN: 2,
-  ERROR: 3
+  ERROR: 3,
+  SILENT: 4
 } as const
 
 export type LogLevelValue = (typeof LogLevel)[keyof typeof LogLevel]
@@ -63,7 +64,7 @@ export interface PreviewLogger {
  * Current log level (set to INFO for normal use, DEBUG for troubleshooting)
  * Can be changed via setLogLevel()
  */
-let currentLogLevel: LogLevelValue = LogLevel.INFO
+let currentLogLevel: LogLevelValue = LogLevel.SILENT
 
 /**
  * Set the minimum log level for output
