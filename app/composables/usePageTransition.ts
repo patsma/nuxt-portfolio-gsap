@@ -445,24 +445,9 @@ export const usePageTransition = (): PageTransitionReturn => {
             const { type, config } = element._pageAnimation!
             const position = index * 0.08 // Stagger start times
 
-            // Check if element should skip enter animation (only animate on leave)
+            // Skip enter animation for leaveOnly elements - component handles visibility
             if (config.leaveOnly) {
-              if (type === 'stagger') {
-                const selector = config.selector || ':scope > *'
-                const children = element.querySelectorAll(selector)
-                $gsap.set(children, { y: 15, opacity: 0 })
-              }
-              else if (type === 'fade') {
-                const direction = config.direction || 'up'
-                const distance = config.distance || 20
-                const axis = direction === 'up' || direction === 'down' ? 'y' : 'x'
-                const value = direction === 'up' || direction === 'left' ? distance : -distance
-                $gsap.set(element, { [axis]: value, opacity: 0 })
-              }
-              else if (type === 'split') {
-                $gsap.set(element, { opacity: 0, y: 40 })
-              }
-              return // Skip animation
+              return
             }
 
             // Call appropriate animation function
