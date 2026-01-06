@@ -81,6 +81,13 @@ Spring physics composable for organic magnetic hover effects.
 
 📖 **See** `.claude/MAGNETIC_EFFECT.md`
 
+### Fluid Gradient
+TresJS WebGL background with theme-aware colors and scroll-reactive effects.
+
+**Features:** Custom GLSL shaders, GSAP ticker rendering, theme color transitions, scroll-based parameter animation, mobile-optimized (30fps simplified shader)
+
+📖 **See** `.claude/FLUID_GRADIENT.md`
+
 ## Architecture
 
 ### File Structure
@@ -287,6 +294,7 @@ Missing logs indicate:
 - `.claude/COMPONENT_PATTERNS.md` - Reusable section component patterns
 - `.claude/ELASTIC_BORDER.md` - Physics-based elastic border effect
 - `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
+- `.claude/FLUID_GRADIENT.md` - TresJS WebGL background system
 
 ### Code Documentation
 

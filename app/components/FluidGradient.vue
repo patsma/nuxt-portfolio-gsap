@@ -47,7 +47,14 @@
  * - FluidGradientScene child handles tick updates and advance() calls
  * - Desktop: Full shader (60fps), Mobile: Simplified shader (30fps)
  * - Theme-aware: Colors animate smoothly on theme toggle
+ *
+ * @see .claude/FLUID_GRADIENT.md for full documentation
  */
+
+// Import shaders from external files for cleaner component
+import vertexShader from '~/shaders/fluid-gradient/vertex.glsl?raw'
+import fragmentShaderDesktop from '~/shaders/fluid-gradient/fragment-desktop.glsl?raw'
+import fragmentShaderMobile from '~/shaders/fluid-gradient/fragment-mobile.glsl?raw'
 
 // GSAP and ScrollTrigger from Nuxt app
 const { $gsap, $ScrollTrigger } = useNuxtApp()
@@ -122,93 +129,6 @@ const uniforms = reactive({
   colorBL: { value: [...gradientColors.light.bl] }, // Bottom-left
   colorBR: { value: [...gradientColors.light.br] } // Bottom-right
 })
-
-/**
- * Minimal passthrough vertex shader
- */
-const vertexShader = `
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = vec4(position, 1.0);
-}`
-
-/**
- * Desktop fragment shader - full quality
- * Uses rotation and complex noise for fluid effect
- * Scroll-reactive: noiseScale affects pattern, sectionIntensity affects brightness
- */
-const fragmentShaderDesktop = `
-precision mediump float;
-uniform float time;
-uniform float scrollInfluence;
-uniform float sectionIntensity;
-uniform float noiseScale;
-uniform vec3 colorTL;
-uniform vec3 colorTR;
-uniform vec3 colorBL;
-uniform vec3 colorBR;
-varying vec2 vUv;
-
-float noise(vec2 uv, float t, float scale) {
-  return (1.0 + sin(uv.x * scale + t) + cos(uv.y * scale + t)) * 0.5;
-}
-
-vec2 rotate(vec2 v, float a) {
-  float s = sin(a);
-  float c = cos(a);
-  return vec2(c * v.x - s * v.y, s * v.x + c * v.y);
-}
-
-vec3 getColor(vec2 uv, float t) {
-  vec3 topLeft = colorTL;
-  vec3 topRight = colorTR;
-  vec3 bottomLeft = colorBL;
-  vec3 bottomRight = colorBR;
-
-  vec2 center = vec2(0.5, 0.5);
-  vec2 rotatedUV = rotate(uv - center, t * 0.05) + center;
-
-  // Use noiseScale uniform for dynamic pattern control
-  vec2 noiseUV = vec2(noise(rotatedUV, t * 0.5, noiseScale), noise(rotatedUV, t * 0.75, noiseScale));
-  vec3 color = mix(mix(topLeft, topRight, noiseUV.x), mix(bottomLeft, bottomRight, noiseUV.x), noiseUV.y);
-  return color;
-}
-
-void main() {
-  vec3 color = getColor(vUv, time);
-  // Apply section intensity (brightness multiplier)
-  color *= sectionIntensity;
-  gl_FragColor = vec4(color, 1.0);
-}`
-
-/**
- * Mobile fragment shader - simplified for performance
- * Removes rotation, uses simpler noise (single sin instead of sin+cos)
- * ~85% GPU reduction compared to desktop shader
- * Scroll-reactive: sectionIntensity affects brightness
- */
-const fragmentShaderMobile = `
-precision mediump float;
-uniform float time;
-uniform float sectionIntensity;
-uniform vec3 colorTL;
-uniform vec3 colorTR;
-uniform vec3 colorBL;
-uniform vec3 colorBR;
-varying vec2 vUv;
-
-float noise(vec2 uv, float t) {
-  return (1.0 + sin(uv.x * 4.0 + uv.y * 3.0 + t)) * 0.5;
-}
-
-void main() {
-  float n = noise(vUv, time * 0.5);
-  vec3 top = mix(colorTL, colorTR, vUv.x);
-  vec3 bottom = mix(colorBL, colorBR, vUv.x);
-  vec3 color = mix(top, bottom, n) * sectionIntensity;
-  gl_FragColor = vec4(color, 1.0);
-}`
 
 /**
  * Select shader based on device capability
