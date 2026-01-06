@@ -13,19 +13,41 @@ The FluidGradient is an always-visible animated background layer that:
 ## Architecture
 
 ```
-FluidGradient.vue (419 lines) - Orchestrator
+FluidGradient.vue (338 lines) - Orchestrator
+├── Imports shaders from ~/shaders/fluid-gradient/
 ├── TresCanvas (manual render mode)
 │   └── FluidGradientScene.vue (110 lines) - Rendering
 │       ├── TresOrthographicCamera [-1, 1, 1, -1]
-│       └── TresMesh
-│           ├── TresPlaneGeometry [2, 2]
-│           └── TresShaderMaterial (uniforms + shaders)
+│       └── TresMesh + TresShaderMaterial
 └── .gradient-overlay (CSS overlay for theme neutralization)
 ```
 
 **Why two components?**
 - `FluidGradientScene` MUST be a child of `TresCanvas` to access `useTres()` composable
 - This is a TresJS requirement - the scene component needs the Three.js context
+
+## File Structure
+
+```
+app/
+├── components/
+│   ├── FluidGradient.vue       # Main orchestrator (338 lines)
+│   └── FluidGradientScene.vue  # TresJS renderer (110 lines)
+├── shaders/
+│   └── fluid-gradient/
+│       ├── vertex.glsl            # Passthrough vertex shader
+│       ├── fragment-desktop.glsl  # Full quality (rotation + complex noise)
+│       └── fragment-mobile.glsl   # Simplified (~85% GPU reduction)
+└── types/
+    └── shaders.d.ts            # TypeScript declarations for .glsl imports
+```
+
+**Shader imports:**
+```typescript
+import vertexShader from '~/shaders/fluid-gradient/vertex.glsl?raw'
+import fragmentShaderDesktop from '~/shaders/fluid-gradient/fragment-desktop.glsl?raw'
+import fragmentShaderMobile from '~/shaders/fluid-gradient/fragment-mobile.glsl?raw'
+```
 
 ## Key Features
 
