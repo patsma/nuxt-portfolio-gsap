@@ -21,10 +21,10 @@ Theme-aware loader with SSR support, entrance animations, and resource tracking.
 |------|---------|
 | `server/plugins/inject-loader.ts` | Injects theme script + loader HTML before SSR response |
 | `nuxt.config.ts` | Loader CSS injected in `<head>` |
-| `app/plugins/loader-manager.client.js` | Removes loader on 'app:ready' event |
-| `app/stores/loading.js` | Tracks loading state (initial → loading → ready → animating → complete) |
-| `app/composables/useLoadingSequence.js` | Orchestrates timing and resource checks |
-| `app/composables/useEntranceAnimation.js` | Coordinates component entrance animations |
+| `app/plugins/loader-manager.client.ts` | Removes loader on 'app:ready' event |
+| `app/stores/loading.ts` | Tracks loading state (initial → loading → ready → animating → complete) |
+| `app/composables/useLoadingSequence.ts` | Orchestrates timing and resource checks |
+| `app/composables/useEntranceAnimation.ts` | Coordinates component entrance animations |
 | `app/app.vue` | Starts loading sequence: `initializeLoading()` |
 
 ## Theme Detection (No FOUC)
@@ -54,18 +54,18 @@ Components register animations that play in sequence after loader completes.
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useEntranceAnimation } from '~/composables/useEntranceAnimation'
 
 const { setupEntrance } = useEntranceAnimation()
 const { $gsap } = useNuxtApp()
-const elementRef = ref(null)
+const elementRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   setupEntrance(elementRef.value, {
     position: '<-0.3',  // GSAP timeline position (overlap by 0.3s)
 
-    animate: (el) => {
+    animate: (el: HTMLElement) => {
       const tl = $gsap.timeline()
       $gsap.set(el, { y: 40 })  // Element already hidden by CSS
       tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' })
@@ -100,18 +100,18 @@ For components with multiple optional elements (like HeroSection with services +
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const { $gsap } = useNuxtApp()
 const { setupEntrance } = useEntranceAnimation()
 
-const containerRef = ref(null)
-const servicesRef = ref(null)
-const buttonRef = ref(null)
+const containerRef = ref<HTMLElement | null>(null)
+const servicesRef = ref<HTMLElement | null>(null)
+const buttonRef = ref<HTMLElement | null>(null)
 
 onMounted(() => {
   setupEntrance(containerRef.value, {
     position: '<-0.3',
-    animate: (el) => {
+    animate: (el: HTMLElement) => {
       const tl = $gsap.timeline()
 
       // 1. Animate h1 text (always present)
@@ -253,16 +253,18 @@ See setup pattern above. Add `data-entrance-animate="true"` and call `setupEntra
 
 For components with infinite/looping animations (like rotating elements), use ScrollTrigger to pause when out of viewport:
 
-```javascript
-<script setup>
+```vue
+<script setup lang="ts">
 const { $gsap, $ScrollTrigger } = useNuxtApp()
 const loadingStore = useLoadingStore()
 
-const containerRef = ref(null)
-const elementRef = ref(null)
+const containerRef = ref<HTMLElement | null>(null)
+const elementRef = ref<HTMLElement | null>(null)
 
-let animation = null
-let scrollTrigger = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let animation: any = null
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let scrollTrigger: any = null
 
 onMounted(() => {
   // Create infinite animation (paused initially)
@@ -322,14 +324,14 @@ onUnmounted(() => {
 
 - **Nitro plugin** - Only way to inject HTML before SSR response (app.html doesn't work in dev)
 - **Blocking script** - Runs BEFORE loader renders, prevents FOUC
-- **Module-level state** - `useEntranceAnimation.js` shares master timeline across components
+- **Module-level state** - `useEntranceAnimation.ts` shares master timeline across components
 - **Viewport detection** - In-viewport elements queue for entrance, below-fold use ScrollTrigger
 - **Event-driven** - Decoupled component communication via window events
 
 ## Reference
 
 See inline documentation in:
-- `app/composables/useEntranceAnimation.js` - Entrance timeline coordinator
-- `app/composables/useLoadingSequence.js` - Timing orchestration
+- `app/composables/useEntranceAnimation.ts` - Entrance timeline coordinator
+- `app/composables/useLoadingSequence.ts` - Timing orchestration
 - `server/plugins/inject-loader.ts` - SSR injection + is-first-load class
-- `app/stores/loading.js` - State tracking
+- `app/stores/loading.ts` - State tracking

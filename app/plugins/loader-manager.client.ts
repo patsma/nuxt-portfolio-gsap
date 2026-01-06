@@ -36,7 +36,7 @@ export default defineNuxtPlugin(() => {
     /**
      * Remove loader with smooth fade transition
      */
-    const removeLoader = () => {
+    const removeLoader = (): void => {
       const loader = document.getElementById('app-initial-loader')
       const nuxtApp = document.getElementById('__nuxt')
 
@@ -60,7 +60,7 @@ export default defineNuxtPlugin(() => {
     /**
      * Handle app:ready event from loading sequence
      */
-    const handleAppReady = () => {
+    const handleAppReady = (): void => {
       // console.log('🚀 App ready event received:', event.detail);
 
       // Double RAF ensures Safari has painted DOM before we manipulate it

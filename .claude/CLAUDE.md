@@ -27,10 +27,10 @@ Unified GSAP timeline sequencer for component entrance animations on first page 
 
 **Pattern:** Components use `setupEntrance()` with GSAP position parameters for full timing control.
 
-```javascript
+```typescript
 setupEntrance(elementRef.value, {
   position: '<-0.3',  // Overlap previous by 0.3s
-  animate: (el) => {
+  animate: (el: HTMLElement) => {
     const tl = $gsap.timeline()
     tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8 })
     return tl
@@ -99,25 +99,25 @@ app/
 │   ├── pre.scss          # Tokens, base (BEFORE Tailwind)
 │   └── post.scss         # Components (AFTER Tailwind)
 ├── composables/
-│   ├── usePageTransition.js           # Transition logic + Safari fixes
-│   ├── useScrollSmootherManager.js    # ScrollSmoother lifecycle
-│   ├── useEntranceAnimation.js        # Entrance animation coordinator
-│   ├── useThemeSwitch.js              # Dark/light theme GSAP timeline
-│   ├── useLoadingSequence.js          # Loading orchestrator
-│   └── useIsMobile.js                 # Mobile detection
+│   ├── usePageTransition.ts           # Transition logic + Safari fixes
+│   ├── useScrollSmootherManager.ts    # ScrollSmoother lifecycle
+│   ├── useEntranceAnimation.ts        # Entrance animation coordinator
+│   ├── useThemeSwitch.ts              # Dark/light theme GSAP timeline
+│   ├── useLoadingSequence.ts          # Loading orchestrator
+│   └── useIsMobile.ts                 # Mobile detection
 ├── directives/
-│   ├── v-page-split.js       # SplitText animations
-│   ├── v-page-fade.js        # Fade animations
-│   ├── v-page-clip.js        # Clip-path reveals
-│   └── v-page-stagger.js     # Stagger children
+│   ├── v-page-split.ts       # SplitText animations
+│   ├── v-page-fade.ts        # Fade animations
+│   ├── v-page-clip.ts        # Clip-path reveals
+│   └── v-page-stagger.ts     # Stagger children
 ├── plugins/
-│   ├── page-transitions.js      # Register directives
+│   ├── page-transitions.ts      # Register directives
 │   ├── theme.client.ts          # Theme initialization
-│   ├── loader-manager.client.js # Loader removal
-│   └── headroom.client.js       # Header show/hide
+│   ├── loader-manager.client.ts # Loader removal
+│   └── headroom.client.ts       # Header show/hide
 ├── stores/
-│   ├── theme.js             # Theme state (Pinia)
-│   └── loading.js           # Loading state
+│   ├── theme.ts             # Theme state (Pinia)
+│   └── loading.ts           # Loading state
 ├── layouts/
 │   └── default.vue          # ScrollSmoother + page transitions
 ├── pages/
@@ -146,7 +146,7 @@ app/
 - **Framework:** Nuxt 4 (Vue 3) with Composition API
 - **Styling:** TailwindCSS v4 + SCSS preprocessing
 - **Animation:** GSAP with Club GreenSock plugins (free as of 2025)
-- **Type Safety:** JSDoc type annotations (NO TypeScript)
+- **Type Safety:** TypeScript with full type annotations
 - **State:** Pinia + Vue composables
 - **Content:** Nuxt Content module
 
@@ -159,7 +159,7 @@ app/
 - ScrollTrigger, Observer, Flip, MotionPath
 
 **Access:**
-```javascript
+```typescript
 const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
 ```
 
@@ -179,12 +179,12 @@ pre.scss → Tailwind → post.scss
 
 ### Module-Level State (ScrollSmoother)
 
-```javascript
-// useScrollSmootherManager.js
-let smootherInstance = null // Module-level, persists across calls
+```typescript
+// useScrollSmootherManager.ts
+let smootherInstance: ScrollSmoother | null = null // Module-level, persists across calls
 
 export const useScrollSmootherManager = () => {
-  const createSmoother = (options) => {
+  const createSmoother = (options: ScrollSmootherConfig): void => {
     smootherInstance = ScrollSmoother.create(options)
   }
   // ...
@@ -195,10 +195,13 @@ export const useScrollSmootherManager = () => {
 
 ### Directive Config Storage
 
-```javascript
-// v-page-fade.js
-export default {
-  mounted(el, binding) {
+```typescript
+// v-page-fade.ts
+import type { Directive, DirectiveBinding } from 'vue'
+import type { FadeBindingValue, PageAnimationElement } from '~/types/directives'
+
+const vPageFade: Directive<PageAnimationElement, FadeBindingValue> = {
+  mounted(el: PageAnimationElement, binding: DirectiveBinding<FadeBindingValue>) {
     el._pageAnimation = {
       type: 'fade',
       config: { /* ... */ }
@@ -270,7 +273,7 @@ Watch console logs:
 ```
 
 Missing logs indicate:
-- Directives not registered (check `plugins/page-transitions.js`)
+- Directives not registered (check `plugins/page-transitions.ts`)
 - Wrong page structure (missing `.page-content`)
 - ScrollSmoother not initialized
 
@@ -299,11 +302,11 @@ Missing logs indicate:
 ### Code Documentation
 
 Inline documentation in key files:
-- `app/composables/usePageTransition.js` (471 lines with comments)
-- `app/composables/useEntranceAnimation.js`
-- `app/composables/useThemeSwitch.js`
-- `app/composables/useLoadingSequence.js`
-- `app/directives/*.js`
+- `app/composables/usePageTransition.ts` (471 lines with comments)
+- `app/composables/useEntranceAnimation.ts`
+- `app/composables/useThemeSwitch.ts`
+- `app/composables/useLoadingSequence.ts`
+- `app/directives/*.ts`
 - `server/plugins/inject-loader.ts`
-- `app/stores/theme.js`
-- `app/stores/loading.js`
+- `app/stores/theme.ts`
+- `app/stores/loading.ts`

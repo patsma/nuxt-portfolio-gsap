@@ -151,7 +151,7 @@
   </ClientOnly>
 </template>
 
-<script setup lang="js">
+<script setup lang="ts">
 // Import the provided SVG-based hamburger icon for mobile
 import HamburgerSVG from './SVG/HamburgerSVG.vue'
 import ThemeToggleSVG from './ThemeToggleSVG.vue'
@@ -179,54 +179,51 @@ const titleStore = useTitleRotationStore()
 // Client-side only flag for SSR safety
 const isClient = ref(false)
 
-/**
- * Shared menu state for consistent header behavior
- * @type {import('vue').Ref<boolean>}
- */
-const isOpen = useState('headerMenuOpen', () => false)
+// Shared menu state for consistent header behavior
+const isOpen = useState<boolean>('headerMenuOpen', () => false)
 
 // Refs to animate
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const containerRef = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const hamburgerBtn = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const overlayRef = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const backgroundRef = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const titleElementRef = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const themeToggleDesktopRef = ref(null)
-/** @type {import('vue').Ref<HTMLElement|null>} */
-const themeToggleMobileRef = ref(null)
+const containerRef = ref<HTMLElement | null>(null)
+const hamburgerBtn = ref<HTMLElement | null>(null)
+const overlayRef = ref<HTMLElement | null>(null)
+const backgroundRef = ref<HTMLElement | null>(null)
+const titleElementRef = ref<HTMLElement | null>(null)
+const themeToggleDesktopRef = ref<HTMLElement | null>(null)
+const themeToggleMobileRef = ref<HTMLElement | null>(null)
 
 // Reference to child SVG component to access its root SVG via exposed ref
-/**
- * @typedef {SVGSVGElement | null | { value: SVGSVGElement | null }} MaybeRefSvg
- * @typedef {{ svgRootRef?: MaybeRefSvg, svgRef?: MaybeRefSvg }} HamburgerSVGExposed
- */
-/** @type {import('vue').Ref<HamburgerSVGExposed|null>} */
-const hamburgerSvgComponent = ref(null)
+type MaybeRefSvg = SVGSVGElement | null | { value: SVGSVGElement | null }
 
-// Internal handles
-/** @type {any} */
-let hamburgerTl = null
-/** @type {any} */
-let menuTl = null // Unified timeline for background + overlay + nav items
-/** @type {any} */
-let navSplitInstance = null // SplitText instance for nav links
-/** @type {any} */
-let titleTl = null // Timeline for animated title rotation
-/** @type {any} */
-let titleSplitInstance = null // SplitText instance for title text
-/** @type {{ revert?: () => void } | null} */
-let gsapCtx = null
+interface HamburgerSVGExposed {
+  svgRootRef?: MaybeRefSvg
+  svgRef?: MaybeRefSvg
+}
+
+const hamburgerSvgComponent = ref<HamburgerSVGExposed | null>(null)
+
+// GSAP Timeline type (matches project pattern)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPTimeline = any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SplitTextInstance = any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPContext = any
+
+// Internal handles - GSAP timelines and SplitText instances
+let hamburgerTl: GSAPTimeline | null = null
+let menuTl: GSAPTimeline | null = null
+let navSplitInstance: SplitTextInstance | null = null
+let titleTl: GSAPTimeline | null = null
+let titleSplitInstance: SplitTextInstance | null = null
+let gsapCtx: GSAPContext | null = null
 
 // Navigation items — main pages for page transition demo
-/** @typedef {{ label: string, href: string }} NavItem */
-/** @type {NavItem[]} */
-const items = [
+interface NavItem {
+  label: string
+  href: string
+}
+
+const items: NavItem[] = [
   { label: 'Work', href: '/' },
   { label: 'About', href: '/about' },
   { label: 'Lab', href: '/lab' },
@@ -235,20 +232,16 @@ const items = [
 
 // Active route highlighting
 const route = useRoute()
-/**
- * @param {string} href
- * @returns {boolean}
- */
-function isActive(href) {
+
+function isActive(href: string): boolean {
   return route.path === href
 }
 
 /**
  * Wait for fonts to be ready before creating SplitText
  * Prevents "SplitText called before fonts loaded" warning
- * @returns {Promise<void>}
  */
-async function waitForFonts() {
+async function waitForFonts(): Promise<void> {
   // If fonts are already ready, return immediately
   if (loadingStore.fontsReady) {
     return
@@ -269,7 +262,7 @@ async function waitForFonts() {
  * Set up SplitText animation for the title element
  * Creates a timeline that fades characters in and out, then cycles to next title
  */
-async function setupTitleAnimation() {
+async function setupTitleAnimation(): Promise<void> {
   if (!titleElementRef.value || !$SplitText || !$gsap) return
 
   // CRITICAL: Wait for fonts to be loaded before creating SplitText
@@ -282,7 +275,7 @@ async function setupTitleAnimation() {
   }
 
   // Create new SplitText instance
-  titleSplitInstance = new $SplitText(titleElementRef.value, {
+  titleSplitInstance = $SplitText.create(titleElementRef.value, {
     type: 'chars'
   })
 
@@ -337,21 +330,18 @@ onMounted(() => {
 
       /**
        * Helper to unwrap child-exposed refs safely
-       * @param {HamburgerSVGExposed | null} exp
-       * @returns {SVGSVGElement | null}
        */
-      const getExposedSvgEl = (exp) => {
+      const getExposedSvgEl = (exp: HamburgerSVGExposed | null): SVGSVGElement | null => {
         if (!exp) return null
         const candidate = exp.svgRootRef ?? exp.svgRef
         if (candidate == null) return null
         return Object.prototype.hasOwnProperty.call(candidate, 'value')
-          ? /** @type {{ value: SVGSVGElement | null }} */ (candidate).value
-          : /** @type {SVGSVGElement | null} */ (candidate)
+          ? (candidate as { value: SVGSVGElement | null }).value
+          : (candidate as SVGSVGElement | null)
       }
 
       // Prefer animating via child component's exposed svgRootRef for reliability
-      /** @type {SVGSVGElement | null} */
-      const svgRoot
+      const svgRoot: SVGSVGElement | null
         = getExposedSvgEl(hamburgerSvgComponent.value)
           || hamburgerBtn.value?.querySelector('svg')
           || null
@@ -444,7 +434,8 @@ onMounted(() => {
         // Apply SplitText to nav links for masked reveal
         if ($SplitText && links.length > 0) {
           // Combine all link text for unified splitting
-          navSplitInstance = $SplitText.create(links, {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          navSplitInstance = $SplitText.create(links as any, {
             type: 'lines',
             mask: 'lines' // Use masking for clean reveals
           })

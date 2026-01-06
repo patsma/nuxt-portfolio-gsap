@@ -99,9 +99,16 @@ import fragmentShaderMobile from '~/shaders/fluid-gradient/fragment-mobile.glsl?
 
 ## Color Palettes
 
-```javascript
+```typescript
+interface ThemeColors {
+  tl: [number, number, number]  // Top-left RGB values (0-1)
+  tr: [number, number, number]  // Top-right
+  bl: [number, number, number]  // Bottom-left
+  br: [number, number, number]  // Bottom-right
+}
+
 // Light theme - bright pastels
-light: {
+const light: ThemeColors = {
   tl: [1.0, 0.5, 0.7],  // Rose/pink
   tr: [0.5, 1.0, 0.6],  // Mint green
   bl: [0.6, 0.5, 1.0],  // Lavender
@@ -109,7 +116,7 @@ light: {
 }
 
 // Dark theme - deep saturated
-dark: {
+const dark: ThemeColors = {
   tl: [0.25, 0.15, 0.4],  // Rich purple
   tr: [0.15, 0.25, 0.45], // Deep blue
   bl: [0.35, 0.15, 0.25], // Deep magenta
@@ -135,7 +142,7 @@ dark: {
 
 ## Scroll Tracking
 
-```javascript
+```typescript
 // Global scroll progress (0-1)
 uniforms.scrollInfluence.value = progress
 
@@ -151,7 +158,7 @@ uniforms.sectionIntensity.value = 1.0 + breathe
 
 ## Public API
 
-```javascript
+```typescript
 defineExpose({
   containerRef,       // DOM element reference
   uniforms,           // Reactive shader uniforms (for external control)
@@ -160,14 +167,14 @@ defineExpose({
 ```
 
 ### Usage Example
-```javascript
-const fluidGradient = ref(null)
+```typescript
+const fluidGradient = ref<InstanceType<typeof FluidGradient> | null>(null)
 
 // Access uniforms for custom effects
-fluidGradient.value.uniforms.sectionIntensity.value = 1.5
+fluidGradient.value?.uniforms.sectionIntensity.value = 1.5
 
 // Manually trigger theme animation
-fluidGradient.value.animateToTheme(true) // to dark
+fluidGradient.value?.animateToTheme(true) // to dark
 ```
 
 ## CSS Overlay
@@ -188,11 +195,11 @@ This softens the colorful gradient to better match the overall theme palette.
 
 The inner scene component handles the rendering loop:
 
-```javascript
+```typescript
 // GSAP ticker callback (runs every frame)
-function onTick(time, deltaTime) {
+function onTick(time: number, deltaTime: number): void {
   // Mobile throttling (30fps)
-  if (isMobile && time - lastTickTime < 33.3ms) return
+  if (isMobile && time - lastTickTime < 33.3) return
 
   // Update time uniform
   uniforms.time.value += deltaTime * 0.001

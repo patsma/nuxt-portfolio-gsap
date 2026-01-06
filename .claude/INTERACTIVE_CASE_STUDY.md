@@ -9,7 +9,7 @@ Responsive portfolio gallery with cursor-following preview system and varied cli
 
 ```
 InteractiveCaseStudySection.vue
-  ├─ useInteractiveCaseStudyPreview.js (state, animations, clip directions)
+  ├─ useInteractiveCaseStudyPreview.ts (state, animations, clip directions)
   ├─ calculatePreviewPosition() (viewport bounds, cursor offset)
   ├─ ScrollTrigger (scroll-based hiding with failsafe)
   └─ InteractiveCaseStudyItem.vue (inject preview controls)
@@ -30,9 +30,9 @@ InteractiveCaseStudySection.vue
 
 - `app/components/InteractiveCaseStudySection.vue` (195 lines)
 - `app/components/InteractiveCaseStudyItem.vue` (204 lines)
-- `app/composables/useInteractiveCaseStudyPreview.js` (893 lines)
-- `app/utils/previewPosition.js` (153 lines)
-- `app/utils/logger.js` (308 lines)
+- `app/composables/useInteractiveCaseStudyPreview.ts` (893 lines)
+- `app/utils/previewPosition.ts` (153 lines)
+- `app/utils/logger.ts` (308 lines)
 - `app/assets/css/components/interactive-case-study.scss` (301 lines)
 
 ## Usage
@@ -126,12 +126,19 @@ InteractiveCaseStudySection.vue
 - **Crossfade**: Dual-image wrappers with opacity
 
 **Clip Path Configurations:**
-```javascript
-center: { closed: "inset(50% 50% 50% 50%)", open: "inset(0% 0% 0% 0%)" }
-left:   { closed: "inset(0% 100% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
-right:  { closed: "inset(0% 0% 0% 100%)",    open: "inset(0% 0% 0% 0%)" }
-top:    { closed: "inset(0% 0% 100% 0%)",    open: "inset(0% 0% 0% 0%)" }
-bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
+```typescript
+interface ClipPathConfig {
+  closed: string
+  open: string
+}
+
+const clipPaths: Record<string, ClipPathConfig> = {
+  center: { closed: "inset(50% 50% 50% 50%)", open: "inset(0% 0% 0% 0%)" },
+  left:   { closed: "inset(0% 100% 0% 0%)",    open: "inset(0% 0% 0% 0%)" },
+  right:  { closed: "inset(0% 0% 0% 100%)",    open: "inset(0% 0% 0% 0%)" },
+  top:    { closed: "inset(0% 0% 100% 0%)",    open: "inset(0% 0% 0% 0%)" },
+  bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
+}
 ```
 
 **Size:**
@@ -146,7 +153,7 @@ bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
 **Solution:** Multi-layered failsafe system:
 
 1. **ScrollTrigger Integration** (InteractiveCaseStudySection.vue:155-194)
-   ```javascript
+   ```typescript
    $ScrollTrigger.create({
      trigger: sectionRef.value,
      start: "top top",
@@ -156,10 +163,10 @@ bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
      onUpdate: () => {
        // Continuous cursor position monitoring
        if (cursor outside section bounds) {
-         clearActivePreviewInstant();
+         clearActivePreviewInstant()
        }
      }
-   });
+   })
    ```
 
 2. **Vue Transition** (smooth 300ms opacity fade)
@@ -180,13 +187,18 @@ bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
 
 ### Aspect Ratio Detection
 
-```javascript
+```typescript
+interface PreloadedImage {
+  img: HTMLImageElement
+  aspectRatio: number
+}
+
 // Preload and detect natural dimensions
-const img = new Image();
+const img = new Image()
 img.onload = () => {
-  const aspectRatio = img.naturalWidth / img.naturalHeight;
-  preloadedImages.set(src, { img, aspectRatio });
-};
+  const aspectRatio = img.naturalWidth / img.naturalHeight
+  preloadedImages.set(src, { img, aspectRatio })
+}
 ```
 
 ### Navigation Integration
@@ -194,15 +206,17 @@ img.onload = () => {
 **Problem:** Component unmounting made refs null before clip animation could run.
 **Solution:** `onBeforeRouteLeave` guard blocks navigation for 350ms.
 
-```javascript
-onBeforeRouteLeave((to, from, next) => {
+```typescript
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+
+onBeforeRouteLeave((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   if (showPreview.value) {
-    clearActivePreviewImmediate();
-    setTimeout(() => next(), 350); // Keep component mounted
+    clearActivePreviewImmediate()
+    setTimeout(() => next(), 350) // Keep component mounted
   } else {
-    next();
+    next()
   }
-});
+})
 ```
 
 ### State Machine
@@ -306,10 +320,13 @@ The section supports two animation modes controlled by props:
 **Goal:** Smooth stagger animation for title and items when section enters viewport, with bidirectional playback on scroll.
 
 **Implementation:**
-```javascript
+```typescript
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GSAPTimeline = any
+
 // Creates timeline with fromTo() for explicit start/end states
-const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+const createSectionAnimation = (): GSAPTimeline => {
+  const tl = $gsap.timeline()
 
   // Title animation
   if (titleRef.value) {
@@ -317,12 +334,12 @@ const createSectionAnimation = () => {
       titleRef.value,
       { opacity: 0, y: 40 },
       { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
-    );
+    )
   }
 
   // Items animation - targets .case-study-item selector (desktop only)
   if (itemsListRef.value) {
-    const items = itemsListRef.value.querySelectorAll(".case-study-item");
+    const items = itemsListRef.value.querySelectorAll(".case-study-item")
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -335,12 +352,12 @@ const createSectionAnimation = () => {
           ease: "power2.out",
         },
         "<+0.2" // Start 0.2s after title animation begins
-      );
+      )
     }
   }
 
-  return tl;
-};
+  return tl
+}
 
 // ScrollTrigger with scrub for bidirectional playback
 $ScrollTrigger.create({
@@ -350,7 +367,7 @@ $ScrollTrigger.create({
   animation: scrollTimeline,
   scrub: 0.5,
   invalidateOnRefresh: true,
-});
+})
 ```
 
 **Integration with Page Transitions:**
@@ -363,17 +380,17 @@ The scroll animation system works seamlessly with page transitions by:
 4. **Explicit State Definition**: `.fromTo()` defines both start and end states, ensuring reliable animation regardless of current element state
 
 **Critical Fix for Page Transitions:**
-```javascript
+```typescript
 // Clear inline GSAP styles from page transitions
 // The v-page-stagger directive leaves inline styles (opacity, transform)
 // These stale styles prevent scroll animations from working after transitions
 if (titleRef.value) {
-  $gsap.set(titleRef.value, { clearProps: "all" });
+  $gsap.set(titleRef.value, { clearProps: "all" })
 }
 if (itemsListRef.value) {
-  const items = itemsListRef.value.querySelectorAll(".case-study-item");
+  const items = itemsListRef.value.querySelectorAll(".case-study-item")
   if (items.length > 0) {
-    $gsap.set(items, { clearProps: "all" });
+    $gsap.set(items, { clearProps: "all" })
   }
 }
 ```

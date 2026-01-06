@@ -177,7 +177,7 @@ Parent elements must have `position: relative` for the border to position correc
 - `app/components/InteractiveCaseStudySection.vue`
 - `app/components/InteractiveCaseStudyItem.vue`
 - `app/assets/css/components/interactive-case-study.scss`
-- `app/composables/useInteractiveCaseStudyPreview.js`
+- `app/composables/useInteractiveCaseStudyPreview.ts`
 
 **Reference:** `.claude/INTERACTIVE_CASE_STUDY.md`
 
@@ -275,12 +275,12 @@ Parent elements must have `position: relative` for the border to position correc
 - Coordinate with page transitions
 
 **Implementation:**
-```javascript
+```typescript
 const createSectionAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
 
-  const items = listRef.value.querySelectorAll('.experience-item');
-  if (items.length > 0) {
+  const items = listRef.value?.querySelectorAll('.experience-item')
+  if (items && items.length > 0) {
     tl.fromTo(
       items,
       { opacity: 0, y: 40 },
@@ -291,26 +291,26 @@ const createSectionAnimation = () => {
         stagger: 0.08,
         ease: 'power2.out',
       }
-    );
+    )
   }
 
-  return tl;
-};
+  return tl
+}
 
 scrollTriggerInstance = $ScrollTrigger.create({
   trigger: sectionRef.value,
   start: 'top 80%',
   animation: createSectionAnimation(),
   toggleActions: 'play pause resume reverse',
-});
+})
 ```
 
 **Critical:** Recreate ScrollTrigger after page transitions for fresh DOM queries.
 
-```javascript
+```typescript
 // Clear inline GSAP styles from page transitions
-$gsap.set(items, { clearProps: 'all' });
-$gsap.set(items, { opacity: 0, y: 40 });
+$gsap.set(items, { clearProps: 'all' })
+$gsap.set(items, { opacity: 0, y: 40 })
 ```
 
 ### Refreshing ScrollTrigger After Dynamic Height Changes
@@ -327,13 +327,13 @@ $gsap.set(items, { opacity: 0, y: 40 });
 - Any height-changing GSAP animations
 
 **Pattern:**
-```javascript
-const nuxtApp = useNuxtApp();
-const { $gsap, $ScrollTrigger } = nuxtApp;
+```typescript
+const nuxtApp = useNuxtApp()
+const { $gsap, $ScrollTrigger } = nuxtApp
 
-watch(isExpanded, (expanded) => {
+watch(isExpanded, (expanded: boolean) => {
   // Pause headroom before animation to prevent header from reacting to scroll changes
-  nuxtApp.$headroom?.pause();
+  nuxtApp.$headroom?.pause()
 
   if (expanded) {
     $gsap.to(element, {
@@ -344,21 +344,21 @@ watch(isExpanded, (expanded) => {
       onComplete: () => {
         // Setup one-time listener BEFORE calling refresh
         // This fires precisely when ScrollTrigger.refresh() completes all recalculations
-        const handleRefreshComplete = () => {
+        const handleRefreshComplete = (): void => {
           // Unpause headroom after ScrollSmoother settles
-          nuxtApp.$headroom?.unpause();
+          nuxtApp.$headroom?.unpause()
 
           // Remove listener immediately to prevent memory leaks
-          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-        };
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete)
+        }
 
         // Register listener first
-        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete)
 
         // Trigger refresh - listener will fire when ScrollSmoother has fully settled
-        $ScrollTrigger.refresh();
+        $ScrollTrigger.refresh()
       },
-    });
+    })
   } else {
     $gsap.to(element, {
       height: 0,
@@ -367,17 +367,17 @@ watch(isExpanded, (expanded) => {
       ease: 'power2.in',
       onComplete: () => {
         // Same pattern for collapse
-        const handleRefreshComplete = () => {
-          nuxtApp.$headroom?.unpause();
-          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-        };
+        const handleRefreshComplete = (): void => {
+          nuxtApp.$headroom?.unpause()
+          $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete)
+        }
 
-        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
-        $ScrollTrigger.refresh();
+        $ScrollTrigger.addEventListener('refresh', handleRefreshComplete)
+        $ScrollTrigger.refresh()
       },
-    });
+    })
   }
-});
+})
 ```
 
 **Reference Implementation:** `app/components/RecommendationItem.vue` (lines 326-389)
@@ -407,22 +407,22 @@ When content height changes (accordion expand/collapse), it triggers:
 **Key Pattern: ScrollTrigger.addEventListener("refresh")**
 
 ❌ **Anti-pattern (arbitrary timing):**
-```javascript
-$ScrollTrigger.refresh();
+```typescript
+$ScrollTrigger.refresh()
 setTimeout(() => {
-  nuxtApp.$headroom?.unpause(); // Guessing when ScrollSmoother settles
-}, 300);
+  nuxtApp.$headroom?.unpause() // Guessing when ScrollSmoother settles
+}, 300)
 ```
 
 ✅ **Correct pattern (event-driven):**
-```javascript
-const handleRefreshComplete = () => {
-  nuxtApp.$headroom?.unpause();
-  $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-};
+```typescript
+const handleRefreshComplete = (): void => {
+  nuxtApp.$headroom?.unpause()
+  $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete)
+}
 
-$ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
-$ScrollTrigger.refresh(); // Listener fires when complete
+$ScrollTrigger.addEventListener('refresh', handleRefreshComplete)
+$ScrollTrigger.refresh() // Listener fires when complete
 ```
 
 **Why event listeners are better:**
@@ -437,12 +437,12 @@ When `unpause()` is called, it sets `skipNextUpdate = true`. The next `updateHea
 See `.claude/SCROLL_SYSTEM.md` for full skipNextUpdate documentation.
 
 **Alternative (with ScrollSmoother):**
-```javascript
-const { refreshSmoother } = useScrollSmootherManager();
+```typescript
+const { refreshSmoother } = useScrollSmootherManager()
 
 onComplete: () => {
   // Also recalculates data-speed/data-lag parallax effects
-  refreshSmoother();
+  refreshSmoother()
 }
 ```
 
@@ -455,26 +455,26 @@ onComplete: () => {
 **Solution:** Targeted refresh pattern - only refresh pinned ScrollTriggers, not entrance animations or marquees.
 
 **Implementation Pattern:**
-```javascript
+```typescript
 // RecommendationsSection.vue - Targeted refresh for accordion animations
-const executeRefresh = () => {
+const executeRefresh = (): void => {
   // CRITICAL: Kill entrance ScrollTrigger BEFORE refresh
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
 
   // TARGETED REFRESH: Only refresh ScrollTriggers with pin: true
   // Avoids affecting marquee ScrollTriggers and entrance animations
-  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
+  const pinnedTriggers = $ScrollTrigger.getAll().filter((st: any) => st.pin)
 
-  pinnedTriggers.forEach((trigger) => {
-    trigger.refresh();
-  });
-};
+  pinnedTriggers.forEach((trigger: any) => {
+    trigger.refresh()
+  })
+}
 
 // Debounce to let once:true fully clean up
-const debouncedRefresh = useDebounceFn(executeRefresh, 100);
+const debouncedRefresh = useDebounceFn(executeRefresh, 100)
 ```
 
 **When to Use:**
@@ -509,11 +509,11 @@ const debouncedRefresh = useDebounceFn(executeRefresh, 100);
 
 **Pattern:** Optional entrance animation system for hero sections
 
-```javascript
+```typescript
 setupEntrance(sectionRef.value, {
   position: '<-0.5',  // Timing relative to previous animation
   animate: () => createSectionAnimation()
-});
+})
 ```
 
 **HTML Scoping:** Use `data-entrance-animate="true"` attribute + CSS hiding
@@ -654,132 +654,132 @@ setupEntrance(sectionRef.value, {
 
 **1. Simple Page Leave Hook**
 
-```javascript
-const handlePageLeave = () => {
+```typescript
+const handlePageLeave = (): void => {
   // Fade out marquee
   if (marqueeRef.value && marqueeRef.value.$el) {
     $gsap.to(marqueeRef.value.$el, {
       opacity: 0,
       duration: 0.5,
       ease: 'power2.in',
-    });
+    })
   }
 
   // Fade out links
   if (linksListRef.value) {
-    const items = linksListRef.value.querySelectorAll('.link-item');
+    const items = linksListRef.value.querySelectorAll('.link-item')
     if (items.length > 0) {
       $gsap.to(items, {
         opacity: 0,
         duration: 0.5,
         stagger: 0.05,
         ease: 'power2.in',
-      });
+      })
     }
   }
-};
+}
 
 onMounted(() => {
-  const nuxtApp = useNuxtApp();
-  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave);
-});
+  const nuxtApp = useNuxtApp()
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave)
+})
 ```
 
 **2. ScrollTrigger for Each Element**
 
-```javascript
+```typescript
 // Marquee ScrollTrigger
 const createMarqueeAnimation = () => {
-  const tl = $gsap.timeline();
+  const tl = $gsap.timeline()
   if (marqueeRef.value && marqueeRef.value.$el) {
     tl.fromTo(
       marqueeRef.value.$el,
       { opacity: 0 },
       { opacity: 1, duration: 0.6, ease: 'power2.out' }
-    );
+    )
   }
-  return tl;
-};
+  return tl
+}
 
-const createMarqueeScrollTrigger = () => {
+const createMarqueeScrollTrigger = (): void => {
   // Kill existing
   if (marqueeScrollTriggerInstance) {
-    marqueeScrollTriggerInstance.kill();
-    marqueeScrollTriggerInstance = null;
+    marqueeScrollTriggerInstance.kill()
+    marqueeScrollTriggerInstance = null
   }
 
   // Clear inline styles from page leave
-  $gsap.set(marqueeRef.value.$el, { clearProps: 'all' });
-  $gsap.set(marqueeRef.value.$el, { opacity: 0 });
+  $gsap.set(marqueeRef.value.$el, { clearProps: 'all' })
+  $gsap.set(marqueeRef.value.$el, { opacity: 0 })
 
   // Create ScrollTrigger
-  const timeline = createMarqueeAnimation();
+  const timeline = createMarqueeAnimation()
   marqueeScrollTriggerInstance = $ScrollTrigger.create({
     trigger: marqueeRef.value.$el,
     start: 'top 80%',
     animation: timeline,
     toggleActions: 'play pause resume reverse',
     invalidateOnRefresh: true,
-  });
-};
+  })
+}
 
 // Coordinate with page transitions
 if (loadingStore.isFirstLoad) {
-  nextTick(() => createMarqueeScrollTrigger());
+  nextTick(() => createMarqueeScrollTrigger())
 } else {
   const unwatch = watch(
     () => pageTransitionStore.isTransitioning,
-    (isTransitioning) => {
+    (isTransitioning: boolean) => {
       if (!isTransitioning) {
-        nextTick(() => createMarqueeScrollTrigger());
-        unwatch();
+        nextTick(() => createMarqueeScrollTrigger())
+        unwatch()
       }
     },
     { immediate: true }
-  );
+  )
 }
 ```
 
 **3. Proper Cleanup**
 
-```javascript
+```typescript
 onUnmounted(() => {
   // Unhook page:start
   if (unhookPageStart) {
-    unhookPageStart();
-    unhookPageStart = null;
+    unhookPageStart()
+    unhookPageStart = null
   }
 
   // Kill ScrollTriggers
   if (marqueeScrollTriggerInstance) {
-    marqueeScrollTriggerInstance.kill();
-    marqueeScrollTriggerInstance = null;
+    marqueeScrollTriggerInstance.kill()
+    marqueeScrollTriggerInstance = null
   }
 
   if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill();
-    scrollTriggerInstance = null;
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
   }
-});
+})
 ```
 
 #### Anti-Patterns to Avoid
 
 ❌ **Don't use `page:finish` to reset elements**
-```javascript
+```typescript
 // BAD: Racing with other animations
 nuxtApp.hook('page:finish', () => {
-  $gsap.set(element, { autoAlpha: 1 });
-});
+  $gsap.set(element, { autoAlpha: 1 })
+})
 ```
 
 ❌ **Don't store and kill timelines**
-```javascript
+```typescript
 // BAD: Breaks other animations
-let leaveTimeline = $gsap.timeline();
+let leaveTimeline = $gsap.timeline()
 nuxtApp.hook('page:finish', () => {
-  leaveTimeline.kill();
-});
+  leaveTimeline.kill()
+})
 ```
 
 ❌ **Don't use page transition directives**
@@ -789,10 +789,10 @@ nuxtApp.hook('page:finish', () => {
 ```
 
 ✅ **Do use simple hooks + ScrollTrigger**
-```javascript
+```typescript
 // GOOD: Clean separation of concerns
-nuxtApp.hook('page:start', () => fadeOut());
-$ScrollTrigger.create({ animation: fadeIn() });
+nuxtApp.hook('page:start', () => fadeOut())
+$ScrollTrigger.create({ animation: fadeIn() })
 ```
 
 #### Files

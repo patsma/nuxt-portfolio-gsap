@@ -35,16 +35,16 @@ Page Transitions
 
 | File | Purpose |
 |------|---------|
-| `app/composables/useScrollSmootherManager.js` | Module-level composable managing lifecycle |
-| `app/plugins/headroom.client.js` | Header visibility with pause/resume |
-| `app/composables/usePageTransition.js` | Coordinates headroom with transitions |
+| `app/composables/useScrollSmootherManager.ts` | Module-level composable managing lifecycle |
+| `app/plugins/headroom.client.ts` | Header visibility with pause/resume |
+| `app/composables/usePageTransition.ts` | Coordinates headroom with transitions |
 | `app/assets/css/components/header-grid.scss` | Transform-based header animations |
 
 ## ScrollSmoother Setup
 
 **File:** `app/layouts/default.vue`
 
-```javascript
+```typescript
 const { createSmoother, killSmoother } = useScrollSmootherManager()
 const nuxtApp = useNuxtApp()
 
@@ -67,7 +67,7 @@ onMounted(() => {
 
 ## Headroom Configuration
 
-**File:** `app/plugins/headroom.client.js`
+**File:** `app/plugins/headroom.client.ts`
 
 | Setting | Value | Purpose |
 |---------|-------|---------|
@@ -87,16 +87,16 @@ onMounted(() => {
 
 **Used during page transitions for smooth header animation:**
 
-```javascript
+```typescript
 // Pause (on page:start)
 // Freezes header in current state - no animation, no class changes
-pause() {
+pause(): void {
   isPaused = true  // Header stays frozen in current visual state
 }
 
 // Resume (in enter() onComplete)
 // Re-enables headroom and smoothly animates to top state with slow transition
-resume() {
+resume(): void {
   isPaused = false
   lastScrollTop = 0
   lastUpdateTime = 0
@@ -114,7 +114,7 @@ resume() {
 
 // Reset (on app:mounted only)
 // Instantly sets header to top state during initialization
-reset() {
+reset(): void {
   lastScrollTop = 0
   lastUpdateTime = 0
   headerElement.classList.add('headroom--no-transition')  // Disable transitions
@@ -171,23 +171,23 @@ When `unpause()` is called, it sets an internal `skipNextUpdate = true` flag. Th
 **Why this matters:** After `ScrollTrigger.refresh()`, ScrollSmoother takes time to settle. The `skipNextUpdate` pattern ensures headroom syncs to the ACTUAL final scroll position instead of reacting to intermediate scroll changes during the settling animation.
 
 **Example:** RecommendationItem accordion (lines 326-389)
-```javascript
+```typescript
 // Pause before animation
-nuxtApp.$headroom?.pause();
+nuxtApp.$headroom?.pause()
 
 $gsap.to(expandedContentRef.value, {
   height: 'auto',
   onComplete: () => {
     // Setup one-time listener BEFORE refresh
-    const handleRefreshComplete = () => {
-      nuxtApp.$headroom?.unpause(); // Uses skipNextUpdate internally
-      $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete);
-    };
+    const handleRefreshComplete = (): void => {
+      nuxtApp.$headroom?.unpause() // Uses skipNextUpdate internally
+      $ScrollTrigger.removeEventListener('refresh', handleRefreshComplete)
+    }
 
-    $ScrollTrigger.addEventListener('refresh', handleRefreshComplete);
-    $ScrollTrigger.refresh(); // Listener fires when complete
+    $ScrollTrigger.addEventListener('refresh', handleRefreshComplete)
+    $ScrollTrigger.refresh() // Listener fires when complete
   }
-});
+})
 ```
 
 ### iOS Safari ScrollTrigger Refresh Quirk
@@ -199,27 +199,27 @@ $gsap.to(expandedContentRef.value, {
 **Solution:** Use targeted refresh pattern instead of global refresh.
 
 **Anti-Pattern (causes reversals on iOS Safari):**
-```javascript
+```typescript
 // BAD: Reverses entrance animations on iOS Safari
-$ScrollTrigger.refresh(); // Refreshes ALL triggers globally
+$ScrollTrigger.refresh() // Refreshes ALL triggers globally
 ```
 
 **Correct Pattern (targeted refresh):**
-```javascript
+```typescript
 // GOOD: Only refreshes pinned sections, leaves entrance animations alone
-const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin);
-pinnedTriggers.forEach(trigger => trigger.refresh());
+const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin)
+pinnedTriggers.forEach(trigger => trigger.refresh())
 ```
 
 **Additional Protection:** Use `once: true` on entrance ScrollTriggers to auto-destroy after first play.
 
-```javascript
+```typescript
 $ScrollTrigger.create({
   trigger: element,
   animation: timeline,
   once: true,  // Auto-destroys after entrance animation completes
   toggleActions: 'play none none none', // Only play on enter, no reversal
-});
+})
 ```
 
 **Reference Implementation:** `app/components/RecommendationsSection.vue` (lines 107-152)
@@ -228,16 +228,16 @@ $ScrollTrigger.create({
 
 ### Integration
 
-**File:** `app/composables/usePageTransition.js`
+**File:** `app/composables/usePageTransition.ts`
 
-```javascript
+```typescript
 // Pause on navigation start (freezes header in current state)
 nuxtApp.hook('page:start', () => {
   nuxtApp.$headroom?.pause()
 })
 
 // After leave animation - scroll to top (header stays frozen)
-const afterLeave = (el) => {
+const afterLeave = (el: Element): void => {
   // ... cleanup code ...
 
   // Scroll to top
@@ -249,7 +249,7 @@ const afterLeave = (el) => {
 
 // Resume when enter animation completes
 // Smoothly animates header to top state
-const enter = (el, done) => {
+const enter = (el: Element, done: () => void): void => {
   const tl = gsap.timeline({
     onComplete: () => {
       done()
@@ -370,7 +370,7 @@ const enter = (el, done) => {
 
 ### Refresh After Route Change
 
-```javascript
+```typescript
 refreshSmoother()  // Recalculates parallax for new content
 ```
 
@@ -404,11 +404,11 @@ refreshSmoother()  // Recalculates parallax for new content
 ## Files Reference
 
 **Composables:**
-- `app/composables/useScrollSmootherManager.js` - Lifecycle management
-- `app/composables/usePageTransition.js` - Transition coordination
+- `app/composables/useScrollSmootherManager.ts` - Lifecycle management
+- `app/composables/usePageTransition.ts` - Transition coordination
 
 **Plugins:**
-- `app/plugins/headroom.client.js` - Header visibility logic
+- `app/plugins/headroom.client.ts` - Header visibility logic
 
 **Components:**
 - `app/components/HeaderGrid.vue` - Fixed header

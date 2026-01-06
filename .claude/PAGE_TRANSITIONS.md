@@ -437,18 +437,18 @@ Complete example showing:
 ## Files Reference
 
 **Composables:**
-- `app/composables/usePageTransition.js` - Core transition logic (471 lines)
-- `app/composables/useScrollSmootherManager.js` - ScrollSmoother lifecycle
+- `app/composables/usePageTransition.ts` - Core transition logic (471 lines)
+- `app/composables/useScrollSmootherManager.ts` - ScrollSmoother lifecycle
 
 **Directives:**
-- `app/directives/v-page-split.js`
-- `app/directives/v-page-fade.js`
-- `app/directives/v-page-clip.js`
-- `app/directives/v-page-stagger.js`
+- `app/directives/v-page-split.ts`
+- `app/directives/v-page-fade.ts`
+- `app/directives/v-page-clip.ts`
+- `app/directives/v-page-stagger.ts`
 
 **Plugins:**
-- `app/plugins/page-transitions.js` - Register directives globally
-- `app/plugins/headroom.client.js` - Header pause/resume
+- `app/plugins/page-transitions.ts` - Register directives globally
+- `app/plugins/headroom.client.ts` - Header pause/resume
 
 **Config:**
 - `app/router.options.ts` - Disable automatic scroll

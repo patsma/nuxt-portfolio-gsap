@@ -47,29 +47,36 @@ GSAP-animated dark/light theme with localStorage persistence and SSR compatibili
 
 ### GSAP Animation Pattern
 
-**File:** `app/composables/useThemeSwitch.js`
+**File:** `app/composables/useThemeSwitch.ts`
 
 **Pattern:** Read colors from CSS → Animate RGB proxy object → Update CSS variables on every frame
 
-```javascript
+```typescript
+interface RGBAColor {
+  r: number
+  g: number
+  b: number
+  a: number
+}
+
 // Read colors from CSS
-const colors = { light: {}, dark: {} };
+const colors: { light: Record<string, RGBAColor>; dark: Record<string, RGBAColor> } = { light: {}, dark: {} }
 colorVariants.forEach((variant) => {
-  const lightStr = getComputedStyle(html).getPropertyValue(`--color-light-${variant}`);
-  colors.light[variant] = parseRgba(lightStr);
-});
+  const lightStr = getComputedStyle(html).getPropertyValue(`--color-light-${variant}`)
+  colors.light[variant] = parseRgba(lightStr)
+})
 
 // Animate proxy
-const colorProxy = { bgR, bgG, bgB, textR, textG, textB };
+const colorProxy = { bgR, bgG, bgB, textR, textG, textB }
 tl.to(colorProxy, {
   bgR: colors.dark["100"].r,
   duration: themeDuration,
   ease: "power2.inOut",
   onUpdate: () => {
-    html.style.setProperty("--theme-100", toRgba(bgR, bgG, bgB, 1));
-    html.style.setProperty("--theme-60", toRgba(textR, textG, textB, 0.6));
+    html.style.setProperty("--theme-100", toRgba(bgR, bgG, bgB, 1))
+    html.style.setProperty("--theme-60", toRgba(textR, textG, textB, 0.6))
   }
-});
+})
 ```
 
 ### Hover Effects: CSS-Based
@@ -173,58 +180,62 @@ document.documentElement.classList.toggle('theme-dark', isDark);
 
 ### Pinia Store
 
-**File:** `app/stores/theme.js`
+**File:** `app/stores/theme.ts`
 
-```javascript
+```typescript
+interface ThemeState {
+  isDark: boolean
+}
+
 export const useThemeStore = defineStore('theme', {
-  state: () => ({ isDark: false }),
+  state: (): ThemeState => ({ isDark: false }),
 
-  hydrate(state, initialState) {
-    if (process.client) {
-      const stored = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      state.isDark = stored ? stored === 'dark' : prefersDark;
+  hydrate(state: ThemeState, initialState: ThemeState): void {
+    if (import.meta.client) {
+      const stored = localStorage.getItem('theme')
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      state.isDark = stored ? stored === 'dark' : prefersDark
     }
   },
 
   actions: {
-    toggle() {
-      this.isDark = !this.isDark;
-      localStorage.setItem('theme', this.isDark ? 'dark' : 'light');
-      document.documentElement.classList.toggle('theme-dark', this.isDark);
+    toggle(): void {
+      this.isDark = !this.isDark
+      localStorage.setItem('theme', this.isDark ? 'dark' : 'light')
+      document.documentElement.classList.toggle('theme-dark', this.isDark)
     }
   }
-});
+})
 ```
 
 ### SVG Toggle Button Pattern
 
 **Critical:** Read theme from localStorage (not Pinia - timing issue), sync store immediately, initialize colorProxy from LIGHT theme, build timeline TO dark, set initial SVG to LIGHT, position timeline based on actual theme.
 
-```javascript
+```typescript
 // 0. Read from localStorage
-const stored = localStorage.getItem('theme');
-const isDarkInitially = stored ? stored === 'dark' : prefersDark;
+const stored = localStorage.getItem('theme')
+const isDarkInitially = stored ? stored === 'dark' : prefersDark
 
 // 0.5. CRITICAL: Sync Pinia immediately
-themeStore.isDark = isDarkInitially;
+themeStore.isDark = isDarkInitially
 
 // 1. ALWAYS init from LIGHT (timeline start)
-const colorProxy = { bgR: colors.light["100"].r, /* ... */ };
+const colorProxy = { bgR: colors.light["100"].r, /* ... */ }
 
 // 2. Build timeline TO dark
-tl.to(colorProxy, { bgR: colors.dark["100"].r, /* ... */ });
+tl.to(colorProxy, { bgR: colors.dark["100"].r, /* ... */ })
 
 // 3. Set SVG to LIGHT (start position)
-$gsap.set(background, { fill: darkHex, fillOpacity: 0.6 });
+$gsap.set(background, { fill: darkHex, fillOpacity: 0.6 })
 
 // 4. Position timeline based on theme
-tl.progress(isDarkInitially ? 1 : 0).pause();
+tl.progress(isDarkInitially ? 1 : 0).pause()
 
 // 5. Toggle uses PREVIOUS state
-const wasLight = !themeStore.isDark;
-themeStore.toggle();
-if (wasLight) tl.play(); else tl.reverse();
+const wasLight = !themeStore.isDark
+themeStore.toggle()
+if (wasLight) tl.play() else tl.reverse()
 ```
 
 ## Usage
@@ -250,9 +261,10 @@ CSS handles hover automatically (opacity fade + underline animation).
 
 ### Custom GSAP Animations
 
-```javascript
-const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000;
-gsap.to(element, { x: 100, duration, ease: "power2.inOut" });
+```typescript
+const html = document.documentElement
+const duration = parseFloat(getComputedStyle(html).getPropertyValue("--duration-hover")) / 1000
+gsap.to(element, { x: 100, duration, ease: "power2.inOut" })
 ```
 
 ## Component Patterns
@@ -362,8 +374,8 @@ Only create SCSS files when:
 **Core:**
 - `app/assets/css/tokens/theme.scss` - All design tokens
 - `app/assets/css/tokens/breakpoints.scss` - Breakpoints and mixins
-- `app/composables/useThemeSwitch.js` - GSAP animation logic
-- `app/stores/theme.js` - Pinia state management
+- `app/composables/useThemeSwitch.ts` - GSAP animation logic
+- `app/stores/theme.ts` - Pinia state management
 - `server/plugins/inject-loader.ts` - SSR blocking script
 
 **Components:**
