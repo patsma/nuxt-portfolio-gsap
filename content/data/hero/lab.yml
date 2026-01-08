@@ -1,0 +1,26 @@
+id: lab
+showServices: false
+showScrollButton: true
+headline:
+  - text: "Feel"
+    variant: default
+  - text: " free"
+    variant: italic
+  - text: " to use my lab projects"
+    variant: default
+  - text: " as your own."
+    variant: body
+  - text: " They are"
+    variant: default
+  - text: " based"
+    variant: body
+  - text: " on Morten"
+    variant: default
+  - text: " logic"
+    variant: italic
+  - text: " and"
+    variant: default
+  - text: " experience"
+    variant: italic
+  - text: ", but still experimental and always evolving"
+    variant: default

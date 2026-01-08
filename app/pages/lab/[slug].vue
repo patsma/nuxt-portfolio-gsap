@@ -6,6 +6,9 @@
  * Follows the blog/[slug].vue pattern with prev/next navigation.
  */
 
+// Use the content-driven HeroSection
+import HeroSection from '~/components/content/HeroSection.vue'
+
 const route = useRoute()
 const slug = String(route.params.slug || '')
 
@@ -162,28 +165,8 @@ const projectEntries = computed(() => {
       v-page-fade
       class="lab-project"
     >
-      <!-- Hero Section with styled text -->
-      <HeroSection>
-        <h1
-          v-page-split:lines="{ animateFrom: 'below' }"
-          class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
-        >
-          <span class="text-[var(--theme-text-60)]">Feel</span>
-          <em class="text-[var(--theme-text-100)] italic font-[300]"> free</em>
-          <span class="text-[var(--theme-text-60)]"> to use my lab projects</span>
-          <span class="text-[var(--theme-text-100)] font-body font-[300]"> as your own.</span>
-          <span class="text-[var(--theme-text-60)]"> They are</span>
-          <span class="text-[var(--theme-text-100)] font-body font-[300]"> based</span>
-          <span class="text-[var(--theme-text-60)]"> on Morten</span>
-          <em class="text-[var(--theme-text-100)] italic font-[300]"> logic</em>
-          <span class="text-[var(--theme-text-60)]"> and</span>
-          <em class="text-[var(--theme-text-100)] italic font-[300]"> experience</em>
-          <span class="text-[var(--theme-text-60)]">, but still experimental and always evolving</span>
-        </h1>
-        <template #button>
-          <ScrollButtonSVG v-page-fade:left />
-        </template>
-      </HeroSection>
+      <!-- Hero Section - Content-driven from data/hero/lab.yml -->
+      <HeroSection hero-id="lab" />
 
       <!-- Content below hero -->
       <div class="content-grid">

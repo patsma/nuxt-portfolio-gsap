@@ -1,0 +1,24 @@
+id: contact
+showServices: false
+showScrollButton: true
+headline:
+  - text: "Feel"
+    variant: default
+  - text: " free"
+    variant: italic
+  - text: " to reach out if you want to"
+    variant: default
+  - text: " collaborate"
+    variant: italic
+  - text: ","
+    variant: default
+  - text: " hire"
+    variant: italic
+  - text: ", or simply"
+    variant: default
+  - text: " have a"
+    variant: italic
+  - text: " chat"
+    variant: italic
+  - text: " with me"
+    variant: default

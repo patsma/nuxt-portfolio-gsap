@@ -1,0 +1,32 @@
+id: home
+showServices: true
+showScrollButton: true
+headline:
+  - text: "Welcome, I am"
+    variant: default
+  - text: " Morten"
+    variant: emphasis
+  - text: " – a"
+    variant: default
+  - text: " Danish"
+    variant: italic
+  - text: " designer"
+    variant: body
+  - text: " based in"
+    variant: default
+  - text: " Tokyo"
+    variant: emphasis
+  - text: " approaching today's challenges with a"
+    variant: default
+  - text: " digital"
+    variant: body
+  - text: "-first"
+    variant: italic
+  - text: " and"
+    variant: default
+  - text: " user"
+    variant: body
+  - text: "-centred"
+    variant: italic
+  - text: " mindset"
+    variant: default

@@ -1,38 +1,12 @@
 <script setup lang="ts">
-import HeroSection from '~/components/HeroSection.vue'
-import ScrollButtonSVG from '~/components/SVG/ScrollButtonSVG.vue'
+// Use the content-driven HeroSection
+import HeroSection from '~/components/content/HeroSection.vue'
 </script>
 
 <template>
   <div>
-    <!-- 1. Hero Section -->
-    <HeroSection>
-      <h1
-        v-page-split:lines="{ animateFrom: 'below' }"
-        class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
-      >
-        <span class="text-[var(--theme-text-60)]">Driven by a high</span>
-        <em class="text-[var(--theme-text-100)] italic font-[300]"> passion</em>
-        <span class="text-[var(--theme-text-60)]"> for design, I craft
-          compelling solutions backed by</span>
-        <span class="text-[var(--theme-text-100)] font-[300]"> insights</span>
-        <span class="text-[var(--theme-text-60)]"> and</span>
-        <span class="text-[var(--theme-text-100)] font-body font-[300]">
-          real data</span>
-        <span class="text-[var(--theme-text-60)]"> to ensure a</span>
-        <span class="text-[var(--theme-text-100)] font-[300]"> meaningful</span>
-        <em class="text-[var(--theme-text-100)] italic font-[300]"> journey</em>
-        <span class="text-[var(--theme-text-60)]"> and an</span>
-        <em class="text-[var(--theme-text-100)] italic font-[300]"> engaging</em>
-        <span class="text-[var(--theme-text-60)]"> end-product</span>
-      </h1>
-      <template #button>
-        <ScrollButtonSVG
-          v-page-fade:left
-          data-speed="1"
-        />
-      </template>
-    </HeroSection>
+    <!-- 1. Hero Section - Content-driven from data/hero/about.yml -->
+    <HeroSection hero-id="about" />
 
     <!-- 2. Biography Section -->
     <BiographySection>
