@@ -1,0 +1,13 @@
+awards:
+  - count: 1
+    name: "Awwwards"
+  - count: 4
+    name: "Behance"
+  - count: 2
+    name: "CSS Design Awards"
+  - count: 1
+    name: "CSS Light"
+
+featured:
+  - name: "Design Rush – Featured"
+  - name: "Web Design Pub – Featured"
