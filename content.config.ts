@@ -89,19 +89,28 @@ export default defineContentConfig({
 
     // MDC pages for flexible component-based layouts
     // Components in components/content/ are auto-registered for MDC syntax
+    // Uses **/*.md to support nested pages (e.g., content/work/project.md → /work/project)
     pages: defineCollection({
       type: 'page',
       source: {
-        include: '*.md',
+        include: '**/*.md',
         exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**']
       },
       schema: z.object({
-        title: z.string(),
-        description: z.string().optional(),
+        title: z.string().describe('Page title'),
+        description: z.string().optional().describe('Page description'),
         seo: z.object({
-          title: z.string().optional(),
-          description: z.string().optional()
-        }).optional()
+          title: z.string().optional().describe('SEO title (optional override)'),
+          description: z.string().optional().describe('SEO meta description')
+        }).optional(),
+        ogImage: z.object({
+          component: z.string().optional(),
+          props: z.object({
+            title: z.string().optional(),
+            description: z.string().optional(),
+            cover: z.string().optional()
+          }).optional()
+        }).optional().describe('Open Graph image configuration')
       })
     }),
 
