@@ -68,6 +68,13 @@ const recommendationSchema = z.object({
   authorImage: z.string().optional()
 })
 
+/**
+ * Biography paragraph
+ */
+const biographyParagraphSchema = z.object({
+  text: z.string()
+})
+
 // ============================================
 // CONTENT COLLECTIONS
 // ============================================
@@ -145,6 +152,17 @@ export default defineContentConfig({
       source: 'data/recommendations.yml',
       schema: z.object({
         items: z.array(recommendationSchema)
+      })
+    }),
+
+    // Biography content (page-specific, like hero)
+    biography: defineCollection({
+      type: 'data',
+      source: 'data/biography/*.yml',
+      schema: z.object({
+        id: z.string(),
+        label: z.string().optional().default('Biography'),
+        paragraphs: z.array(biographyParagraphSchema)
       })
     }),
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Content-driven components from components/content/
 import HeroSection from '~/components/content/HeroSection.vue'
+import BiographyGrid from '~/components/content/BiographyGrid.vue'
 import ExperienceGrid from '~/components/content/ExperienceGrid.vue'
 import ServicesGrid from '~/components/content/ServicesGrid.vue'
 import ClientsGrid from '~/components/content/ClientsGrid.vue'
@@ -13,22 +14,8 @@ import RecommendationsGrid from '~/components/content/RecommendationsGrid.vue'
     <!-- 1. Hero Section - Content-driven from data/hero/about.yml -->
     <HeroSection hero-id="about" />
 
-    <!-- 2. Biography Section (prose content - kept as slots for flexibility) -->
-    <BiographySection>
-      <template #label>
-        Biography
-      </template>
-
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua.
-      </p>
-
-      <p>
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-        accusantium doloremque laudantium, totam rem aperiam.
-      </p>
-    </BiographySection>
+    <!-- 2. Biography Section - Content-driven from data/biography/about.yml -->
+    <BiographyGrid biography-id="about" />
 
     <!-- 3. Experience Section - Content-driven from data/experience.yml -->
     <ExperienceGrid
