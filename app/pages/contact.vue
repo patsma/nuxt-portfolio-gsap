@@ -1,11 +1,23 @@
 <script setup lang="ts">
-// Use the content-driven HeroSection
-import HeroSection from '~/components/content/HeroSection.vue'
+/**
+ * Contact Page - MDC Rendered
+ *
+ * Fetches and renders the contact page content from content/contact.md using ContentRenderer.
+ * All page composition is done via MDC syntax in the markdown file.
+ */
+
+const { data: page } = await useAsyncData('contact-page', () =>
+  queryCollection('pages').path('/contact').first()
+)
+
+useSeoMeta({
+  title: page.value?.seo?.title || page.value?.title || 'Contact',
+  description: page.value?.seo?.description || page.value?.description
+})
 </script>
 
 <template>
   <div>
-    <!-- Hero section - Content-driven from data/hero/contact.yml -->
-    <HeroSection hero-id="contact" />
+    <ContentRenderer v-if="page" :value="page" />
   </div>
 </template>

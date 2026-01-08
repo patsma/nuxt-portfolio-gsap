@@ -84,6 +84,28 @@ const biographyParagraphSchema = z.object({
 export default defineContentConfig({
   collections: {
     // ----------------------------------------
+    // MDC PAGE COLLECTION (root-level .md files)
+    // ----------------------------------------
+
+    // MDC pages for flexible component-based layouts
+    // Components in components/content/ are auto-registered for MDC syntax
+    pages: defineCollection({
+      type: 'page',
+      source: {
+        include: '*.md',
+        exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**']
+      },
+      schema: z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        seo: z.object({
+          title: z.string().optional(),
+          description: z.string().optional()
+        }).optional()
+      })
+    }),
+
+    // ----------------------------------------
     // DATA COLLECTIONS (YAML files)
     // ----------------------------------------
 

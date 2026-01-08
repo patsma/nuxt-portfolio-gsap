@@ -1,17 +1,23 @@
 # Content System
 
-Nuxt Content integration for managing portfolio content via YAML data files and content-driven Vue components.
+Nuxt Content integration for managing portfolio content via YAML data files, content-driven Vue components, and MDC (Markdown Components) page rendering.
 
 ## Overview
 
-**Architecture:** YAML data collections + content-driven Vue components
-**Location:** Content files in `content/data/`, components in `app/components/content/`
-**Pattern:** Components fetch their own data via `queryCollection()`
+**Architecture:** MDC pages + YAML data collections + content-driven Vue components
+**Location:**
+- MDC pages in `content/*.md`
+- Data files in `content/data/`
+- Components in `app/components/content/`
+**Pattern:** Pages rendered via `<ContentRenderer>`, components fetch their own data via `queryCollection()`
 
 ## Content Structure
 
 ```
 content/
+├── index.md               # Home page (MDC)
+├── about.md               # About page (MDC)
+├── contact.md             # Contact page (MDC)
 ├── data/
 │   ├── hero/              # Page-specific hero content
 │   │   ├── home.yml
@@ -162,23 +168,97 @@ items:
     location: "City"
 ```
 
-## Future: MDC Page Rendering
+## MDC Page Rendering
 
-Components are MDC-ready. When needed, create `content/index.md`:
+Pages are composed using MDC syntax in markdown files. Vue pages use `<ContentRenderer>` to render the content.
 
+### Page Vue Pattern
+
+```vue
+<script setup lang="ts">
+const { data: page } = await useAsyncData('index-page', () =>
+  queryCollection('pages').path('/').first()
+)
+
+useSeoMeta({
+  title: page.value?.seo?.title || page.value?.title,
+  description: page.value?.seo?.description || page.value?.description
+})
+</script>
+
+<template>
+  <div>
+    <ContentRenderer v-if="page" :value="page" />
+  </div>
+</template>
+```
+
+### MDC Page File Example
+
+`content/index.md`:
 ```markdown
 ---
 title: Home
+description: Danish designer based in Tokyo
+seo:
+  title: "Morten – Danish Designer in Tokyo"
+  description: "Danish designer based in Tokyo..."
 ---
 
-::HeroSection{heroId="home"}
+::HeroSection{hero-id="home"}
+::
+
+::VideoScalingSection{video-src="/assets/dummy/sample1.mp4" poster-src="/assets/dummy/placeholder.jpg" :start-width="25" :start-height="25" scroll-amount="180%" start-position="left"}
 ::
 
 ::CaseStudyGrid
 ::
 ```
 
-Then update `pages/index.vue` to use `<ContentRenderer>`.
+### MDC Prop Syntax
+
+- **String props:** `{hero-id="home"}`
+- **Number props:** `{:start-width="25"}` (colon prefix for binding)
+- **Boolean props:** `{show-services}` or `{:show-services="true"}`
+- **Kebab-case:** Always use kebab-case in MDC (auto-converts to camelCase)
+
+### Available MDC Components
+
+All components in `app/components/content/` are auto-registered for MDC:
+
+| Component | MDC Usage |
+|-----------|-----------|
+| `HeroSection` | `::HeroSection{hero-id="home"}::` |
+| `BiographyGrid` | `::BiographyGrid{biography-id="about"}::` |
+| `CaseStudyGrid` | `::CaseStudyGrid::` |
+| `ExperienceGrid` | `::ExperienceGrid{view-more-text="View all"}::` |
+| `ServicesGrid` | `::ServicesGrid::` |
+| `ClientsGrid` | `::ClientsGrid::` |
+| `AwardsGrid` | `::AwardsGrid::` |
+| `RecommendationsGrid` | `::RecommendationsGrid::` |
+| `VideoScalingSection` | `::VideoScalingSection{video-src="..." poster-src="..."}::` |
+| `ImageScalingSection` | `::ImageScalingSection{image-src="..." image-alt="..."}::` |
+| `SpacerComponent` | `::SpacerComponent{size="md"}::` |
+
+### Nuxt Studio Compatibility
+
+MDC pages are compatible with Nuxt Studio for visual editing. The `pages` collection schema supports SEO metadata:
+
+```typescript
+// content.config.ts
+pages: defineCollection({
+  type: 'page',
+  source: { include: '*.md', exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**'] },
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    seo: z.object({
+      title: z.string().optional(),
+      description: z.string().optional()
+    }).optional()
+  })
+})
+```
 
 ## Related Documentation
 
