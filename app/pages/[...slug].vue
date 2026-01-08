@@ -11,6 +11,12 @@
  * - `/contact` → content/contact.md
  */
 
+// Force Vue to treat each route as a distinct component instance
+// Without this, page transitions don't fire because Vue sees the same component
+definePageMeta({
+  key: route => route.fullPath
+})
+
 const route = useRoute()
 
 const { data: page } = await useAsyncData('page-' + route.path, () => {
