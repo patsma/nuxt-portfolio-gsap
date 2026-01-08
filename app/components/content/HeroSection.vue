@@ -13,7 +13,10 @@
       >
         <!-- Structured headline from data -->
         <template v-if="heroData?.headline">
-          <template v-for="(segment, index) in heroData.headline" :key="index">
+          <template
+            v-for="(segment, index) in heroData.headline"
+            :key="index"
+          >
             <em
               v-if="segment.variant === 'italic'"
               class="text-[var(--theme-text-100)] italic font-[300]"
@@ -64,7 +67,10 @@
           ref="buttonRef"
           class="md:ml-auto"
         >
-          <ScrollButtonSVG v-page-fade:left data-speed="1" />
+          <ScrollButtonSVG
+            v-page-fade:left
+            data-speed="1"
+          />
         </div>
       </div>
     </div>
@@ -103,7 +109,8 @@ interface HeroTextSegment {
   variant?: TextVariant
 }
 
-interface HeroData {
+// HeroData interface available for type reference if needed
+interface _HeroData {
   id: string
   headline: HeroTextSegment[]
   showServices?: boolean

@@ -4,7 +4,10 @@
       {{ biographyData?.label || 'Biography' }}
     </template>
 
-    <p v-for="(paragraph, index) in biographyData?.paragraphs" :key="index">
+    <p
+      v-for="(paragraph, index) in biographyData?.paragraphs"
+      :key="index"
+    >
       {{ paragraph.text }}
     </p>
   </BiographySection>

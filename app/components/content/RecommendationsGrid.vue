@@ -8,8 +8,8 @@
 
     <RecommendationItem
       v-for="(item, index) in recommendations?.items"
-      :key="item.id"
       :id="item.id"
+      :key="item.id"
       :index="index"
       :quote="item.quote"
       :full-recommendation="item.fullRecommendation"

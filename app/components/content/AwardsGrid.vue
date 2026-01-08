@@ -7,13 +7,19 @@
     </template>
 
     <template #awards-column>
-      <p v-for="award in awards?.awards" :key="award.name">
+      <p
+        v-for="award in awards?.awards"
+        :key="award.name"
+      >
         {{ award.count }} <span class="text-[var(--theme-text-60)]">x</span> {{ award.name }}
       </p>
     </template>
 
     <template #featured-column>
-      <p v-for="item in awards?.featured" :key="item.name">
+      <p
+        v-for="item in awards?.featured"
+        :key="item.name"
+      >
         {{ item.name }}
       </p>
     </template>

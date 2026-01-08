@@ -7,13 +7,19 @@
     </template>
 
     <template #column-left>
-      <p v-for="service in leftColumnServices" :key="service">
+      <p
+        v-for="service in leftColumnServices"
+        :key="service"
+      >
         {{ service }}
       </p>
     </template>
 
     <template #column-right>
-      <p v-for="service in rightColumnServices" :key="service">
+      <p
+        v-for="service in rightColumnServices"
+        :key="service"
+      >
         {{ service }}
       </p>
     </template>
