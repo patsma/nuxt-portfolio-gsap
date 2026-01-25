@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
 
-  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt'],
+  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', 'nuxt-studio', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt'],
 
   components: [
     { path: '~/components', pathPrefix: false },
@@ -211,6 +211,17 @@ export default defineNuxtConfig({
         global: true
       }
     ]
+  },
+
+  // Nuxt Studio configuration (self-hosted)
+  studio: {
+    enabled: true,
+    repository: {
+      provider: 'github',
+      owner: 'patsma',
+      repo: 'morten-2025',
+      branch: 'main'
+    }
   },
 
   gsap: {
