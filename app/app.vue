@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /**
  * Main App Component
  *
@@ -7,6 +7,19 @@
  */
 
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
+
+// Global SEO defaults
+useSeoMeta({
+  ogSiteName: 'Morten Christensen',
+  ogType: 'website',
+  twitterCard: 'summary_large_image'
+})
+
+// Default OG image for all pages (can be overridden per-page)
+defineOgImageComponent('Portfolio', {
+  title: 'Morten Christensen',
+  description: 'Danish Designer in Tokyo · UX/UI Design, Art Direction & Interactive Design'
+})
 
 // Initialize loading sequence
 const { initializeLoading } = useLoadingSequence()

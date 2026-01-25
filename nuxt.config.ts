@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
 
-  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', 'nuxt-studio', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt'],
+  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', 'nuxt-studio', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt', 'nuxt-og-image'],
 
   components: [
     { path: '~/components', pathPrefix: false },

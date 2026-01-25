@@ -88,6 +88,13 @@ TresJS WebGL background with theme-aware colors and scroll-reactive effects.
 
 📖 **See** `.claude/FLUID_GRADIENT.md`
 
+### OG Image System
+Dynamic social sharing images with nuxt-og-image module.
+
+**Features:** Custom template, global defaults, per-page dynamic generation, dev debug panel
+
+📖 **See** `.claude/OG_IMAGE_SYSTEM.md`
+
 ## Architecture
 
 ### File Structure
@@ -298,6 +305,7 @@ Missing logs indicate:
 - `.claude/ELASTIC_BORDER.md` - Physics-based elastic border effect
 - `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
 - `.claude/FLUID_GRADIENT.md` - TresJS WebGL background system
+- `.claude/OG_IMAGE_SYSTEM.md` - Dynamic social sharing images
 
 ### Code Documentation
 

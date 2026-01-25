@@ -37,6 +37,14 @@ useSeoMeta({
   title: page.value?.seo?.title || page.value?.title,
   description: page.value?.seo?.description || page.value?.description
 })
+
+// Dynamic OG image - use page title/description if available
+if (page.value) {
+  defineOgImageComponent('Portfolio', {
+    title: page.value?.seo?.title || page.value?.title || 'Morten Christensen',
+    description: page.value?.seo?.description || page.value?.description || 'Danish Designer in Tokyo'
+  })
+}
 </script>
 
 <template>
