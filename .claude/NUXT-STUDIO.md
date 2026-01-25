@@ -28,17 +28,17 @@ Studio runs as part of your Nuxt app - no external domain.
 3. Fill in:
    - **Application name:** Morten Studio
    - **Homepage URL:** `https://mp2025.netlify.app`
-   - **Authorization callback URL:** `http://localhost:3000/api/_studio/auth/github/callback`
-4. After creating, add a second callback URL for production:
-   - `https://mp2025.netlify.app/api/_studio/auth/github/callback`
+   - **Authorization callback URL:** `http://localhost:3000/__nuxt_studio/auth/github`
+4. For production, update callback URL to:
+   - `https://mp2025.netlify.app/__nuxt_studio/auth/github`
 
 ### 3. Environment Variables
 
 Create `.env` file (copy from `.env.example`):
 
 ```bash
-NUXT_STUDIO_GITHUB_CLIENT_ID=<your_client_id>
-NUXT_STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
+STUDIO_GITHUB_CLIENT_ID=<your_client_id>
+STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
 ```
 
 ### 4. Netlify Production Setup
@@ -46,8 +46,8 @@ NUXT_STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
 Add these environment variables in Netlify dashboard (Site settings > Environment variables):
 
 ```
-NUXT_STUDIO_GITHUB_CLIENT_ID=<your_client_id>
-NUXT_STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
+STUDIO_GITHUB_CLIENT_ID=<your_client_id>
+STUDIO_GITHUB_CLIENT_SECRET=<your_client_secret>
 ```
 
 ### 5. Configuration
