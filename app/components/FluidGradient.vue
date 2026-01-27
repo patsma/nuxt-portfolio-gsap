@@ -40,13 +40,14 @@
  * FluidGradient
  *
  * TresJS-based canvas background with fluid gradient shader.
- * Always-visible site background with efficient rendering.
+ * Simple animated background that responds only to theme changes.
  *
  * Architecture:
  * - Uses manual render mode with GSAP ticker for optimal performance
  * - FluidGradientScene child handles tick updates and advance() calls
  * - Desktop: Full shader (60fps), Mobile: Simplified shader (30fps)
  * - Theme-aware: Colors animate smoothly on theme toggle
+ * - No scroll effects: Avoids visual glitches during page transitions
  *
  * @see .claude/FLUID_GRADIENT.md for full documentation
  */
@@ -56,14 +57,11 @@ import vertexShader from '~/shaders/fluid-gradient/vertex.glsl?raw'
 import fragmentShaderDesktop from '~/shaders/fluid-gradient/fragment-desktop.glsl?raw'
 import fragmentShaderMobile from '~/shaders/fluid-gradient/fragment-mobile.glsl?raw'
 
-// GSAP and ScrollTrigger from Nuxt app
-const { $gsap, $ScrollTrigger } = useNuxtApp()
+// GSAP from Nuxt app
+const { $gsap } = useNuxtApp()
 
 // Theme store for centralized theme state
 const themeStore = useThemeStore()
-
-// Page transition store for opacity masking during transitions
-const pageTransitionStore = usePageTransitionStore()
 
 // Mobile detection for performance optimization
 const { isMobile } = useIsMobile()
@@ -71,23 +69,6 @@ const { isMobile } = useIsMobile()
 // Core refs
 const containerRef = ref(null)
 const isMounted = ref(false)
-
-// Mask rapid color changes during page transitions with opacity fade
-watch(
-  () => pageTransitionStore.isTransitioning,
-  (transitioning) => {
-    if (!containerRef.value || !$gsap) return
-
-    if (transitioning) {
-      // Fade out slightly during transition to hide color jumps
-      $gsap.to(containerRef.value, { opacity: 0.5, duration: 0.3 })
-    }
-    else {
-      // Fade back in after transition completes
-      $gsap.to(containerRef.value, { opacity: 1, duration: 0.4, delay: 0.2 })
-    }
-  }
-)
 
 /**
  * Gradient color palettes - normalized RGB values for Three.js (0-1 range)
@@ -111,17 +92,17 @@ const gradientColors = {
 
 /**
  * Shader uniforms (reactive so GSAP can tween nested .value)
- * Includes time, scroll-reactive values, and 4 corner colors
+ * Includes time, fixed effect values, and 4 corner colors
  * Start with light colors by default - will be set correctly in onMounted
  */
 const uniforms = reactive({
   // Animation timing
   time: { value: 0 },
 
-  // Scroll-reactive values
-  scrollInfluence: { value: 0 }, // 0-1 global scroll progress
-  sectionIntensity: { value: 1.0 }, // Section-specific brightness multiplier
-  noiseScale: { value: 4.3 }, // Noise pattern tightness
+  // Fixed effect values (shader expects these uniforms)
+  scrollInfluence: { value: 0 }, // Fixed at 0 (no scroll effects)
+  sectionIntensity: { value: 1.0 }, // Fixed at 1.0 (neutral brightness)
+  noiseScale: { value: 4.3 }, // Fixed noise pattern scale
 
   // Theme-aware corner colors (vec3)
   colorTL: { value: [...gradientColors.light.tl] }, // Top-left
@@ -205,58 +186,6 @@ watch(
   }
 )
 
-// Store ScrollTrigger instances for cleanup
-let scrollTriggers: ReturnType<typeof $ScrollTrigger.create>[] = []
-
-/**
- * Setup scroll-based gradient effects
- * Creates ScrollTriggers that modify gradient parameters based on scroll position
- */
-function setupScrollTracking() {
-  if (!$ScrollTrigger) return
-
-  // Get smooth-content for ScrollSmoother compatibility
-  const smoothContent = document.getElementById('smooth-content')
-  if (!smoothContent) {
-    console.warn('[FluidGradient] No smooth-content found, scroll tracking disabled')
-    return
-  }
-
-  // Global scroll progress tracker using smooth-content
-  const globalTracker = $ScrollTrigger.create({
-    trigger: smoothContent,
-    start: 'top top',
-    end: 'bottom bottom',
-    scrub: 0.5,
-    onUpdate: (self: { progress: number }) => {
-      const progress = self.progress
-
-      uniforms.scrollInfluence.value = progress
-
-      // Organic noise scale - oscillates between 3.0 and 5.5 with multiple waves
-      // Creates a "breathing" pattern as you scroll
-      const wave1 = Math.sin(progress * Math.PI * 4) * 0.8 // Fast wave
-      const wave2 = Math.sin(progress * Math.PI * 1.5) * 0.4 // Slow wave
-      uniforms.noiseScale.value = 4.3 + wave1 + wave2
-
-      // Gentle intensity variation - subtle breathing, not linear increase
-      // Oscillates around 1.0 (neutral) with gentle waves
-      const breathe = Math.sin(progress * Math.PI * 3) * 0.08
-      uniforms.sectionIntensity.value = 1.0 + breathe
-    }
-  })
-
-  scrollTriggers.push(globalTracker)
-}
-
-/**
- * Cleanup ScrollTrigger instances
- */
-function cleanupScrollTracking() {
-  scrollTriggers.forEach(trigger => trigger.kill())
-  scrollTriggers = []
-}
-
 // Lifecycle: mount and initialize fluid gradient
 onMounted(() => {
   // Setup entrance animation for first load
@@ -290,15 +219,11 @@ onMounted(() => {
     uniforms.colorTR.value = [...initialColors.tr]
     uniforms.colorBL.value = [...initialColors.bl]
     uniforms.colorBR.value = [...initialColors.br]
-
-    // Setup scroll tracking after initial colors are set
-    setupScrollTracking()
   })
 })
 
 // Cleanup
 onUnmounted(() => {
-  cleanupScrollTracking()
   isMounted.value = false
 })
 
@@ -306,7 +231,7 @@ onUnmounted(() => {
 // Note: Animation is now controlled by FluidGradientScene via GSAP ticker
 defineExpose({
   containerRef,
-  uniforms, // Expose uniforms for external color control (future scroll effects)
+  uniforms, // Expose uniforms for external color control
   animateToTheme // Allow external theme animation trigger
 })
 </script>
