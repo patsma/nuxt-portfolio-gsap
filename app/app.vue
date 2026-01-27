@@ -10,15 +10,15 @@ import { useLoadingSequence } from '~/composables/useLoadingSequence'
 
 // Global SEO defaults
 useSeoMeta({
-  ogSiteName: 'Morten Christensen',
+  ogSiteName: 'Morten Stig Christensen',
   ogType: 'website',
   twitterCard: 'summary_large_image'
 })
 
 // Default OG image for all pages (can be overridden per-page)
 defineOgImageComponent('Portfolio', {
-  title: 'Morten Christensen',
-  description: 'Danish Designer in Tokyo · UX/UI Design, Art Direction & Interactive Design'
+  title: 'Morten Stig Christensen',
+  description: 'Digital Designer in Tokyo · Shaping experiences rooted in purpose, function, and craft'
 })
 
 // Initialize loading sequence

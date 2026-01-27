@@ -41,8 +41,8 @@ useSeoMeta({
 // Dynamic OG image - use page title/description if available
 if (page.value) {
   defineOgImageComponent('Portfolio', {
-    title: page.value?.seo?.title || page.value?.title || 'Morten Christensen',
-    description: page.value?.seo?.description || page.value?.description || 'Danish Designer in Tokyo'
+    title: page.value?.seo?.title || page.value?.title || 'Morten Stig Christensen',
+    description: page.value?.seo?.description || page.value?.description || 'Digital Designer in Tokyo'
   })
 }
 </script>

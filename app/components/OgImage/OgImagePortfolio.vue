@@ -5,7 +5,6 @@
  * Custom Open Graph image template for social sharing.
  * Rendered server-side by nuxt-og-image.
  *
- * Supports Tailwind classes (subset) for styling.
  * Image dimensions: 1200x630 (standard OG ratio)
  */
 defineOptions({
@@ -16,38 +15,55 @@ withDefaults(defineProps<{
   title?: string
   description?: string
 }>(), {
-  title: 'Morten Christensen',
-  description: 'Danish Designer in Tokyo'
+  title: 'Morten Stig Christensen',
+  description: 'Digital Designer in Tokyo'
 })
 </script>
 
 <template>
-  <div class="w-full h-full flex flex-col justify-between bg-[#090925] p-16">
-    <!-- Top section: Branding -->
-    <div class="flex items-center justify-between">
-      <div class="text-[#fffaf5] text-3xl tracking-wider uppercase opacity-60">
-        mortenchristensen.com
-      </div>
+  <div
+    class="w-full h-full flex flex-col"
+    style="background: linear-gradient(145deg, #090925 0%, #12123a 100%); padding: 64px 80px;"
+  >
+    <!-- Top bar accent -->
+    <div
+      style="height: 4px; width: 120px; margin-bottom: 48px; background: linear-gradient(90deg, #ffc8c4 0%, #b4a0ff 100%); border-radius: 2px;"
+    />
+
+    <!-- Domain -->
+    <div
+      style="font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 250, 245, 0.4); margin-bottom: 40px;"
+    >
+      mschristensen.com
     </div>
 
-    <!-- Center section: Title and description -->
-    <div class="flex-1 flex flex-col justify-center">
-      <h1 class="text-[#fffaf5] text-8xl font-light leading-tight mb-6">
-        {{ title }}
-      </h1>
-      <p class="text-[#fffaf5] text-4xl opacity-70 leading-snug max-w-4xl">
-        {{ description }}
-      </p>
-    </div>
+    <!-- Title -->
+    <h1
+      style="font-size: 64px; font-weight: 300; color: #fffaf5; line-height: 1.1; margin: 0 0 24px 0; max-width: 900px;"
+    >
+      {{ title }}
+    </h1>
 
-    <!-- Bottom section: Tagline -->
-    <div class="flex items-center justify-between">
-      <div class="text-[#fffaf5] text-2xl opacity-50">
-        UX/UI Design · Art Direction · Interactive Design
+    <!-- Description -->
+    <p
+      style="font-size: 24px; color: rgba(255, 250, 245, 0.55); line-height: 1.5; margin: 0; max-width: 700px;"
+    >
+      {{ description }}
+    </p>
+
+    <!-- Spacer -->
+    <div style="flex: 1;" />
+
+    <!-- Footer -->
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; padding-top: 32px; border-top: 1px solid rgba(255, 250, 245, 0.1);"
+    >
+      <div style="display: flex; gap: 32px;">
+        <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Digital Design</span>
+        <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Development</span>
+        <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Art Direction</span>
       </div>
-      <div class="text-[#fffaf5] text-2xl opacity-50">
-        Tokyo, Japan
-      </div>
+      <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Tokyo, Japan</span>
     </div>
   </div>
 </template>

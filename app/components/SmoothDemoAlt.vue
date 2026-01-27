@@ -42,7 +42,7 @@
             data-lag="0.25"
           >
             <img
-              src="/og.jpg"
+              src="/og.png"
               alt="Sample wide image showcasing theme system"
               class="w-full h-auto rounded-lg object-cover shadow-md"
               width="1200"

@@ -4,7 +4,7 @@ slug: "who-why-what-part-1-who"
 date: "2025-09-11"
 tags: [intro, personal, series]
 excerpt: "Part 1 of my Who, Why, What series — a personal intro and early journey."
-cover: "/og.jpg"
+cover: "/og.png"
 author: "Patryk Smakosz"
 ---
 

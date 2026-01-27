@@ -121,10 +121,10 @@ onUnmounted(() => {
           linkedin.com/in/mortengust
         </template>
         <template #behance>
-          behance.net/mortengust
+          behance.net/mschristensen
         </template>
         <template #email>
-          hello@mortengust.com
+          contact@mschristensen.com
         </template>
       </FooterSection>
       <!-- <div class="spacer h-screen"></div> -->

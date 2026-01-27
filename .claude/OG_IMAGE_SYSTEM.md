@@ -26,15 +26,15 @@ Sets site-wide defaults that apply to all pages:
 ```typescript
 // Global SEO defaults
 useSeoMeta({
-  ogSiteName: 'Morten Christensen',
+  ogSiteName: 'Morten Stig Christensen',
   ogType: 'website',
   twitterCard: 'summary_large_image'
 })
 
 // Default OG image for all pages
 defineOgImageComponent('Portfolio', {
-  title: 'Morten Christensen',
-  description: 'Danish Designer in Tokyo · UX/UI Design, Art Direction & Interactive Design'
+  title: 'Morten Stig Christensen',
+  description: 'Digital Designer in Tokyo · Shaping experiences rooted in purpose, function, and craft'
 })
 ```
 
@@ -46,8 +46,8 @@ Dynamic pages override with content-specific data:
 // Dynamic OG image - use page title/description if available
 if (page.value) {
   defineOgImageComponent('Portfolio', {
-    title: page.value?.seo?.title || page.value?.title || 'Morten Christensen',
-    description: page.value?.seo?.description || page.value?.description || 'Danish Designer in Tokyo'
+    title: page.value?.seo?.title || page.value?.title || 'Morten Stig Christensen',
+    description: page.value?.seo?.description || page.value?.description || 'Digital Designer in Tokyo'
   })
 }
 ```
@@ -106,7 +106,7 @@ The `nuxt.config.ts` contains redundant static OG meta tags that can be removed 
 - `twitter:image`
 
 **Keep:**
-- `/public/og.jpg` as ultimate fallback for scrapers that don't execute JavaScript
+- `/public/og.png` as ultimate fallback for scrapers that don't execute JavaScript
 - Static `og:title`, `og:description` etc. as fallbacks
 
 ## Template Customization
@@ -123,8 +123,8 @@ withDefaults(defineProps<{
   title?: string
   description?: string
 }>(), {
-  title: 'Morten Christensen',
-  description: 'Danish Designer in Tokyo'
+  title: 'Morten Stig Christensen',
+  description: 'Digital Designer in Tokyo'
 })
 </script>
 

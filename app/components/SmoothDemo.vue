@@ -271,7 +271,7 @@
             data-lag="0.2"
           >
             <img
-              src="/og.jpg"
+              src="/og.png"
               alt="TastySites showcase image with parallax effect"
               class="w-full h-auto rounded-lg shadow-lg"
               width="1200"

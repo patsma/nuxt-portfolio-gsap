@@ -39,10 +39,10 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="/"
+              href="mailto:contact@mschristensen.com"
               class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
-              <slot name="email">Contact@mschritsensen.com</slot>
+              <slot name="email">contact@mschristensen.com</slot>
             </a>
             <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
               <slot name="email-desc">
@@ -61,7 +61,9 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="/"
+              href="https://www.linkedin.com/in/mortengust/"
+              target="_blank"
+              rel="noopener noreferrer"
               class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
               <slot name="linkedin">LinkedIn</slot>
@@ -83,7 +85,9 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="/"
+              href="https://www.behance.net/mschristensen"
+              target="_blank"
+              rel="noopener noreferrer"
               class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
               <slot name="behance">Behance</slot>
@@ -165,7 +169,7 @@
  * Slots:
  * - heading: Hero CTA text (default: "Feel free to reach out...")
  * - button: Scroll to top button slot (user adds ScrollToTopSVG later)
- * - email: Email address link text (default: "Contact@mschritsensen.com")
+ * - email: Email address link text (default: "contact@mschristensen.com")
  * - email-desc: Email description (default: "Got a project or something else?")
  * - linkedin: LinkedIn link text (default: "LinkedIn")
  * - linkedin-desc: LinkedIn description (default: "Let's connect? Also, my online resumé")

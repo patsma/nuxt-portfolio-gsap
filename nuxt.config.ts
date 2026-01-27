@@ -16,8 +16,8 @@ export default defineNuxtConfig({
     layoutTransition: false, // No layout transitions needed
 
     head: {
-      title: 'Morten – Danish Designer in Tokyo | UX, UI & Digital Design',
-      titleTemplate: '%s · Morten Christensen',
+      title: 'Morten Stig Christensen – Digital Designer',
+      titleTemplate: '%s · Morten Stig Christensen',
       htmlAttrs: { lang: 'en' },
 
       // Inject loader CSS that renders immediately (works in SSR dev mode)
@@ -98,38 +98,36 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
+            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
         },
         // Open Graph Basics
         { property: 'og:type', content: 'website' },
-        { property: 'og:site_name', content: 'Morten Christensen' },
+        { property: 'og:site_name', content: 'Morten Stig Christensen' },
         {
           property: 'og:title',
-          content:
-            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
+          content: 'Morten Stig Christensen – Digital Designer'
         },
         {
           property: 'og:description',
           content:
-            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
+            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
         },
         // Absolute URLs are required by some scrapers (e.g., Facebook)
         {
           property: 'og:url',
-          content: 'https://mortenchristensen.com'
+          content: 'https://mschristensen.com'
         },
         {
           property: 'og:image',
-          content: 'https://mortenchristensen.com/og.jpg'
+          content: 'https://mschristensen.com/og.png'
         },
         {
           property: 'og:image:secure_url',
-          content: 'https://mortenchristensen.com/og.jpg'
+          content: 'https://mschristensen.com/og.png'
         },
         {
           property: 'og:image:alt',
-          content:
-            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
+          content: 'Morten Stig Christensen – Digital Designer'
         },
         { property: 'og:image:type', content: 'image/png' },
         { property: 'og:image:width', content: '1200' },
@@ -138,20 +136,23 @@ export default defineNuxtConfig({
         { name: 'twitter:card', content: 'summary_large_image' },
         {
           name: 'twitter:title',
-          content:
-            'Morten – Danish Designer in Tokyo | UX, UI & Digital Design'
+          content: 'Morten Stig Christensen – Digital Designer'
         },
         {
           name: 'twitter:description',
           content:
-            'Danish designer based in Tokyo approaching today\'s challenges with a digital-first and user-centred mindset. Specializing in UX/UI design, art direction, creative direction, and interactive design. Driven by passion to craft compelling solutions backed by insights and real data.'
+            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
         },
         {
           name: 'twitter:image',
-          content: 'https://mortenchristensen.com/og.jpg'
+          content: 'https://mschristensen.com/og.png'
         }
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+      link: [
+        { rel: 'icon', type: 'image/gif', href: '/favicon.gif' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }
+      ]
     }
   },
 
@@ -159,7 +160,7 @@ export default defineNuxtConfig({
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      siteUrl: 'https://mortenchristensen.com'
+      siteUrl: 'https://mschristensen.com'
     }
   },
 
