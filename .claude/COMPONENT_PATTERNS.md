@@ -505,6 +505,131 @@ const debouncedRefresh = useDebounceFn(executeRefresh, 100)
 
 **Why:** Prevents conflicts between entrance animations and page transitions.
 
+### Master Timeline Word Animation
+
+**Problem:** Multiple ScrollTriggers firing independently for related animations causes timing conflicts and makes reversal unpredictable.
+
+**Solution:** Single master timeline with nested child timelines. One ScrollTrigger controls the master, so all animations are coordinated and reverse naturally in the correct order.
+
+**Pattern:**
+
+```typescript
+// Create master timeline (paused - ScrollTrigger controls playback)
+const masterTl = $gsap.timeline({ paused: true })
+
+/**
+ * Build timeline for a container's words
+ * Returns the timeline (doesn't attach ScrollTrigger)
+ */
+const buildContainerTimeline = (
+  container: HTMLElement | null,
+  duration: number,
+  staggerEach: number
+): gsap.core.Timeline | null => {
+  if (!container) return null
+
+  const paragraphs = container.querySelectorAll('p')
+  if (!paragraphs.length) return null
+
+  const tl = $gsap.timeline()
+
+  paragraphs.forEach((el, index) => {
+    // Clear any leftover styles from previous animations
+    $gsap.set(el, { clearProps: 'all' })
+
+    // Split text into words using GSAP SplitText
+    const split = $SplitText.create(el, { type: 'words' })
+    splitInstances.push(split)
+
+    // Set initial state
+    $gsap.set(split.words, { opacity: 0.25 })
+
+    // Add to timeline (first paragraph at start, subsequent overlap slightly)
+    tl.to(split.words, {
+      opacity: 1,
+      duration,
+      stagger: { each: staggerEach, ease: 'sine.inOut' },
+      ease: 'power2.out'
+    }, index === 0 ? 0 : '<0.3') // Overlap paragraphs within same tier
+  })
+
+  return tl
+}
+
+// Build primary timeline (larger text, animates first)
+const primaryTl = buildContainerTimeline(primaryRef.value, 1.8, 0.15)
+
+// Build secondary timeline (smaller text, animates after)
+const secondaryTl = buildContainerTimeline(secondaryRef.value, 2.4, 0.10)
+
+// Add to master: primary first, secondary after with overlap
+if (primaryTl) {
+  masterTl.add(primaryTl)
+}
+if (secondaryTl) {
+  masterTl.add(secondaryTl, '-=1.2') // Secondary starts 1.2s before primary ends
+}
+
+// Single ScrollTrigger controls the master timeline
+wordScrollTriggerInstance = $ScrollTrigger.create({
+  trigger: contentRef.value,
+  start: 'top 50%',
+  end: 'bottom top+=25%',
+  animation: masterTl,
+  toggleActions: 'play reverse play reverse',
+  invalidateOnRefresh: true
+})
+```
+
+**Current Config Values (ClientsSection):**
+
+| Tier | Duration | Stagger | Purpose |
+|------|----------|---------|---------|
+| Primary | 1.8s | 0.15s | Larger client names (faster stagger for fewer words) |
+| Secondary | 2.4s | 0.10s | Smaller client names (slower stagger for more words) |
+| Overlap | `-=1.2` | - | Secondary starts 1.2s before primary ends |
+
+**GSAP Position Parameter:**
+- `'-=1.2'` means "start 1.2 seconds before the previous timeline ends"
+- Creates smooth overlap where secondary starts while primary is still finishing
+- Adjustable based on content length and desired feel
+
+**Cleanup Pattern:**
+
+```typescript
+// Module-level storage
+let wordScrollTriggerInstance: ScrollTrigger | null = null
+const splitInstances: SplitText[] = []
+
+// In createWordAnimations():
+// Kill existing ScrollTrigger
+if (wordScrollTriggerInstance) {
+  wordScrollTriggerInstance.kill()
+  wordScrollTriggerInstance = null
+}
+
+// Revert existing SplitText instances (restores original DOM)
+splitInstances.forEach(split => split.revert?.())
+splitInstances.length = 0
+
+// In onUnmounted():
+if (wordScrollTriggerInstance) {
+  wordScrollTriggerInstance.kill()
+  wordScrollTriggerInstance = null
+}
+
+splitInstances.forEach(split => split.revert?.())
+splitInstances.length = 0
+```
+
+**Why Master Timeline Approach:**
+1. **Coordinated timing:** All animations share single timeline
+2. **Natural reversal:** Scroll up → secondary reverses first, then primary
+3. **Single ScrollTrigger:** One instance to manage, clean lifecycle
+4. **Flexible overlap:** Position parameter (`-=1.2`) controls timing relationship
+
+**Reference Implementation:** `app/components/ClientsSection.vue` (lines 163-239)
+
 ### Entrance Animations (First Load)
 
 **Pattern:** Optional entrance animation system for hero sections

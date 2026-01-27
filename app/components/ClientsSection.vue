@@ -27,6 +27,7 @@
       >
         <!-- Primary clients list (larger text) -->
         <div
+          ref="primaryRef"
           class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-100)]"
         >
           <slot name="primary-clients" />
@@ -34,6 +35,7 @@
 
         <!-- Secondary clients list (smaller text) -->
         <div
+          ref="secondaryRef"
           class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
         >
           <slot name="secondary-clients" />
@@ -90,15 +92,30 @@ const props = defineProps({
   }
 })
 
-const { $gsap, $ScrollTrigger } = useNuxtApp()
+const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
 const loadingStore = useLoadingStore()
 const pageTransitionStore = usePageTransitionStore()
 
-const sectionRef = ref(null)
-const labelRef = ref(null)
-const contentRef = ref(null)
+const sectionRef = ref<HTMLElement | null>(null)
+const labelRef = ref<HTMLElement | null>(null)
+const contentRef = ref<HTMLElement | null>(null)
+const primaryRef = ref<HTMLElement | null>(null)
+const secondaryRef = ref<HTMLElement | null>(null)
 
-let scrollTriggerInstance = null
+// Type for SplitText result (matches usePageTransition pattern)
+interface SplitResult {
+  chars?: Element[]
+  words?: Element[]
+  lines?: Element[]
+  revert?: () => void
+  [key: string]: unknown
+}
+
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
+
+// Module-level storage for word animations cleanup
+let wordScrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
+const splitInstances: SplitResult[] = []
 
 /**
  * Create reusable animation function for label + content
@@ -123,6 +140,7 @@ const createSectionAnimation = () => {
   }
 
   // Animate content children (stagger fade + y offset)
+  // Container animates to full opacity - words inside handle 0.5→1 effect
   // Query direct children using same selector as v-page-stagger directive
   if (contentRef.value) {
     const children = contentRef.value.querySelectorAll(':scope > *')
@@ -131,7 +149,7 @@ const createSectionAnimation = () => {
         children,
         { opacity: 0, y: 40 },
         {
-          opacity: 1,
+          opacity: 1, // Container fully visible, word animation handles 0.5→1 effect
           y: 0,
           duration: 0.6,
           stagger: 0.08, // Stagger child element reveals
@@ -143,6 +161,90 @@ const createSectionAnimation = () => {
   }
 
   return tl
+}
+
+/**
+ * Create word-by-word opacity animation using SplitText
+ * Master timeline approach: Primary plays first, secondary plays after
+ * Single ScrollTrigger controls the master timeline for proper sequencing
+ * Reverse naturally plays backwards (secondary first, then primary)
+ */
+const createWordAnimations = () => {
+  // Kill existing ScrollTrigger
+  if (wordScrollTriggerInstance) {
+    wordScrollTriggerInstance.kill()
+    wordScrollTriggerInstance = null
+  }
+
+  // Revert existing SplitText instances (restores original DOM)
+  splitInstances.forEach(split => split.revert?.())
+  splitInstances.length = 0
+
+  // Create master timeline (paused - ScrollTrigger controls playback)
+  const masterTl = $gsap.timeline({ paused: true })
+
+  /**
+   * Build timeline for a container's words
+   * Returns the timeline (doesn't attach ScrollTrigger)
+   */
+  const buildContainerTimeline = (
+    container: HTMLElement | null,
+    duration: number,
+    staggerEach: number
+  ): ReturnType<typeof $gsap.timeline> | null => {
+    if (!container) return null
+
+    const paragraphs = container.querySelectorAll('p')
+    if (!paragraphs.length) return null
+
+    const tl = $gsap.timeline()
+
+    paragraphs.forEach((el, index) => {
+      // Clear any leftover styles from previous animations
+      $gsap.set(el, { clearProps: 'all' })
+
+      // Split text into words using GSAP SplitText
+      const split = $SplitText.create(el, { type: 'words' })
+      splitInstances.push(split)
+
+      // Set initial state (0.25 opacity for dramatic reveal)
+      $gsap.set(split.words, { opacity: 0.25 })
+
+      // Add to timeline (first paragraph at start, subsequent overlap slightly)
+      tl.to(split.words, {
+        opacity: 1,
+        duration,
+        stagger: { each: staggerEach, ease: 'sine.inOut' },
+        ease: 'power2.out'
+      }, index === 0 ? 0 : '<0.3') // Overlap paragraphs within same tier
+    })
+
+    return tl
+  }
+
+  // Build primary timeline (1.8s duration, 0.15s stagger)
+  const primaryTl = buildContainerTimeline(primaryRef.value, 1.8, 0.15)
+
+  // Build secondary timeline (slower: 2.4s duration, 0.10s stagger)
+  const secondaryTl = buildContainerTimeline(secondaryRef.value, 2.4, 0.10)
+
+  // Add to master: primary first, secondary after with small overlap
+  if (primaryTl) {
+    masterTl.add(primaryTl)
+  }
+  if (secondaryTl) {
+    masterTl.add(secondaryTl, '-=1.2') // Overlap by 1.2s for smooth transition
+  }
+
+  // Single ScrollTrigger controls the master timeline
+  wordScrollTriggerInstance = $ScrollTrigger.create({
+    trigger: contentRef.value,
+    start: 'top 50%',
+    end: 'bottom top+=25%',
+    animation: masterTl,
+    toggleActions: 'play reverse play reverse',
+    invalidateOnRefresh: true
+  })
 }
 
 onMounted(() => {
@@ -187,6 +289,9 @@ onMounted(() => {
         toggleActions: 'play pause resume reverse',
         invalidateOnRefresh: true // Recalculate on window resize/refresh
       })
+
+      // Create word animations after section animation setup (Stage 2)
+      createWordAnimations()
     }
 
     // Coordinate with page transition system
@@ -217,12 +322,23 @@ onMounted(() => {
   }
 })
 
-// Cleanup ScrollTrigger on unmount
+// Cleanup ScrollTrigger and word animations on unmount
 onUnmounted(() => {
+  // Kill section ScrollTrigger
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
+
+  // Kill word ScrollTrigger (single instance now)
+  if (wordScrollTriggerInstance) {
+    wordScrollTriggerInstance.kill()
+    wordScrollTriggerInstance = null
+  }
+
+  // Revert SplitText instances (restores original DOM)
+  splitInstances.forEach(split => split.revert?.())
+  splitInstances.length = 0
 })
 </script>
 
