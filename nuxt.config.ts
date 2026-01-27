@@ -213,17 +213,6 @@ export default defineNuxtConfig({
     ]
   },
 
-  // Nuxt Studio configuration (self-hosted)
-  studio: {
-    enabled: true,
-    repository: {
-      provider: 'github',
-      owner: 'patsma',
-      repo: 'morten-2025',
-      branch: 'main'
-    }
-  },
-
   gsap: {
     composables: true,
     clubPlugins: {
@@ -243,6 +232,17 @@ export default defineNuxtConfig({
     },
     extraEases: {
       custom: true
+    }
+  },
+
+  // Nuxt Studio configuration (self-hosted)
+  studio: {
+    dev: false,
+    repository: {
+      provider: 'github',
+      owner: 'patsma',
+      repo: 'morten-2025',
+      branch: 'main'
     }
   }
 })
