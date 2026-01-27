@@ -7,6 +7,8 @@ Reusable component architectures and layout patterns for building consistent, ma
 2. [Section Layout Patterns](#section-layout-patterns)
 3. [Grid Layout Best Practices](#grid-layout-best-practices)
 4. [Animation Integration](#animation-integration)
+   - [Masked Line Reveal Animation](#masked-line-reveal-animation)
+   - [Master Timeline Word Animation](#master-timeline-word-animation)
 5. [Reference Implementations](#reference-implementations)
 
 ---
@@ -78,8 +80,10 @@ Parent elements must have `position: relative` for the border to position correc
 **Key Features:**
 - Content-grid with breakout3 for width
 - Typography utility classes (no SCSS needed)
-- Scroll-triggered animations
+- Scroll-triggered animations with **masked line reveal** (cinematic text animation)
 - Minimal custom styling
+
+**Animation:** Masked line reveal - lines slide up from behind mask with subtle rotation. See [Masked Line Reveal Animation](#masked-line-reveal-animation) for details.
 
 **Structure:**
 ```vue
@@ -504,6 +508,117 @@ const debouncedRefresh = useDebounceFn(executeRefresh, 100)
 ```
 
 **Why:** Prevents conflicts between entrance animations and page transitions.
+
+### Masked Line Reveal Animation
+
+**Use Case:** Body text with cinematic reveal effect - lines slide up from behind mask with subtle rotation.
+
+**Inspiration:** HeroSection masked reveal, but gentler settings for reflective body copy.
+
+**Effect:**
+- Lines (not words) split for elegance
+- Each line slides up from `yPercent: 100` (hidden below mask)
+- Subtle rotation (`rotate: 8`) eases out during reveal
+- Paragraphs play sequentially with overlap
+
+**Implementation:**
+
+```typescript
+/**
+ * Create masked line reveal animation using SplitText
+ * Lines slide up from behind mask with subtle rotation
+ */
+const createLineAnimations = () => {
+  // Kill existing ScrollTrigger
+  if (lineScrollTriggerInstance) {
+    lineScrollTriggerInstance.kill()
+    lineScrollTriggerInstance = null
+  }
+
+  // Revert existing SplitText instances
+  splitInstances.forEach(split => split.revert?.())
+  splitInstances.length = 0
+
+  // Master timeline (paused - ScrollTrigger controls playback)
+  const masterTl = $gsap.timeline({ paused: true })
+
+  const paragraphs = contentRef.value?.querySelectorAll('p')
+  if (!paragraphs?.length) return
+
+  paragraphs.forEach((el, pIndex) => {
+    $gsap.set(el, { clearProps: 'all' })
+
+    // Lock height before split to prevent layout shift
+    const originalHeight = el.offsetHeight
+    $gsap.set(el, { height: originalHeight, overflow: 'hidden' })
+
+    // Split with mask for clean reveal
+    const split = $SplitText.create(el, {
+      type: 'lines',
+      mask: 'lines'
+    })
+    splitInstances.push(split)
+
+    // Initial state: hidden below mask with rotation
+    $gsap.set(split.lines, {
+      yPercent: 100,
+      rotate: 8,
+      transformOrigin: '0% 100%' // Bottom-left pivot for natural rotation
+    })
+
+    // Paragraph timeline
+    const paragraphTl = $gsap.timeline()
+    paragraphTl.to(split.lines, {
+      yPercent: 0,
+      rotate: 0,
+      duration: 0.8,
+      stagger: 0.12,
+      ease: 'power3.out'
+    })
+
+    // Sequential with overlap (first at 0, subsequent overlap previous)
+    if (pIndex === 0) {
+      masterTl.add(paragraphTl, 0)
+    } else {
+      masterTl.add(paragraphTl, '>-0.4') // Start 0.4s before previous ends
+    }
+  })
+
+  // Single ScrollTrigger controls master timeline
+  lineScrollTriggerInstance = $ScrollTrigger.create({
+    trigger: contentRef.value,
+    start: 'top 65%',
+    end: 'bottom top+=20%',
+    animation: masterTl,
+    toggleActions: 'play reverse play reverse',
+    invalidateOnRefresh: true
+  })
+}
+```
+
+**Config Values:**
+
+| Property | Value | Purpose |
+|----------|-------|---------|
+| `yPercent` | 100 → 0 | Line slides up from below mask |
+| `rotate` | 8 → 0 | Subtle rotation (gentler than Hero's 20) |
+| `duration` | 0.8s | Per line animation |
+| `stagger` | 0.12s | Between lines within paragraph |
+| `ease` | power3.out | Smooth deceleration |
+| `overlap` | >-0.4 | Second paragraph starts 0.4s before first ends |
+
+**Key Differences from Word Animation:**
+
+| Aspect | Word Animation | Masked Line Reveal |
+|--------|---------------|-------------------|
+| Split type | `'words'` | `'lines'` with `mask: 'lines'` |
+| Animation | Opacity fade (0.3 → 1) | yPercent + rotate |
+| Feel | Subtle, gentle | Cinematic, theatrical |
+| Height lock | Not needed | Required (`overflow: hidden`) |
+
+**Reference:** `app/components/BiographySection.vue`
+
+---
 
 ### Master Timeline Word Animation
 
