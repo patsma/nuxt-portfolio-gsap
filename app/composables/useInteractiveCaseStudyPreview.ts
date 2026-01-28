@@ -43,7 +43,7 @@ interface GSAPTimeline {
 export interface PreviewData {
   image: string
   imageAlt?: string
-  clipDirection?: string
+  itemIndex: number
 }
 
 interface CursorPosition {
@@ -63,7 +63,7 @@ interface PreloadedImage {
   aspectRatio: number
 }
 
-type ClipDirection = 'center' | 'left' | 'right' | 'top' | 'bottom'
+type ClipDirection = 'top' | 'bottom'
 
 interface AnimationConfig {
   clipReveal: { duration: number, ease: string }
@@ -82,9 +82,10 @@ export interface InteractiveCaseStudyPreviewReturn {
   previewMounted: Ref<boolean>
   currentImageActive: Ref<boolean>
   currentAspectRatio: Ref<number>
+  isNavigating: Ref<boolean>
   setActivePreview: (preview: PreviewData | null, cursor: CursorPosition) => Promise<void>
   clearActivePreview: () => void
-  clearActivePreviewImmediate: () => void
+  clearActivePreviewImmediate: (onComplete?: () => void) => void
   clearActivePreviewInstant: () => void
   calculatePosition: (cursor: CursorPosition, sectionRect: DOMRect, previewRect: DOMRect) => ReturnType<typeof calculatePreviewPosition>
   animationConfig: AnimationConfig
@@ -111,18 +112,6 @@ const ANIMATION_CONFIG: AnimationConfig = {
     ease: 'power2.inOut'
   },
   clipPath: {
-    center: {
-      closed: 'inset(50% 50% 50% 50%)',
-      open: 'inset(0% 0% 0% 0%)'
-    },
-    left: {
-      closed: 'inset(0% 100% 0% 0%)',
-      open: 'inset(0% 0% 0% 0%)'
-    },
-    right: {
-      closed: 'inset(0% 0% 0% 100%)',
-      open: 'inset(0% 0% 0% 0%)'
-    },
     top: {
       closed: 'inset(0% 0% 100% 0%)',
       open: 'inset(0% 0% 0% 0%)'
@@ -142,14 +131,34 @@ const ANIMATION_CONFIG: AnimationConfig = {
 }
 
 /**
- * Resolve clip direction (handles 'random' option)
+ * Module-level previous index for direction calculation
+ * Persists across composable instances within the same page
  */
-const resolveClipDirection = (direction: string): ClipDirection => {
-  if (direction === 'random') {
-    const directions: ClipDirection[] = ['center', 'left', 'right', 'top', 'bottom']
-    return directions[Math.floor(Math.random() * directions.length)]
+let previousItemIndex: number | null = null
+
+/**
+ * Resolve clip direction based on movement direction in list
+ * Moving DOWN (index increases) → reveal from top
+ * Moving UP (index decreases) → reveal from bottom
+ * First hover → reveal from top
+ */
+const resolveClipDirection = (currentIndex: number): ClipDirection => {
+  const prev = previousItemIndex
+  previousItemIndex = currentIndex
+
+  // First hover or moving down → reveal from top
+  // Moving up → reveal from bottom
+  if (prev === null || currentIndex >= prev) {
+    return 'top'
   }
-  return direction as ClipDirection
+  return 'bottom'
+}
+
+/**
+ * Reset previous item index (called when preview is cleared)
+ */
+const resetPreviousItemIndex = (): void => {
+  previousItemIndex = null
 }
 
 interface ComposableOptions {
@@ -169,7 +178,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
   const preloadedImages = new Map<string, PreloadedImage>()
   const currentAspectRatio = ref(4 / 3)
   const isNavigating = ref(false)
-  const currentClipDirection = ref<ClipDirection>('center')
+  const currentClipDirection = ref<ClipDirection>('top')
   const forceHideUntil = ref(0)
 
   /**
@@ -412,7 +421,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     log.route('FIRST_HOVER', { image: preview.image })
     log.state('IDLE', 'REVEALING', { image: preview.image })
 
-    const direction = resolveClipDirection(preview.clipDirection || 'random')
+    const direction = resolveClipDirection(preview.itemIndex)
     currentClipDirection.value = direction
 
     currentImage.value = preview
@@ -470,7 +479,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     log.route('RE_ENTRY', { image: preview.image, sameImage })
     log.state('IDLE', 'REVEALING', { image: preview.image, reentry: true })
 
-    const direction = resolveClipDirection(preview.clipDirection || 'random')
+    const direction = resolveClipDirection(preview.itemIndex)
     currentClipDirection.value = direction
 
     showPreview.value = true
@@ -541,7 +550,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     })
     log.state('VISIBLE', 'TRANSITIONING', { image: preview.image })
 
-    const newDirection = resolveClipDirection(preview.clipDirection || 'random')
+    const newDirection = resolveClipDirection(preview.itemIndex)
     const oldDirection = currentClipDirection.value
     currentClipDirection.value = newDirection
 
@@ -605,7 +614,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    * Core clear logic (executed after debounce delay)
    */
   const executeClear = (): void => {
+    // Don't execute if navigation is in progress - navigation handles its own clip animation
+    if (isNavigating.value) {
+      log.debug('Skipping debounced clear - navigation in progress')
+      return
+    }
+
     log.debug('Executing debounced clear', { delay: ANIMATION_CONFIG.debounce.clearDelay })
+    resetPreviousItemIndex()
 
     isTransitioning.value = true
     log.state('VISIBLE', 'CLOSING')
@@ -704,6 +720,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    * Clear active preview with debounce
    */
   const clearActivePreview = (): void => {
+    // Don't start debounced clear if navigation is in progress
+    if (isNavigating.value) {
+      log.debug('Skipping clear - navigation in progress')
+      return
+    }
+
     log.separator('CLEAR')
     startClearTimeout()
     log.debug('Clear scheduled', { delay: ANIMATION_CONFIG.debounce.clearDelay })
@@ -711,8 +733,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
 
   /**
    * Clear active preview immediately (for navigation)
+   * Animates the INNER wrapper with clip-path (same as hover mode)
+   * Does NOT set showPreview = false to avoid Vue Transition opacity fade
+   * Component unmounts naturally via navigation
+   * @param onComplete - Optional callback when animation finishes (for navigation timing)
    */
-  const clearActivePreviewImmediate = (): void => {
+  const clearActivePreviewImmediate = (onComplete?: () => void): void => {
     log.separator('CLEAR IMMEDIATE (Navigation)')
 
     isNavigating.value = true
@@ -720,6 +746,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
 
     if (!showPreview.value) {
       log.debug('Preview already hidden, skipping')
+      if (onComplete) onComplete()
       return
     }
 
@@ -727,22 +754,29 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     log.state('VISIBLE', 'CLOSING', { immediate: true })
 
     const refs = getRefs()
+
+    // Animate the INNER wrapper (not container) - same pattern as executeClear
+    // This keeps container opacity at 1, making clip animation visible
+    // Vue Transition won't interfere because we don't set showPreview = false
     const activeWrapper = currentImageActive.value
       ? refs.currentImageWrapperRef
       : refs.nextImageWrapperRef
 
     if (!activeWrapper) {
-      log.warn('No active wrapper for immediate clear, instant hide')
-      showPreview.value = false
+      log.warn('No active wrapper for immediate clear')
+      // Don't set showPreview = false - let navigation unmount naturally
       isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
+      if (onComplete) onComplete()
       return
     }
 
     animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      showPreview.value = false
+      // DON'T set showPreview = false here!
+      // Let navigation unmount the component naturally
+      // This prevents Vue Transition from fading and masking our clip animation
       isTransitioning.value = false
       log.state('CLOSING', 'IDLE')
+      if (onComplete) onComplete()
     })
   }
 
@@ -750,6 +784,12 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    * Clear active preview instantly (for scroll triggers)
    */
   const clearActivePreviewInstant = (): void => {
+    // Don't execute if navigation is in progress
+    if (isNavigating.value) {
+      log.debug('Skipping instant clear - navigation in progress')
+      return
+    }
+
     log.separator('CLEAR INSTANT (Scroll)')
 
     cancelClearTimeout()
@@ -791,6 +831,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     previewMounted,
     currentImageActive,
     currentAspectRatio,
+    isNavigating,
     setActivePreview,
     clearActivePreview,
     clearActivePreviewImmediate,

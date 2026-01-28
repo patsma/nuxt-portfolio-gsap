@@ -1,18 +1,24 @@
 <template>
   <!-- Desktop: List item with hover (full-width-content creates sub-grid) -->
-  <NuxtLink
-    :to="to"
-    class="case-study-item full-width-content hidden md:block"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
+  <!-- Wrapper captures click in capture phase to intercept before NuxtLink navigates -->
+  <div
+    class="case-study-item-wrapper hidden md:block"
+    @click.capture="handleClickCapture"
   >
+    <NuxtLink
+      ref="itemRef"
+      :to="to"
+      class="case-study-item full-width-content"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+    >
     <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
     <!-- FullWidthBorder must be a direct child to use grid-column: full-width -->
-    <FullWidthBorder
+    <!-- <FullWidthBorder
       class="hidden md:grid"
       spacing="var(--space-m)"
       :opacity="10"
-    />
+    /> -->
     <!-- Animated border line (full-width within sub-grid) -->
 
     <!-- Content wrapper (breakout3 within sub-grid) -->
@@ -36,8 +42,9 @@
           {{ description }}
         </p>
       </div>
-    </div>
-  </NuxtLink>
+      </div>
+    </NuxtLink>
+  </div>
 
   <!-- Mobile: Card with image -->
   <NuxtLink
@@ -165,18 +172,6 @@ const props = defineProps({
   to: {
     type: String,
     default: '/contact'
-  },
-  /**
-   * Clip animation direction for preview reveal
-   * Options: 'center', 'left', 'right', 'top', 'bottom', 'random'
-   * Defaults to 'random' for variety
-   * @type {string}
-   */
-  clipDirection: {
-    type: String,
-    default: 'random',
-    validator: (value: unknown) =>
-      typeof value === 'string' && ['center', 'left', 'right', 'top', 'bottom', 'random'].includes(value)
   }
 })
 
@@ -184,12 +179,35 @@ const props = defineProps({
 interface PreviewData {
   image: string
   imageAlt: string
-  clipDirection: string
+  itemIndex: number
 }
+
+// Template ref for DOM-based index detection (NuxtLink component instance)
+const itemRef = ref<{ $el: HTMLElement } | null>(null)
 
 // Inject context from parent InteractiveCaseStudySection
 const setActivePreview = inject<((data: PreviewData) => void) | undefined>('setActivePreview')
 const clearActivePreview = inject<(() => void) | undefined>('clearActivePreview')
+const navigateWithAnimation = inject<((to: string) => void) | undefined>('navigateWithAnimation')
+
+// Fallback router for direct navigation if injection fails
+const router = useRouter()
+
+/**
+ * Get item index from DOM position in parent list
+ * Simpler than provide/inject for index tracking
+ */
+const getItemIndex = (): number => {
+  // itemRef is a Vue component (NuxtLink), access underlying DOM element via $el
+  const el = itemRef.value?.$el as HTMLElement | undefined
+  if (!el) return 0
+
+  const parent = el.closest('.case-study-list')
+  if (!parent) return 0
+
+  const items = parent.querySelectorAll('.case-study-item')
+  return Array.from(items).indexOf(el)
+}
 
 /**
  * Handle mouse enter (desktop only)
@@ -200,7 +218,7 @@ const handleMouseEnter = () => {
     setActivePreview({
       image: props.image,
       imageAlt: props.imageAlt,
-      clipDirection: props.clipDirection
+      itemIndex: getItemIndex()
     })
   }
 }
@@ -212,6 +230,36 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   if (clearActivePreview) {
     clearActivePreview()
+  }
+}
+
+/**
+ * Handle click on wrapper in capture phase
+ * Intercepts navigation BEFORE NuxtLink processes it
+ * This ensures the clip-out animation runs before navigation
+ *
+ * CRITICAL: Always prevent default to ensure we control navigation timing.
+ * If navigateWithAnimation injection fails, fallback to direct router.push()
+ */
+const handleClickCapture = (event: MouseEvent) => {
+  console.log('🟡 handleClickCapture fired', {
+    hasNavigateWithAnimation: !!navigateWithAnimation,
+    to: props.to
+  })
+
+  // ALWAYS prevent default on desktop - we handle navigation manually
+  // This ensures NuxtLink never processes the click directly
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation()
+
+  if (navigateWithAnimation) {
+    navigateWithAnimation(props.to)
+  }
+  else {
+    // Fallback if injection failed - navigate immediately
+    console.warn('⚠️ navigateWithAnimation not available, using direct navigation')
+    router.push(props.to)
   }
 }
 </script>

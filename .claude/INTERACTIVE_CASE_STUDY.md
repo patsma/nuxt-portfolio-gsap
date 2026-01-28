@@ -17,10 +17,10 @@ InteractiveCaseStudySection.vue
 
 ## Key Features
 
-- **Varied clip directions**: 5 reveal styles (center, left, right, top, bottom) + random
+- **Movement-based clip directions**: Top/bottom reveal based on list movement direction
 - **Dynamic aspect ratios**: Morphs between image sizes (400ms smooth transition)
 - **Dual-image crossfade**: Current/next image wrappers for seamless transitions
-- **Direction-aware animations**: Each item can have different clip reveal direction
+- **Automatic direction detection**: Index-based direction (moving DOWN = from top, moving UP = from bottom)
 - **Scroll-based hiding**: Smooth 300ms fade when scrolling out of section
 - **Cursor failsafe**: Continuous monitoring prevents stuck previews
 - **Navigation guard**: Delays navigation until clip animation completes
@@ -53,38 +53,17 @@ InteractiveCaseStudySection.vue
 </InteractiveCaseStudySection>
 ```
 
-### With Specific Clip Directions
-```vue
-<InteractiveCaseStudySection>
-  <template #title>Work</template>
+### Direction Logic
 
-  <!-- Reveal from left -->
-  <InteractiveCaseStudyItem
-    clip-direction="left"
-    title="Project A"
-    description="..."
-    image="..."
-    image-alt="..."
-  />
+Clip direction is automatic based on movement through the list:
 
-  <!-- Reveal from bottom -->
-  <InteractiveCaseStudyItem
-    clip-direction="bottom"
-    title="Project B"
-    description="..."
-    image="..."
-    image-alt="..."
-  />
+| Movement | Clip Direction | Visual |
+|----------|---------------|--------|
+| First hover | `top` | Reveals from top edge |
+| Moving DOWN list (index increases) | `top` | Reveals from top edge |
+| Moving UP list (index decreases) | `bottom` | Reveals from bottom edge |
 
-  <!-- Random direction (default) -->
-  <InteractiveCaseStudyItem
-    title="Project C"
-    description="..."
-    image="..."
-    image-alt="..."
-  />
-</InteractiveCaseStudySection>
-```
+No configuration needed - the system tracks item indices automatically.
 
 ### Props (InteractiveCaseStudyItem)
 
@@ -96,16 +75,8 @@ InteractiveCaseStudySection.vue
 | `image` | String | Yes | - | Image path |
 | `image-alt` | String | Yes | - | Alt text for accessibility |
 | `to` | String | No | "/contact" | Navigation path |
-| `clip-direction` | String | No | "random" | Animation direction (see below) |
 
-#### Clip Direction Options
-
-- **`center`** - Classic reveal from center (50% inset → 0%)
-- **`left`** - Slide in from left edge
-- **`right`** - Slide in from right edge
-- **`top`** - Slide down from top
-- **`bottom`** - Slide up from bottom
-- **`random`** - Randomly picks one of the above (adds variety)
+**Note:** Clip direction is automatic based on movement through the list (see Direction Logic above).
 
 ## Technical Details
 
@@ -125,19 +96,30 @@ InteractiveCaseStudySection.vue
 - **Aspect ratio morph**: 400ms power2.inOut
 - **Crossfade**: Dual-image wrappers with opacity
 
-**Clip Path Configurations:**
+**Clip Path Configurations (simplified to top/bottom):**
 ```typescript
-interface ClipPathConfig {
-  closed: string
-  open: string
-}
+type ClipDirection = 'top' | 'bottom'
 
-const clipPaths: Record<string, ClipPathConfig> = {
-  center: { closed: "inset(50% 50% 50% 50%)", open: "inset(0% 0% 0% 0%)" },
-  left:   { closed: "inset(0% 100% 0% 0%)",    open: "inset(0% 0% 0% 0%)" },
-  right:  { closed: "inset(0% 0% 0% 100%)",    open: "inset(0% 0% 0% 0%)" },
+const clipPaths: Record<ClipDirection, { closed: string; open: string }> = {
   top:    { closed: "inset(0% 0% 100% 0%)",    open: "inset(0% 0% 0% 0%)" },
   bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
+}
+```
+
+**Direction Resolution (module-level state):**
+```typescript
+let previousItemIndex: number | null = null
+
+const resolveClipDirection = (currentIndex: number): ClipDirection => {
+  const prev = previousItemIndex
+  previousItemIndex = currentIndex
+
+  // First hover or moving down → reveal from top
+  // Moving up → reveal from bottom
+  if (prev === null || currentIndex >= prev) {
+    return 'top'
+  }
+  return 'bottom'
 }
 ```
 
@@ -204,18 +186,56 @@ img.onload = () => {
 ### Navigation Integration
 
 **Problem:** Component unmounting made refs null before clip animation could run.
-**Solution:** `onBeforeRouteLeave` guard blocks navigation for 350ms.
+**Solution:** Provide/inject pattern with callback-based navigation.
 
+**Architecture:**
+1. **Parent** (`InteractiveCaseStudySection`) provides `navigateWithAnimation` function
+2. **Child** (`InteractiveCaseStudyItem`) intercepts clicks in capture phase
+3. **Guard** (`onBeforeRouteLeave`) catches non-click navigation (back button, etc.)
+
+**Child: Click Interception** (InteractiveCaseStudyItem.vue)
 ```typescript
-import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+const navigateWithAnimation = inject<((to: string) => void) | undefined>('navigateWithAnimation')
 
-onBeforeRouteLeave((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  if (showPreview.value) {
-    clearActivePreviewImmediate()
-    setTimeout(() => next(), 350) // Keep component mounted
+const handleClickCapture = (event: MouseEvent) => {
+  // ALWAYS prevent default - we control navigation timing
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation()
+
+  if (navigateWithAnimation) {
+    navigateWithAnimation(props.to)
   } else {
-    next()
+    // Fallback if injection failed
+    router.push(props.to)
   }
+}
+```
+
+**Parent: Animation + Navigation** (InteractiveCaseStudySection.vue)
+```typescript
+const navigateWithAnimation = (to: string) => {
+  if (showPreview.value) {
+    // Run clip-out animation, then navigate via callback
+    clearActivePreviewImmediate(() => {
+      router.push(to)
+    })
+  } else {
+    router.push(to)
+  }
+}
+
+provide('navigateWithAnimation', navigateWithAnimation)
+```
+
+**Guard: Non-Click Navigation** (back button, programmatic, etc.)
+```typescript
+onBeforeRouteLeave((_to, _from, next) => {
+  if (showPreview.value && !isNavigating.value) {
+    clearActivePreviewImmediate(() => next())
+    return // Wait for animation
+  }
+  next()
 })
 ```
 
@@ -274,10 +294,10 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 
 ## Debugging
 
-**Console Logs** (useInteractiveCaseStudyPreview.js):
+**Console Logs** (useInteractiveCaseStudyPreview.ts):
 ```
 🆕 [PREVIEW:ROUTE] FIRST_HOVER {"image":"..."}
-🔄 [PREVIEW:STATE] IDLE → REVEALING (image: ..., direction: left)
+🔄 [PREVIEW:STATE] IDLE → REVEALING (image: ..., direction: top)
 🔄 [PREVIEW:STATE] REVEALING → VISIBLE
 🔄 [PREVIEW:ROUTE] ITEM_SWITCH {"from":"...","to":"..."}
 🔄 [PREVIEW:STATE] VISIBLE → TRANSITIONING (image: ...)
@@ -286,6 +306,11 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 🔄 [PREVIEW:STATE] VISIBLE → CLOSING (scroll: true)
 🔄 [PREVIEW:STATE] CLOSING → IDLE
 ```
+
+**Direction Flow:**
+- Moving DOWN list (1→2→3): direction = "top" (reveals from top)
+- Moving UP list (3→2→1): direction = "bottom" (reveals from bottom)
+- First hover or re-entry: direction = "top"
 
 ## Known Limitations
 
@@ -299,10 +324,16 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
    - Check console for "CLEAR INSTANT" logs
    - Verify ScrollTrigger is initialized
 
-3. **Clip direction not working:**
-   - Verify prop value is valid ('center', 'left', 'right', 'top', 'bottom', 'random')
-   - Check console logs for resolved direction
-   - Ensure GSAP is available
+3. **Direction seems wrong:**
+   - Check console logs for item index values
+   - Verify items have `.case-study-item` class
+   - Ensure DOM order matches visual order
+
+4. **Navigation happens before animation completes:**
+   - Check console for debug logs: `🟡` (click captured) → `🔴` (navigateWithAnimation called) → `✅` (animation complete)
+   - Missing `🔴` log = provide/inject failed (child didn't receive function)
+   - Missing `✅` log = callback not firing from `clearActivePreviewImmediate`
+   - Verify parent provides `navigateWithAnimation` before children mount
 
 ## Entrance & Scroll Animations
 
@@ -439,4 +470,4 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 ---
 
 **Status:** ✅ Stable & Production-Ready
-**Last Updated:** 2025-10-27
+**Last Updated:** 2026-01-28 (Navigation pattern updated)

@@ -142,10 +142,26 @@ html.is-first-load [data-entrance-animate='true'] {
 /* Need explicit rule since content-grid.scss only handles direct children */
 /* IMPORTANT: Only apply on desktop to respect Tailwind's 'hidden' class on mobile */
 @include bp.up(bp.$bp-md) {
+  /* Wrapper for click capture - participates in grid as full-width item */
+  /* !important needed to override Tailwind's md:block */
+  .full-width-content > .case-study-item-wrapper {
+    grid-column: full-width !important;
+    display: grid !important;
+    grid-template-columns: inherit !important;
+  }
+
+  /* NuxtLink inside wrapper - also participates in grid */
+  .case-study-item-wrapper > .case-study-item.full-width-content {
+    grid-column: full-width !important;
+    display: grid !important;
+    grid-template-columns: inherit !important;
+  }
+
+  /* Direct case-study-item (fallback if no wrapper) */
   .full-width-content > .case-study-item.full-width-content {
-    grid-column: full-width;
-    display: grid !important; /* Override Tailwind md:block */
-    grid-template-columns: inherit;
+    grid-column: full-width !important;
+    display: grid !important;
+    grid-template-columns: inherit !important;
   }
 }
 
@@ -284,6 +300,18 @@ html.is-first-load [data-entrance-animate='true'] {
 .preview-fade-enter-from,
 .preview-fade-leave-to {
   opacity: 0;
+}
+
+/* Disable CSS fade transition during navigation - let GSAP clip animation be visible */
+.preview-container.is-navigating {
+  transition: none !important;
+}
+
+/* Also prevent the Vue Transition from applying leave styles */
+.preview-fade-leave-active.is-navigating,
+.preview-fade-leave-to.is-navigating {
+  transition: none !important;
+  opacity: 1 !important;
 }
 
 /* ============================================

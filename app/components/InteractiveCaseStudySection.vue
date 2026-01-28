@@ -1,7 +1,6 @@
 <template>
   <section
     ref="sectionRef"
-    v-page-fade="{ duration: 0.5, leaveOnly: true }"
     class="interactive-case-study-section content-grid w-full min-h-screen relative py-12 md:py-16 lg:py-20"
     :data-entrance-animate="animateEntrance ? 'true' : undefined"
     @mousemove="handleMouseMove"
@@ -17,6 +16,7 @@
 
     <div
       ref="itemsListRef"
+      v-page-stagger="{ selector: '.case-study-item', stagger: 0.08, leaveOnly: true }"
       class="case-study-list full-width-content"
     >
       <slot />
@@ -32,7 +32,7 @@
           v-show="showPreview"
           ref="previewContainerRef"
           class="preview-container hidden md:block"
-          :class="{ active: showPreview }"
+          :class="{ active: showPreview, 'is-navigating': isNavigating }"
           :style="{ aspectRatio: currentAspectRatio }"
         >
           <div
@@ -145,6 +145,7 @@ const {
   previewMounted,
   currentImageActive: _currentImageActive,
   currentAspectRatio,
+  isNavigating,
   setActivePreview: setActivePreviewComposable,
   clearActivePreview: clearActivePreviewComposable,
   clearActivePreviewImmediate,
@@ -156,7 +157,8 @@ const {
 })
 
 // Track cursor and animate preview position (getBoundingClientRect accounts for ScrollSmoother)
-const handleMouseMove = (event) => {
+// GSAP's overwrite: 'auto' handles conflicting animations gracefully
+const handleMouseMove = (event: MouseEvent) => {
   cursorX.value = event.clientX
   cursorY.value = event.clientY
 
@@ -187,35 +189,8 @@ const handleMouseMove = (event) => {
   })
 }
 
-/**
- * Navigation delay timeout using VueUse
- * Allows clip animation to complete before route change (350ms)
- */
-let pendingNavigation = null
-const { start: startNavigationDelay, stop: _cancelNavigationDelay }
-  = useTimeoutFn(
-    () => {
-      if (pendingNavigation) {
-        pendingNavigation()
-        pendingNavigation = null
-      }
-    },
-    350,
-    { immediate: false } // Don't start automatically
-  )
-
-// Delay navigation until clip animation completes (350ms)
-onBeforeRouteLeave((to, from, next) => {
-  if (showPreview.value) {
-    clearActivePreviewImmediate()
-    // Store next callback and start delay using VueUse
-    pendingNavigation = next
-    startNavigationDelay()
-  }
-  else {
-    next()
-  }
-})
+// Navigation is now handled via click interception in child items
+// This ensures the clip-out animation completes before route change
 
 // Provide preview control to child items (adds cursor position)
 const setActivePreview = (preview) => {
@@ -230,8 +205,56 @@ const clearActivePreview = () => {
   clearActivePreviewComposable()
 }
 
+const router = useRouter()
+
+/**
+ * Navigate with clip-out animation
+ * Intercepts navigation to ensure preview closes smoothly before route change
+ */
+const navigateWithAnimation = (to: string) => {
+  console.log('🔴 navigateWithAnimation called', {
+    showPreview: showPreview.value,
+    isNavigating: isNavigating.value,
+    to
+  })
+
+  if (showPreview.value) {
+    // Run clip-out animation, then navigate
+    clearActivePreviewImmediate(() => {
+      console.log('✅ Animation complete, navigating to:', to)
+      router.push(to)
+    })
+  }
+  else {
+    // No preview showing, navigate immediately
+    console.log('⏭️ No preview, navigating immediately to:', to)
+    router.push(to)
+  }
+}
+
 provide('setActivePreview', setActivePreview)
 provide('clearActivePreview', clearActivePreview)
+provide('navigateWithAnimation', navigateWithAnimation)
+
+/**
+ * Navigation guard to catch ALL navigation (not just NuxtLink clicks)
+ * Handles: browser back/forward, programmatic navigation, keyboard navigation
+ * Ensures clip-out animation completes before route change
+ */
+onBeforeRouteLeave((_to, _from, next) => {
+  // If preview is showing and we haven't started navigation animation yet
+  if (showPreview.value && !isNavigating.value) {
+    console.log('🛡️ onBeforeRouteLeave: Preview visible, running clip-out animation')
+    // Run clip-out animation, then proceed with navigation
+    clearActivePreviewImmediate(() => {
+      console.log('🛡️ onBeforeRouteLeave: Animation complete, proceeding')
+      next()
+    })
+    return // Don't call next() yet - wait for animation
+  }
+  // Otherwise proceed immediately
+  next()
+})
 
 // Entrance animation system (optional, for consistency with HeroSection)
 const { setupEntrance } = useEntranceAnimation()
@@ -392,20 +415,23 @@ onMounted(() => {
       end: 'bottom bottom',
       onLeave: () => {
         // User scrolled past section (down) - hide with smooth animation
-        if (showPreview.value) {
+        // Skip if navigation is in progress (clip animation running)
+        if (showPreview.value && !isNavigating.value) {
           clearActivePreviewInstant()
         }
       },
       onLeaveBack: () => {
         // User scrolled past section (up) - hide with smooth animation
-        if (showPreview.value) {
+        // Skip if navigation is in progress (clip animation running)
+        if (showPreview.value && !isNavigating.value) {
           clearActivePreviewInstant()
         }
       },
       onUpdate: () => {
         // Failsafe: Continuously check if cursor is outside section while preview is visible
         // This catches rapid hover + scroll edge cases that leave preview stuck
-        if (!showPreview.value || !sectionRef.value) return
+        // Skip if navigation is in progress (clip animation running)
+        if (!showPreview.value || !sectionRef.value || isNavigating.value) return
 
         const sectionRect = sectionRef.value.getBoundingClientRect()
         const cursorInSection
