@@ -18,6 +18,8 @@
       :description="item.description"
       :image="item.image"
       :image-alt="item.imageAlt"
+      :slideshow-images="item.slideshowImages || []"
+      :slideshow-image-alts="item.slideshowImageAlts || []"
       :to="item.to"
     />
   </InteractiveCaseStudySection>

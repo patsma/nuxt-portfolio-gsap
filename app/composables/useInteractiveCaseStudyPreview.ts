@@ -47,6 +47,8 @@ export interface PreviewData {
   image: string
   imageAlt?: string
   itemIndex: number
+  slideshowImages?: string[]
+  slideshowImageAlts?: string[]
 }
 
 interface CursorPosition {
@@ -68,7 +70,7 @@ interface PreloadedImage {
   aspectRatio: number
 }
 
-type ClipDirection = 'top' | 'bottom'
+type ClipDirection = 'top' | 'bottom' | 'left'
 type SlotId = 'A' | 'B' | 'C'
 
 // Slot state tracking
@@ -83,6 +85,7 @@ interface AnimationConfig {
   clipPath: Record<ClipDirection, { closed: string, open: string }>
   position: { offsetX: number, padding: number }
   debounce: { clearDelay: number }
+  slideshow: { delay: number, interval: number, revealDuration: number }
 }
 
 export interface InteractiveCaseStudyPreviewReturn {
@@ -122,6 +125,10 @@ const ANIMATION_CONFIG: AnimationConfig = {
     bottom: {
       closed: 'inset(100% 0% 0% 0%)',
       open: 'inset(0% 0% 0% 0%)'
+    },
+    left: {
+      closed: 'inset(0% 100% 0% 0%)',
+      open: 'inset(0% 0% 0% 0%)'
     }
   },
   position: {
@@ -130,6 +137,11 @@ const ANIMATION_CONFIG: AnimationConfig = {
   },
   debounce: {
     clearDelay: 100
+  },
+  slideshow: {
+    delay: 1000,         // 1s before starting
+    interval: 2000,      // 2s between images
+    revealDuration: 600  // Clip animation duration
   }
 }
 
@@ -166,6 +178,33 @@ let settleCheckInterval: ReturnType<typeof setInterval> | null = null
 let pendingTarget: { preview: PreviewData, aspectRatio: number } | null = null
 
 const VELOCITY_THRESHOLD = 8
+
+/**
+ * Module-level slideshow state
+ * Manages timed cycling through additional images
+ */
+let slideshowDelayTimer: ReturnType<typeof setTimeout> | null = null
+let slideshowIntervalTimer: ReturnType<typeof setInterval> | null = null
+let currentSlideshowImages: PreviewData[] = []
+let currentSlideshowIndex = 0
+let isSlideshowActive = false
+
+/**
+ * Clear all slideshow timers and reset state
+ */
+const clearSlideshowTimers = (): void => {
+  if (slideshowDelayTimer) {
+    clearTimeout(slideshowDelayTimer)
+    slideshowDelayTimer = null
+  }
+  if (slideshowIntervalTimer) {
+    clearInterval(slideshowIntervalTimer)
+    slideshowIntervalTimer = null
+  }
+  isSlideshowActive = false
+  currentSlideshowIndex = 0
+  currentSlideshowImages = []
+}
 
 /**
  * Resolve clip direction based on movement direction in list
@@ -473,6 +512,186 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
   }
 
   /**
+   * Handle slideshow image transition
+   * Uses LEFT clip direction for left-to-right reveal effect
+   */
+  const handleSlideshowTransition = async (): Promise<void> => {
+    if (!isSlideshowActive || currentSlideshowImages.length === 0) return
+
+    // Increment index (loops back to 0)
+    currentSlideshowIndex = (currentSlideshowIndex + 1) % currentSlideshowImages.length
+    const nextImage = currentSlideshowImages[currentSlideshowIndex]
+
+    log.debug(`🎬 [SLIDESHOW] Transitioning to image ${currentSlideshowIndex}: ${nextImage.image}`)
+
+    // Preload image and get aspect ratio
+    let aspectRatio = 4 / 3
+    try {
+      aspectRatio = await preloadImage(nextImage.image)
+    }
+    catch {
+      log.error('Slideshow image preload failed', { image: nextImage.image })
+    }
+
+    // Kill any active animation
+    if (activeTimeline) {
+      activeTimeline.kill()
+      activeTimeline = null
+    }
+
+    // Determine old slot BEFORE cleanup
+    const oldSlot = activeSlot.value
+
+    // Clean up any slots in intermediate states
+    const slots: SlotId[] = ['A', 'B', 'C']
+    for (const slot of slots) {
+      const status = slotStates.value[slot].status
+      if (status === 'animating-in' || status === 'animating-out') {
+        if (slot !== oldSlot) {
+          forceResetSlot(slot)
+        }
+      }
+    }
+
+    // Find available slot for new image
+    const newSlot = findAvailableSlot()
+
+    log.debug(`[SLIDESHOW] Switching: ${oldSlot} → ${newSlot}`)
+
+    // IMMEDIATELY update activeSlot
+    activeSlot.value = newSlot
+
+    // Set up new slot with slideshow image
+    const newImageRef = getSlotImageRef(newSlot)
+    newImageRef.value = nextImage
+    slotStates.value[newSlot] = { image: nextImage, status: 'animating-in' }
+
+    // Mark old slot as animating out
+    if (oldSlot && oldSlot !== newSlot) {
+      slotStates.value[oldSlot].status = 'animating-out'
+    }
+
+    // Animate aspect ratio smoothly (spring physics)
+    animateAspectRatio(aspectRatio)
+
+    await nextTick()
+
+    const newElement = getSlotElement(newSlot)
+    const oldElement = (oldSlot && oldSlot !== newSlot) ? getSlotElement(oldSlot) : null
+
+    if (!newElement) {
+      log.error('Missing new slot element for slideshow')
+      return
+    }
+
+    // Kill any tweens on these elements
+    gsap.killTweensOf(newElement)
+    if (oldElement) {
+      gsap.killTweensOf(oldElement)
+    }
+
+    // Reset z-index on ALL slots first
+    for (const slot of slots) {
+      const el = getSlotElement(slot)
+      if (el && slot !== newSlot && slot !== oldSlot) {
+        gsap.set(el, { zIndex: 0 })
+      }
+    }
+
+    // Use LEFT clip direction for slideshow (left-to-right reveal)
+    const clipPathsIn = ANIMATION_CONFIG.clipPath.left
+    gsap.set(newElement, {
+      opacity: 1,
+      clipPath: clipPathsIn.closed,
+      zIndex: 2
+    })
+
+    // Set old element z-index lower
+    if (oldElement) {
+      gsap.set(oldElement, { zIndex: 1 })
+    }
+
+    // Capture slots for onComplete closure
+    const capturedNewSlot = newSlot
+    const capturedOldSlot = oldSlot
+
+    // Create timeline for synchronized animation
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        slotStates.value[capturedNewSlot].status = 'active'
+        if (capturedOldSlot && capturedOldSlot !== capturedNewSlot) {
+          forceResetSlot(capturedOldSlot)
+        }
+        activeTimeline = null
+      }
+    })
+
+    // Animate new element in with slideshow duration
+    activeTimeline.to(newElement, {
+      clipPath: clipPathsIn.open,
+      duration: ANIMATION_CONFIG.slideshow.revealDuration / 1000,
+      ease: ANIMATION_CONFIG.clipReveal.ease
+    }, 0)
+
+    // Animate old element out (same direction for consistency)
+    if (oldElement) {
+      const clipPathsOut = ANIMATION_CONFIG.clipPath.left
+      activeTimeline.to(oldElement, {
+        clipPath: clipPathsOut.closed,
+        duration: ANIMATION_CONFIG.clipClose.duration / 1000,
+        ease: ANIMATION_CONFIG.clipClose.ease
+      }, 0)
+    }
+  }
+
+  /**
+   * Start slideshow timer after initial reveal completes
+   * Builds array of all images and starts cycling after delay
+   */
+  const startSlideshowTimer = (preview: PreviewData): void => {
+    // Clear any existing slideshow timers
+    clearSlideshowTimers()
+
+    // Check if there are slideshow images
+    if (!preview.slideshowImages || preview.slideshowImages.length === 0) {
+      return
+    }
+
+    // Build array of all images (main image + slideshow images)
+    currentSlideshowImages = [
+      { image: preview.image, imageAlt: preview.imageAlt, itemIndex: preview.itemIndex },
+      ...preview.slideshowImages.map((img, i) => ({
+        image: img,
+        imageAlt: preview.slideshowImageAlts?.[i] || '',
+        itemIndex: preview.itemIndex
+      }))
+    ]
+
+    log.debug(`🎬 [SLIDESHOW] Starting with ${currentSlideshowImages.length} images`)
+
+    // Preload slideshow images in background
+    preview.slideshowImages.forEach((img) => {
+      preloadImage(img).catch(() => {
+        log.error('Failed to preload slideshow image', { image: img })
+      })
+    })
+
+    // Start delay timer (1 second before first transition)
+    slideshowDelayTimer = setTimeout(() => {
+      isSlideshowActive = true
+      currentSlideshowIndex = 0
+
+      // Start the interval for cycling
+      slideshowIntervalTimer = setInterval(() => {
+        handleSlideshowTransition()
+      }, ANIMATION_CONFIG.slideshow.interval)
+
+      // Trigger first slideshow transition immediately after delay
+      handleSlideshowTransition()
+    }, ANIMATION_CONFIG.slideshow.delay)
+  }
+
+  /**
    * Handle first hover - reveal a slot
    */
   const handleFirstHover = async (
@@ -523,11 +742,17 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
       zIndex: 1
     })
 
+    // Capture preview for closure
+    const capturedPreview = preview
+
     activeTimeline = gsap.timeline({
       onComplete: () => {
         slotStates.value[slot].status = 'active'
         activeTimeline = null
         log.state('REVEALING', 'VISIBLE')
+
+        // Start slideshow timer after reveal completes
+        startSlideshowTimer(capturedPreview)
       }
     })
 
@@ -543,6 +768,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
    */
   const handleImageSwitch = async (preview: PreviewData, aspectRatio: number): Promise<void> => {
     log.route('IMAGE_SWITCH', { to: preview.image })
+
+    // Clear slideshow timers when switching items
+    clearSlideshowTimers()
 
     const direction = resolveClipDirection(preview.itemIndex)
     const oldDirection = currentClipDirection.value
@@ -628,9 +856,10 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
       gsap.set(oldElement, { zIndex: 1 })
     }
 
-    // Capture slots for onComplete (closure safety)
+    // Capture slots and preview for onComplete (closure safety)
     const capturedNewSlot = newSlot
     const capturedOldSlot = oldSlot
+    const capturedPreview = preview
 
     // Create timeline for synchronized animation
     activeTimeline = gsap.timeline({
@@ -645,6 +874,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
         activeTimeline = null
         log.state('TRANSITIONING', 'VISIBLE')
+
+        // Start slideshow timer for new item
+        startSlideshowTimer(capturedPreview)
       }
     })
 
@@ -674,6 +906,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     aspectRatio: number
   ): Promise<void> => {
     log.route('RE_ENTRY', { image: preview.image })
+
+    // Clear slideshow timers on re-entry
+    clearSlideshowTimers()
 
     // Kill any active animation first
     if (activeTimeline) {
@@ -717,10 +952,14 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
           })
 
           const capturedSlot = activeSlot.value
+          const capturedPreview = preview
           activeTimeline = gsap.timeline({
             onComplete: () => {
               slotStates.value[capturedSlot].status = 'active'
               activeTimeline = null
+
+              // Restart slideshow timer on re-entry
+              startSlideshowTimer(capturedPreview)
             }
           })
 
@@ -786,6 +1025,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     resetPreviousItemIndex()
     resetVelocityState()
     cancelAspectSpring()
+    clearSlideshowTimers()
 
     if (!activeSlot.value) {
       showPreview.value = false
@@ -922,6 +1162,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     cancelClearTimeout()
     resetVelocityState()
     cancelAspectSpring()
+    clearSlideshowTimers()
 
     if (!showPreview.value || !activeSlot.value) {
       if (onComplete) onComplete()
@@ -968,6 +1209,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     cancelClearTimeout()
     resetVelocityState()
     cancelAspectSpring()
+    clearSlideshowTimers()
 
     if (!showPreview.value || !activeSlot.value) return
 

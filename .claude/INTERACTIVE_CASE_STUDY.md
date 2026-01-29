@@ -18,8 +18,9 @@ InteractiveCaseStudySection.vue
 ## Key Features
 
 - **Movement-based clip directions**: Top/bottom reveal based on list movement direction
-- **Dynamic aspect ratios**: Morphs between image sizes (400ms smooth transition)
-- **Dual-image crossfade**: Current/next image wrappers for seamless transitions
+- **Timed slideshow**: After 1s hover, cycles through additional images with left-to-right clip reveal
+- **Dynamic aspect ratios**: Spring physics morphing between image sizes
+- **3-slot carousel**: Robust image transitions without animation conflicts
 - **Automatic direction detection**: Index-based direction (moving DOWN = from top, moving UP = from bottom)
 - **Scroll-based hiding**: Smooth 300ms fade when scrolling out of section
 - **Cursor failsafe**: Continuous monitoring prevents stuck previews
@@ -74,9 +75,33 @@ No configuration needed - the system tracks item indices automatically.
 | `description` | String | Yes | - | Role/description text |
 | `image` | String | Yes | - | Image path |
 | `image-alt` | String | Yes | - | Alt text for accessibility |
+| `slideshow-images` | String[] | No | [] | Additional images for slideshow |
+| `slideshow-image-alts` | String[] | No | [] | Alt texts for slideshow images |
 | `to` | String | No | "/contact" | Navigation path |
 
 **Note:** Clip direction is automatic based on movement through the list (see Direction Logic above).
+
+### Slideshow Feature
+
+After hovering for 1 second, additional images cycle with a left-to-right clip reveal:
+
+```yaml
+# content/data/case-studies.yml
+- title: "Project Name"
+  image: "/images/main.jpg"
+  slideshowImages:
+    - "/images/detail-1.jpg"
+    - "/images/detail-2.jpg"
+  slideshowImageAlts:
+    - "Detail view"
+    - "Final result"
+```
+
+**Timing:**
+- **Delay**: 1s before slideshow starts
+- **Interval**: 2s between images
+- **Reveal**: 600ms left-to-right clip animation
+- **Loop**: Continuous (main → slideshow images → main → ...)
 
 ## Technical Details
 

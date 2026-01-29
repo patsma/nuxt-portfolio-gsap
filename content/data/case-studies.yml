@@ -4,17 +4,39 @@ items:
     description: "Art direction & UI"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Recommendating preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Recommendating detail view"
+      - "Recommendating mobile view"
+      - "Recommendating final design"
 
   - title: "Maj"
     description: "Art direction & UI"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "Maj project preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "Maj mobile design"
+      - "Maj brand system"
 
   - title: "BioInnovation Institute"
     tag: "INTRANET"
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "BioInnovation Institute preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "BII dashboard"
+      - "BII user profile"
+      - "BII activity feed"
 
   - title: "Mælt"
     description: "Art direction, Interactive design & UI"

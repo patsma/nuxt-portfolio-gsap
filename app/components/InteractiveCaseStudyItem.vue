@@ -79,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import type { PropType } from 'vue'
+
 /**
  * InteractiveCaseStudyItem Component - Individual Case Study Entry
  *
@@ -101,6 +103,8 @@
  * - description: Project description/role (required)
  * - image: Image path (required)
  * - imageAlt: Alt text for image (required)
+ * - slideshowImages: Additional images for slideshow (optional)
+ * - slideshowImageAlts: Alt texts for slideshow images (optional)
  * - to: Navigation path (required)
  *
  * Features:
@@ -118,6 +122,8 @@
  *   description="Art direction & UI"
  *   image="/images/projects/recommendating.jpg"
  *   image-alt="Recommendating app preview"
+ *   :slideshow-images="['/images/projects/rec-2.jpg', '/images/projects/rec-3.jpg']"
+ *   :slideshow-image-alts="['Detail view', 'Final result']"
  *   to="/work/recommendating"
  * />
  */
@@ -165,6 +171,22 @@ const props = defineProps({
     required: true
   },
   /**
+   * Additional images for slideshow (cycles after 1s hover delay)
+   * @type {string[]}
+   */
+  slideshowImages: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  },
+  /**
+   * Alt texts for slideshow images (accessibility)
+   * @type {string[]}
+   */
+  slideshowImageAlts: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  },
+  /**
    * Navigation path (e.g., "/work/project-name")
    * Defaults to "/contact" for development to prevent hydration errors
    * @type {string}
@@ -182,6 +204,8 @@ interface PreviewData {
   itemIndex: number
   cursorX?: number
   cursorY?: number
+  slideshowImages?: string[]
+  slideshowImageAlts?: string[]
 }
 
 // Template ref for DOM-based index detection (NuxtLink component instance)
@@ -223,7 +247,9 @@ const handleMouseEnter = (event: MouseEvent) => {
       imageAlt: props.imageAlt,
       itemIndex: getItemIndex(),
       cursorX: event.clientX,
-      cursorY: event.clientY
+      cursorY: event.clientY,
+      slideshowImages: props.slideshowImages,
+      slideshowImageAlts: props.slideshowImageAlts
     })
   }
 }
