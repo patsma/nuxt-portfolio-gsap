@@ -31,7 +31,7 @@ InteractiveCaseStudySection.vue
 
 - `app/components/InteractiveCaseStudySection.vue` (195 lines)
 - `app/components/InteractiveCaseStudyItem.vue` (204 lines)
-- `app/composables/useInteractiveCaseStudyPreview.ts` (893 lines)
+- `app/composables/useInteractiveCaseStudyPreview.ts` (~1100 lines)
 - `app/utils/previewPosition.ts` (153 lines)
 - `app/utils/logger.ts` (308 lines)
 - `app/assets/css/components/interactive-case-study.scss` (301 lines)
@@ -121,13 +121,14 @@ After hovering for 1 second, additional images cycle with a left-to-right clip r
 - **Aspect ratio morph**: 400ms power2.inOut
 - **Crossfade**: Dual-image wrappers with opacity
 
-**Clip Path Configurations (simplified to top/bottom):**
+**Clip Path Configurations:**
 ```typescript
-type ClipDirection = 'top' | 'bottom'
+type ClipDirection = 'top' | 'bottom' | 'left'
 
 const clipPaths: Record<ClipDirection, { closed: string; open: string }> = {
-  top:    { closed: "inset(0% 0% 100% 0%)",    open: "inset(0% 0% 0% 0%)" },
-  bottom: { closed: "inset(100% 0% 0% 0%)",    open: "inset(0% 0% 0% 0%)" }
+  top:    { closed: "inset(0% 0% 100% 0%)",   open: "inset(0% 0% 0% 0%)" },
+  bottom: { closed: "inset(100% 0% 0% 0%)",   open: "inset(0% 0% 0% 0%)" },
+  left:   { closed: "inset(0% 100% 0% 0%)",   open: "inset(0% 0% 0% 0%)" }  // Slideshow
 }
 ```
 
@@ -495,4 +496,4 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 ---
 
 **Status:** ✅ Stable & Production-Ready
-**Last Updated:** 2026-01-28 (Navigation pattern updated)
+**Last Updated:** 2026-01-29 (Slideshow feature added)

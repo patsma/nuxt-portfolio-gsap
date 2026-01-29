@@ -26,6 +26,8 @@ const caseStudySchema = z.object({
   tag: z.string().optional(),
   image: z.string(),
   imageAlt: z.string(),
+  slideshowImages: z.array(z.string()).optional(),
+  slideshowImageAlts: z.array(z.string()).optional(),
   to: z.string().optional(),
   clipDirection: z.enum(['center', 'left', 'right', 'top', 'bottom', 'random']).optional()
 })
