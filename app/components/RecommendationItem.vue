@@ -1,5 +1,8 @@
 <template>
-  <div class="recommendation-item full-width-content">
+  <div
+    ref="itemRef"
+    class="recommendation-item full-width-content"
+  >
     <!-- FullWidthBorder (top divider) -->
     <FullWidthBorder :opacity="10" />
 
@@ -141,6 +144,17 @@
  * />
  */
 
+import { clampedNormalize } from '~/utils/math'
+
+// Dynamic accordion timing constants
+const ACCORDION_HEIGHT_MIN = 200 // Small content height (px)
+const ACCORDION_HEIGHT_MAX = 800 // Large content height (px)
+const ACCORDION_DURATION_MIN = 0.5 // Minimum duration (seconds)
+const ACCORDION_DURATION_MAX = 0.9 // Maximum duration (seconds)
+const ACCORDION_COLLAPSE_FACTOR = 0.8 // Collapse is 80% of expand duration
+const SCROLL_DURATION = 0.6 // Scroll-to-top duration
+const HEADER_OFFSET = 100 // Account for fixed header height
+
 const props = defineProps({
   /**
    * Unique identifier for this recommendation (used for accordion state)
@@ -221,9 +235,10 @@ const setActiveItem = inject<((id: string | null) => void) | undefined>('setActi
 const requestRefresh = inject<((callback?: () => void) => void) | undefined>('requestRefresh')
 
 // Refs for DOM elements
+const itemRef = ref<HTMLElement | null>(null)
 const marqueeContainerRef = ref(null)
 const marqueeTrackRef = ref(null)
-const expandedContentRef = ref(null)
+const expandedContentRef = ref<HTMLElement | null>(null)
 
 // Marquee animation instances
 let marqueeAnimation = null
@@ -339,7 +354,7 @@ watch(isExpanded, (expanded) => {
   // Check if page transition is active (this should NOT be happening during accordion)
   const pageTransitionStore = usePageTransitionStore()
   if (pageTransitionStore?.isTransitioning) {
-    console.error('[RecommendationItem] ⚠️ WARNING: Page transition is ACTIVE during accordion animation!', {
+    console.error('[RecommendationItem] WARNING: Page transition is ACTIVE during accordion animation!', {
       id: props.id,
       isTransitioning: pageTransitionStore.isTransitioning
     })
@@ -348,27 +363,77 @@ watch(isExpanded, (expanded) => {
   // Pause headroom before animation starts to prevent header from reacting to content height changes
   nuxtApp.$headroom?.pause()
 
+  // Get actual content height for dynamic duration calculation
+  const contentHeight = expandedContentRef.value.scrollHeight
+
+  // Calculate dynamic duration based on content size (larger content = longer duration)
+  const baseDuration = clampedNormalize(
+    contentHeight,
+    ACCORDION_HEIGHT_MIN,
+    ACCORDION_HEIGHT_MAX,
+    ACCORDION_DURATION_MIN,
+    ACCORDION_DURATION_MAX
+  )
+
   if (expanded) {
     // Expand: Animate to auto height with opacity fade in
     $gsap.to(expandedContentRef.value, {
       height: 'auto',
       opacity: 1,
-      duration: 0.5,
+      duration: baseDuration,
       ease: 'power2.out',
       onComplete: () => {
-        // Request refresh for pinned sections below (ImageScalingSection, etc.)
-        requestRefresh?.(() => {
-          nuxtApp.$headroom?.unpause()
-        })
+        // Get ScrollSmoother instance for scroll-to-top
+        const { getSmoother } = useScrollSmootherManager()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const smoother = getSmoother() as any // Cast needed - scrollTop() exists at runtime
+
+        if (!smoother || !itemRef.value) {
+          // Fallback: just refresh without scroll
+          requestRefresh?.(() => {
+            nuxtApp.$headroom?.unpause()
+          })
+          return
+        }
+
+        // Calculate scroll target (top of accordion item with header offset)
+        const itemRect = itemRef.value.getBoundingClientRect()
+        const currentScroll = smoother.scrollTop()
+        const targetScroll = currentScroll + itemRect.top - HEADER_OFFSET
+
+        // Only scroll if item top is above viewport or too far down (beyond top 30%)
+        const shouldScroll = itemRect.top < 0 || itemRect.top > window.innerHeight * 0.3
+
+        if (shouldScroll) {
+          // GSAP tween to ScrollSmoother's scrollTop property
+          $gsap.to(smoother, {
+            scrollTop: targetScroll,
+            duration: SCROLL_DURATION,
+            ease: 'power2.inOut',
+            onComplete: () => {
+              requestRefresh?.(() => {
+                nuxtApp.$headroom?.unpause()
+              })
+            }
+          })
+        }
+        else {
+          // Item already in good position, just refresh
+          requestRefresh?.(() => {
+            nuxtApp.$headroom?.unpause()
+          })
+        }
       }
     })
   }
   else {
-    // Collapse: Animate to 0 height with opacity fade out
+    // Collapse: Animate to 0 height with opacity fade out (faster than expand, no scroll)
+    const collapseDuration = baseDuration * ACCORDION_COLLAPSE_FACTOR
+
     $gsap.to(expandedContentRef.value, {
       height: 0,
       opacity: 0,
-      duration: 0.4,
+      duration: collapseDuration,
       ease: 'power2.in',
       onComplete: () => {
         // Request refresh for pinned sections below (ImageScalingSection, etc.)

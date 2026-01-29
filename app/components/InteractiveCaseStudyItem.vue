@@ -12,36 +12,36 @@
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
     >
-    <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
-    <!-- FullWidthBorder must be a direct child to use grid-column: full-width -->
-    <!-- <FullWidthBorder
-      class="hidden md:grid"
-      spacing="var(--space-m)"
-      :opacity="10"
-    /> -->
-    <!-- Animated border line (full-width within sub-grid) -->
+      <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
+      <!-- FullWidthBorder must be a direct child to use grid-column: full-width -->
+      <!-- <FullWidthBorder
+        class="hidden md:grid"
+        spacing="var(--space-m)"
+        :opacity="10"
+      /> -->
+      <!-- Animated border line (full-width within sub-grid) -->
 
-    <!-- Content wrapper (breakout3 within sub-grid) -->
-    <div class="item-content breakout3">
-      <!-- Left: Title + Tag -->
-      <div class="item-title-col">
-        <h2 class="item-title pp-eiko-desktop-h2">
-          {{ title }}
-        </h2>
-        <span
-          v-if="tag"
-          class="item-tag ibm-plex-sans-jp-desktop-custom-labels"
-        >
-          {{ tag }}
-        </span>
-      </div>
+      <!-- Content wrapper (breakout3 within sub-grid) -->
+      <div class="item-content breakout3">
+        <!-- Left: Title + Tag -->
+        <div class="item-title-col">
+          <h2 class="item-title pp-eiko-desktop-h2">
+            {{ title }}
+          </h2>
+          <span
+            v-if="tag"
+            class="item-tag ibm-plex-sans-jp-desktop-custom-labels"
+          >
+            {{ tag }}
+          </span>
+        </div>
 
-      <!-- Right: Description -->
-      <div class="item-description-col">
-        <p class="item-description ibm-plex-sans-jp-desktop-p1">
-          {{ description }}
-        </p>
-      </div>
+        <!-- Right: Description -->
+        <div class="item-description-col">
+          <p class="item-description ibm-plex-sans-jp-desktop-p1">
+            {{ description }}
+          </p>
+        </div>
       </div>
     </NuxtLink>
   </div>
