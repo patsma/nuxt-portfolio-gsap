@@ -35,14 +35,15 @@
           :class="{ active: showPreview, 'is-navigating': isNavigating }"
           :style="{ aspectRatio: currentAspectRatio }"
         >
+          <!-- 3-slot carousel system: always animate INTO a fresh slot -->
           <div
-            ref="currentImageWrapperRef"
+            ref="slotARef"
             class="preview-image-wrapper"
           >
             <NuxtImg
-              v-if="currentImage"
-              :src="currentImage.image"
-              :alt="currentImage.imageAlt"
+              v-if="slotAImage"
+              :src="slotAImage.image"
+              :alt="slotAImage.imageAlt"
               class="preview-image"
               loading="eager"
               data-speed="0.95"
@@ -50,13 +51,27 @@
           </div>
 
           <div
-            ref="nextImageWrapperRef"
+            ref="slotBRef"
             class="preview-image-wrapper"
           >
             <NuxtImg
-              v-if="nextImage"
-              :src="nextImage.image"
-              :alt="nextImage.imageAlt"
+              v-if="slotBImage"
+              :src="slotBImage.image"
+              :alt="slotBImage.imageAlt"
+              class="preview-image"
+              loading="eager"
+              data-speed="0.95"
+            />
+          </div>
+
+          <div
+            ref="slotCRef"
+            class="preview-image-wrapper"
+          >
+            <NuxtImg
+              v-if="slotCImage"
+              :src="slotCImage.image"
+              :alt="slotCImage.imageAlt"
               class="preview-image"
               loading="eager"
               data-speed="0.95"
@@ -123,8 +138,11 @@ const sectionRef = ref(null)
 const titleRef = ref(null)
 const itemsListRef = ref(null)
 const previewContainerRef = ref(null)
-const currentImageWrapperRef = ref(null)
-const nextImageWrapperRef = ref(null)
+
+// 3-slot carousel refs
+const slotARef = ref(null)
+const slotBRef = ref(null)
+const slotCRef = ref(null)
 
 const cursorX = ref(0)
 const cursorY = ref(0)
@@ -134,16 +152,17 @@ let scrollTriggerInstance = null
 const getRefs = () => ({
   sectionRef: sectionRef.value,
   previewContainerRef: previewContainerRef.value,
-  currentImageWrapperRef: currentImageWrapperRef.value,
-  nextImageWrapperRef: nextImageWrapperRef.value
+  slotARefs: slotARef.value,
+  slotBRefs: slotBRef.value,
+  slotCRefs: slotCRef.value
 })
 
 const {
-  currentImage,
-  nextImage,
+  slotAImage,
+  slotBImage,
+  slotCImage,
   showPreview,
   previewMounted,
-  currentImageActive: _currentImageActive,
   currentAspectRatio,
   isNavigating,
   setActivePreview: setActivePreviewComposable,
@@ -153,7 +172,8 @@ const {
   animationConfig
 } = useInteractiveCaseStudyPreview({
   gsap: $gsap,
-  getRefs
+  getRefs,
+  getCursor: () => ({ x: cursorX.value, y: cursorY.value })
 })
 
 // Track cursor and animate preview position (getBoundingClientRect accounts for ScrollSmoother)
@@ -426,25 +446,10 @@ onMounted(() => {
         if (showPreview.value && !isNavigating.value) {
           clearActivePreviewInstant()
         }
-      },
-      onUpdate: () => {
-        // Failsafe: Continuously check if cursor is outside section while preview is visible
-        // This catches rapid hover + scroll edge cases that leave preview stuck
-        // Skip if navigation is in progress (clip animation running)
-        if (!showPreview.value || !sectionRef.value || isNavigating.value) return
-
-        const sectionRect = sectionRef.value.getBoundingClientRect()
-        const cursorInSection
-          = cursorY.value >= sectionRect.top
-            && cursorY.value <= sectionRect.bottom
-            && cursorX.value >= sectionRect.left
-            && cursorX.value <= sectionRect.right
-
-        // If preview visible but cursor is outside section bounds - hide smoothly
-        if (!cursorInSection) {
-          clearActivePreviewInstant()
-        }
       }
+      // Note: No onUpdate callback - it caused preview to hide during scroll
+      // because cursor position doesn't update while scrolling (no mousemove events).
+      // Rely on mouseleave events and onLeave/onLeaveBack instead.
     })
   }
 })

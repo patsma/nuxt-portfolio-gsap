@@ -2,25 +2,26 @@
  * Interactive Case Study Preview Composable
  *
  * Manages state and animations for the cursor-following preview system.
- * Extracted from InteractiveCaseStudySection.vue for better modularity,
- * testability, and maintainability.
+ * Uses a 3-slot carousel for robust image transitions without glitches.
+ *
+ * Architecture:
+ * - 3 image wrapper slots (A, B, C) that cycle
+ * - Always animate INTO a fresh slot, never animate an active element
+ * - Slot lifecycle: hidden → animating-in → active → animating-out → hidden
+ * - This prevents race conditions when rapidly switching items
  *
  * Features:
- * - Dual-image crossfade system
+ * - 3-slot carousel (no animation conflicts)
  * - Clip-path reveal/close animations
  * - Image preloading with caching
- * - Smart transition routing
- * - Comprehensive logging
- * - Race condition prevention
+ * - Direction-aware animations (top/bottom based on list movement)
+ * - Velocity-based settling for fast cursor movement
  */
 
 import type { Ref } from 'vue'
 import { ref, nextTick } from 'vue'
 import { createPreviewLogger } from '~/utils/logger'
-import {
-  calculatePreviewPosition,
-  validateElements
-} from '~/utils/previewPosition'
+import { calculatePreviewPosition } from '~/utils/previewPosition'
 
 // Types
 interface GSAPInstance {
@@ -33,11 +34,13 @@ interface GSAPInstance {
 
 interface GSAPTween {
   play: () => GSAPTween
+  kill: () => void
 }
 
 interface GSAPTimeline {
   to: (targets: unknown, vars: Record<string, unknown>, position?: number | string) => GSAPTimeline
   fromTo: (targets: unknown, fromVars: Record<string, unknown>, toVars: Record<string, unknown>, position?: number | string) => GSAPTimeline
+  kill: () => void
 }
 
 export interface PreviewData {
@@ -51,11 +54,13 @@ interface CursorPosition {
   y: number
 }
 
+// 3-slot system refs
 interface TemplateRefs {
   previewContainerRef: HTMLElement | null
   sectionRef: HTMLElement | null
-  currentImageWrapperRef: HTMLElement | null
-  nextImageWrapperRef: HTMLElement | null
+  slotARefs: HTMLElement | null
+  slotBRefs: HTMLElement | null
+  slotCRefs: HTMLElement | null
 }
 
 interface PreloadedImage {
@@ -64,11 +69,17 @@ interface PreloadedImage {
 }
 
 type ClipDirection = 'top' | 'bottom'
+type SlotId = 'A' | 'B' | 'C'
+
+// Slot state tracking
+interface SlotState {
+  image: PreviewData | null
+  status: 'hidden' | 'animating-in' | 'active' | 'animating-out'
+}
 
 interface AnimationConfig {
   clipReveal: { duration: number, ease: string }
   clipClose: { duration: number, ease: string }
-  dualClip: { duration: number, ease: string }
   aspectRatio: { duration: number, ease: string }
   clipPath: Record<ClipDirection, { closed: string, open: string }>
   position: { offsetX: number, padding: number }
@@ -76,11 +87,12 @@ interface AnimationConfig {
 }
 
 export interface InteractiveCaseStudyPreviewReturn {
-  currentImage: Ref<PreviewData | null>
-  nextImage: Ref<PreviewData | null>
+  // Slot images for template binding
+  slotAImage: Ref<PreviewData | null>
+  slotBImage: Ref<PreviewData | null>
+  slotCImage: Ref<PreviewData | null>
   showPreview: Ref<boolean>
   previewMounted: Ref<boolean>
-  currentImageActive: Ref<boolean>
   currentAspectRatio: Ref<number>
   isNavigating: Ref<boolean>
   setActivePreview: (preview: PreviewData | null, cursor: CursorPosition) => Promise<void>
@@ -96,19 +108,15 @@ export interface InteractiveCaseStudyPreviewReturn {
  */
 const ANIMATION_CONFIG: AnimationConfig = {
   clipReveal: {
-    duration: 350,
+    duration: 450,
     ease: 'power2.out'
   },
   clipClose: {
-    duration: 350,
+    duration: 400,
     ease: 'power2.in'
   },
-  dualClip: {
-    duration: 350,
-    ease: 'power2.inOut'
-  },
   aspectRatio: {
-    duration: 400,
+    duration: 500,
     ease: 'power2.inOut'
   },
   clipPath: {
@@ -132,61 +140,217 @@ const ANIMATION_CONFIG: AnimationConfig = {
 
 /**
  * Module-level previous index for direction calculation
- * Persists across composable instances within the same page
  */
 let previousItemIndex: number | null = null
 
 /**
+ * Module-level velocity tracking state
+ */
+let lastCursorX = 0
+let lastCursorY = 0
+let lastCursorTime = 0
+let currentVelocity = 0
+let settleCheckInterval: ReturnType<typeof setInterval> | null = null
+let pendingTarget: { preview: PreviewData, aspectRatio: number } | null = null
+
+const VELOCITY_THRESHOLD = 8
+
+/**
  * Resolve clip direction based on movement direction in list
- * Moving DOWN (index increases) → reveal from top
- * Moving UP (index decreases) → reveal from bottom
- * First hover → reveal from top
  */
 const resolveClipDirection = (currentIndex: number): ClipDirection => {
   const prev = previousItemIndex
   previousItemIndex = currentIndex
-
-  // First hover or moving down → reveal from top
-  // Moving up → reveal from bottom
   if (prev === null || currentIndex >= prev) {
     return 'top'
   }
   return 'bottom'
 }
 
-/**
- * Reset previous item index (called when preview is cleared)
- */
 const resetPreviousItemIndex = (): void => {
   previousItemIndex = null
+}
+
+/**
+ * Track cursor velocity for settle detection
+ */
+const trackVelocity = (cursor: CursorPosition): number => {
+  const now = performance.now()
+  const dt = now - lastCursorTime
+
+  if (dt > 0 && dt < 100) {
+    const dx = cursor.x - lastCursorX
+    const dy = cursor.y - lastCursorY
+    currentVelocity = (Math.sqrt(dx * dx + dy * dy) / dt) * 16
+  }
+  else {
+    currentVelocity = 0
+  }
+
+  lastCursorX = cursor.x
+  lastCursorY = cursor.y
+  lastCursorTime = now
+
+  return currentVelocity
+}
+
+const stopSettleCheck = (): void => {
+  if (settleCheckInterval) {
+    clearInterval(settleCheckInterval)
+    settleCheckInterval = null
+  }
+}
+
+const resetVelocityState = (): void => {
+  stopSettleCheck()
+  pendingTarget = null
+  currentVelocity = 0
 }
 
 interface ComposableOptions {
   gsap: GSAPInstance
   getRefs: () => TemplateRefs
+  getCursor?: () => { x: number, y: number }
 }
 
-export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOptions): InteractiveCaseStudyPreviewReturn => {
+export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: ComposableOptions): InteractiveCaseStudyPreviewReturn => {
   const log = createPreviewLogger()
 
-  const currentImage = ref<PreviewData | null>(null)
-  const nextImage = ref<PreviewData | null>(null)
-  const currentImageActive = ref(true)
+  // 3-slot image state
+  const slotAImage = ref<PreviewData | null>(null)
+  const slotBImage = ref<PreviewData | null>(null)
+  const slotCImage = ref<PreviewData | null>(null)
+
+  // Slot status tracking
+  const slotStates = ref<Record<SlotId, SlotState>>({
+    A: { image: null, status: 'hidden' },
+    B: { image: null, status: 'hidden' },
+    C: { image: null, status: 'hidden' }
+  })
+
+  // Which slot is currently active (fully visible)
+  const activeSlot = ref<SlotId | null>(null)
+
+  // Track current clip direction for close animations
+  const currentClipDirection = ref<ClipDirection>('top')
+
+  // Active animation timeline (so we can kill it if needed)
+  let activeTimeline: GSAPTimeline | null = null
+
+  // Track aspect ratio tween separately to prevent race conditions
+  let aspectRatioTween: GSAPTween | null = null
+
   const showPreview = ref(false)
   const previewMounted = ref(false)
-  const isTransitioning = ref(false)
   const preloadedImages = new Map<string, PreloadedImage>()
   const currentAspectRatio = ref(4 / 3)
   const isNavigating = ref(false)
-  const currentClipDirection = ref<ClipDirection>('top')
   const forceHideUntil = ref(0)
+
+  // Forward declaration for settle check
+  let startSettleCheck: () => void
+
+  /**
+   * Get the image ref for a slot
+   */
+  const getSlotImageRef = (slot: SlotId): Ref<PreviewData | null> => {
+    switch (slot) {
+      case 'A': return slotAImage
+      case 'B': return slotBImage
+      case 'C': return slotCImage
+    }
+  }
+
+  /**
+   * Get the DOM element for a slot
+   */
+  const getSlotElement = (slot: SlotId): HTMLElement | null => {
+    const refs = getRefs()
+    switch (slot) {
+      case 'A': return refs.slotARefs
+      case 'B': return refs.slotBRefs
+      case 'C': return refs.slotCRefs
+    }
+  }
+
+  /**
+   * Find the next available slot for animation
+   * Priority: hidden > animating-out > oldest non-active
+   */
+  const findAvailableSlot = (): SlotId => {
+    const slots: SlotId[] = ['A', 'B', 'C']
+
+    // First: prefer completely hidden slots
+    for (const slot of slots) {
+      if (slotStates.value[slot].status === 'hidden') {
+        return slot
+      }
+    }
+
+    // Second: prefer slots that are animating out (they'll be hidden soon)
+    for (const slot of slots) {
+      if (slotStates.value[slot].status === 'animating-out') {
+        return slot
+      }
+    }
+
+    // Third: use any non-active slot
+    for (const slot of slots) {
+      if (slot !== activeSlot.value) {
+        return slot
+      }
+    }
+
+    // Fallback: cycle from current active
+    const currentActive = activeSlot.value || 'A'
+    const nextSlot: Record<SlotId, SlotId> = { A: 'B', B: 'C', C: 'A' }
+    return nextSlot[currentActive]
+  }
+
+  /**
+   * Reset a slot to hidden state
+   */
+  const resetSlot = (slot: SlotId): void => {
+    // Guard: Don't reset if slot was reused for a new animation
+    const status = slotStates.value[slot].status
+    if (status === 'animating-in' || status === 'active') {
+      return // Slot is in use, skip reset
+    }
+
+    const element = getSlotElement(slot)
+    if (element) {
+      gsap.killTweensOf(element)
+      gsap.set(element, {
+        opacity: 0,
+        clipPath: 'inset(0% 0% 100% 0%)',
+        zIndex: 0
+      })
+    }
+    slotStates.value[slot] = { image: null, status: 'hidden' }
+    getSlotImageRef(slot).value = null
+  }
+
+  /**
+   * Force-reset a slot regardless of status (for cleanup)
+   */
+  const forceResetSlot = (slot: SlotId): void => {
+    const element = getSlotElement(slot)
+    if (element) {
+      gsap.killTweensOf(element)
+      gsap.set(element, {
+        opacity: 0,
+        clipPath: 'inset(0% 0% 100% 0%)',
+        zIndex: 0
+      })
+    }
+    slotStates.value[slot] = { image: null, status: 'hidden' }
+    getSlotImageRef(slot).value = null
+  }
 
   /**
    * Preload image for instant display on hover
    */
   const preloadImage = (src: string): Promise<number> => {
-    const startTime = performance.now()
-
     return new Promise((resolve, reject) => {
       if (preloadedImages.has(src)) {
         const cached = preloadedImages.get(src)!
@@ -196,15 +360,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
       }
 
       log.preload('loading', src)
-
       const img = new Image()
       img.onload = () => {
-        const duration = Math.round(performance.now() - startTime)
         const aspectRatio = img.naturalWidth / img.naturalHeight
-
         preloadedImages.set(src, { img, aspectRatio })
-        log.preload('cached', src, duration)
-        log.debug(`Aspect ratio detected: ${aspectRatio.toFixed(2)} (${img.naturalWidth}x${img.naturalHeight})`)
+        log.preload('cached', src)
         resolve(aspectRatio)
       }
       img.onerror = () => {
@@ -223,7 +383,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     sectionRect: DOMRect,
     previewRect: DOMRect
   ): ReturnType<typeof calculatePreviewPosition> => {
-    const position = calculatePreviewPosition({
+    return calculatePreviewPosition({
       cursorX: cursor.x,
       cursorY: cursor.y,
       sectionRect,
@@ -232,25 +392,13 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
       padding: ANIMATION_CONFIG.position.padding,
       centerY: true
     })
-
-    if (position.clamped) {
-      log.position(position.original, position, position.clampReason)
-    }
-
-    return position
   }
 
   /**
    * Set initial position without animation
    */
   const setInitialPosition = (refs: TemplateRefs, cursor: CursorPosition): void => {
-    if (!refs.previewContainerRef || !refs.sectionRef) {
-      log.warn('Missing refs for initial position', {
-        hasPreview: !!refs.previewContainerRef,
-        hasSection: !!refs.sectionRef
-      })
-      return
-    }
+    if (!refs.previewContainerRef || !refs.sectionRef) return
 
     const sectionRect = refs.sectionRef.getBoundingClientRect()
     const previewRect = refs.previewContainerRef.getBoundingClientRect()
@@ -259,128 +407,9 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     gsap.set(refs.previewContainerRef, {
       x: position.x,
       y: position.y,
-      xPercent: 100,
-      yPercent: 15
+      xPercent: 0,
+      yPercent: 0
     })
-
-    log.position({ x: position.x, y: position.y })
-  }
-
-  /**
-   * Animate clip-path reveal
-   */
-  const animateClipReveal = (
-    target: HTMLElement | null,
-    direction: ClipDirection,
-    onComplete?: () => void
-  ): void => {
-    if (!target) {
-      log.error('animateClipReveal: target is null')
-      return
-    }
-
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
-    log.animationStart('clip-reveal', ANIMATION_CONFIG.clipReveal.duration, { direction })
-
-    gsap.fromTo(
-      target,
-      { clipPath: clipPaths.closed },
-      {
-        clipPath: clipPaths.open,
-        duration: ANIMATION_CONFIG.clipReveal.duration / 1000,
-        ease: ANIMATION_CONFIG.clipReveal.ease,
-        overwrite: true,
-        onComplete: () => {
-          log.animationComplete('clip-reveal', ANIMATION_CONFIG.clipReveal.duration)
-          if (onComplete) onComplete()
-        }
-      }
-    )
-  }
-
-  /**
-   * Animate clip-path close
-   */
-  const animateClipClose = (
-    target: HTMLElement | null,
-    direction: ClipDirection,
-    onComplete?: () => void
-  ): void => {
-    if (!target) {
-      log.error('animateClipClose: target is null')
-      return
-    }
-
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
-    log.animationStart('clip-close', ANIMATION_CONFIG.clipClose.duration, { direction })
-
-    gsap.to(target, {
-      clipPath: clipPaths.closed,
-      duration: ANIMATION_CONFIG.clipClose.duration / 1000,
-      ease: ANIMATION_CONFIG.clipClose.ease,
-      overwrite: true,
-      onComplete: () => {
-        log.animationComplete('clip-close', ANIMATION_CONFIG.clipClose.duration)
-        if (onComplete) onComplete()
-      }
-    })
-  }
-
-  /**
-   * Animate dual clip-path transition
-   */
-  const animateDualClip = (
-    clipOutTarget: HTMLElement | null,
-    clipInTarget: HTMLElement | null,
-    outDirection: ClipDirection,
-    inDirection: ClipDirection,
-    onComplete?: () => void
-  ): void => {
-    if (!clipOutTarget || !clipInTarget) {
-      log.error('animateDualClip: missing targets', {
-        clipOut: !!clipOutTarget,
-        clipIn: !!clipInTarget
-      })
-      return
-    }
-
-    const clipPathOut = ANIMATION_CONFIG.clipPath[outDirection]
-    const clipPathIn = ANIMATION_CONFIG.clipPath[inDirection]
-
-    log.animationStart('dual-clip', ANIMATION_CONFIG.dualClip.duration, { outDirection, inDirection })
-
-    gsap.set(clipInTarget, { opacity: 1 })
-
-    const tl = gsap.timeline({
-      onComplete: () => {
-        log.animationComplete('dual-clip', ANIMATION_CONFIG.dualClip.duration)
-        gsap.set(clipOutTarget, { opacity: 0 })
-        if (onComplete) onComplete()
-      }
-    })
-
-    tl.to(
-      clipOutTarget,
-      {
-        clipPath: clipPathOut.closed,
-        duration: ANIMATION_CONFIG.dualClip.duration / 1000,
-        ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: true
-      },
-      0
-    )
-
-    tl.fromTo(
-      clipInTarget,
-      { clipPath: clipPathIn.closed },
-      {
-        clipPath: clipPathIn.open,
-        duration: ANIMATION_CONFIG.dualClip.duration / 1000,
-        ease: ANIMATION_CONFIG.dualClip.ease,
-        overwrite: true
-      },
-      0
-    )
   }
 
   /**
@@ -388,30 +417,26 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    */
   const animateAspectRatio = (newAspectRatio: number): void => {
     const oldRatio = currentAspectRatio.value
+    if (Math.abs(oldRatio - newAspectRatio) < 0.01) return
 
-    if (Math.abs(oldRatio - newAspectRatio) < 0.01) {
-      log.debug('Aspect ratio unchanged, skipping animation')
-      return
+    // Kill any existing aspect ratio animation
+    if (aspectRatioTween) {
+      aspectRatioTween.kill()
     }
 
-    log.animationStart('aspect-ratio', ANIMATION_CONFIG.aspectRatio.duration, {
-      from: oldRatio.toFixed(2),
-      to: newAspectRatio.toFixed(2)
-    })
-
-    gsap.to(currentAspectRatio, {
+    aspectRatioTween = gsap.to(currentAspectRatio, {
       value: newAspectRatio,
       duration: ANIMATION_CONFIG.aspectRatio.duration / 1000,
       ease: ANIMATION_CONFIG.aspectRatio.ease,
       overwrite: true,
       onComplete: () => {
-        log.animationComplete('aspect-ratio', ANIMATION_CONFIG.aspectRatio.duration)
+        aspectRatioTween = null
       }
     })
   }
 
   /**
-   * Handle first hover
+   * Handle first hover - reveal a slot
    */
   const handleFirstHover = async (
     preview: PreviewData,
@@ -419,230 +444,354 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     aspectRatio: number
   ): Promise<void> => {
     log.route('FIRST_HOVER', { image: preview.image })
-    log.state('IDLE', 'REVEALING', { image: preview.image })
 
     const direction = resolveClipDirection(preview.itemIndex)
     currentClipDirection.value = direction
 
-    currentImage.value = preview
-    nextImage.value = preview
-    currentImageActive.value = true
+    // Use slot A for first hover
+    const slot: SlotId = 'A'
+    slotAImage.value = preview
+    slotStates.value[slot] = { image: preview, status: 'animating-in' }
+    activeSlot.value = slot
+
     previewMounted.value = true
     showPreview.value = true
-
     currentAspectRatio.value = aspectRatio
 
     await nextTick()
 
     const refs = getRefs()
-    const validation = validateElements({
-      currentImageWrapperRef: refs.currentImageWrapperRef,
-      nextImageWrapperRef: refs.nextImageWrapperRef,
-      previewContainerRef: refs.previewContainerRef,
-      sectionRef: refs.sectionRef
-    })
+    const element = getSlotElement(slot)
 
-    log.refs({
-      currentWrapper: !!refs.currentImageWrapperRef,
-      nextWrapper: !!refs.nextImageWrapperRef,
-      previewContainer: !!refs.previewContainerRef,
-      section: !!refs.sectionRef
-    })
-
-    if (!validation.valid) {
-      log.error('Missing refs after mount, aborting animation', { missing: validation.missing })
+    if (!element || !refs.previewContainerRef) {
+      log.error('Missing refs for first hover')
       return
     }
 
     setInitialPosition(refs, cursor)
 
-    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
-    gsap.set(refs.currentImageWrapperRef, {
-      opacity: 1,
-      clipPath: clipPaths.closed
-    })
-    gsap.set(refs.nextImageWrapperRef, { opacity: 0 })
+    // Force reset all other slots
+    forceResetSlot('B')
+    forceResetSlot('C')
 
-    animateClipReveal(refs.currentImageWrapperRef, direction, () => {
-      log.state('REVEALING', 'VISIBLE')
+    const clipPaths = ANIMATION_CONFIG.clipPath[direction]
+    gsap.set(element, {
+      opacity: 1,
+      clipPath: clipPaths.closed,
+      zIndex: 1
+    })
+
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        slotStates.value[slot].status = 'active'
+        activeTimeline = null
+        log.state('REVEALING', 'VISIBLE')
+      }
+    })
+
+    activeTimeline.to(element, {
+      clipPath: clipPaths.open,
+      duration: ANIMATION_CONFIG.clipReveal.duration / 1000,
+      ease: ANIMATION_CONFIG.clipReveal.ease
     })
   }
 
   /**
-   * Handle re-entry after leaving section
+   * Handle image switch - animate new slot in, old slot out
+   */
+  const handleImageSwitch = async (preview: PreviewData, aspectRatio: number): Promise<void> => {
+    log.route('IMAGE_SWITCH', { to: preview.image })
+
+    const direction = resolveClipDirection(preview.itemIndex)
+    const oldDirection = currentClipDirection.value
+    currentClipDirection.value = direction
+
+    // Kill any active animation
+    if (activeTimeline) {
+      activeTimeline.kill()
+      activeTimeline = null
+    }
+
+    // Kill aspect ratio tween to ensure clean state for new animation
+    if (aspectRatioTween) {
+      aspectRatioTween.kill()
+      aspectRatioTween = null
+    }
+
+    // Determine old slot BEFORE any cleanup
+    const oldSlot = activeSlot.value
+
+    // Clean up any slots in intermediate states (animating-in, animating-out)
+    // This handles the case where a previous animation was killed mid-way
+    const slots: SlotId[] = ['A', 'B', 'C']
+    for (const slot of slots) {
+      const status = slotStates.value[slot].status
+      if (status === 'animating-in' || status === 'animating-out') {
+        if (slot !== oldSlot) {
+          // Not the current active slot, force reset it
+          forceResetSlot(slot)
+        }
+      }
+    }
+
+    // Find available slot for new image
+    const newSlot = findAvailableSlot()
+
+    log.debug(`Switching: ${oldSlot} → ${newSlot}`)
+
+    // IMMEDIATELY update activeSlot - don't wait for onComplete
+    activeSlot.value = newSlot
+
+    // Set up new slot
+    const newImageRef = getSlotImageRef(newSlot)
+    newImageRef.value = preview
+    slotStates.value[newSlot] = { image: preview, status: 'animating-in' }
+
+    // Mark old slot as animating out
+    if (oldSlot && oldSlot !== newSlot) {
+      slotStates.value[oldSlot].status = 'animating-out'
+    }
+
+    // Animate aspect ratio smoothly
+    animateAspectRatio(aspectRatio)
+
+    await nextTick()
+
+    const newElement = getSlotElement(newSlot)
+    const oldElement = (oldSlot && oldSlot !== newSlot) ? getSlotElement(oldSlot) : null
+
+    if (!newElement) {
+      log.error('Missing new slot element')
+      return
+    }
+
+    // Kill any tweens on these elements
+    gsap.killTweensOf(newElement)
+    if (oldElement) {
+      gsap.killTweensOf(oldElement)
+    }
+
+    // Reset z-index on ALL slots first, then set proper values
+    for (const slot of slots) {
+      const el = getSlotElement(slot)
+      if (el && slot !== newSlot && slot !== oldSlot) {
+        gsap.set(el, { zIndex: 0 })
+      }
+    }
+
+    // Set up new element - ALWAYS start from closed state
+    const clipPathsIn = ANIMATION_CONFIG.clipPath[direction]
+    gsap.set(newElement, {
+      opacity: 1,
+      clipPath: clipPathsIn.closed,
+      zIndex: 2 // New element on top
+    })
+
+    // Set old element z-index lower
+    if (oldElement) {
+      gsap.set(oldElement, { zIndex: 1 })
+    }
+
+    // Capture slots for onComplete (closure safety)
+    const capturedNewSlot = newSlot
+    const capturedOldSlot = oldSlot
+
+    // Create timeline for synchronized animation
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        // Mark new slot as fully active
+        slotStates.value[capturedNewSlot].status = 'active'
+
+        // Reset old slot completely (guard will allow since status is animating-out)
+        if (capturedOldSlot && capturedOldSlot !== capturedNewSlot) {
+          forceResetSlot(capturedOldSlot)
+        }
+
+        activeTimeline = null
+        log.state('TRANSITIONING', 'VISIBLE')
+      }
+    })
+
+    // Animate new element in
+    activeTimeline.to(newElement, {
+      clipPath: clipPathsIn.open,
+      duration: ANIMATION_CONFIG.clipReveal.duration / 1000,
+      ease: ANIMATION_CONFIG.clipReveal.ease
+    }, 0)
+
+    // Animate old element out (if exists)
+    if (oldElement) {
+      const clipPathsOut = ANIMATION_CONFIG.clipPath[oldDirection]
+      activeTimeline.to(oldElement, {
+        clipPath: clipPathsOut.closed,
+        duration: ANIMATION_CONFIG.clipClose.duration / 1000,
+        ease: ANIMATION_CONFIG.clipClose.ease
+      }, 0)
+    }
+  }
+
+  /**
+   * Handle re-entry after preview was hidden
    */
   const handleReentry = async (
     preview: PreviewData,
-    sameImage: boolean,
     aspectRatio: number
   ): Promise<void> => {
-    log.route('RE_ENTRY', { image: preview.image, sameImage })
-    log.state('IDLE', 'REVEALING', { image: preview.image, reentry: true })
+    log.route('RE_ENTRY', { image: preview.image })
+
+    // Kill any active animation first
+    if (activeTimeline) {
+      activeTimeline.kill()
+      activeTimeline = null
+    }
+
+    // Kill aspect ratio tween
+    if (aspectRatioTween) {
+      aspectRatioTween.kill()
+      aspectRatioTween = null
+    }
 
     const direction = resolveClipDirection(preview.itemIndex)
     currentClipDirection.value = direction
 
     showPreview.value = true
-    isTransitioning.value = true
 
-    if (!sameImage) {
-      if (currentImageActive.value) {
-        nextImage.value = preview
+    // Clean up any slots in intermediate states
+    const slots: SlotId[] = ['A', 'B', 'C']
+    for (const slot of slots) {
+      const status = slotStates.value[slot].status
+      if (status === 'animating-in' || status === 'animating-out') {
+        if (slot !== activeSlot.value) {
+          forceResetSlot(slot)
+        }
       }
-      else {
-        currentImage.value = preview
-      }
-      animateAspectRatio(aspectRatio)
     }
 
-    await nextTick()
+    // Check if we can reuse active slot (same image)
+    if (activeSlot.value) {
+      const activeImage = getSlotImageRef(activeSlot.value).value
+      if (activeImage?.image === preview.image) {
+        // Same image - just reveal the existing slot
+        const element = getSlotElement(activeSlot.value)
+        if (element) {
+          slotStates.value[activeSlot.value].status = 'animating-in'
 
-    const refs = getRefs()
-    const validation = validateElements({
-      currentImageWrapperRef: refs.currentImageWrapperRef,
-      nextImageWrapperRef: refs.nextImageWrapperRef
-    })
+          // Animate aspect ratio smoothly
+          animateAspectRatio(aspectRatio)
 
-    if (!validation.valid) {
-      log.error('Missing refs on re-entry', { missing: validation.missing })
-      isTransitioning.value = false
-      return
+          const clipPaths = ANIMATION_CONFIG.clipPath[direction]
+          gsap.set(element, {
+            opacity: 1,
+            clipPath: clipPaths.closed,
+            zIndex: 1
+          })
+
+          const capturedSlot = activeSlot.value
+          activeTimeline = gsap.timeline({
+            onComplete: () => {
+              slotStates.value[capturedSlot].status = 'active'
+              activeTimeline = null
+            }
+          })
+
+          activeTimeline.to(element, {
+            clipPath: clipPaths.open,
+            duration: ANIMATION_CONFIG.clipReveal.duration / 1000,
+            ease: ANIMATION_CONFIG.clipReveal.ease
+          })
+
+          return
+        }
+      }
     }
 
-    const revealTarget = sameImage
-      ? currentImageActive.value
-        ? refs.currentImageWrapperRef
-        : refs.nextImageWrapperRef
-      : currentImageActive.value
-        ? refs.nextImageWrapperRef
-        : refs.currentImageWrapperRef
-
-    const hideTarget = sameImage
-      ? currentImageActive.value
-        ? refs.nextImageWrapperRef
-        : refs.currentImageWrapperRef
-      : currentImageActive.value
-        ? refs.currentImageWrapperRef
-        : refs.nextImageWrapperRef
-
-    gsap.set(hideTarget, { opacity: 0 })
-    gsap.set(revealTarget, { opacity: 1 })
-
-    animateClipReveal(revealTarget, direction, () => {
-      if (!sameImage) {
-        currentImageActive.value = !currentImageActive.value
-        log.debug('Toggled active image', { newActive: currentImageActive.value })
-      }
-      isTransitioning.value = false
-      log.state('REVEALING', 'VISIBLE')
-    })
+    // Different image or no active slot - do full switch
+    await handleImageSwitch(preview, aspectRatio)
   }
 
   /**
-   * Handle item switch with dual clip-path transition
+   * Start settle detection interval
    */
-  const handleItemSwitch = async (preview: PreviewData, aspectRatio: number): Promise<void> => {
-    log.route('ITEM_SWITCH', {
-      from: currentImageActive.value
-        ? currentImage.value?.image
-        : nextImage.value?.image,
-      to: preview.image
-    })
-    log.state('VISIBLE', 'TRANSITIONING', { image: preview.image })
+  startSettleCheck = (): void => {
+    if (settleCheckInterval) return
 
-    const newDirection = resolveClipDirection(preview.itemIndex)
-    const oldDirection = currentClipDirection.value
-    currentClipDirection.value = newDirection
+    settleCheckInterval = setInterval(() => {
+      const timeSinceMove = performance.now() - lastCursorTime
+      if (timeSinceMove > 80) {
+        currentVelocity = 0
+      }
 
-    let refs = getRefs()
+      if (currentVelocity < VELOCITY_THRESHOLD && pendingTarget) {
+        const { preview, aspectRatio } = pendingTarget
+        pendingTarget = null
+        stopSettleCheck()
 
-    if (refs.currentImageWrapperRef && refs.nextImageWrapperRef) {
-      log.debug('Killing active tweens')
-      gsap.killTweensOf([refs.currentImageWrapperRef, refs.nextImageWrapperRef])
-    }
-
-    if (isTransitioning.value) {
-      log.raceCondition('Transition already in progress, forcing reset', {
-        currentState: isTransitioning.value
-      })
-      isTransitioning.value = false
-    }
-
-    isTransitioning.value = true
-
-    if (currentImageActive.value) {
-      nextImage.value = preview
-    }
-    else {
-      currentImage.value = preview
-    }
-
-    animateAspectRatio(aspectRatio)
-
-    await nextTick()
-
-    refs = getRefs()
-
-    const validation = validateElements({
-      currentImageWrapperRef: refs.currentImageWrapperRef,
-      nextImageWrapperRef: refs.nextImageWrapperRef
-    })
-
-    if (!validation.valid) {
-      log.error('Missing refs for item switch', { missing: validation.missing })
-      isTransitioning.value = false
-      return
-    }
-
-    const clipOutTarget = currentImageActive.value
-      ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef
-
-    const clipInTarget = currentImageActive.value
-      ? refs.nextImageWrapperRef
-      : refs.currentImageWrapperRef
-
-    animateDualClip(clipOutTarget, clipInTarget, oldDirection, newDirection, () => {
-      currentImageActive.value = !currentImageActive.value
-      isTransitioning.value = false
-      log.debug('Toggled active image', { newActive: currentImageActive.value })
-      log.state('TRANSITIONING', 'VISIBLE')
-    })
+        log.debug(`🎯 [SETTLE] User settled, switching to: ${preview.image}`)
+        handleImageSwitch(preview, aspectRatio)
+      }
+    }, 50)
   }
 
   /**
    * Core clear logic (executed after debounce delay)
    */
   const executeClear = (): void => {
-    // Don't execute if navigation is in progress - navigation handles its own clip animation
     if (isNavigating.value) {
       log.debug('Skipping debounced clear - navigation in progress')
       return
     }
 
-    log.debug('Executing debounced clear', { delay: ANIMATION_CONFIG.debounce.clearDelay })
+    // Check if cursor is still over a case study item
+    if (getCursor) {
+      const cursor = getCursor()
+      const elementUnderCursor = document.elementFromPoint(cursor.x, cursor.y)
+      const isOverItem = elementUnderCursor?.closest('.case-study-item')
+      if (isOverItem) {
+        log.debug('Skipping clear - cursor still over item (scroll scenario)')
+        return
+      }
+    }
+
+    log.debug('Executing debounced clear')
     resetPreviousItemIndex()
+    resetVelocityState()
 
-    isTransitioning.value = true
-    log.state('VISIBLE', 'CLOSING')
-
-    const refs = getRefs()
-    const activeWrapper = currentImageActive.value
-      ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef
-
-    if (!activeWrapper) {
-      log.warn('No active wrapper for clear, instant hide')
+    if (!activeSlot.value) {
       showPreview.value = false
-      isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
       return
     }
 
-    animateClipClose(activeWrapper, currentClipDirection.value, () => {
+    const element = getSlotElement(activeSlot.value)
+    if (!element) {
       showPreview.value = false
-      isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
+      return
+    }
+
+    slotStates.value[activeSlot.value].status = 'animating-out'
+
+    const clipPaths = ANIMATION_CONFIG.clipPath[currentClipDirection.value]
+
+    if (activeTimeline) {
+      activeTimeline.kill()
+    }
+
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        // Reset all slots
+        resetSlot('A')
+        resetSlot('B')
+        resetSlot('C')
+        activeSlot.value = null
+        showPreview.value = false
+        activeTimeline = null
+        log.state('CLOSING', 'IDLE')
+      }
+    })
+
+    activeTimeline.to(element, {
+      clipPath: clipPaths.closed,
+      duration: ANIMATION_CONFIG.clipClose.duration / 1000,
+      ease: ANIMATION_CONFIG.clipClose.ease
     })
   }
 
@@ -659,10 +808,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    * Set active preview with smart routing
    */
   const setActivePreview = async (preview: PreviewData | null, cursor: CursorPosition): Promise<void> => {
-    if (!preview) {
-      log.warn('setActivePreview called with null preview')
-      return
-    }
+    if (!preview) return
 
     if (isNavigating.value) {
       log.debug('Navigation in progress, skipping hover')
@@ -670,57 +816,62 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     }
 
     if (Date.now() < forceHideUntil.value) {
-      log.debug('Force-hide block active, skipping hover', {
-        blockedFor: forceHideUntil.value - Date.now() + 'ms'
-      })
+      log.debug('Force-hide block active, skipping hover')
       return
     }
 
+    const velocity = trackVelocity(cursor)
+
     log.separator(`HOVER: ${preview.image}`)
     cancelClearTimeout()
-    log.debug('Cancelled pending clear timer', { wasScheduled: true })
 
     let aspectRatio = 4 / 3
     try {
       aspectRatio = await preloadImage(preview.image)
     }
     catch (error) {
-      log.error('Image preload failed', {
-        image: preview.image,
-        error: error instanceof Error ? error.message : String(error)
-      })
+      log.error('Image preload failed', { image: preview.image })
     }
 
-    if (!currentImage.value && !nextImage.value) {
+    // First hover - no active slot yet
+    if (!activeSlot.value) {
       return handleFirstHover(preview, cursor, aspectRatio)
     }
 
-    const currentActiveImage = currentImageActive.value
-      ? currentImage.value
-      : nextImage.value
+    // Check if same image
+    const currentActiveImage = getSlotImageRef(activeSlot.value).value
     const sameImage = currentActiveImage?.image === preview.image
 
     if (sameImage) {
+      pendingTarget = null
       if (!showPreview.value) {
-        log.route('SKIP', { reason: 'same image, re-entry', image: preview.image })
-        return handleReentry(preview, true, aspectRatio)
+        return handleReentry(preview, aspectRatio)
       }
       log.route('SKIP', { reason: 'already showing', image: preview.image })
       return
     }
 
+    // Re-entry from hidden state
     if (!showPreview.value) {
-      return handleReentry(preview, false, aspectRatio)
+      return handleReentry(preview, aspectRatio)
     }
 
-    return handleItemSwitch(preview, aspectRatio)
+    // Velocity-based routing for switches
+    if (velocity >= VELOCITY_THRESHOLD) {
+      pendingTarget = { preview, aspectRatio }
+      startSettleCheck()
+      log.debug(`🎯 [SETTLE] Fast movement, queueing: ${preview.image}`)
+      return
+    }
+
+    pendingTarget = null
+    return handleImageSwitch(preview, aspectRatio)
   }
 
   /**
    * Clear active preview with debounce
    */
   const clearActivePreview = (): void => {
-    // Don't start debounced clear if navigation is in progress
     if (isNavigating.value) {
       log.debug('Skipping clear - navigation in progress')
       return
@@ -728,55 +879,46 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
 
     log.separator('CLEAR')
     startClearTimeout()
-    log.debug('Clear scheduled', { delay: ANIMATION_CONFIG.debounce.clearDelay })
   }
 
   /**
    * Clear active preview immediately (for navigation)
-   * Animates the INNER wrapper with clip-path (same as hover mode)
-   * Does NOT set showPreview = false to avoid Vue Transition opacity fade
-   * Component unmounts naturally via navigation
-   * @param onComplete - Optional callback when animation finishes (for navigation timing)
    */
   const clearActivePreviewImmediate = (onComplete?: () => void): void => {
     log.separator('CLEAR IMMEDIATE (Navigation)')
 
     isNavigating.value = true
     cancelClearTimeout()
+    resetVelocityState()
 
-    if (!showPreview.value) {
-      log.debug('Preview already hidden, skipping')
+    if (!showPreview.value || !activeSlot.value) {
       if (onComplete) onComplete()
       return
     }
 
-    isTransitioning.value = true
-    log.state('VISIBLE', 'CLOSING', { immediate: true })
-
-    const refs = getRefs()
-
-    // Animate the INNER wrapper (not container) - same pattern as executeClear
-    // This keeps container opacity at 1, making clip animation visible
-    // Vue Transition won't interfere because we don't set showPreview = false
-    const activeWrapper = currentImageActive.value
-      ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef
-
-    if (!activeWrapper) {
-      log.warn('No active wrapper for immediate clear')
-      // Don't set showPreview = false - let navigation unmount naturally
-      isTransitioning.value = false
+    const element = getSlotElement(activeSlot.value)
+    if (!element) {
       if (onComplete) onComplete()
       return
     }
 
-    animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      // DON'T set showPreview = false here!
-      // Let navigation unmount the component naturally
-      // This prevents Vue Transition from fading and masking our clip animation
-      isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
-      if (onComplete) onComplete()
+    if (activeTimeline) {
+      activeTimeline.kill()
+    }
+
+    const clipPaths = ANIMATION_CONFIG.clipPath[currentClipDirection.value]
+
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        activeTimeline = null
+        if (onComplete) onComplete()
+      }
+    })
+
+    activeTimeline.to(element, {
+      clipPath: clipPaths.closed,
+      duration: ANIMATION_CONFIG.clipClose.duration / 1000,
+      ease: ANIMATION_CONFIG.clipClose.ease
     })
   }
 
@@ -784,7 +926,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
    * Clear active preview instantly (for scroll triggers)
    */
   const clearActivePreviewInstant = (): void => {
-    // Don't execute if navigation is in progress
     if (isNavigating.value) {
       log.debug('Skipping instant clear - navigation in progress')
       return
@@ -793,43 +934,48 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs }: ComposableOpti
     log.separator('CLEAR INSTANT (Scroll)')
 
     cancelClearTimeout()
+    resetVelocityState()
 
-    if (!showPreview.value) {
-      log.debug('Preview already hidden, skipping')
+    if (!showPreview.value || !activeSlot.value) return
+
+    const element = getSlotElement(activeSlot.value)
+    if (!element) {
+      showPreview.value = false
       return
     }
 
-    isTransitioning.value = true
-    log.state('VISIBLE', 'CLOSING', { scroll: true })
-
-    const refs = getRefs()
-    const activeWrapper = currentImageActive.value
-      ? refs.currentImageWrapperRef
-      : refs.nextImageWrapperRef
-
-    if (!activeWrapper) {
-      log.warn('No active wrapper for scroll clear, immediate hide')
-      showPreview.value = false
-      isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
-      return
+    if (activeTimeline) {
+      activeTimeline.kill()
     }
 
-    animateClipClose(activeWrapper, currentClipDirection.value, () => {
-      showPreview.value = false
-      isTransitioning.value = false
-      log.state('CLOSING', 'IDLE')
+    const clipPaths = ANIMATION_CONFIG.clipPath[currentClipDirection.value]
+
+    activeTimeline = gsap.timeline({
+      onComplete: () => {
+        resetSlot('A')
+        resetSlot('B')
+        resetSlot('C')
+        activeSlot.value = null
+        showPreview.value = false
+        activeTimeline = null
+      }
+    })
+
+    activeTimeline.to(element, {
+      clipPath: clipPaths.closed,
+      duration: ANIMATION_CONFIG.clipClose.duration / 1000,
+      ease: ANIMATION_CONFIG.clipClose.ease
     })
 
     forceHideUntil.value = Date.now() + 100
   }
 
   return {
-    currentImage,
-    nextImage,
+    slotAImage,
+    slotBImage,
+    slotCImage,
     showPreview,
     previewMounted,
-    currentImageActive,
     currentAspectRatio,
     isNavigating,
     setActivePreview,
