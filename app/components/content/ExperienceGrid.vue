@@ -146,8 +146,16 @@ const toggleExpanded = () => {
   // Pause headroom BEFORE animation to prevent header flicker
   nuxtApp.$headroom?.pause()
 
+  // Cast ScrollTrigger to access addEventListener/removeEventListener (exist at runtime but not typed)
+  const st = $ScrollTrigger as typeof $ScrollTrigger & {
+    addEventListener: (event: string, callback: () => void) => void
+    removeEventListener: (event: string, callback: () => void) => void
+  }
+
   if (isExpanded.value) {
-    // Collapse
+    // Collapse: set overflow hidden BEFORE animating (needed for height: auto → 0)
+    hiddenWrapperRef.value.style.overflow = 'hidden'
+
     $gsap.to(hiddenWrapperRef.value, {
       height: 0,
       duration: 0.5,
@@ -156,10 +164,10 @@ const toggleExpanded = () => {
         // Setup one-time listener BEFORE calling refresh
         const handleRefreshComplete = (): void => {
           nuxtApp.$headroom?.unpause()
-          $ScrollTrigger?.removeEventListener('refresh', handleRefreshComplete)
+          st?.removeEventListener('refresh', handleRefreshComplete)
         }
-        $ScrollTrigger?.addEventListener('refresh', handleRefreshComplete)
-        $ScrollTrigger?.refresh()
+        st?.addEventListener('refresh', handleRefreshComplete)
+        st?.refresh()
       }
     })
   }
@@ -170,13 +178,17 @@ const toggleExpanded = () => {
       duration: 0.5,
       ease: 'power2.out',
       onComplete: () => {
+        // Set overflow visible AFTER animation completes (allows elastic border to bounce freely)
+        if (hiddenWrapperRef.value) {
+          hiddenWrapperRef.value.style.overflow = 'visible'
+        }
         // Setup one-time listener BEFORE calling refresh
         const handleRefreshComplete = (): void => {
           nuxtApp.$headroom?.unpause()
-          $ScrollTrigger?.removeEventListener('refresh', handleRefreshComplete)
+          st?.removeEventListener('refresh', handleRefreshComplete)
         }
-        $ScrollTrigger?.addEventListener('refresh', handleRefreshComplete)
-        $ScrollTrigger?.refresh()
+        st?.addEventListener('refresh', handleRefreshComplete)
+        st?.refresh()
       }
     })
   }
