@@ -213,12 +213,12 @@ const handleMouseMove = (event: MouseEvent) => {
 // Navigation is now handled via click interception in child items
 // This ensures the clip-out animation completes before route change
 
-// Provide preview control to child items (adds cursor position)
+// Provide preview control to child items (uses cursor from event, falls back to tracked position)
 const setActivePreview = (preview) => {
   if (!preview) return
   setActivePreviewComposable(preview, {
-    x: cursorX.value,
-    y: cursorY.value
+    x: preview.cursorX ?? cursorX.value,
+    y: preview.cursorY ?? cursorY.value
   })
 }
 

@@ -9,7 +9,7 @@
       ref="itemRef"
       :to="to"
       class="case-study-item full-width-content"
-      @mouseenter="handleMouseEnter"
+      @mouseenter="handleMouseEnter($event)"
       @mouseleave="handleMouseLeave"
     >
       <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
@@ -180,6 +180,8 @@ interface PreviewData {
   image: string
   imageAlt: string
   itemIndex: number
+  cursorX?: number
+  cursorY?: number
 }
 
 // Template ref for DOM-based index detection (NuxtLink component instance)
@@ -212,13 +214,16 @@ const getItemIndex = (): number => {
 /**
  * Handle mouse enter (desktop only)
  * Updates parent's active preview to show this item's image
+ * Passes cursor position from event to ensure correct initial position
  */
-const handleMouseEnter = () => {
+const handleMouseEnter = (event: MouseEvent) => {
   if (setActivePreview) {
     setActivePreview({
       image: props.image,
       imageAlt: props.imageAlt,
-      itemIndex: getItemIndex()
+      itemIndex: getItemIndex(),
+      cursorX: event.clientX,
+      cursorY: event.clientY
     })
   }
 }
