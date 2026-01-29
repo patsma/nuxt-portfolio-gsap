@@ -12,7 +12,7 @@ seo:
 ::BiographyGrid{biography-id="about"}
 ::
 
-::ExperienceGrid{view-more-text="View all" view-more-to="/about"}
+::ExperienceGrid{:initial-visible-count="3" show-more-text="Show more" show-less-text="Show less"}
 ::
 
 ::ImageScalingSection{image-src="/assets/dummy/placeholder.jpg" image-alt="Portfolio image" :start-width="25" :start-height="25" scroll-amount="120%" start-position="left"}
