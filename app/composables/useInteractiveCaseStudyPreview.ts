@@ -142,7 +142,7 @@ let previousItemIndex: number | null = null
  * Spring physics state for aspect ratio animation
  * Uses same model as CursorTrail and useMagnetic
  */
-let aspectSpring = {
+const aspectSpring = {
   position: 4 / 3,
   velocity: 0,
   target: 4 / 3
@@ -152,7 +152,7 @@ let aspectSpringFrame: number | null = null
 
 const ASPECT_SPRING_CONFIG = {
   stiffness: 0.08, // Floaty, relaxed response
-  friction: 0.68   // Pronounced overshoot/bounce
+  friction: 0.68 // Pronounced overshoot/bounce
 }
 
 /**
@@ -256,8 +256,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
   const isNavigating = ref(false)
   const forceHideUntil = ref(0)
 
-  // Forward declaration for settle check
-  let startSettleCheck: () => void
+  // startSettleCheck is defined later - see line 746
 
   /**
    * Get the image ref for a slot
@@ -456,8 +455,8 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
       currentAspectRatio.value = aspectSpring.position
 
       // Continue if still moving (threshold for settling)
-      const isMoving = Math.abs(aspectSpring.velocity) > 0.0001 ||
-                       Math.abs(aspectSpring.target - aspectSpring.position) > 0.001
+      const isMoving = Math.abs(aspectSpring.velocity) > 0.0001
+        || Math.abs(aspectSpring.target - aspectSpring.position) > 0.001
 
       if (isMoving) {
         aspectSpringFrame = requestAnimationFrame(runSpring)
@@ -743,7 +742,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
   /**
    * Start settle detection interval
    */
-  startSettleCheck = (): void => {
+  const startSettleCheck = (): void => {
     if (settleCheckInterval) return
 
     settleCheckInterval = setInterval(() => {
@@ -861,7 +860,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     try {
       aspectRatio = await preloadImage(preview.image)
     }
-    catch (error) {
+    catch {
       log.error('Image preload failed', { image: preview.image })
     }
 

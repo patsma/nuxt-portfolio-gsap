@@ -32,7 +32,7 @@
           v-show="showPreview"
           ref="previewContainerRef"
           class="preview-container hidden md:block"
-          :class="{ active: showPreview, 'is-navigating': isNavigating }"
+          :class="{ 'active': showPreview, 'is-navigating': isNavigating }"
           :style="{ aspectRatio: currentAspectRatio }"
         >
           <!-- 3-slot carousel system: always animate INTO a fresh slot -->
