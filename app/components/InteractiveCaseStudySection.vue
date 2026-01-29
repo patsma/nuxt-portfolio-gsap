@@ -7,6 +7,7 @@
   >
     <h2
       ref="titleRef"
+      v-page-clip:top="{ duration: 0.5, leaveOnly: true }"
       class="section-title ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] breakout3 mb-8 md:mb-12"
     >
       <slot name="title">
