@@ -80,7 +80,6 @@ interface SlotState {
 interface AnimationConfig {
   clipReveal: { duration: number, ease: string }
   clipClose: { duration: number, ease: string }
-  aspectRatio: { duration: number, ease: string }
   clipPath: Record<ClipDirection, { closed: string, open: string }>
   position: { offsetX: number, padding: number }
   debounce: { clearDelay: number }
@@ -108,16 +107,12 @@ export interface InteractiveCaseStudyPreviewReturn {
  */
 const ANIMATION_CONFIG: AnimationConfig = {
   clipReveal: {
-    duration: 450,
+    duration: 600,
     ease: 'power2.out'
   },
   clipClose: {
-    duration: 400,
-    ease: 'power2.in'
-  },
-  aspectRatio: {
     duration: 500,
-    ease: 'power2.inOut'
+    ease: 'power2.in'
   },
   clipPath: {
     top: {
@@ -142,6 +137,23 @@ const ANIMATION_CONFIG: AnimationConfig = {
  * Module-level previous index for direction calculation
  */
 let previousItemIndex: number | null = null
+
+/**
+ * Spring physics state for aspect ratio animation
+ * Uses same model as CursorTrail and useMagnetic
+ */
+let aspectSpring = {
+  position: 4 / 3,
+  velocity: 0,
+  target: 4 / 3
+}
+
+let aspectSpringFrame: number | null = null
+
+const ASPECT_SPRING_CONFIG = {
+  stiffness: 0.08, // Floaty, relaxed response
+  friction: 0.68   // Pronounced overshoot/bounce
+}
 
 /**
  * Module-level velocity tracking state
@@ -236,9 +248,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
   // Active animation timeline (so we can kill it if needed)
   let activeTimeline: GSAPTimeline | null = null
-
-  // Track aspect ratio tween separately to prevent race conditions
-  let aspectRatioTween: GSAPTween | null = null
 
   const showPreview = ref(false)
   const previewMounted = ref(false)
@@ -413,26 +422,55 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
   }
 
   /**
-   * Animate aspect ratio change
+   * Cancel aspect ratio spring animation
+   */
+  const cancelAspectSpring = (): void => {
+    if (aspectSpringFrame !== null) {
+      cancelAnimationFrame(aspectSpringFrame)
+      aspectSpringFrame = null
+    }
+  }
+
+  /**
+   * Animate aspect ratio using spring physics
+   * Matches CursorTrail.vue / useMagnetic.ts pattern
    */
   const animateAspectRatio = (newAspectRatio: number): void => {
-    const oldRatio = currentAspectRatio.value
-    if (Math.abs(oldRatio - newAspectRatio) < 0.01) return
+    aspectSpring.target = newAspectRatio
 
-    // Kill any existing aspect ratio animation
-    if (aspectRatioTween) {
-      aspectRatioTween.kill()
+    // Don't restart if already running
+    if (aspectSpringFrame !== null) return
+
+    const runSpring = () => {
+      // Spring force toward target
+      const force = (aspectSpring.target - aspectSpring.position) * ASPECT_SPRING_CONFIG.stiffness
+      aspectSpring.velocity += force
+
+      // Friction/damping
+      aspectSpring.velocity *= ASPECT_SPRING_CONFIG.friction
+
+      // Update position
+      aspectSpring.position += aspectSpring.velocity
+
+      // Apply to ref
+      currentAspectRatio.value = aspectSpring.position
+
+      // Continue if still moving (threshold for settling)
+      const isMoving = Math.abs(aspectSpring.velocity) > 0.0001 ||
+                       Math.abs(aspectSpring.target - aspectSpring.position) > 0.001
+
+      if (isMoving) {
+        aspectSpringFrame = requestAnimationFrame(runSpring)
+      }
+      else {
+        // Snap to target when settled
+        aspectSpring.position = aspectSpring.target
+        currentAspectRatio.value = aspectSpring.target
+        aspectSpringFrame = null
+      }
     }
 
-    aspectRatioTween = gsap.to(currentAspectRatio, {
-      value: newAspectRatio,
-      duration: ANIMATION_CONFIG.aspectRatio.duration / 1000,
-      ease: ANIMATION_CONFIG.aspectRatio.ease,
-      overwrite: true,
-      onComplete: () => {
-        aspectRatioTween = null
-      }
-    })
+    aspectSpringFrame = requestAnimationFrame(runSpring)
   }
 
   /**
@@ -456,6 +494,11 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
     previewMounted.value = true
     showPreview.value = true
+
+    // Initialize spring to target (no animation needed for first appearance)
+    aspectSpring.position = aspectRatio
+    aspectSpring.velocity = 0
+    aspectSpring.target = aspectRatio
     currentAspectRatio.value = aspectRatio
 
     await nextTick()
@@ -510,12 +553,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     if (activeTimeline) {
       activeTimeline.kill()
       activeTimeline = null
-    }
-
-    // Kill aspect ratio tween to ensure clean state for new animation
-    if (aspectRatioTween) {
-      aspectRatioTween.kill()
-      aspectRatioTween = null
     }
 
     // Determine old slot BEFORE any cleanup
@@ -645,12 +682,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
       activeTimeline = null
     }
 
-    // Kill aspect ratio tween
-    if (aspectRatioTween) {
-      aspectRatioTween.kill()
-      aspectRatioTween = null
-    }
-
     const direction = resolveClipDirection(preview.itemIndex)
     currentClipDirection.value = direction
 
@@ -755,6 +786,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     log.debug('Executing debounced clear')
     resetPreviousItemIndex()
     resetVelocityState()
+    cancelAspectSpring()
 
     if (!activeSlot.value) {
       showPreview.value = false
@@ -890,6 +922,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     isNavigating.value = true
     cancelClearTimeout()
     resetVelocityState()
+    cancelAspectSpring()
 
     if (!showPreview.value || !activeSlot.value) {
       if (onComplete) onComplete()
@@ -935,6 +968,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
     cancelClearTimeout()
     resetVelocityState()
+    cancelAspectSpring()
 
     if (!showPreview.value || !activeSlot.value) return
 
