@@ -28,7 +28,7 @@
       v-if="previewMounted"
       to="body"
     >
-      <Transition name="preview-fade">
+      <Transition name="preview-fade" @after-leave="handlePreviewAfterLeave">
         <div
           v-show="showPreview"
           ref="previewContainerRef"
@@ -170,12 +170,21 @@ const {
   clearActivePreview: clearActivePreviewComposable,
   clearActivePreviewImmediate,
   clearActivePreviewInstant,
+  cleanupAfterFade,
   animationConfig
 } = useInteractiveCaseStudyPreview({
   gsap: $gsap,
   getRefs,
   getCursor: () => ({ x: cursorX.value, y: cursorY.value })
 })
+
+/**
+ * Handle Vue Transition @after-leave hook
+ * Cleans up slot state after fade animation completes
+ */
+const handlePreviewAfterLeave = (): void => {
+  cleanupAfterFade()
+}
 
 // Track cursor and animate preview position (getBoundingClientRect accounts for ScrollSmoother)
 // GSAP's overwrite: 'auto' handles conflicting animations gracefully

@@ -101,6 +101,7 @@ export interface InteractiveCaseStudyPreviewReturn {
   clearActivePreview: () => void
   clearActivePreviewImmediate: (onComplete?: () => void) => void
   clearActivePreviewInstant: () => void
+  cleanupAfterFade: () => void
   calculatePosition: (cursor: CursorPosition, sectionRect: DOMRect, previewRect: DOMRect) => ReturnType<typeof calculatePreviewPosition>
   animationConfig: AnimationConfig
 }
@@ -1197,6 +1198,13 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
   /**
    * Clear active preview instantly (for scroll triggers)
+   *
+   * Strategy: Kill any active GSAP animation, reset all slots to fully visible,
+   * then let Vue Transition handle the fade out. This avoids competing animations
+   * (GSAP clip vs Vue fade) that can cause glitches, especially mid-slideshow.
+   *
+   * IMPORTANT: Don't call resetSlot() here - it sets opacity:0 which cuts short the fade.
+   * Slot cleanup happens in cleanupAfterFade() called from @after-leave.
    */
   const clearActivePreviewInstant = (): void => {
     if (isNavigating.value) {
@@ -1213,36 +1221,41 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
     if (!showPreview.value || !activeSlot.value) return
 
-    const element = getSlotElement(activeSlot.value)
-    if (!element) {
-      showPreview.value = false
-      return
-    }
-
+    // Kill any active GSAP animation (slideshow/transition/etc)
     if (activeTimeline) {
       activeTimeline.kill()
+      activeTimeline = null
     }
 
-    const clipPaths = ANIMATION_CONFIG.clipPath[currentClipDirection.value]
-
-    activeTimeline = gsap.timeline({
-      onComplete: () => {
-        resetSlot('A')
-        resetSlot('B')
-        resetSlot('C')
-        activeSlot.value = null
-        showPreview.value = false
-        activeTimeline = null
+    // Reset ALL slots to fully visible clip-path (prevents mid-animation artifacts)
+    // NOTE: Don't call resetSlot() here - it sets opacity:0 which cuts short the fade
+    // Slot cleanup happens in cleanupAfterFade() called from @after-leave
+    const slots: SlotId[] = ['A', 'B', 'C']
+    slots.forEach((slot) => {
+      const element = getSlotElement(slot)
+      if (element) {
+        gsap.killTweensOf(element)
+        gsap.set(element, { clipPath: 'inset(0% 0% 0% 0%)' })
       }
     })
 
-    activeTimeline.to(element, {
-      clipPath: clipPaths.closed,
-      duration: ANIMATION_CONFIG.clipClose.duration / 1000,
-      ease: ANIMATION_CONFIG.clipClose.ease
-    })
+    // Let Vue Transition handle the fade out
+    // Slots will be reset in cleanupAfterFade() after fade completes
+    showPreview.value = false
 
     forceHideUntil.value = Date.now() + 100
+  }
+
+  /**
+   * Cleanup after Vue fade transition completes
+   * Called from @after-leave hook in component
+   */
+  const cleanupAfterFade = (): void => {
+    log.debug('Cleanup after fade')
+    resetSlot('A')
+    resetSlot('B')
+    resetSlot('C')
+    activeSlot.value = null
   }
 
   return {
@@ -1257,6 +1270,7 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
     clearActivePreview,
     clearActivePreviewImmediate,
     clearActivePreviewInstant,
+    cleanupAfterFade,
     calculatePosition,
     animationConfig: ANIMATION_CONFIG
   }

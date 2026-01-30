@@ -292,9 +292,10 @@ html.is-first-load [data-entrance-animate='true'] {
    ============================================ */
 
 /* Smooth fade transition for preview visibility */
+/* 400ms duration provides gentler exit, especially for scroll-triggered clears */
 .preview-fade-enter-active,
 .preview-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease-out;
 }
 
 .preview-fade-enter-from,
