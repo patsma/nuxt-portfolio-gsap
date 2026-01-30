@@ -20,7 +20,7 @@
       :image-alt="item.imageAlt"
       :slideshow-images="item.slideshowImages || []"
       :slideshow-image-alts="item.slideshowImageAlts || []"
-      :to="item.to"
+      :to="item.to || (item.slug ? `/work/${item.slug}` : '/contact')"
     />
   </InteractiveCaseStudySection>
 </template>

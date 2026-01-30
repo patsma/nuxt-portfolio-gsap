@@ -22,6 +22,7 @@ const heroTextSegmentSchema = z.object({
  */
 const caseStudySchema = z.object({
   title: z.string(),
+  slug: z.string().optional(), // URL slug for detail page
   description: z.string(),
   tag: z.string().optional(),
   image: z.string(),
@@ -96,7 +97,7 @@ export default defineContentConfig({
       type: 'page',
       source: {
         include: '**/*.md',
-        exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**']
+        exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**', 'work/**']
       },
       schema: z.object({
         title: z.string().describe('Page title'),
@@ -266,6 +267,28 @@ export default defineContentConfig({
           title: z.string(),
           description: z.string()
         })).optional()
+      })
+    }),
+
+    // Work collection: case study detail pages
+    work: defineCollection({
+      type: 'page',
+      source: {
+        include: 'work/*.md',
+        prefix: '/work'
+      },
+      schema: z.object({
+        title: z.string(), // Project title
+        slug: z.string(), // URL slug
+        client: z.string().optional(), // Client name
+        role: z.string().optional(), // Designer's role
+        year: z.string().optional(), // Project year
+        tag: z.string().optional(), // Category (APP, INTRANET, etc.)
+        cover: z.string().optional(), // Main cover image
+        images: z.array(z.string()).optional(), // Bento grid images (3+ ideal)
+        description: z.string().optional(), // Brief description
+        displayOrder: z.number().optional().default(99), // Navigation order
+        liveLink: z.string().optional() // Link to live project
       })
     })
   }

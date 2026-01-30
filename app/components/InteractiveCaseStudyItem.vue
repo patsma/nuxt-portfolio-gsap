@@ -14,11 +14,11 @@
     >
       <!-- Multiple root elements (Vue 3 fragments) - intentional for grid layout -->
       <!-- FullWidthBorder must be a direct child to use grid-column: full-width -->
-      <!-- <FullWidthBorder
+      <FullWidthBorder
         class="hidden md:grid"
         spacing="var(--space-m)"
         :opacity="10"
-      /> -->
+      />
       <!-- Animated border line (full-width within sub-grid) -->
 
       <!-- Content wrapper (breakout3 within sub-grid) -->
