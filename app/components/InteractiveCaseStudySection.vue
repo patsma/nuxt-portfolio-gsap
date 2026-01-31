@@ -28,7 +28,10 @@
       v-if="previewMounted"
       to="body"
     >
-      <Transition name="preview-fade" @after-leave="handlePreviewAfterLeave">
+      <Transition
+        name="preview-fade"
+        @after-leave="handlePreviewAfterLeave"
+      >
         <div
           v-show="showPreview"
           ref="previewContainerRef"
@@ -95,6 +98,7 @@
  * - animateOnScroll: Use ScrollTrigger animation when scrolling into view (default)
  * - position: GSAP position parameter for entrance timeline timing
  */
+import type { ScrollTriggerInstance } from '~/types/nuxt-gsap'
 import { useInteractiveCaseStudyPreview } from '~/composables/useInteractiveCaseStudyPreview'
 import { calculatePreviewPosition } from '~/utils/previewPosition'
 
@@ -148,7 +152,8 @@ const slotCRef = ref(null)
 const cursorX = ref(0)
 const cursorY = ref(0)
 
-let scrollTriggerInstance = null
+let titleScrollTriggerInstance: ScrollTriggerInstance | null = null
+let itemScrollTriggerInstances: ScrollTriggerInstance[] = []
 
 const getRefs = () => ({
   sectionRef: sectionRef.value,
@@ -338,6 +343,125 @@ const createSectionAnimation = () => {
   return tl
 }
 
+/**
+ * Create ScrollTrigger for title (separate from items)
+ */
+const createTitleScrollTrigger = (): void => {
+  if (titleScrollTriggerInstance) {
+    titleScrollTriggerInstance.kill()
+    titleScrollTriggerInstance = null
+  }
+
+  if (!titleRef.value) return
+
+  $gsap.set(titleRef.value, { clearProps: 'all' })
+  $gsap.set(titleRef.value, { opacity: 0, y: 40 })
+
+  const tl = $gsap.timeline()
+  tl.fromTo(
+    titleRef.value,
+    { opacity: 0, y: 40 },
+    { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
+  )
+
+  titleScrollTriggerInstance = $ScrollTrigger.create({
+    trigger: titleRef.value,
+    start: 'top 85%',
+    animation: tl,
+    once: true
+  })
+}
+
+/**
+ * Create per-item ScrollTriggers
+ * Each item animates independently when it enters viewport
+ * Includes DrawSVG animation for FullWidthBorder (desktop only)
+ */
+const createItemScrollTriggers = (): void => {
+  // Kill existing
+  itemScrollTriggerInstances.forEach(st => st.kill())
+  itemScrollTriggerInstances = []
+
+  if (!itemsListRef.value) return
+
+  const selector = isMobile.value ? '.case-study-card' : '.case-study-item'
+  const items = itemsListRef.value.querySelectorAll(selector)
+
+  if (items.length === 0) return
+
+  // Clear and set initial state for items
+  $gsap.set(items, { clearProps: 'all' })
+  $gsap.set(items, { opacity: 0, y: 40 })
+
+  // Create per-item triggers
+  items.forEach((item, index) => {
+    const tl = $gsap.timeline()
+
+    // Find the SVG path inside this item's FullWidthBorder (desktop only)
+    const borderPath = item.querySelector('.full-width-border-svg path')
+
+    // Set initial DrawSVG state (hidden - 0% drawn)
+    if (borderPath) {
+      $gsap.set(borderPath, { drawSVG: '0%' })
+    }
+
+    // Animate item content (fade + y)
+    tl.fromTo(
+      item,
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+        delay: index * 0.03 // Subtle stagger for items already in viewport
+      }
+    )
+
+    // Animate border draw (left to right) - organic, unhurried feel
+    if (borderPath) {
+      tl.to(
+        borderPath,
+        {
+          drawSVG: '0% 100%', // Draw from left (0%) to right (100%)
+          duration: 1.6,
+          ease: 'linear' // Fast start, gentle finish - feels natural
+        },
+        '<0.15' // Start slightly after content begins
+      )
+    }
+
+    const st = $ScrollTrigger.create({
+      trigger: item,
+      start: 'top 85%',
+      animation: tl,
+      once: true
+    })
+
+    itemScrollTriggerInstances.push(st)
+  })
+}
+
+/**
+ * Create all scroll triggers (title + items)
+ */
+const createAllScrollTriggers = (): void => {
+  createTitleScrollTrigger()
+  createItemScrollTriggers()
+}
+
+/**
+ * Cleanup all scroll triggers
+ */
+const cleanupAllScrollTriggers = (): void => {
+  if (titleScrollTriggerInstance) {
+    titleScrollTriggerInstance.kill()
+    titleScrollTriggerInstance = null
+  }
+  itemScrollTriggerInstances.forEach(st => st.kill())
+  itemScrollTriggerInstances = []
+}
+
 // Hide preview smoothly when scrolling out of section (prevents stuck previews)
 // Monitors cursor position continuously and hides with animation if outside section
 onMounted(() => {
@@ -353,84 +477,35 @@ onMounted(() => {
     }
   }
   else if (props.animateOnScroll) {
-    // SCROLL MODE: Animate when scrolling into view (default)
-    // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
-    // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
+    // SCROLL MODE: Per-item viewport triggers
+    // Each item animates independently when it enters viewport
     if ($ScrollTrigger && sectionRef.value) {
-      // Create/recreate ScrollTrigger with fresh element queries
-      const createScrollTrigger = () => {
-        // Kill existing ScrollTrigger if present
-        if (scrollTriggerInstance) {
-          scrollTriggerInstance.kill()
-          scrollTriggerInstance = null
-        }
-
-        // CRITICAL: Clear inline GSAP styles from page transitions
-        // The v-page-stagger directive leaves inline styles (opacity, transform) on elements
-        // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
-        if (titleRef.value) {
-          $gsap.set(titleRef.value, { clearProps: 'all' })
-          $gsap.set(titleRef.value, { opacity: 0, y: 40 })
-        }
-        if (itemsListRef.value) {
-          const selector = isMobile.value
-            ? '.case-study-card'
-            : '.case-study-item'
-          const items = itemsListRef.value.querySelectorAll(selector)
-          if (items.length > 0) {
-            $gsap.set(items, { clearProps: 'all' })
-            $gsap.set(items, { opacity: 0, y: 40 })
-          }
-        }
-
-        // Create timeline with fromTo() defining both start and end states
-        // Initial state already set above, timeline will animate based on scroll position
-        const scrollTimeline = createSectionAnimation()
-
-        // Create ScrollTrigger with animation timeline
-        scrollTriggerInstance = $ScrollTrigger.create({
-          trigger: sectionRef.value,
-          start: 'top center', // Animate when section is 80% down viewport
-          end: 'bottom top+=25%', // Complete animation when bottom of section reaches top of viewport
-          animation: scrollTimeline, // Link timeline to scroll position
-          toggleActions: 'play pause resume reverse',
-          // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
-          invalidateOnRefresh: true // Recalculate on window resize/refresh
-        })
-      }
-
       // Coordinate with page transition system
-      // First load: Create immediately after mount
-      // Navigation: Recreate after page transition completes
       if (loadingStore.isFirstLoad) {
         nextTick(() => {
-          createScrollTrigger()
+          createAllScrollTriggers()
         })
       }
       else {
-        // After page navigation, wait for page transition to complete
-        // Watch pageTransitionStore.isTransitioning for proper timing
         const unwatch = watch(
           () => pageTransitionStore.isTransitioning,
           (isTransitioning) => {
-            // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
             if (!isTransitioning) {
               nextTick(() => {
-                createScrollTrigger()
+                createAllScrollTriggers()
               })
-              unwatch() // Stop watching
+              unwatch()
             }
           },
           { immediate: true }
         )
       }
 
-      // Watch for breakpoint changes to recreate ScrollTrigger with correct selector
-      // This handles viewport resize between mobile and desktop breakpoints
+      // Recreate on breakpoint change
       watch(isMobile, () => {
-        if (scrollTriggerInstance) {
+        if (itemScrollTriggerInstances.length > 0) {
           nextTick(() => {
-            createScrollTrigger()
+            createAllScrollTriggers()
           })
         }
       })
@@ -464,11 +539,8 @@ onMounted(() => {
   }
 })
 
-// Cleanup ScrollTrigger on unmount
+// Cleanup ScrollTriggers on unmount
 onUnmounted(() => {
-  if (scrollTriggerInstance) {
-    scrollTriggerInstance.kill()
-    scrollTriggerInstance = null
-  }
+  cleanupAllScrollTriggers()
 })
 </script>
