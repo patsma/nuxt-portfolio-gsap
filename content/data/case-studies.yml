@@ -49,6 +49,14 @@ items:
     description: "Art direction, Interactive design & UI"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Maelt project preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "Maelt detail view"
+      - "Maelt mobile view"
+      - "Maelt final design"
     to: "/work/maelt"
 
   - title: "Nixu"
@@ -57,6 +65,14 @@ items:
     description: "Art direction, Interactive design, & UI"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Nixu preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Nixu detail view"
+      - "Nixu mobile view"
+      - "Nixu final design"
     to: "/work/nixu"
 
   - title: "Neurotorium"
@@ -64,6 +80,14 @@ items:
     description: "Interactive design & UI"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "Neurotorium preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "Neurotorium detail view"
+      - "Neurotorium mobile view"
+      - "Neurotorium final design"
     to: "/work/neurotorium"
 
   - title: "Fonden for Socialt Ansvar"
@@ -71,6 +95,14 @@ items:
     description: "Interactive design & UI"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "Fonden for Socialt Ansvar preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "Fonden for Socialt Ansvar detail view"
+      - "Fonden for Socialt Ansvar mobile view"
+      - "Fonden for Socialt Ansvar final design"
     to: "/work/fonden-for-socialt-ansvar"
 
   - title: "BII Magazine"
@@ -79,6 +111,14 @@ items:
     description: "Art direction, Interactive design & UI"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "BII Magazine preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "BII Magazine detail view"
+      - "BII Magazine mobile view"
+      - "BII Magazine final design"
     to: "/work/bii-magazine"
 
   - title: "August Krogh"
@@ -86,6 +126,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "August Krogh preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "August Krogh detail view"
+      - "August Krogh mobile view"
+      - "August Krogh final design"
     to: "/work/august-krogh"
 
   - title: "LevendeStreg"
@@ -93,6 +141,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "LevendeStreg preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "LevendeStreg detail view"
+      - "LevendeStreg mobile view"
+      - "LevendeStreg final design"
     to: "/work/levendestreg"
 
   - title: "ScienceNews"
@@ -100,6 +156,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "ScienceNews preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "ScienceNews detail view"
+      - "ScienceNews mobile view"
+      - "ScienceNews final design"
     to: "/work/sciencenews"
 
   - title: "Pointvoucher"
@@ -107,6 +171,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Pointvoucher preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "Pointvoucher detail view"
+      - "Pointvoucher mobile view"
+      - "Pointvoucher final design"
     to: "/work/pointvoucher"
 
   - title: "Pointvoucher Studios"
@@ -114,6 +186,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Pointvoucher Studios preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Pointvoucher Studios detail view"
+      - "Pointvoucher Studios mobile view"
+      - "Pointvoucher Studios final design"
     to: "/work/pointvoucher-studios"
 
   - title: "FoodWaste"
@@ -121,6 +201,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "FoodWaste preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "FoodWaste detail view"
+      - "FoodWaste mobile view"
+      - "FoodWaste final design"
     to: "/work/foodwaste"
 
   - title: "eSmiley"
@@ -129,6 +217,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "eSmiley preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "eSmiley detail view"
+      - "eSmiley mobile view"
+      - "eSmiley final design"
     to: "/work/esmiley"
 
   - title: "Bibelselskabet"
@@ -136,6 +232,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Bibelselskabet preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "Bibelselskabet detail view"
+      - "Bibelselskabet mobile view"
+      - "Bibelselskabet final design"
     to: "/work/bibelselskabet"
 
   - title: "Molio"
@@ -143,6 +247,14 @@ items:
     description: "UI & UX"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Molio preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Molio detail view"
+      - "Molio mobile view"
+      - "Molio final design"
     to: "/work/molio"
 
   - title: "LinkFactory"
@@ -151,6 +263,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "LinkFactory preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "LinkFactory detail view"
+      - "LinkFactory mobile view"
+      - "LinkFactory final design"
     to: "/work/linkfactory"
 
   - title: "Haveselskabet"
@@ -159,6 +279,14 @@ items:
     description: "UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "Haveselskabet preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "Haveselskabet detail view"
+      - "Haveselskabet mobile view"
+      - "Haveselskabet final design"
     to: "/work/haveselskabet"
 
   - title: "Fonda"
@@ -166,6 +294,14 @@ items:
     description: "UI & UX"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Fonda preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "Fonda detail view"
+      - "Fonda mobile view"
+      - "Fonda final design"
     to: "/work/fonda"
 
   - title: "Independo"
@@ -174,6 +310,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Independo preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Independo detail view"
+      - "Independo mobile view"
+      - "Independo final design"
     to: "/work/independo"
 
   - title: "SpotTheSpy"
@@ -182,6 +326,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "SpotTheSpy preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "SpotTheSpy detail view"
+      - "SpotTheSpy mobile view"
+      - "SpotTheSpy final design"
     to: "/work/spotthespy"
 
   - title: "Westend London"
@@ -189,6 +341,14 @@ items:
     description: "Art direction, UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "Westend London preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "Westend London detail view"
+      - "Westend London mobile view"
+      - "Westend London final design"
     to: "/work/westend-london"
 
   - title: "Pengi"
@@ -197,6 +357,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Pengi preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+    slideshowImageAlts:
+      - "Pengi detail view"
+      - "Pengi mobile view"
+      - "Pengi final design"
     to: "/work/pengi"
 
   - title: "Firstborn Capital"
@@ -205,6 +373,14 @@ items:
     description: "Art direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Firstborn Capital preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+    slideshowImageAlts:
+      - "Firstborn Capital detail view"
+      - "Firstborn Capital mobile view"
+      - "Firstborn Capital final design"
     to: "/work/firstborn-capital"
 
   - title: "Dansk Markedsfoering"
@@ -212,6 +388,14 @@ items:
     description: "UI & UX"
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "Dansk Markedsfoering preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+    slideshowImageAlts:
+      - "Dansk Markedsfoering detail view"
+      - "Dansk Markedsfoering mobile view"
+      - "Dansk Markedsfoering final design"
     to: "/work/dansk-markedsfoering"
 
   - title: "SuperBrugsen"
@@ -220,4 +404,12 @@ items:
     description: "Art Direction, Interactive design, UI & UX"
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "SuperBrugsen preview"
+    slideshowImages:
+      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder1.jpg"
+    slideshowImageAlts:
+      - "SuperBrugsen detail view"
+      - "SuperBrugsen mobile view"
+      - "SuperBrugsen final design"
     to: "/work/superbrugsen"
