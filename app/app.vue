@@ -34,10 +34,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- Fluid gradient background (z-0, behind everything) -->
+  <!-- Fluid gradient background (z-0, behind everything)
 
   <FluidGradient />
-
+-->
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>

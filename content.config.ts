@@ -97,7 +97,7 @@ export default defineContentConfig({
       type: 'page',
       source: {
         include: '**/*.md',
-        exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**', 'work/**']
+        exclude: ['data/**', 'lab/**', 'work/**']
       },
       schema: z.object({
         title: z.string().describe('Page title'),
@@ -201,46 +201,9 @@ export default defineContentConfig({
     }),
 
     // ----------------------------------------
-    // PAGE COLLECTIONS (existing)
+    // PAGE COLLECTIONS
     // ----------------------------------------
 
-    // Projects collection: all markdown files in content/projects
-    projects: defineCollection({
-      type: 'page',
-      source: {
-        include: 'projects/*.md',
-        prefix: '/projects'
-      },
-      // Minimal schema for consistent metadata across projects
-      schema: z.object({
-        title: z.string(),
-        slug: z.string(),
-        category: z.string().optional(),
-        cover: z.string().optional(),
-        video: z.string().optional(),
-        liveLink: z.string().optional(),
-        components: z.array(z.string()).optional(),
-        summary: z.string().optional()
-      })
-    }),
-    // Blog collection: simple blog posts in content/blog
-    blog: defineCollection({
-      type: 'page',
-      source: {
-        include: 'blog/*.md',
-        prefix: '/blog'
-      },
-      // Lightweight schema for a basic blog
-      schema: z.object({
-        title: z.string(),
-        slug: z.string(),
-        date: z.string().optional(), // ISO date string
-        tags: z.array(z.string()).optional(),
-        excerpt: z.string().optional(),
-        cover: z.string().optional(),
-        author: z.string().optional()
-      })
-    }),
     // Lab collection: experimental projects and tools
     lab: defineCollection({
       type: 'page',
