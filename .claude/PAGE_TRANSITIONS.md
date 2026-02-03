@@ -150,6 +150,55 @@ nextTick(() => {
 });
 ```
 
+## Mobile Performance Optimizations
+
+### 6. Visibility Check in findAnimatedElements()
+**Issue:** Page transitions were animating hidden responsive elements (e.g., desktop layout on mobile)
+**Fix:** Skip elements with `display: none` when walking DOM tree
+
+```typescript
+const walk = (node: HTMLElement): void => {
+  const style = getComputedStyle(node)
+  if (style.display === 'none') {
+    return // Skip this element AND all its children
+  }
+  // ... rest of walk logic
+}
+```
+
+**Important:** Only check `display: none`, NOT `visibility: hidden`. The page transition system uses `visibility: hidden` temporarily during transitions via `beforeEnter`.
+
+### 7. Optimized clearProps Cleanup
+**Issue:** `afterLeave()` was calling `el.querySelectorAll('*')` - expensive on large pages
+**Fix:** Track animated elements in a Set, only clear those
+
+```typescript
+let animatedElementsForCleanup: Set<HTMLElement> = new Set()
+
+// In leave() - store what we're animating
+animatedElementsForCleanup = new Set(elements)
+
+// In afterLeave() - only clear what we animated
+animatedElementsForCleanup.forEach((el) => {
+  $gsap.set(el, { clearProps: 'all' })
+})
+animatedElementsForCleanup.clear()
+```
+
+### 8. Stagger Animation Filters Hidden Children
+**Issue:** `animateStagger` was animating all children including `display: none` elements
+**Fix:** Filter out hidden children before animating
+
+```typescript
+const allChildren = el.querySelectorAll(selector)
+const children = Array.from(allChildren).filter((child) => {
+  const style = getComputedStyle(child as HTMLElement)
+  return style.display !== 'none'
+})
+```
+
+This allows combined selectors like `.case-study-item, .case-study-card` to work correctly - only the visible layout animates.
+
 ## Safari Performance
 
 **Settings for 60fps on Safari:**
@@ -433,6 +482,7 @@ Complete example showing:
 | No parallax | effects: false | Set `effects: true` in createSmoother() |
 | Safari height jump | SplitText adds height | Lock height before SplitText (see Fix #4) |
 | Safari animations broken | DOM not ready | Double requestAnimationFrame (see Fix #5) |
+| Mobile transitions slow | Animating hidden elements | Visibility check filters `display: none` in usePageTransition.ts |
 
 ## Files Reference
 

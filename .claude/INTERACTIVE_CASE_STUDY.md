@@ -338,6 +338,62 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 - Moving UP list (3→2→1): direction = "bottom" (reveals from bottom)
 - First hover or re-entry: direction = "top"
 
+## Mobile Optimizations
+
+The component is heavily optimized for mobile performance:
+
+### Preview System Disabled on Mobile
+On mobile (`isMobile.value === true`), the preview composable returns no-op functions:
+- No velocity tracking
+- No spring physics calculations
+- No slideshow timer management
+- No image preloading (saves 135+ image loads)
+
+```typescript
+const mobileNoOpPreview = {
+  showPreview: ref(false),
+  previewMounted: ref(false),
+  setActivePreview: async () => {},
+  clearActivePreview: () => {},
+  // ... all functions are no-ops
+}
+```
+
+### Teleport Skipped on Mobile
+The preview container Teleport is not rendered on mobile:
+```vue
+<Teleport v-if="previewMounted && !isMobile" to="body">
+```
+
+### ScrollTrigger for Preview Hiding Skipped
+The preview-hiding ScrollTrigger only runs on desktop:
+```typescript
+if ($ScrollTrigger && !isMobile.value) {
+  $ScrollTrigger.create({ /* preview hiding logic */ })
+}
+```
+
+### Mouse Move Handler Skipped
+Cursor tracking early-returns on mobile:
+```typescript
+const handleMouseMove = (event: MouseEvent) => {
+  if (isMobile.value) return
+  // ...
+}
+```
+
+### Combined Page Transition Selector
+The `v-page-stagger` directive targets both layouts:
+```vue
+v-page-stagger="{ selector: '.case-study-item, .case-study-card', stagger: 0.08, leaveOnly: true }"
+```
+
+The page transition system filters out `display: none` elements, so only the visible layout animates.
+
+### Case Studies Data
+- Active items: `content/data/case-studies.yml` (8 items)
+- Archive: `content/data/case-studies-archive.yml` (all 27 items)
+
 ## Known Limitations
 
 1. **Preview not visible on first hover:**
@@ -496,4 +552,4 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 ---
 
 **Status:** ✅ Stable & Production-Ready
-**Last Updated:** 2026-01-29 (Slideshow feature added)
+**Last Updated:** 2026-02-03 (Mobile performance optimizations)
