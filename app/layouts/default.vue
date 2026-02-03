@@ -13,9 +13,6 @@ const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 const { createSmoother, killSmoother, scrollToTop }
   = useScrollSmootherManager()
 
-// Mobile detection for conditional ScrollSmoother settings
-const { isMobile } = useIsMobile()
-
 // Loading sequence manager
 const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad }
   = useLoadingSequence()
@@ -44,7 +41,7 @@ onMounted(() => {
       content: '#smooth-content',
       smooth: 1, // Optimized for consistent 60fps across all browsers (higher values can drop to 14fps on Safari)
       effects: true, // Enable data-speed and data-lag attributes
-      normalizeScroll: !isMobile.value, // Desktop: true for smooth scroll, Mobile: false for native Safari URL bar behavior
+      normalizeScroll: true, // Desktop: true for smooth scroll, Mobile: false for native Safari URL bar behavior
       ignoreMobileResize: true, // Prevents janky resizing on mobile devices
 
       // Headroom integration: update header visibility on scroll
