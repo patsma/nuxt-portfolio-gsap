@@ -188,7 +188,7 @@ function animateToTheme(isDark: boolean) {
         )
       }
     },
-onComplete: () => {
+    onComplete: () => {
       // Animation complete - colors now match target theme
     }
   })

@@ -59,6 +59,7 @@ interface GSAPInstance {
   set: (targets: unknown, vars: Record<string, unknown>) => void
   to: (targets: unknown, vars: Record<string, unknown>, position?: number | string) => GSAPTimeline
   context: (fn: () => void) => GSAPContext
+  killTweensOf: (targets: unknown, props?: string) => void
 }
 
 interface GSAPTimeline {
@@ -69,6 +70,8 @@ interface GSAPTimeline {
   progress: (value: number) => GSAPTimeline
   duration: () => number
   tweenTo: (position: number | string, vars?: Record<string, unknown>) => GSAPTimeline
+  eventCallback: (type: string, callback: (() => void) | null) => GSAPTimeline
+  timeScale: (value: number) => GSAPTimeline
 }
 
 interface GSAPContext {
@@ -158,7 +161,7 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     _gradientColors: ThemeGradientColors,
     themeDuration: number,
     tl: GSAPTimeline,
-    colorProxy: ColorProxy
+    _colorProxy: ColorProxy
   ): void => {
     if (!button) return
 

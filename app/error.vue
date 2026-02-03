@@ -1,15 +1,24 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
 
+// Extended error type to include all possible properties from Nuxt errors
+interface ExtendedNuxtError extends NuxtError {
+  status?: number
+  url?: string
+  description?: string
+  cause?: { stack?: string }
+  data?: { url?: string, [key: string]: unknown }
+}
+
 const props = defineProps({
-  error: { type: Object as () => NuxtError, default: () => ({}) }
+  error: { type: Object as () => ExtendedNuxtError, default: () => ({}) }
 })
 
 // Status code detection
 const statusCode = computed(() =>
   props.error?.statusCode
-    || props.error?.status
-    || 500
+  || props.error?.status
+  || 500
 )
 const is404 = computed(() => Number(statusCode.value) === 404)
 
