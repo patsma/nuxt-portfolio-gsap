@@ -274,20 +274,23 @@ async function setupTitleAnimation(): Promise<void> {
     titleSplitInstance.revert?.()
   }
 
-  // Create new SplitText instance
+  // CRITICAL: Force DOM to match current store value
+  // SplitText.revert() restores the original text it captured, not the reactive store value
+  if (titleElementRef.value) {
+    titleElementRef.value.textContent = titleStore.currentText
+  }
+
+  // Create new SplitText instance with the updated text
   titleSplitInstance = $SplitText.create(titleElementRef.value, {
     type: 'chars'
   })
 
-  // Create animation timeline with infinite repeat
+  // Create animation timeline (no repeat - cycling handled by watcher/store)
   if (titleTl) {
     titleTl.kill()
   }
 
-  titleTl = $gsap.timeline({
-    repeat: -1,
-    repeatDelay: 1
-  })
+  titleTl = $gsap.timeline()
 
   // Fade in characters with stagger
   titleTl.from(titleSplitInstance.chars, {
@@ -306,6 +309,10 @@ async function setupTitleAnimation(): Promise<void> {
     onComplete: () => {
       // Advance to next title in rotation
       titleStore.updateText()
+      // Directly chain to next animation (don't rely on watcher)
+      nextTick(() => {
+        setupTitleAnimation()
+      })
     }
   })
 }
