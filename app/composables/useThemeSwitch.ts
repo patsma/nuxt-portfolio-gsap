@@ -67,6 +67,8 @@ interface GSAPTimeline {
   pause: () => GSAPTimeline
   reverse: () => GSAPTimeline
   progress: (value: number) => GSAPTimeline
+  duration: () => number
+  tweenTo: (position: number | string, vars?: Record<string, unknown>) => GSAPTimeline
 }
 
 interface GSAPContext {
@@ -92,6 +94,20 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     $MorphSVGPlugin: MorphSVGPlugin
   }
   const { $gsap, $MorphSVGPlugin } = nuxtApp
+
+  /**
+   * Update Safari mobile URL bar color via theme-color meta tags
+   * Must update ALL theme-color meta tags (including those with media queries)
+   * to override Safari's automatic media query selection
+   */
+  const updateThemeColor = (isDark: boolean): void => {
+    const color = isDark ? '#090925' : '#fffaf5'
+    // Update ALL theme-color meta tags to override media query behavior
+    const metas = document.querySelectorAll('meta[name="theme-color"]')
+    metas.forEach((meta) => {
+      meta.setAttribute('content', color)
+    })
+  }
 
   /**
    * Helper to parse rgba() or hex string to RGB object
@@ -141,7 +157,8 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     colors: ThemeColors,
     _gradientColors: ThemeGradientColors,
     themeDuration: number,
-    tl: GSAPTimeline
+    tl: GSAPTimeline,
+    colorProxy: ColorProxy
   ): void => {
     if (!button) return
 
@@ -232,14 +249,28 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
       // Toggle store ONCE
       themeStore.toggle()
 
-      // Animate timeline based on NEW state (simple toggle)
+      // Update Safari mobile URL bar color
+      updateThemeColor(themeStore.isDark)
+
+      // Kill any existing animations on the timeline first
+      $gsap.killTweensOf(tl)
+
+      // Set completion callbacks to ensure we reach EXACT final values
       if (wasLight) {
-        // Was light, now dark → animate forward
-        tl.play()
+        // Was light, now dark → play forward, snap to progress=1 on complete
+        tl.eventCallback('onComplete', () => {
+          tl.progress(1)
+        })
+        tl.eventCallback('onReverseComplete', null)
+        tl.timeScale(1).play()
       }
       else {
-        // Was dark, now light → animate backward
-        tl.reverse()
+        // Was dark, now light → reverse, snap to progress=0 on complete
+        tl.eventCallback('onReverseComplete', () => {
+          tl.progress(0)
+        })
+        tl.eventCallback('onComplete', null)
+        tl.timeScale(1).reverse()
       }
     })
   }
@@ -458,7 +489,8 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
         colors,
         gradientColors,
         themeDuration,
-        tl
+        tl,
+        colorProxy
       )
       initButton(
         themeSwitchMobile,
@@ -467,11 +499,13 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
         colors,
         gradientColors,
         themeDuration,
-        tl
+        tl,
+        colorProxy
       )
 
       // Set initial timeline position based on localStorage reading
-      tl.progress(isDarkInitially ? 1 : 0).pause()
+      const initialProgress = isDarkInitially ? 1 : 0
+      tl.progress(initialProgress).pause()
     })
 
     // Return cleanup function

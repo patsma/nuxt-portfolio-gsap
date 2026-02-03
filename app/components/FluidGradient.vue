@@ -23,6 +23,7 @@
         - Manual advance() calls for render control
       -->
       <FluidGradientScene
+        ref="sceneRef"
         :uniforms="uniforms"
         :vertex-shader="vertexShader"
         :fragment-shader="activeFragmentShader"
@@ -69,6 +70,16 @@ const { isMobile } = useIsMobile()
 // Core refs
 const containerRef = ref(null)
 const isMounted = ref(false)
+interface SceneRef {
+  updateColors: (tl: number[], tr: number[], bl: number[], br: number[]) => void
+  internalUniforms?: {
+    colorTL: { value: number[] }
+    colorTR: { value: number[] }
+    colorBL: { value: number[] }
+    colorBR: { value: number[] }
+  }
+}
+const sceneRef = ref<SceneRef | null>(null)
 
 /**
  * Gradient color palettes - normalized RGB values for Three.js (0-1 range)
@@ -125,24 +136,29 @@ const activeFragmentShader = computed(() =>
  * Uses GSAP to smoothly transition between light/dark color palettes
  * @param {boolean} isDark - Whether dark theme is active
  */
-function animateToTheme(isDark) {
+function animateToTheme(isDark: boolean) {
   const targetColors = isDark ? gradientColors.dark : gradientColors.light
 
-  // Create a proxy object to animate, then update the uniform arrays
-  // This ensures GSAP can properly interpolate the values
+  // Get current colors from scene's internal uniforms (the actual values Three.js uses)
+  const currentTL = sceneRef.value?.internalUniforms?.colorTL?.value || uniforms.colorTL.value
+  const currentTR = sceneRef.value?.internalUniforms?.colorTR?.value || uniforms.colorTR.value
+  const currentBL = sceneRef.value?.internalUniforms?.colorBL?.value || uniforms.colorBL.value
+  const currentBR = sceneRef.value?.internalUniforms?.colorBR?.value || uniforms.colorBR.value
+
+  // Create a proxy object to animate
   const proxy = {
-    tlR: uniforms.colorTL.value[0],
-    tlG: uniforms.colorTL.value[1],
-    tlB: uniforms.colorTL.value[2],
-    trR: uniforms.colorTR.value[0],
-    trG: uniforms.colorTR.value[1],
-    trB: uniforms.colorTR.value[2],
-    blR: uniforms.colorBL.value[0],
-    blG: uniforms.colorBL.value[1],
-    blB: uniforms.colorBL.value[2],
-    brR: uniforms.colorBR.value[0],
-    brG: uniforms.colorBR.value[1],
-    brB: uniforms.colorBR.value[2]
+    tlR: currentTL[0],
+    tlG: currentTL[1],
+    tlB: currentTL[2],
+    trR: currentTR[0],
+    trG: currentTR[1],
+    trB: currentTR[2],
+    blR: currentBL[0],
+    blG: currentBL[1],
+    blB: currentBL[2],
+    brR: currentBR[0],
+    brG: currentBR[1],
+    brB: currentBR[2]
   }
 
   $gsap.to(proxy, {
@@ -161,19 +177,19 @@ function animateToTheme(isDark) {
     duration: 0.6,
     ease: 'power2.inOut',
     onUpdate: () => {
-      // Update the actual uniform arrays on every frame
-      uniforms.colorTL.value[0] = proxy.tlR
-      uniforms.colorTL.value[1] = proxy.tlG
-      uniforms.colorTL.value[2] = proxy.tlB
-      uniforms.colorTR.value[0] = proxy.trR
-      uniforms.colorTR.value[1] = proxy.trG
-      uniforms.colorTR.value[2] = proxy.trB
-      uniforms.colorBL.value[0] = proxy.blR
-      uniforms.colorBL.value[1] = proxy.blG
-      uniforms.colorBL.value[2] = proxy.blB
-      uniforms.colorBR.value[0] = proxy.brR
-      uniforms.colorBR.value[1] = proxy.brG
-      uniforms.colorBR.value[2] = proxy.brB
+      // Call the scene's updateColors method directly
+      // This updates the plain JS uniforms that Three.js actually uses
+      if (sceneRef.value?.updateColors) {
+        sceneRef.value.updateColors(
+          [proxy.tlR, proxy.tlG, proxy.tlB],
+          [proxy.trR, proxy.trG, proxy.trB],
+          [proxy.blR, proxy.blG, proxy.blB],
+          [proxy.brR, proxy.brG, proxy.brB]
+        )
+      }
+    },
+onComplete: () => {
+      // Animation complete - colors now match target theme
     }
   })
 }
@@ -211,14 +227,27 @@ onMounted(() => {
   isMounted.value = true
 
   // Set initial colors based on current theme (no animation on first load)
+  // Wait for scene to be mounted, then update its internal uniforms
   nextTick(() => {
     const initialColors = themeStore.isDark
       ? gradientColors.dark
       : gradientColors.light
+
+    // Update the reactive uniforms (for props)
     uniforms.colorTL.value = [...initialColors.tl]
     uniforms.colorTR.value = [...initialColors.tr]
     uniforms.colorBL.value = [...initialColors.bl]
     uniforms.colorBR.value = [...initialColors.br]
+
+    // Also update the scene's internal uniforms directly
+    if (sceneRef.value?.updateColors) {
+      sceneRef.value.updateColors(
+        [...initialColors.tl],
+        [...initialColors.tr],
+        [...initialColors.bl],
+        [...initialColors.br]
+      )
+    }
   })
 })
 
@@ -250,6 +279,7 @@ defineExpose({
 
 .gradient-overlay {
   /* Theme-aware overlay to neutralize colorful gradient */
+  /* No CSS transition - GSAP handles theme animation via CSS variable updates */
   position: absolute;
   top: 0;
   left: 0;
@@ -258,6 +288,5 @@ defineExpose({
   background-color: var(--theme-100);
   opacity: 0.4;
   pointer-events: none;
-  transition: opacity var(--duration-theme) var(--ease-power2);
 }
 </style>
