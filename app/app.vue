@@ -7,6 +7,10 @@
  */
 
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
+import useIsMobile from '~/composables/useIsMobile'
+
+// Mobile detection for cursor trail
+const { isMobile } = useIsMobile()
 
 // Global SEO defaults
 useSeoMeta({
@@ -42,6 +46,6 @@ onMounted(() => {
     <NuxtPage />
   </NuxtLayout>
 
-  <!-- Smooth cursor trail effect (z-50, on top) -->
-  <CursorTrail />
+  <!-- Smooth cursor trail effect (z-50, on top) - hidden on mobile (no cursor) -->
+  <CursorTrail v-if="!isMobile" />
 </template>
