@@ -239,29 +239,33 @@ const getItemIndex = (): number => {
  * Handle mouse enter (desktop only)
  * Updates parent's active preview to show this item's image
  * Passes cursor position from event to ensure correct initial position
+ * MOBILE OPTIMIZATION: Early return if no preview system (mobile provides no-op)
  */
 const handleMouseEnter = (event: MouseEvent) => {
-  if (setActivePreview) {
-    setActivePreview({
-      image: props.image,
-      imageAlt: props.imageAlt,
-      itemIndex: getItemIndex(),
-      cursorX: event.clientX,
-      cursorY: event.clientY,
-      slideshowImages: props.slideshowImages,
-      slideshowImageAlts: props.slideshowImageAlts
-    })
-  }
+  // Skip if no preview system (mobile provides no-op injection)
+  if (!setActivePreview) return
+
+  setActivePreview({
+    image: props.image,
+    imageAlt: props.imageAlt,
+    itemIndex: getItemIndex(),
+    cursorX: event.clientX,
+    cursorY: event.clientY,
+    slideshowImages: props.slideshowImages,
+    slideshowImageAlts: props.slideshowImageAlts
+  })
 }
 
 /**
  * Handle mouse leave (desktop only)
  * Clears parent's active preview
+ * MOBILE OPTIMIZATION: Early return if no preview system
  */
 const handleMouseLeave = () => {
-  if (clearActivePreview) {
-    clearActivePreview()
-  }
+  // Skip if no preview system (mobile provides no-op injection)
+  if (!clearActivePreview) return
+
+  clearActivePreview()
 }
 
 /**

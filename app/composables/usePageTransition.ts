@@ -63,6 +63,9 @@ export interface PageTransitionReturn {
   afterLeave: (el: HTMLElement) => void
 }
 
+// Track animated elements at module level for optimized cleanup
+let animatedElementsForCleanup: Set<HTMLElement> = new Set()
+
 export const usePageTransition = (): PageTransitionReturn => {
   const nuxtApp = useNuxtApp() as unknown as {
     $gsap: GSAPInstance
@@ -283,6 +286,7 @@ export const usePageTransition = (): PageTransitionReturn => {
   /**
    * STAGGER ANIMATION
    * Stagger child elements with fade animation
+   * Filters out display:none children (responsive hiding)
    */
   const animateStagger = (
     el: HTMLElement,
@@ -297,7 +301,12 @@ export const usePageTransition = (): PageTransitionReturn => {
     const duration = config.duration || 0.5
     const ease = config.ease || 'power2.out'
 
-    const children = el.querySelectorAll(selector)
+    // Query children and filter out display:none (responsive hiding)
+    const allChildren = el.querySelectorAll(selector)
+    const children = Array.from(allChildren).filter((child) => {
+      const style = getComputedStyle(child as HTMLElement)
+      return style.display !== 'none'
+    })
 
     if (direction === 'out') {
       timeline.to(
@@ -344,12 +353,25 @@ export const usePageTransition = (): PageTransitionReturn => {
 
   /**
    * Find all elements with page animation configs
+   * IMPORTANT: Skips elements with display: none (responsive hiding like Tailwind's `hidden md:block`)
+   * This prevents animating responsive-hidden layouts (e.g., desktop layout on mobile)
+   *
+   * NOTE: We only check display: none, NOT visibility: hidden
+   * because beforeEnter sets the page to visibility: hidden temporarily
    */
   const findAnimatedElements = (el: HTMLElement): PageAnimationElement[] => {
     const elements: PageAnimationElement[] = []
 
-    // Recursively walk the entire tree to find all elements with _pageAnimation
+    // Recursively walk the tree, skipping display:none elements and their children
     const walk = (node: HTMLElement): void => {
+      // Skip elements with display: none (responsive hiding like Tailwind's hidden class)
+      // This is crucial for mobile performance - don't animate hidden desktop layouts
+      // NOTE: Don't check visibility: hidden - that's used by beforeEnter for page transitions
+      const style = getComputedStyle(node)
+      if (style.display === 'none') {
+        return // Skip this element AND all its children
+      }
+
       // Check if this node has animation config
       if ((node as PageAnimationElement)._pageAnimation) {
         elements.push(node as PageAnimationElement)
@@ -372,6 +394,9 @@ export const usePageTransition = (): PageTransitionReturn => {
    */
   const leave = (el: HTMLElement, done: () => void): void => {
     const elements = findAnimatedElements(el)
+
+    // Store animated elements for optimized cleanup in afterLeave
+    animatedElementsForCleanup = new Set(elements)
 
     if (elements.length === 0) {
       console.warn('⚠️ No elements with page animation directives found')
@@ -482,6 +507,8 @@ export const usePageTransition = (): PageTransitionReturn => {
 
   /**
    * After leave hook - cleanup and scroll to top
+   * OPTIMIZED: Only clears props on elements we actually animated
+   * instead of querySelectorAll('*') which was expensive on large pages
    */
   const afterLeave = (el: HTMLElement): void => {
     // Cleanup SplitText instances and GSAP properties
@@ -489,7 +516,23 @@ export const usePageTransition = (): PageTransitionReturn => {
 
     if ($gsap && el) {
       $gsap.set(el, { clearProps: 'all' })
-      $gsap.set(el.querySelectorAll('*'), { clearProps: 'all' })
+
+      // Only clear props on elements we actually animated (not entire DOM)
+      animatedElementsForCleanup.forEach((animatedEl) => {
+        $gsap.set(animatedEl, { clearProps: 'all' })
+
+        // Also clear children of stagger containers
+        const pageAnimation = (animatedEl as PageAnimationElement)._pageAnimation
+        if (pageAnimation?.type === 'stagger') {
+          const selector = pageAnimation.config.selector || ':scope > *'
+          const children = animatedEl.querySelectorAll(selector)
+          if (children.length > 0) {
+            $gsap.set(children, { clearProps: 'all' })
+          }
+        }
+      })
+
+      animatedElementsForCleanup.clear()
     }
 
     // Manually scroll to top AFTER leave animation completes

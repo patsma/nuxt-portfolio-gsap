@@ -17,15 +17,16 @@
 
     <div
       ref="itemsListRef"
-      v-page-stagger="{ selector: '.case-study-item', stagger: 0.08, leaveOnly: true }"
+      v-page-stagger="{ selector: '.case-study-item, .case-study-card', stagger: 0.08, leaveOnly: true }"
       class="case-study-list full-width-content"
     >
       <slot />
     </div>
 
     <!-- Teleport to body for scroll support, visibility with smooth fade transition -->
+    <!-- MOBILE OPTIMIZATION: Skip entire preview DOM on mobile (preview not used) -->
     <Teleport
-      v-if="previewMounted"
+      v-if="previewMounted && !isMobile"
       to="body"
     >
       <Transition
@@ -163,6 +164,43 @@ const getRefs = () => ({
   slotCRefs: slotCRef.value
 })
 
+/**
+ * MOBILE OPTIMIZATION: Only initialize full preview system on desktop
+ * On mobile, we return no-op functions to avoid:
+ * - Velocity tracking overhead
+ * - Spring physics calculations
+ * - Slideshow timer management
+ * - Image preloading (135+ images wasted)
+ */
+const mobileNoOpPreview = {
+  slotAImage: ref(null),
+  slotBImage: ref(null),
+  slotCImage: ref(null),
+  showPreview: ref(false),
+  previewMounted: ref(false),
+  currentAspectRatio: ref(4 / 3),
+  isNavigating: ref(false),
+  setActivePreview: async () => {},
+  clearActivePreview: () => {},
+  clearActivePreviewImmediate: (cb?: () => void) => cb?.(),
+  clearActivePreviewInstant: () => {},
+  cleanupAfterFade: () => {},
+  animationConfig: {
+    position: { offsetX: 30, padding: 20 },
+    debounce: { clearDelay: 100 }
+  }
+}
+
+// Conditionally initialize preview system based on device
+const desktopPreview = isMobile.value
+  ? null
+  : useInteractiveCaseStudyPreview({
+      gsap: $gsap,
+      getRefs,
+      getCursor: () => ({ x: cursorX.value, y: cursorY.value })
+    })
+
+// Use desktop preview if available, otherwise mobile no-op
 const {
   slotAImage,
   slotBImage,
@@ -177,11 +215,7 @@ const {
   clearActivePreviewInstant,
   cleanupAfterFade,
   animationConfig
-} = useInteractiveCaseStudyPreview({
-  gsap: $gsap,
-  getRefs,
-  getCursor: () => ({ x: cursorX.value, y: cursorY.value })
-})
+} = desktopPreview || mobileNoOpPreview
 
 /**
  * Handle Vue Transition @after-leave hook
@@ -193,7 +227,11 @@ const handlePreviewAfterLeave = (): void => {
 
 // Track cursor and animate preview position (getBoundingClientRect accounts for ScrollSmoother)
 // GSAP's overwrite: 'auto' handles conflicting animations gracefully
+// MOBILE OPTIMIZATION: Skip on mobile - preview system not used
 const handleMouseMove = (event: MouseEvent) => {
+  // Skip cursor tracking on mobile (no preview system)
+  if (isMobile.value) return
+
   cursorX.value = event.clientX
   cursorY.value = event.clientY
 
@@ -513,7 +551,8 @@ onMounted(() => {
   }
 
   // Scroll trigger for hiding preview (separate from entrance animation)
-  if ($ScrollTrigger) {
+  // MOBILE OPTIMIZATION: Skip on mobile - preview system not used
+  if ($ScrollTrigger && !isMobile.value) {
     $ScrollTrigger.create({
       trigger: sectionRef.value,
       start: 'top top',
