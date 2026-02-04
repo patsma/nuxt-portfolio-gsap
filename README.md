@@ -1,87 +1,99 @@
-# Nuxt Minimal Starter
+# Morten 2025
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+**Personal portfolio with buttery smooth animations**
 
-## Setup
+[![Live Demo](https://img.shields.io/badge/Live-Demo-00DC82?style=for-the-badge)](https://mp2025.netlify.app)
 
-Make sure to install dependencies:
+![Nuxt](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white)
+![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-3-88CE02?logo=greensock&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![TresJS](https://img.shields.io/badge/TresJS-WebGL-black?logo=three.js&logoColor=white)
+
+---
+
+## About
+
+A custom-built portfolio featuring directive-based page transitions, smooth scrolling, and WebGL backgrounds. Every animation system is hand-crafted - no templates, no page builders, just clean TypeScript and GSAP.
+
+What makes it technically interesting: SSR-compatible animations with zero FOUC, Safari-specific performance optimizations, and a unified timeline sequencer that coordinates entrance animations across components.
+
+## Key Features
+
+- **Page Transitions** - Directive-based GSAP animations (`v-page-split`, `v-page-fade`, `v-page-clip`)
+- **Smooth Scrolling** - ScrollSmoother with headroom header behavior
+- **Theme System** - Dark/light with GSAP color transitions and SVG morphing
+- **Fluid Gradient** - WebGL background with TresJS and custom GLSL shaders
+- **Entrance Animations** - Unified timeline sequencer for coordinated first-load animations
+- **Mobile Optimized** - 60fps desktop, 30fps mobile with automatic detection
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Nuxt 4 (Vue 3) |
+| Language | TypeScript (strict, no `any`) |
+| Animation | GSAP with Club plugins (ScrollSmoother, SplitText, MorphSVG) |
+| 3D/WebGL | TresJS with custom shaders |
+| Styling | TailwindCSS v4 + SCSS |
+| State | Pinia |
+
+## Quick Start
 
 ```bash
-# npm
+# Clone
+git clone https://github.com/yourusername/morten-2025.git
+cd morten-2025
+
+# Install
 npm install
 
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
+# Dev server (http://localhost:3000)
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+# Production build
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+## Architecture
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+```
+app/
+├── composables/          # Animation & scroll logic
+│   ├── usePageTransition.ts
+│   ├── useScrollSmootherManager.ts
+│   ├── useEntranceAnimation.ts
+│   └── useThemeSwitch.ts
+├── directives/           # Page transition directives
+│   ├── v-page-split.ts
+│   ├── v-page-fade.ts
+│   └── v-page-clip.ts
+├── components/           # Vue components
+├── layouts/              # ScrollSmoother wrapper
+└── pages/                # Route pages
 ```
 
-To convert videos to web optimized videos:
+## Documentation
 
-```bash
-npm run convert-videos
-```
+Detailed system documentation lives in `.claude/`:
 
-To convert web optimized videos to gifs:
+| Document | Description |
+|----------|-------------|
+| [LOADING_SYSTEM.md](.claude/LOADING_SYSTEM.md) | Theme-aware loader & entrance animations |
+| [THEME_SYSTEM.md](.claude/THEME_SYSTEM.md) | Dark/light switching with GSAP |
+| [PAGE_TRANSITIONS.md](.claude/PAGE_TRANSITIONS.md) | Directive-based transition system |
+| [SCROLL_SYSTEM.md](.claude/SCROLL_SYSTEM.md) | ScrollSmoother & headroom integration |
+| [COMPONENT_PATTERNS.md](.claude/COMPONENT_PATTERNS.md) | Reusable section patterns |
+| [FLUID_GRADIENT.md](.claude/FLUID_GRADIENT.md) | WebGL background system |
 
-```bash
-node scripts/convert-to-gifs.js
-```
+## Performance
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- **Safari Optimizations** - Height lock fix, enter animation timing, 60fps ScrollSmoother settings
+- **Mobile Detection** - Automatic frame rate reduction (60fps → 30fps)
+- **FOUC Prevention** - SSR-injected theme script and `is-first-load` class scoping
+- **Type Safety** - Full TypeScript coverage with strict mode
+
+## License
+
+MIT
