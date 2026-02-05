@@ -51,16 +51,19 @@
  * VideoScalingSection Component - ScrollTrigger Video Reveal
  *
  * Scroll-driven video growth with manual parallax and pinned section for extended viewing.
- * Video container grows from small size (configurable corner) to full viewport (centered)
- * over first 72% of scroll, then remains pinned for remaining 28% for user interaction.
- * Uses dimension animation instead of scale with synchronized parallax animation.
- * Much slower animation (360vh = 3x image speed) provides natural, gradual reveal.
  *
- * Animation Timeline:
+ * DESKTOP (>= 1024px):
  * - 0-360vh (72%): Container grows from startWidth×startHeight to 100vw×100vh
  * - Simultaneous: Video moves UP (yPercent: 0 to -28.57) revealing bottom portion
  * - Section enters viewport: Play button fades in with magnetic effect
- * - 360-500vh (28%): Video pinned at 100% for comfortable viewing and interaction
+ * - 360-500vh (28%): Video PINNED at 100% for comfortable viewing and interaction
+ *
+ * MOBILE/TABLET (< 1024px):
+ * - Same scaling animation, scrubbed to scroll
+ * - NO pinning - section scrolls naturally
+ * - Animation plays as section moves through viewport
+ * - No parallax effect (simpler for native scroll)
+ * - Play button still appears with entrance animation
  *
  * Props:
  * - videoSrc: Video path (default: '/assets/dummy/sample1.mp4')
@@ -69,92 +72,32 @@
  * - startHeight: Initial height in vh (default: 25)
  * - scrollAmount: Pin duration (default: '500%' for gradual reveal + interaction time)
  * - startPosition: Starting corner - 'left' or 'right' (default: 'left')
- *
- * Features:
- * - Native video poster support (browser-managed loading state)
- * - Play button with magnetic hover effect (spring physics)
- * - Scroll-triggered play button entrance animation
- * - Manual parallax via ScrollTrigger timeline (works in pinned sections)
- * - Dimension-based animation (not scale) for consistent sizing
- * - Configurable start position (left or right corner)
- * - Scroll-triggered animations with pinning
- * - Grid-aware layout (breakout3)
- * - Performance-optimized (single timeline, play/reverse control)
- *
- * Technical Notes:
- * - Parallax is manual (not data-speed) because section is pinned
- * - Video is 140% height with overflow:hidden for parallax range (40% extra space)
- * - Container overflow:hidden prevents video cutoff issues
- * - Start position uses left/xPercent for consistent animation path
- * - Magnetic effect auto-disabled on mobile/touch devices
- *
- * Usage:
- * <VideoScalingSection
- *   video-src="/path/to/video.mp4"
- *   poster-src="/path/to/poster.jpg"
- *   :start-width="25"
- *   :start-height="25"
- *   start-position="left"
- * />
- *
- * <!-- Start from right corner -->
- * <VideoScalingSection
- *   video-src="/path/to/video2.mp4"
- *   poster-src="/path/to/poster2.jpg"
- *   start-position="right"
- * />
  */
 
 import type { ScrollTriggerInstance, GSAPTimeline } from '~/types/nuxt-gsap'
 import useMagnetic from '~/composables/useMagnetic'
 
 const props = defineProps({
-  /**
-   * Video source path
-   * @type {string}
-   */
   videoSrc: {
     type: String,
     default: '/assets/dummy/sample1.mp4'
   },
-  /**
-   * Poster image (native HTML5 placeholder shown while loading)
-   * @type {string}
-   */
   posterSrc: {
     type: String,
     default: ''
   },
-  /**
-   * Starting width in viewport units (vw)
-   * @type {number}
-   */
   startWidth: {
     type: Number,
     default: 25
   },
-  /**
-   * Starting height in viewport units (vh)
-   * @type {number}
-   */
   startHeight: {
     type: Number,
     default: 25
   },
-  /**
-   * Scroll distance for animation and pin duration
-   * Video grows in first ~72%, stays pinned for remaining ~28%
-   * Much slower animation (360vh = 3x image speed) for natural, gradual reveal
-   * @type {string}
-   */
   scrollAmount: {
     type: String,
     default: '500%'
   },
-  /**
-   * Starting position of the video (left or right side)
-   * @type {string}
-   */
   startPosition: {
     type: String,
     default: 'left',
@@ -163,8 +106,7 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
+const { isDesktop } = useIsMobile()
 
 const sectionRef = ref(null)
 const containerRef = ref(null)
@@ -212,15 +154,14 @@ const handleVideoEnded = () => {
 }
 
 // Update button visibility based on video playing state
-// Button hides when video plays, shows when paused/ended
 const updateButtonVisibility = (playing: boolean) => {
   if (!buttonTimeline) return
 
   if (playing) {
-    buttonTimeline.play() // Fade out when playing
+    buttonTimeline.play()
   }
   else {
-    buttonTimeline.reverse() // Fade back in when paused
+    buttonTimeline.reverse()
   }
 }
 
@@ -229,7 +170,7 @@ const handleLeaveSection = () => {
   if (!videoRef.value) return
 
   if (!videoRef.value.paused) {
-    videoRef.value.pause() // Triggers @pause → isPlaying = false → watch → updateButtonVisibility
+    videoRef.value.pause()
   }
 
   if (hasEnded.value) {
@@ -243,48 +184,9 @@ watch(isPlaying, (playing) => {
 })
 
 /**
- * Initialize ScrollTrigger animation
- * Called after page transition completes to avoid clip-path conflicts
+ * Setup common elements (button entrance, button timeline)
  */
-const initScrollTrigger = () => {
-  if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return
-
-  // Kill existing ScrollTriggers/timelines if present (for page navigation back)
-  if (videoScrollTrigger) {
-    videoScrollTrigger.kill()
-    videoScrollTrigger = null
-  }
-  if (entranceScrollTrigger) {
-    entranceScrollTrigger.kill()
-    entranceScrollTrigger = null
-  }
-  if (buttonTimeline) {
-    buttonTimeline.kill()
-    buttonTimeline = null
-  }
-
-  // CRITICAL: Clear any clip-path from page transitions before setting up ScrollTrigger
-  $gsap.set(containerRef.value, { clearProps: 'clipPath' })
-
-  // Calculate initial position based on startPosition prop
-  const initialPosition = props.startPosition === 'right'
-    ? { left: '100%', top: 0, xPercent: -100 } // Align to right edge
-    : { left: 0, top: 0 } // Align to left edge
-
-  // Set initial state: small size positioned at chosen corner
-  $gsap.set(containerRef.value, {
-    width: `${props.startWidth}vw`,
-    height: `${props.startHeight}vh`,
-    ...initialPosition,
-    position: 'absolute'
-  })
-
-  // Set initial video position for parallax
-  // Start at 0 (top aligned) to prevent clipping
-  $gsap.set(videoRef.value, {
-    yPercent: 0
-  })
-
+const setupButtonAnimations = () => {
   // Set initial button state for entrance animation
   $gsap.set(playButtonRef.value, {
     opacity: 0,
@@ -292,7 +194,6 @@ const initScrollTrigger = () => {
   })
 
   // Scroll-triggered entrance animation for play button
-  // Fades in when section enters viewport
   entranceScrollTrigger = $ScrollTrigger.create({
     trigger: sectionRef.value,
     start: 'top 80%',
@@ -308,7 +209,6 @@ const initScrollTrigger = () => {
   })
 
   // Button visibility timeline: hides button when video plays
-  // Starts from visible state, plays to hide, reverses to show
   buttonTimeline = $gsap.timeline({ paused: true })
   buttonTimeline.to(playButtonRef.value, {
     opacity: 0,
@@ -316,8 +216,29 @@ const initScrollTrigger = () => {
     duration: 0.4,
     ease: 'power2.out'
   })
+}
 
-  // Main timeline: Phase 1 (72% scale) + Phase 2 (28% hold)
+/**
+ * Initialize desktop animation (pinned, with parallax)
+ */
+const initDesktopAnimation = () => {
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 }
+    : { left: 0, top: 0 }
+
+  // Set initial state: small size positioned at chosen corner
+  $gsap.set(containerRef.value, {
+    width: `${props.startWidth}vw`,
+    height: `${props.startHeight}vh`,
+    ...initialPosition,
+    position: 'absolute'
+  })
+
+  // Set initial video position for parallax
+  $gsap.set(videoRef.value, { yPercent: 0 })
+
+  // Main timeline: Phase 1 (72% scale) + Phase 2 (28% hold) - PINNED
   const tl = $gsap.timeline({
     scrollTrigger: {
       trigger: sectionRef.value,
@@ -326,7 +247,6 @@ const initScrollTrigger = () => {
       pin: true,
       scrub: 1,
       anticipatePin: 1,
-      markers: false,
       invalidateOnRefresh: true,
       onLeave: handleLeaveSection,
       onLeaveBack: handleLeaveSection
@@ -334,91 +254,138 @@ const initScrollTrigger = () => {
   })
 
   // Phase 1: Container dimension animation (1.8 units = 72% of 2.5 total)
-  // This takes 360vh of scroll (3x slower than ImageScalingSection for gradual reveal)
-  tl.to(
-    containerRef.value,
-    {
-      width: '100vw',
-      height: '100vh',
-      left: '50%',
-      top: '50%',
-      xPercent: -50,
-      yPercent: -50,
-      ease: 'power2.out',
-      duration: 1.8
-    },
-    0
-  )
+  tl.to(containerRef.value, {
+    width: '100vw',
+    height: '100vh',
+    left: '50%',
+    top: '50%',
+    xPercent: -50,
+    yPercent: -50,
+    ease: 'power2.out',
+    duration: 1.8
+  }, 0)
 
-  // Phase 1: Video parallax animation (synchronized with container growth)
-  // Video is 140% tall, so 40% extra space = 28.57% of video height
-  // Move UP (negative) to reveal bottom portion of video
-  tl.to(
-    videoRef.value,
-    {
-      yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% video = 28.57%)
-      ease: 'power2.out',
-      duration: 1.8
-    },
-    0
-  )
+  // Phase 1: Video parallax animation
+  tl.to(videoRef.value, {
+    yPercent: -28.57,
+    ease: 'power2.out',
+    duration: 1.8
+  }, 0)
 
   // Phase 2: Extend timeline to keep pinned (0.7 units = 28% of 2.5 total)
-  // This ensures Phase 1 (duration 1.8) takes 72% of scroll (360vh of 500vh)
-  // and Phase 2 (duration 0.7) takes 28% of scroll (140vh of 500vh)
-  // Much slower animation provides natural, gradual reveal matching image feel
   tl.to({}, { duration: 0.7 }, 1.8)
 
   videoScrollTrigger = tl.scrollTrigger
 }
 
-// Initialize on mount, coordinating with page transitions
-onMounted(() => {
-  // First load: Create immediately after mount
-  if (loadingStore.isFirstLoad) {
-    nextTick(() => {
-      initScrollTrigger()
-    })
-  }
-  else {
-    // After page navigation, wait for page transition to complete
-    // Watch pageTransitionStore.isTransitioning for proper timing
-    const unwatch = watch(
-      () => pageTransitionStore.isTransitioning,
-      (isTransitioning) => {
-        // When transition completes (isTransitioning becomes false), initialize
-        if (!isTransitioning) {
-          nextTick(() => {
-            initScrollTrigger()
-          })
-          unwatch()
-        }
-      },
-      { immediate: true }
-    )
-  }
-})
+/**
+ * Initialize mobile/tablet animation (non-pinned, scrubbed to scroll)
+ */
+const initMobileAnimation = () => {
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 }
+    : { left: 0, top: 0 }
 
-onUnmounted(() => {
+  // Set initial state: small size positioned at chosen corner
+  $gsap.set(containerRef.value, {
+    width: `${props.startWidth}vw`,
+    height: `${props.startHeight}vh`,
+    ...initialPosition,
+    position: 'absolute'
+  })
+
+  // Video at 100% height on mobile (no parallax movement needed)
+  $gsap.set(videoRef.value, { yPercent: 0 })
+
+  // Main timeline: Grow container as section scrolls through viewport (NO PIN)
+  const tl = $gsap.timeline({
+    scrollTrigger: {
+      trigger: sectionRef.value,
+      start: 'top bottom',
+      end: 'top top',
+      pin: false,
+      scrub: 1,
+      invalidateOnRefresh: true,
+      onLeave: handleLeaveSection,
+      onLeaveBack: handleLeaveSection
+    }
+  })
+
+  // Dimension animation: grow from small to full viewport, center position
+  tl.to(containerRef.value, {
+    width: '100vw',
+    height: '100vh',
+    left: '50%',
+    top: '50%',
+    xPercent: -50,
+    yPercent: -50,
+    ease: 'power2.out',
+    duration: 1
+  }, 0)
+
+  videoScrollTrigger = tl.scrollTrigger
+}
+
+/**
+ * Initialize ScrollTrigger animation
+ * Called after page transition completes to avoid clip-path conflicts
+ */
+const initScrollTrigger = () => {
+  if (!sectionRef.value || !containerRef.value || !videoRef.value || !$ScrollTrigger) return
+
+  // CRITICAL: Clear any clip-path from page transitions before setting up ScrollTrigger
+  $gsap.set(containerRef.value, { clearProps: 'clipPath' })
+
+  // Kill existing ScrollTriggers/timelines if present (for page navigation back)
   if (videoScrollTrigger) {
     videoScrollTrigger.kill()
     videoScrollTrigger = null
   }
-
   if (entranceScrollTrigger) {
     entranceScrollTrigger.kill()
     entranceScrollTrigger = null
   }
-
   if (buttonTimeline) {
     buttonTimeline.kill()
     buttonTimeline = null
   }
 
+  // Setup button animations (common to both desktop and mobile)
+  setupButtonAnimations()
+
+  // Choose animation mode based on device
+  if (isDesktop.value) {
+    initDesktopAnimation()
+  }
+  else {
+    initMobileAnimation()
+  }
+}
+
+/**
+ * Cleanup all ScrollTriggers and timelines
+ */
+const cleanup = () => {
+  videoScrollTrigger?.kill()
+  videoScrollTrigger = null
+
+  entranceScrollTrigger?.kill()
+  entranceScrollTrigger = null
+
+  buttonTimeline?.kill()
+  buttonTimeline = null
+
   if (videoRef.value) {
     videoRef.value.pause()
   }
-})
+}
+
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(
+  () => initScrollTrigger(),
+  cleanup
+)
 </script>
 
 <style scoped>

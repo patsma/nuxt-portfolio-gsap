@@ -136,8 +136,6 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
 const { isMobile } = useIsMobile()
 
 const sectionRef = ref(null)
@@ -500,10 +498,28 @@ const cleanupAllScrollTriggers = (): void => {
   itemScrollTriggerInstances = []
 }
 
+/**
+ * Initialize scroll-triggered animations
+ * Called by useScrollTriggerInit for proper page transition coordination
+ */
+const initScrollTriggers = () => {
+  // Only run for scroll mode (entrance mode uses separate system)
+  if (!props.animateOnScroll || props.animateEntrance) return
+  if (!$ScrollTrigger || !sectionRef.value) return
+
+  createAllScrollTriggers()
+}
+
+// Use abstraction composable for page transition coordination (scroll mode only)
+useScrollTriggerInit(
+  () => initScrollTriggers(),
+  () => cleanupAllScrollTriggers()
+)
+
 // Hide preview smoothly when scrolling out of section (prevents stuck previews)
 // Monitors cursor position continuously and hides with animation if outside section
 onMounted(() => {
-  // Setup entrance or scroll animation
+  // Setup entrance animation (separate from scroll mode)
   if (props.animateEntrance) {
     // ENTRANCE MODE: Use entrance animation system (first load only)
     // CSS will hide elements via html.is-first-load scoping
@@ -514,40 +530,16 @@ onMounted(() => {
       })
     }
   }
-  else if (props.animateOnScroll) {
-    // SCROLL MODE: Per-item viewport triggers
-    // Each item animates independently when it enters viewport
-    if ($ScrollTrigger && sectionRef.value) {
-      // Coordinate with page transition system
-      if (loadingStore.isFirstLoad) {
+
+  // Recreate scroll triggers on breakpoint change (scroll mode only)
+  if (props.animateOnScroll && !props.animateEntrance && $ScrollTrigger) {
+    watch(isMobile, () => {
+      if (itemScrollTriggerInstances.length > 0) {
         nextTick(() => {
           createAllScrollTriggers()
         })
       }
-      else {
-        const unwatch = watch(
-          () => pageTransitionStore.isTransitioning,
-          (isTransitioning) => {
-            if (!isTransitioning) {
-              nextTick(() => {
-                createAllScrollTriggers()
-              })
-              unwatch()
-            }
-          },
-          { immediate: true }
-        )
-      }
-
-      // Recreate on breakpoint change
-      watch(isMobile, () => {
-        if (itemScrollTriggerInstances.length > 0) {
-          nextTick(() => {
-            createAllScrollTriggers()
-          })
-        }
-      })
-    }
+    })
   }
 
   // Scroll trigger for hiding preview (separate from entrance animation)
@@ -576,10 +568,5 @@ onMounted(() => {
       // Rely on mouseleave events and onLeave/onLeaveBack instead.
     })
   }
-})
-
-// Cleanup ScrollTriggers on unmount
-onUnmounted(() => {
-  cleanupAllScrollTriggers()
 })
 </script>

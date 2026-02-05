@@ -47,8 +47,8 @@
  *
  * Pattern:
  * - Uses v-page-split and v-page-stagger directives for exit animations
- * - ScrollTrigger recreated after page transitions for fresh DOM queries
- * - Coordinates with loadingStore and pageTransitionStore
+ * - ScrollTrigger recreated after page transitions via useScrollTriggerInit
+ * - Uses once:true to prevent iOS Safari reversal during accordion animations
  * - Provides accordion state to child RecommendationItem components
  *
  * Usage:
@@ -79,14 +79,12 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
 
 const sectionRef = ref(null)
 const labelRef = ref(null)
 const listRef = ref(null)
 
-let scrollTriggerInstance = null
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
 
 /**
  * Accordion state management
@@ -197,87 +195,57 @@ const createSectionAnimation = () => {
   return tl
 }
 
-onMounted(() => {
-  // SCROLL MODE: Animate when scrolling into view (default)
-  // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
-  // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
-  if (props.animateOnScroll && $ScrollTrigger && sectionRef.value) {
-    // Create/recreate ScrollTrigger with fresh element queries
-    const createScrollTrigger = () => {
-      // Kill existing ScrollTrigger if present
-      if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill()
-        scrollTriggerInstance = null
-      }
+/**
+ * Initialize ScrollTrigger animation
+ */
+const initScrollTrigger = () => {
+  if (!props.animateOnScroll || !$ScrollTrigger || !sectionRef.value) return
 
-      // CRITICAL: Clear inline GSAP styles from page transitions
-      // The v-page-stagger directive leaves inline styles (opacity, transform)
-      // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
-      if (labelRef.value) {
-        $gsap.set(labelRef.value, { clearProps: 'all' })
-        $gsap.set(labelRef.value, { opacity: 0, y: 40 })
-      }
-      if (listRef.value) {
-        const items = listRef.value.querySelectorAll('.recommendation-item')
-        if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' })
-          $gsap.set(items, { opacity: 0, y: 40 })
-        }
-      }
-
-      // Create timeline with fromTo() defining both start and end states
-      // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation()
-
-      // Create ScrollTrigger with animation timeline
-      // CRITICAL: Use 'once: true' to auto-destroy after entrance animation completes
-      // This prevents iOS Safari from reversing the timeline during accordion animations
-      // Entrance animations should only play once - no reversal needed
-      scrollTriggerInstance = $ScrollTrigger.create({
-        trigger: sectionRef.value,
-        start: 'top 80%', // Animate when section is 80% down viewport
-        end: 'bottom top+=25%', // Complete animation when bottom reaches top
-        animation: scrollTimeline, // Link timeline to scroll position
-        once: true, // Auto-destroy after first trigger (prevents reversal)
-        invalidateOnRefresh: true // Recalculate on window resize/refresh
-      })
-    }
-
-    // Coordinate with page transition system
-    // First load: Create immediately after mount
-    // Navigation: Recreate after page transition completes
-    if (loadingStore.isFirstLoad) {
-      nextTick(() => {
-        createScrollTrigger()
-      })
-    }
-    else {
-      // After page navigation, wait for page transition to complete
-      // Watch pageTransitionStore.isTransitioning for proper timing
-      const unwatch = watch(
-        () => pageTransitionStore.isTransitioning,
-        (isTransitioning) => {
-          // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
-          if (!isTransitioning) {
-            nextTick(() => {
-              createScrollTrigger()
-            })
-            unwatch() // Stop watching
-          }
-        },
-        { immediate: true }
-      )
-    }
-  }
-})
-
-// Cleanup ScrollTrigger on unmount
-onUnmounted(() => {
+  // Kill existing ScrollTrigger if present
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
-})
+
+  // CRITICAL: Clear inline GSAP styles from page transitions
+  // The v-page-stagger directive leaves inline styles (opacity, transform)
+  // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
+  if (labelRef.value) {
+    $gsap.set(labelRef.value, { clearProps: 'all' })
+    $gsap.set(labelRef.value, { opacity: 0, y: 40 })
+  }
+  if (listRef.value) {
+    const items = listRef.value.querySelectorAll('.recommendation-item')
+    if (items.length > 0) {
+      $gsap.set(items, { clearProps: 'all' })
+      $gsap.set(items, { opacity: 0, y: 40 })
+    }
+  }
+
+  // Create timeline with fromTo() defining both start and end states
+  const scrollTimeline = createSectionAnimation()
+
+  // Create ScrollTrigger with animation timeline
+  // CRITICAL: Use 'once: true' to auto-destroy after entrance animation completes
+  // This prevents iOS Safari from reversing the timeline during accordion animations
+  scrollTriggerInstance = $ScrollTrigger.create({
+    trigger: sectionRef.value,
+    start: 'top 80%',
+    end: 'bottom top+=25%',
+    animation: scrollTimeline,
+    once: true, // Auto-destroy after first trigger (prevents reversal on iOS Safari)
+    invalidateOnRefresh: true
+  })
+}
+
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(
+  () => initScrollTrigger(),
+  () => {
+    scrollTriggerInstance?.kill()
+    scrollTriggerInstance = null
+  }
+)
 </script>
 
 <style scoped>

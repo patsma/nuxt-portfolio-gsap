@@ -29,10 +29,16 @@
  * Image container grows from small size (configurable corner) to full viewport (centered) as user scrolls.
  * Uses dimension animation instead of scale with synchronized parallax animation.
  *
- * Animation Timeline:
+ * DESKTOP (>= 1024px):
  * - 0-120vh: Container grows from startWidth×startHeight to 100vw×100vh
  * - Simultaneous: Image moves UP (yPercent: 0 to -28.57) revealing bottom portion
- * - Section is pinned during animation
+ * - Section is PINNED during animation
+ *
+ * MOBILE/TABLET (< 1024px):
+ * - Same scaling animation, scrubbed to scroll
+ * - NO pinning - section scrolls naturally
+ * - Animation plays as section moves through viewport
+ * - No parallax effect (simpler for native scroll)
  *
  * Props:
  * - imageSrc: Image path (required)
@@ -41,84 +47,31 @@
  * - startHeight: Initial height in vh (default: 25)
  * - scrollAmount: Scroll distance for animation (default: '120%')
  * - startPosition: Starting corner - 'left' or 'right' (default: 'left')
- *
- * Features:
- * - NuxtImg for optimized image loading
- * - Manual parallax via ScrollTrigger timeline (works in pinned sections)
- * - Dimension-based animation (not scale) for consistent sizing
- * - Configurable start position (left or right corner)
- * - Grid-aware layout (breakout3)
- * - Performance-optimized (single timeline, scrubbed)
- *
- * Technical Notes:
- * - Parallax is manual (not data-speed) because section is pinned
- * - Image is 140% height with overflow:hidden for parallax range (40% extra space)
- * - Container overflow:hidden prevents image cutoff issues
- * - Start position uses left/xPercent for consistent animation path
- *
- * Usage:
- * <ImageScalingSection
- *   image-src="/path/to/image.jpg"
- *   image-alt="Description of image"
- *   :start-width="25"
- *   :start-height="25"
- *   start-position="left"
- * />
- *
- * <!-- Start from right corner -->
- * <ImageScalingSection
- *   image-src="/path/to/image2.jpg"
- *   image-alt="Description"
- *   start-position="right"
- * />
  */
 
+import type { ScrollTriggerInstance } from '~/types/nuxt-gsap'
+
 const props = defineProps({
-  /**
-   * Image source path (required)
-   * @type {string}
-   */
   imageSrc: {
     type: String,
     required: true
   },
-  /**
-   * Alt text for accessibility (required)
-   * @type {string}
-   */
   imageAlt: {
     type: String,
     required: true
   },
-  /**
-   * Starting width in viewport units (vw)
-   * @type {number}
-   */
   startWidth: {
     type: Number,
     default: 25
   },
-  /**
-   * Starting height in viewport units (vh)
-   * @type {number}
-   */
   startHeight: {
     type: Number,
     default: 25
   },
-  /**
-   * Scroll distance for animation
-   * Container grows throughout this distance, no pinning
-   * @type {string}
-   */
   scrollAmount: {
     type: String,
     default: '120%'
   },
-  /**
-   * Starting position of the image (left or right side)
-   * @type {string}
-   */
   startPosition: {
     type: String,
     default: 'left',
@@ -127,14 +80,115 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
+const { isDesktop } = useIsMobile()
 
 const sectionRef = ref(null)
 const containerRef = ref(null)
 const imageRef = ref(null)
 
-let imageScrollTrigger = null
+let imageScrollTrigger: ScrollTriggerInstance | null = null
+
+/**
+ * Initialize desktop animation (pinned, with parallax)
+ */
+const initDesktopAnimation = () => {
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 }
+    : { left: 0, top: 0 }
+
+  // Set initial state: small size positioned at chosen corner
+  $gsap.set(containerRef.value, {
+    width: `${props.startWidth}vw`,
+    height: `${props.startHeight}vh`,
+    ...initialPosition,
+    position: 'absolute'
+  })
+
+  // Set initial image position for parallax
+  $gsap.set(imageRef.value.$el, { yPercent: 0 })
+
+  // Main timeline: Grow container dimensions as user scrolls (PINNED)
+  const tl = $gsap.timeline({
+    scrollTrigger: {
+      trigger: sectionRef.value,
+      start: 'top top',
+      end: `+=${props.scrollAmount}`,
+      pin: true,
+      scrub: 1,
+      anticipatePin: 1,
+      invalidateOnRefresh: true
+    }
+  })
+
+  // Dimension animation: grow from small to full viewport, center position
+  tl.to(containerRef.value, {
+    width: '100vw',
+    height: '100vh',
+    left: '50%',
+    top: '50%',
+    xPercent: -50,
+    yPercent: -50,
+    ease: 'power2.out',
+    duration: 1
+  }, 0)
+
+  // Parallax animation: move image vertically
+  tl.to(imageRef.value.$el, {
+    yPercent: -28.57,
+    ease: 'power2.out',
+    duration: 1
+  }, 0)
+
+  imageScrollTrigger = tl.scrollTrigger
+}
+
+/**
+ * Initialize mobile/tablet animation (non-pinned, scrubbed to scroll)
+ */
+const initMobileAnimation = () => {
+  // Calculate initial position based on startPosition prop
+  const initialPosition = props.startPosition === 'right'
+    ? { left: '100%', top: 0, xPercent: -100 }
+    : { left: 0, top: 0 }
+
+  // Set initial state: small size positioned at chosen corner
+  $gsap.set(containerRef.value, {
+    width: `${props.startWidth}vw`,
+    height: `${props.startHeight}vh`,
+    ...initialPosition,
+    position: 'absolute'
+  })
+
+  // Image at 100% height on mobile (no parallax movement needed)
+  $gsap.set(imageRef.value.$el, { yPercent: 0 })
+
+  // Main timeline: Grow container as section scrolls through viewport (NO PIN)
+  const tl = $gsap.timeline({
+    scrollTrigger: {
+      trigger: sectionRef.value,
+      start: 'top bottom',
+      end: 'top top',
+      pin: false,
+      scrub: 1,
+      invalidateOnRefresh: true
+    }
+  })
+
+  // Dimension animation: grow from small to full viewport, center position
+  tl.to(containerRef.value, {
+    width: '100vw',
+    height: '100vh',
+    left: '50%',
+    top: '50%',
+    xPercent: -50,
+    yPercent: -50,
+    ease: 'power2.out',
+    duration: 1
+  }, 0)
+
+  imageScrollTrigger = tl.scrollTrigger
+}
 
 /**
  * Initialize ScrollTrigger animation
@@ -146,111 +200,29 @@ const initScrollTrigger = () => {
   // CRITICAL: Clear any clip-path from page transitions before setting up ScrollTrigger
   $gsap.set(containerRef.value, { clearProps: 'clipPath' })
 
-  // Calculate initial position based on startPosition prop
-  const initialPosition = props.startPosition === 'right'
-    ? { left: '100%', top: 0, xPercent: -100 } // Align to right edge
-    : { left: 0, top: 0 } // Align to left edge
-
-  // Set initial state: small size positioned at chosen corner
-  $gsap.set(containerRef.value, {
-    width: `${props.startWidth}vw`,
-    height: `${props.startHeight}vh`,
-    ...initialPosition,
-    position: 'absolute'
-  })
-
-  // Set initial image position for parallax
-  // Start at 0 (top aligned) to prevent clipping
-  $gsap.set(imageRef.value.$el, {
-    yPercent: 0
-  })
-
   // Kill existing ScrollTrigger if present (for page navigation back)
   if (imageScrollTrigger) {
     imageScrollTrigger.kill()
     imageScrollTrigger = null
   }
 
-  // Main timeline: Grow container dimensions as user scrolls
-  const tl = $gsap.timeline({
-    scrollTrigger: {
-      trigger: sectionRef.value,
-      start: 'top top',
-      end: `+=${props.scrollAmount}`,
-      pin: true,
-      scrub: 1,
-      anticipatePin: 1,
-      markers: false,
-      invalidateOnRefresh: true
-    }
-  })
-
-  // Dimension animation: grow from small to full viewport, center position
-  tl.to(
-    containerRef.value,
-    {
-      width: '100vw',
-      height: '100vh',
-      left: '50%',
-      top: '50%',
-      xPercent: -50,
-      yPercent: -50,
-      ease: 'power2.out',
-      duration: 1
-    },
-    0
-  )
-
-  // Parallax animation: move image vertically for parallax effect
-  // Synced with container growth (runs at same time, position 0)
-  // Image is 140% tall, so 40% extra space = 28.57% of image height
-  // Move UP (negative) to reveal bottom portion of image
-  tl.to(
-    imageRef.value.$el,
-    {
-      yPercent: -28.57, // Move UP to show bottom portion (40% extra / 140% image = 28.57%)
-      ease: 'power2.out',
-      duration: 1
-    },
-    0
-  )
-
-  imageScrollTrigger = tl.scrollTrigger
-}
-
-// Initialize on mount, coordinating with page transitions
-onMounted(() => {
-  // First load: Create immediately after mount
-  if (loadingStore.isFirstLoad) {
-    nextTick(() => {
-      initScrollTrigger()
-    })
+  // Choose animation mode based on device
+  if (isDesktop.value) {
+    initDesktopAnimation()
   }
   else {
-    // After page navigation, wait for page transition to complete
-    // Watch pageTransitionStore.isTransitioning for proper timing
-    const unwatch = watch(
-      () => pageTransitionStore.isTransitioning,
-      (isTransitioning) => {
-        // When transition completes (isTransitioning becomes false), initialize
-        if (!isTransitioning) {
-          nextTick(() => {
-            initScrollTrigger()
-          })
-          unwatch()
-        }
-      },
-      { immediate: true }
-    )
+    initMobileAnimation()
   }
-})
+}
 
-onUnmounted(() => {
-  if (imageScrollTrigger) {
-    imageScrollTrigger.kill()
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(
+  () => initScrollTrigger(),
+  () => {
+    imageScrollTrigger?.kill()
     imageScrollTrigger = null
   }
-})
+)
 </script>
 
 <style scoped>

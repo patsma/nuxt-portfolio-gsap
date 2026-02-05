@@ -95,6 +95,7 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
+        // No theme-color - let Safari auto-sample the background for transparent URL bar effect
         {
           name: 'description',
           content:

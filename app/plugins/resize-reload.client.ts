@@ -1,12 +1,21 @@
 /**
  * Simple resize reload plugin
  *
- * Reloads the page whenever the browser window is resized.
+ * Reloads the page whenever the browser window is resized on desktop.
  * Prevents GSAP/ScrollSmoother bugs from viewport size changes.
  * Uses VueUse useDebounceFn for proper debounce implementation.
+ *
+ * MOBILE: Disabled on < 1024px because:
+ * - ScrollSmoother is disabled on mobile (native scroll)
+ * - Safari URL bar show/hide triggers resize events
+ * - No GSAP bugs to protect against without ScrollSmoother
  */
 export default defineNuxtPlugin(() => {
   if (typeof window === 'undefined') return
+
+  // Skip on mobile/tablet - native scroll doesn't need reload protection
+  // ScrollSmoother is disabled on < 1024px, so no GSAP bugs to worry about
+  if (window.innerWidth < 1024) return
 
   const initialWidth = window.innerWidth
   const initialHeight = window.innerHeight

@@ -213,16 +213,14 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
 
 const linksListRef = ref(null)
 const marqueeRef = ref(null)
 const marqueeWrapperRef = ref(null)
 
-let scrollTriggerInstance = null
-let marqueeScrollTriggerInstance = null
-let unhookPageStart = null
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
+let marqueeScrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
+let unhookPageStart: (() => void) | null = null
 
 // Computed property for dynamic copyright year
 const currentYear = computed(() => new Date().getFullYear())
@@ -307,144 +305,101 @@ const createMarqueeAnimation = () => {
   return tl
 }
 
-onMounted(() => {
-  // Hook into page:start to trigger leave animation
-  const nuxtApp = useNuxtApp()
-  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave)
+/**
+ * Create marquee ScrollTrigger
+ * Animates marquee wrapper (border + marquee) from opacity: 0 to 1 when entering viewport
+ */
+const createMarqueeScrollTrigger = () => {
+  if (!marqueeWrapperRef.value || !$ScrollTrigger) return
 
-  // MARQUEE ScrollTrigger: Fade in when entering viewport
-  if (marqueeWrapperRef.value && $ScrollTrigger) {
-    const createMarqueeScrollTrigger = () => {
-      // Kill existing ScrollTrigger
-      if (marqueeScrollTriggerInstance) {
-        marqueeScrollTriggerInstance.kill()
-        marqueeScrollTriggerInstance = null
-      }
-
-      // Clear inline styles from page leave animation
-      $gsap.set(marqueeWrapperRef.value, { clearProps: 'all' })
-      $gsap.set(marqueeWrapperRef.value, { opacity: 0 })
-
-      // Create ScrollTrigger animation
-      const marqueeTimeline = createMarqueeAnimation()
-
-      marqueeScrollTriggerInstance = $ScrollTrigger.create({
-        trigger: marqueeWrapperRef.value,
-        start: 'top 80%',
-        animation: marqueeTimeline,
-        toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true
-      })
-    }
-
-    // Coordinate with page transitions
-    // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
-    if (loadingStore.isFirstLoad) {
-      // First load: create immediately
-      nextTick(() => {
-        createMarqueeScrollTrigger()
-      })
-    }
-
-    // Set up persistent watch for ALL subsequent page transitions
-    // This watch runs for every navigation, not just the first one
-    watch(
-      () => pageTransitionStore.isTransitioning,
-      (isTransitioning) => {
-        // When transition completes, recreate ScrollTrigger
-        if (!isTransitioning && !loadingStore.isFirstLoad) {
-          nextTick(() => {
-            createMarqueeScrollTrigger()
-          })
-        }
-      }
-    )
-  }
-
-  // SCROLL MODE: Animate links section when scrolling into view (default)
-  // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
-  // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
-  if (props.animateOnScroll && $ScrollTrigger && linksListRef.value) {
-    // Create/recreate ScrollTrigger with fresh element queries
-    const createScrollTrigger = () => {
-      // Kill existing ScrollTrigger if present
-      if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill()
-        scrollTriggerInstance = null
-      }
-
-      // CRITICAL: Clear inline GSAP styles from page transitions on links
-      // handlePageLeave() leaves inline styles (opacity, transform)
-      // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
-      if (linksListRef.value) {
-        const items = linksListRef.value.querySelectorAll('.link-item')
-        if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' })
-          $gsap.set(items, { opacity: 0, y: 40 })
-        }
-      }
-
-      // Create timeline with fromTo() defining both start and end states
-      // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createLinksAnimation()
-
-      // Create ScrollTrigger with animation timeline
-      scrollTriggerInstance = $ScrollTrigger.create({
-        trigger: linksListRef.value,
-        start: 'top 80%', // Animate when section is 80% down viewport
-        end: 'bottom top+=25%', // Complete animation when bottom reaches top
-        animation: scrollTimeline, // Link timeline to scroll position
-        toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true // Recalculate on window resize/refresh
-      })
-    }
-
-    // Coordinate with page transition system
-    // First load: Create immediately after mount
-    // Navigation: Recreate after page transition completes
-    // IMPORTANT: Watch persists for ALL page transitions (no unwatch)
-    if (loadingStore.isFirstLoad) {
-      nextTick(() => {
-        createScrollTrigger()
-      })
-    }
-
-    // Set up persistent watch for ALL subsequent page transitions
-    // This watch runs for every navigation, not just the first one
-    watch(
-      () => pageTransitionStore.isTransitioning,
-      (isTransitioning) => {
-        // When transition completes, recreate ScrollTrigger
-        if (!isTransitioning && !loadingStore.isFirstLoad) {
-          nextTick(() => {
-            createScrollTrigger()
-          })
-        }
-      }
-    )
-  }
-})
-
-// Cleanup ScrollTriggers and hooks on unmount
-onUnmounted(() => {
-  // Unhook page:start listener
-  if (unhookPageStart) {
-    unhookPageStart()
-    unhookPageStart = null
-  }
-
-  // Kill marquee ScrollTrigger
+  // Kill existing ScrollTrigger
   if (marqueeScrollTriggerInstance) {
     marqueeScrollTriggerInstance.kill()
     marqueeScrollTriggerInstance = null
   }
 
-  // Kill links ScrollTrigger
+  // Clear inline styles from page leave animation
+  $gsap.set(marqueeWrapperRef.value, { clearProps: 'all' })
+  $gsap.set(marqueeWrapperRef.value, { opacity: 0 })
+
+  // Create ScrollTrigger animation
+  const marqueeTimeline = createMarqueeAnimation()
+
+  marqueeScrollTriggerInstance = $ScrollTrigger.create({
+    trigger: marqueeWrapperRef.value,
+    start: 'top 80%',
+    animation: marqueeTimeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+/**
+ * Create links ScrollTrigger
+ * Animates link items with stagger when entering viewport
+ */
+const createLinksScrollTrigger = () => {
+  if (!props.animateOnScroll || !$ScrollTrigger || !linksListRef.value) return
+
+  // Kill existing ScrollTrigger if present
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
+
+  // CRITICAL: Clear inline GSAP styles from page transitions on links
+  // handlePageLeave() leaves inline styles (opacity, transform)
+  const items = linksListRef.value.querySelectorAll('.link-item')
+  if (items.length > 0) {
+    $gsap.set(items, { clearProps: 'all' })
+    $gsap.set(items, { opacity: 0, y: 40 })
+  }
+
+  // Create timeline with fromTo() defining both start and end states
+  const scrollTimeline = createLinksAnimation()
+
+  // Create ScrollTrigger with animation timeline
+  scrollTriggerInstance = $ScrollTrigger.create({
+    trigger: linksListRef.value,
+    start: 'top 80%',
+    end: 'bottom top+=25%',
+    animation: scrollTimeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+/**
+ * Initialize all ScrollTriggers
+ * Called by useScrollTriggerInit for proper page transition coordination
+ */
+const initScrollTriggers = () => {
+  createMarqueeScrollTrigger()
+  createLinksScrollTrigger()
+}
+
+/**
+ * Cleanup all resources
+ */
+const cleanup = () => {
+  unhookPageStart?.()
+  unhookPageStart = null
+
+  marqueeScrollTriggerInstance?.kill()
+  marqueeScrollTriggerInstance = null
+
+  scrollTriggerInstance?.kill()
+  scrollTriggerInstance = null
+}
+
+// Setup page leave hook on mount (separate from ScrollTrigger init)
+onMounted(() => {
+  const nuxtApp = useNuxtApp()
+  unhookPageStart = nuxtApp.hook('page:start', handlePageLeave)
 })
+
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(() => initScrollTriggers(), cleanup)
 </script>
 
 <style scoped>

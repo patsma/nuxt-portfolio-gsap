@@ -4,10 +4,14 @@
  * Manages GSAP ScrollSmoother instance lifecycle and provides refresh capability.
  * Named "Manager" to avoid conflict with auto-generated useScrollSmoother from @hypernym/nuxt-gsap.
  *
+ * MOBILE/TABLET BEHAVIOR:
+ * ScrollSmoother is disabled on mobile/tablet (< 1024px) for better native scroll experience.
+ * Use isEnabled() to check if ScrollSmoother is active before calling smoother-specific methods.
+ *
  * USAGE:
- * const { createSmoother, killSmoother, getSmoother, refreshSmoother } = useScrollSmootherManager()
- * createSmoother({ smooth: 2, effects: true })
- * refreshSmoother() // Call after DOM changes to recalculate data-speed/data-lag
+ * const { createSmoother, killSmoother, getSmoother, refreshSmoother, isEnabled } = useScrollSmootherManager()
+ * createSmoother({ smooth: 2, effects: true }) // Returns null on mobile/tablet
+ * if (isEnabled()) refreshSmoother() // Only call when enabled
  * killSmoother()
  */
 
@@ -34,19 +38,31 @@ interface ScrollSmootherManagerReturn {
   getSmoother: () => ScrollSmootherInstance | null
   refreshSmoother: () => void
   scrollToTop: () => void
+  isEnabled: () => boolean
 }
 
 // Store the active smoother instance at module level so it's shared across all calls
 let smootherInstance: ScrollSmootherInstance | null = null
+// Track if ScrollSmoother is enabled (false on mobile/tablet)
+let smootherEnabled = false
 
 export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
   /**
    * Create a new ScrollSmoother instance
+   * Returns null on mobile/tablet (< 1024px) - ScrollSmoother disabled for native scroll
    */
   const createSmoother = (config: ScrollSmootherConfig = {}): ScrollSmootherInstance | null => {
     // Only run on client side
     if (typeof window === 'undefined') {
       console.warn('⚠️ ScrollSmoother can only run on client side')
+      return null
+    }
+
+    // Check if on desktop (>= 1024px) - skip ScrollSmoother on mobile/tablet
+    const { isDesktop } = useIsMobile()
+    if (!isDesktop.value) {
+      smootherEnabled = false
+      // console.log('📱 ScrollSmoother disabled on mobile/tablet')
       return null
     }
 
@@ -100,11 +116,13 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
     // Create ScrollSmoother instance
     try {
       smootherInstance = ScrollSmootherClass.create(defaultConfig)
+      smootherEnabled = true
       // console.log('✅ ScrollSmoother created successfully')
       // console.log('Instance:', smootherInstance)
     }
     catch (error) {
       console.error('❌ Failed to create ScrollSmoother:', error)
+      smootherEnabled = false
       return null
     }
 
@@ -118,6 +136,7 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
     if (smootherInstance) {
       smootherInstance.kill()
       smootherInstance = null
+      smootherEnabled = false
       // console.log('🗑️ ScrollSmoother killed')
     }
   }
@@ -132,10 +151,11 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
   /**
    * Refresh ScrollSmoother to recalculate all data-speed and data-lag elements
    * Call this after page transitions or DOM changes
+   * Silently returns on mobile/tablet where ScrollSmoother is disabled
    */
   const refreshSmoother = (): void => {
-    if (!smootherInstance) {
-      console.warn('⚠️ ScrollSmoother instance not found, cannot refresh')
+    // Silently return if ScrollSmoother is disabled (mobile/tablet)
+    if (!smootherEnabled || !smootherInstance) {
       return
     }
 
@@ -183,11 +203,18 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
     // console.log('📍 ScrollSmoother scrolled to top');
   }
 
+  /**
+   * Check if ScrollSmoother is currently enabled
+   * Returns false on mobile/tablet (< 1024px) where native scroll is used
+   */
+  const isEnabled = (): boolean => smootherEnabled
+
   return {
     createSmoother,
     killSmoother,
     getSmoother,
     refreshSmoother,
-    scrollToTop
+    scrollToTop,
+    isEnabled
   }
 }

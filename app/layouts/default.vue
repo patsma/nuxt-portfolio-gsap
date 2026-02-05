@@ -1,24 +1,59 @@
-<script setup>
+<script setup lang="ts">
+import { useThrottleFn } from '@vueuse/core'
+
 /**
  * Default Layout - ScrollSmoother Integration with Headroom + Loading System
  *
  * Integrates loading sequence management with ScrollSmoother and page transitions.
  * Ensures proper initialization order and coordinates with the ready state.
+ *
+ * MOBILE/TABLET BEHAVIOR (< 1024px):
+ * ScrollSmoother is disabled for native scroll experience. Headroom uses window scroll events.
  */
 
 // Page transition composable for route changes
 const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 
 // ScrollSmoother manager for smooth scrolling
-const { createSmoother, killSmoother, scrollToTop }
+const { createSmoother, killSmoother, scrollToTop, isEnabled }
   = useScrollSmootherManager()
 
 // Loading sequence manager
 const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad }
   = useLoadingSequence()
 
+// Mobile/tablet detection
+const { isDesktop } = useIsMobile()
+
 // Access Nuxt app for $headroom plugin
 const nuxtApp = useNuxtApp()
+
+// Native scroll handler for headroom on mobile/tablet
+let nativeScrollHandler: (() => void) | null = null
+
+/**
+ * Setup native scroll listener for headroom on mobile/tablet
+ * Uses throttled scroll events instead of ScrollSmoother.onUpdate
+ */
+const setupNativeScrollHeadroom = () => {
+  nativeScrollHandler = useThrottleFn(() => {
+    if (nuxtApp.$headroom?.updateHeader) {
+      nuxtApp.$headroom.updateHeader(window.scrollY)
+    }
+  }, 100)
+
+  window.addEventListener('scroll', nativeScrollHandler, { passive: true })
+}
+
+/**
+ * Cleanup native scroll listener
+ */
+const cleanupNativeScrollHeadroom = () => {
+  if (nativeScrollHandler) {
+    window.removeEventListener('scroll', nativeScrollHandler)
+    nativeScrollHandler = null
+  }
+}
 
 onMounted(() => {
   // Wait for next tick to ensure DOM elements are ready
@@ -34,26 +69,31 @@ onMounted(() => {
       return
     }
 
-    // Create ScrollSmoother instance with headroom integration
-    // normalizeScroll: false on mobile to allow Safari URL bar to hide/show naturally
-    createSmoother({
-      wrapper: '#smooth-wrapper',
-      content: '#smooth-content',
-      smooth: 1, // Optimized for consistent 60fps across all browsers (higher values can drop to 14fps on Safari)
-      effects: true, // Enable data-speed and data-lag attributes
-      normalizeScroll: true, // Desktop: true for smooth scroll, Mobile: false for native Safari URL bar behavior
-      ignoreMobileResize: true, // Prevents janky resizing on mobile devices
+    if (isDesktop.value) {
+      // Desktop (>= 1024px): Create ScrollSmoother with headroom integration
+      createSmoother({
+        wrapper: '#smooth-wrapper',
+        content: '#smooth-content',
+        smooth: 1, // Optimized for consistent 60fps across all browsers (higher values can drop to 14fps on Safari)
+        effects: true, // Enable data-speed and data-lag attributes
+        normalizeScroll: true, // Desktop: true for smooth scroll
+        ignoreMobileResize: true, // Prevents janky resizing on mobile devices
 
-      // Headroom integration: update header visibility on scroll
-      onUpdate: (self) => {
-        if (nuxtApp.$headroom?.updateHeader) {
-          const currentScroll = self.scrollTop()
-          nuxtApp.$headroom.updateHeader(currentScroll)
+        // Headroom integration: update header visibility on scroll
+        onUpdate: (self: any) => {
+          if (nuxtApp.$headroom?.updateHeader) {
+            const currentScroll = self.scrollTop()
+            nuxtApp.$headroom.updateHeader(currentScroll)
+          }
         }
-      }
-    })
+      })
+    }
+    else {
+      // Mobile/Tablet (< 1024px): Use native scroll with headroom
+      setupNativeScrollHeadroom()
+    }
 
-    // CRITICAL: Scroll to top after creating ScrollSmoother
+    // CRITICAL: Scroll to top after setup
     // This ensures the page starts at scrollTop 0, not at some random offset
     nextTick(() => {
       scrollToTop()
@@ -71,6 +111,8 @@ onMounted(() => {
 onUnmounted(() => {
   // Cleanup ScrollSmoother when layout is destroyed
   killSmoother()
+  // Cleanup native scroll handler
+  cleanupNativeScrollHeadroom()
 })
 </script>
 

@@ -44,8 +44,6 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
 
 const sectionRef = ref<HTMLElement | null>(null)
 const labelRef = ref<HTMLElement | null>(null)
@@ -61,49 +59,31 @@ interface SplitResult {
 }
 
 let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
-
-// Module-level storage for line animations cleanup
 let lineScrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
 const splitInstances: SplitResult[] = []
 
 /**
  * Create reusable animation function for label + content
- * Used by ScrollTrigger for scroll-linked animations
  */
 const createSectionAnimation = () => {
   const tl = $gsap.timeline()
 
-  // Animate label (fade + y offset)
-  // Using .fromTo() to explicitly define both start and end states
   if (labelRef.value) {
     tl.fromTo(
       labelRef.value,
       { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power2.out'
-      }
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
     )
   }
 
-  // Animate content children (stagger fade + y offset)
-  // Query direct children using same selector as v-page-stagger directive
   if (contentRef.value) {
     const children = contentRef.value.querySelectorAll(':scope > *')
     if (children.length > 0) {
       tl.fromTo(
         children,
         { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.08, // Stagger child element reveals
-          ease: 'power2.out'
-        },
-        '<+0.2' // Start 0.2s after label animation begins
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out' },
+        '<+0.2'
       )
     }
   }
@@ -113,50 +93,34 @@ const createSectionAnimation = () => {
 
 /**
  * Create masked line reveal animation using SplitText
- * Lines slide up from behind mask with subtle rotation - organic "typewriter meets cinema" feel
- * Paragraphs play sequentially - first paragraph completes before second begins
  */
 const createLineAnimations = () => {
-  // Kill existing ScrollTrigger
   if (lineScrollTriggerInstance) {
     lineScrollTriggerInstance.kill()
     lineScrollTriggerInstance = null
   }
 
-  // Revert existing SplitText instances (restores original DOM)
   splitInstances.forEach(split => split.revert?.())
   splitInstances.length = 0
 
-  // Create master timeline (paused - ScrollTrigger controls playback)
   const masterTl = $gsap.timeline({ paused: true })
-
-  // Split paragraphs and animate lines with mask reveal
   const paragraphs = contentRef.value?.querySelectorAll('p')
   if (!paragraphs?.length) return
 
   paragraphs.forEach((el, pIndex) => {
-    // Clear any leftover styles from previous animations
     $gsap.set(el, { clearProps: 'all' })
-
-    // Lock height before split to prevent layout shift
     const originalHeight = el.offsetHeight
     $gsap.set(el, { height: originalHeight, overflow: 'hidden' })
 
-    // Split text into lines with mask for clean reveal effect
-    const split = $SplitText.create(el, {
-      type: 'lines',
-      mask: 'lines'
-    })
+    const split = $SplitText.create(el, { type: 'lines', mask: 'lines' })
     splitInstances.push(split)
 
-    // Initial state: hidden below mask with subtle rotation
     $gsap.set(split.lines, {
       yPercent: 100,
       rotate: 8,
-      transformOrigin: '0% 100%' // Pivot from bottom-left for natural rotation
+      transformOrigin: '0% 100%'
     })
 
-    // Build paragraph timeline
     const paragraphTl = $gsap.timeline()
     paragraphTl.to(split.lines, {
       yPercent: 0,
@@ -166,16 +130,14 @@ const createLineAnimations = () => {
       ease: 'power3.out'
     })
 
-    // Add to master timeline: first at 0, subsequent overlap with previous
     if (pIndex === 0) {
       masterTl.add(paragraphTl, 0)
     }
     else {
-      masterTl.add(paragraphTl, '>-0.4') // Start 0.4s before previous ends for smooth overlap
+      masterTl.add(paragraphTl, '>-0.4')
     }
   })
 
-  // Single ScrollTrigger controls master timeline
   lineScrollTriggerInstance = $ScrollTrigger.create({
     trigger: contentRef.value,
     start: 'top 65%',
@@ -186,98 +148,61 @@ const createLineAnimations = () => {
   })
 }
 
-onMounted(() => {
-  // SCROLL MODE: Animate when scrolling into view (default)
-  // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
-  // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
-  if (props.animateOnScroll && $ScrollTrigger && sectionRef.value) {
-    // Create/recreate ScrollTrigger with fresh element queries
-    const createScrollTrigger = () => {
-      // Kill existing ScrollTrigger if present
-      if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill()
-        scrollTriggerInstance = null
-      }
+/**
+ * Initialize ScrollTrigger animation
+ */
+const initScrollTrigger = () => {
+  // Skip if animation disabled or dependencies missing
+  if (!props.animateOnScroll || !$ScrollTrigger || !sectionRef.value) return
 
-      // CRITICAL: Clear inline GSAP styles from page transitions
-      // The v-page-split and v-page-stagger directives leave inline styles (opacity, transform)
-      // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
-      if (labelRef.value) {
-        $gsap.set(labelRef.value, { clearProps: 'all' })
-        $gsap.set(labelRef.value, { opacity: 0, y: 40 })
-      }
-      if (contentRef.value) {
-        // Query direct children using same selector as v-page-stagger directive
-        const children = contentRef.value.querySelectorAll(':scope > *')
-        if (children.length > 0) {
-          $gsap.set(children, { clearProps: 'all' })
-          $gsap.set(children, { opacity: 0, y: 40 })
-        }
-      }
-
-      // Create timeline with fromTo() defining both start and end states
-      // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation()
-
-      // Create ScrollTrigger with animation timeline
-      scrollTriggerInstance = $ScrollTrigger.create({
-        trigger: sectionRef.value,
-        start: 'top 80%', // Animate when section is 80% down viewport
-        end: 'bottom top+=25%', // Complete animation when bottom reaches top
-        animation: scrollTimeline, // Link timeline to scroll position
-        toggleActions: 'play pause resume reverse',
-        // scrub: 0.5, // Smooth scrubbing with 0.5s delay for organic feel
-        invalidateOnRefresh: true // Recalculate on window resize/refresh
-      })
-
-      // Create line animations after section animation setup
-      createLineAnimations()
-    }
-
-    // Coordinate with page transition system
-    // First load: Create immediately after mount
-    // Navigation: Recreate after page transition completes
-    if (loadingStore.isFirstLoad) {
-      nextTick(() => {
-        createScrollTrigger()
-      })
-    }
-    else {
-      // After page navigation, wait for page transition to complete
-      // Watch pageTransitionStore.isTransitioning for proper timing
-      const unwatch = watch(
-        () => pageTransitionStore.isTransitioning,
-        (isTransitioning) => {
-          // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
-          if (!isTransitioning) {
-            nextTick(() => {
-              createScrollTrigger()
-            })
-            unwatch() // Stop watching
-          }
-        },
-        { immediate: true }
-      )
-    }
-  }
-})
-
-// Cleanup ScrollTrigger and line animations on unmount
-onUnmounted(() => {
-  // Kill section ScrollTrigger
+  // Kill existing ScrollTrigger if present
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
 
-  // Kill line ScrollTrigger
-  if (lineScrollTriggerInstance) {
-    lineScrollTriggerInstance.kill()
-    lineScrollTriggerInstance = null
+  // Clear inline GSAP styles from page transitions, set initial state
+  if (labelRef.value) {
+    $gsap.set(labelRef.value, { clearProps: 'all' })
+    $gsap.set(labelRef.value, { opacity: 0, y: 40 })
+  }
+  if (contentRef.value) {
+    const children = contentRef.value.querySelectorAll(':scope > *')
+    if (children.length > 0) {
+      $gsap.set(children, { clearProps: 'all' })
+      $gsap.set(children, { opacity: 0, y: 40 })
+    }
   }
 
-  // Revert SplitText instances (restores original DOM)
+  // Create timeline and ScrollTrigger
+  const scrollTimeline = createSectionAnimation()
+  scrollTriggerInstance = $ScrollTrigger.create({
+    trigger: sectionRef.value,
+    start: 'top 80%',
+    end: 'bottom top+=25%',
+    animation: scrollTimeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+
+  // Create line animations after section animation setup
+  createLineAnimations()
+}
+
+/**
+ * Cleanup all ScrollTriggers and SplitText instances
+ */
+const cleanup = () => {
+  scrollTriggerInstance?.kill()
+  scrollTriggerInstance = null
+
+  lineScrollTriggerInstance?.kill()
+  lineScrollTriggerInstance = null
+
   splitInstances.forEach(split => split.revert?.())
   splitInstances.length = 0
-})
+}
+
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(() => initScrollTrigger(), cleanup)
 </script>

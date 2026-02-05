@@ -35,7 +35,9 @@ Page Transitions
 
 | File | Purpose |
 |------|---------|
-| `app/composables/useScrollSmootherManager.ts` | Module-level composable managing lifecycle |
+| `app/composables/useScrollSmootherManager.ts` | Module-level composable managing lifecycle (desktop only) |
+| `app/composables/useScrollTriggerInit.ts` | Abstracts page transition coordination for ScrollTrigger |
+| `app/composables/useIsMobile.ts` | Mobile detection (isDesktop for >= 1024px) |
 | `app/plugins/headroom.client.ts` | Header visibility with pause/resume |
 | `app/composables/usePageTransition.ts` | Coordinates headroom with transitions |
 | `app/assets/css/components/header-grid.scss` | Transform-based header animations |
@@ -374,6 +376,127 @@ const enter = (el: Element, done: () => void): void => {
 refreshSmoother()  // Recalculates parallax for new content
 ```
 
+## Mobile/Tablet Behavior (< 1024px)
+
+ScrollSmoother is **disabled** on mobile and tablet for native scroll experience.
+
+### Desktop vs Mobile/Tablet
+
+| Feature | Desktop (≥1024px) | Mobile/Tablet (<1024px) |
+|---------|-------------------|-------------------------|
+| ScrollSmoother | Enabled | Disabled |
+| Parallax (data-speed/lag) | Active | Ignored |
+| Scaling sections | Pinned, scrubbed | Non-pinned, scrubbed |
+| Headroom scroll source | ScrollSmoother.onUpdate | window scroll event |
+| Scroll feel | Smooth interpolation | Native browser scroll |
+
+### How It Works
+
+**File:** `app/layouts/default.vue`
+
+```typescript
+const { isDesktop } = useIsMobile()
+
+onMounted(() => {
+  nextTick(() => {
+    if (isDesktop.value) {
+      // Desktop: ScrollSmoother with headroom integration
+      createSmoother({ /* config */ })
+    } else {
+      // Mobile/Tablet: Native scroll with headroom
+      setupNativeScrollHeadroom()
+    }
+  })
+})
+```
+
+### Scaling Section Mobile Behavior
+
+On mobile/tablet, `ImageScalingSection` and `VideoScalingSection`:
+- Same grow animation (small → full viewport)
+- Scrubbed to scroll position (not time-based)
+- NO pinning - section scrolls naturally
+- Animation plays as section moves through viewport
+- No parallax effect (manual yPercent animation removed)
+
+**Desktop mode:**
+```typescript
+$ScrollTrigger.create({
+  trigger: sectionRef.value,
+  start: 'top top',
+  end: `+=${scrollAmount}`,
+  pin: true,  // PINNED
+  scrub: 1
+})
+```
+
+**Mobile mode:**
+```typescript
+$ScrollTrigger.create({
+  trigger: sectionRef.value,
+  start: 'top bottom',  // Start when section enters viewport
+  end: 'top top',       // End when section reaches top
+  pin: false,           // NO PINNING
+  scrub: 1
+})
+```
+
+### useScrollTriggerInit Composable
+
+**File:** `app/composables/useScrollTriggerInit.ts`
+
+Abstracts the repetitive page transition coordination pattern used in 7+ components.
+
+```typescript
+useScrollTriggerInit(
+  () => initScrollTrigger(),
+  () => {
+    scrollTriggerInstance?.kill()
+    scrollTriggerInstance = null
+  }
+)
+```
+
+**Replaces:**
+```typescript
+// OLD PATTERN (~25 lines per component)
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
+
+onMounted(() => {
+  if (loadingStore.isFirstLoad) {
+    nextTick(() => initScrollTrigger())
+  } else {
+    const unwatch = watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        if (!isTransitioning) {
+          nextTick(() => initScrollTrigger())
+          unwatch()
+        }
+      },
+      { immediate: true }
+    )
+  }
+})
+
+onUnmounted(() => {
+  scrollTriggerInstance?.kill()
+  scrollTriggerInstance = null
+})
+```
+
+**Components using this pattern:**
+- BiographySection
+- ExperienceSection
+- RecommendationsSection
+- AwardsRecognitionSection
+- FooterHeroSection
+- ServicesSection
+- ClientsSection
+- ImageScalingSection
+- VideoScalingSection
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |
@@ -386,6 +509,8 @@ refreshSmoother()  // Recalculates parallax for new content
 | Headroom resumes too early | Using page:finish hook | Resume in enter() `onComplete` instead |
 | 14fps on Safari | smooth value too high | Use `smooth: 1` (see setup) |
 | ScrollTrigger pinning at wrong position | Content height changed after initialization | Call ScrollTrigger.refresh() after animations (see Component Patterns) |
+| ScrollSmoother active on mobile | isDesktop check missing | Verify useIsMobile() check in layout |
+| Scaling section pins on mobile | Wrong animation mode | Check isDesktop.value in scaling section init |
 
 ## Performance
 
@@ -404,7 +529,9 @@ refreshSmoother()  // Recalculates parallax for new content
 ## Files Reference
 
 **Composables:**
-- `app/composables/useScrollSmootherManager.ts` - Lifecycle management
+- `app/composables/useScrollSmootherManager.ts` - Lifecycle management (desktop only)
+- `app/composables/useScrollTriggerInit.ts` - Page transition coordination abstraction
+- `app/composables/useIsMobile.ts` - Mobile/desktop detection
 - `app/composables/usePageTransition.ts` - Transition coordination
 
 **Plugins:**

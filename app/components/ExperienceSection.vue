@@ -109,13 +109,11 @@ const props = defineProps({
 })
 
 const { $gsap, $ScrollTrigger } = useNuxtApp()
-const loadingStore = useLoadingStore()
-const pageTransitionStore = usePageTransitionStore()
 
 const sectionRef = ref(null)
 const listRef = ref(null)
 
-let scrollTriggerInstance = null
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
 
 /**
  * Create reusable animation function for experience list items
@@ -125,7 +123,6 @@ const createSectionAnimation = () => {
   const tl = $gsap.timeline()
 
   // Animate experience items (stagger fade + y offset)
-  // Query all .experience-item children within the list
   if (listRef.value) {
     const items = listRef.value.querySelectorAll('.experience-item')
     if (items.length > 0) {
@@ -136,7 +133,7 @@ const createSectionAnimation = () => {
           opacity: 1,
           y: 0,
           duration: 0.6,
-          stagger: 0.08, // Stagger item reveals
+          stagger: 0.08,
           ease: 'power2.out'
         }
       )
@@ -146,80 +143,48 @@ const createSectionAnimation = () => {
   return tl
 }
 
-onMounted(() => {
-  // SCROLL MODE: Animate when scrolling into view (default)
-  // Timeline is linked to ScrollTrigger for smooth forward/reverse playback
-  // Pattern: Kill and recreate ScrollTrigger after page transitions for fresh DOM queries
-  if (props.animateOnScroll && $ScrollTrigger && sectionRef.value) {
-    // Create/recreate ScrollTrigger with fresh element queries
-    const createScrollTrigger = () => {
-      // Kill existing ScrollTrigger if present
-      if (scrollTriggerInstance) {
-        scrollTriggerInstance.kill()
-        scrollTriggerInstance = null
-      }
+/**
+ * Initialize ScrollTrigger animation
+ */
+const initScrollTrigger = () => {
+  // Skip if animation disabled or dependencies missing
+  if (!props.animateOnScroll || !$ScrollTrigger || !sectionRef.value) return
 
-      // CRITICAL: Clear inline GSAP styles from page transitions
-      // The v-page-stagger directive leaves inline styles (opacity, transform)
-      // Clear them, then explicitly set initial hidden state before ScrollTrigger takes over
-      if (listRef.value) {
-        const items = listRef.value.querySelectorAll('.experience-item')
-        if (items.length > 0) {
-          $gsap.set(items, { clearProps: 'all' })
-          $gsap.set(items, { opacity: 0, y: 40 })
-        }
-      }
-
-      // Create timeline with fromTo() defining both start and end states
-      // Initial state already set above, timeline will animate based on scroll position
-      const scrollTimeline = createSectionAnimation()
-
-      // Create ScrollTrigger with animation timeline
-      scrollTriggerInstance = $ScrollTrigger.create({
-        trigger: sectionRef.value,
-        start: 'top 80%', // Animate when section is 80% down viewport
-        end: 'bottom top+=25%', // Complete animation when bottom reaches top
-        animation: scrollTimeline, // Link timeline to scroll position
-        toggleActions: 'play pause resume reverse',
-        invalidateOnRefresh: true // Recalculate on window resize/refresh
-      })
-    }
-
-    // Coordinate with page transition system
-    // First load: Create immediately after mount
-    // Navigation: Recreate after page transition completes
-    if (loadingStore.isFirstLoad) {
-      nextTick(() => {
-        createScrollTrigger()
-      })
-    }
-    else {
-      // After page navigation, wait for page transition to complete
-      // Watch pageTransitionStore.isTransitioning for proper timing
-      const unwatch = watch(
-        () => pageTransitionStore.isTransitioning,
-        (isTransitioning) => {
-          // When transition completes (isTransitioning becomes false), recreate ScrollTrigger
-          if (!isTransitioning) {
-            nextTick(() => {
-              createScrollTrigger()
-            })
-            unwatch() // Stop watching
-          }
-        },
-        { immediate: true }
-      )
-    }
-  }
-})
-
-// Cleanup ScrollTrigger on unmount
-onUnmounted(() => {
+  // Kill existing ScrollTrigger if present
   if (scrollTriggerInstance) {
     scrollTriggerInstance.kill()
     scrollTriggerInstance = null
   }
-})
+
+  // Clear inline GSAP styles from page transitions, set initial state
+  if (listRef.value) {
+    const items = listRef.value.querySelectorAll('.experience-item')
+    if (items.length > 0) {
+      $gsap.set(items, { clearProps: 'all' })
+      $gsap.set(items, { opacity: 0, y: 40 })
+    }
+  }
+
+  // Create timeline and ScrollTrigger
+  const scrollTimeline = createSectionAnimation()
+  scrollTriggerInstance = $ScrollTrigger.create({
+    trigger: sectionRef.value,
+    start: 'top 80%',
+    end: 'bottom top+=25%',
+    animation: scrollTimeline,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+// Use abstraction composable for page transition coordination
+useScrollTriggerInit(
+  () => initScrollTrigger(),
+  () => {
+    scrollTriggerInstance?.kill()
+    scrollTriggerInstance = null
+  }
+)
 </script>
 
 <style scoped>
