@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     { path: '~/components', pathPrefix: false },
     { path: '~/components/SVG', pathPrefix: false }
   ],
-  devtools: { enabled: true },
+  devtools: { enabled: false },
 
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },

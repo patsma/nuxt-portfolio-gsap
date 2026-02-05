@@ -25,6 +25,7 @@ const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad }
 // Mobile/tablet detection
 const { isDesktop } = useIsMobile()
 
+
 // Access Nuxt app for $headroom plugin
 const nuxtApp = useNuxtApp()
 
@@ -122,10 +123,10 @@ onUnmounted(() => {
     id="smooth-wrapper"
     class="min-h-screen text-[var(--color-ink)]"
   >
+    <!-- Loading indicator at TOP (not bottom) - bottom fixed elements interfere with Safari iOS glass effect -->
     <NuxtLoadingIndicator
       :height="6"
-      color="var(--theme-text-60)"
-      style="top: auto; bottom: 0"
+      color="var(--theme-text-100)"
     />
 
     <!-- Accessible skip link: appears on focus to bypass repetitive content -->
@@ -170,7 +171,6 @@ onUnmounted(() => {
           contact@mschristensen.com
         </template>
       </FooterSection>
-      <!-- <div class="spacer h-screen"></div> -->
     </div>
   </div>
 </template>
