@@ -113,12 +113,18 @@ const executeRefresh = () => {
     scrollTriggerInstance = null
   }
 
-  // TARGETED REFRESH: Only refresh ScrollTriggers with pin: true
-  // This avoids affecting marquee ScrollTriggers (RecommendationItem animations)
-  // Marquees don't need refreshing - they only care about their own element's viewport position
-  const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin)
+  // TARGETED REFRESH: Refresh ScrollTriggers that care about scroll position thresholds
+  // Includes:
+  // - Pinned triggers (ImageScalingSection, etc.)
+  // - Animation-based triggers (FooterSection, FooterHeroSection)
+  // - Enter/leave callback triggers (ScrollButtonSVG - needs position recalc)
+  // Excludes:
+  // - Update-only triggers (marquees only use onUpdate, don't need position refresh)
+  const triggersToRefresh = $ScrollTrigger.getAll().filter(
+    st => st.pin || st.animation || st.vars?.onEnter || st.vars?.onLeave
+  )
 
-  pinnedTriggers.forEach((trigger) => {
+  triggersToRefresh.forEach((trigger) => {
     trigger.refresh()
   })
 
