@@ -141,7 +141,7 @@ const createLineAnimations = () => {
   lineScrollTriggerInstance = $ScrollTrigger.create({
     trigger: contentRef.value,
     start: 'top 65%',
-    end: 'bottom top+=20%',
+    end: 'bottom top',
     animation: masterTl,
     toggleActions: 'play reverse play reverse',
     invalidateOnRefresh: true
