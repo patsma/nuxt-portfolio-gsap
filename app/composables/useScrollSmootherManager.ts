@@ -151,28 +151,27 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
   /**
    * Refresh ScrollSmoother to recalculate all data-speed and data-lag elements
    * Call this after page transitions or DOM changes
-   * Silently returns on mobile/tablet where ScrollSmoother is disabled
+   * Always refreshes ScrollTrigger on both mobile and desktop
    */
   const refreshSmoother = (): void => {
-    // Silently return if ScrollSmoother is disabled (mobile/tablet)
-    if (!smootherEnabled || !smootherInstance) {
-      return
-    }
-
-    // Get ScrollTrigger from Nuxt app (same way we got ScrollSmoother)
+    // Get ScrollTrigger from Nuxt app
     const nuxtApp = useNuxtApp()
 
-    // IMPORTANT: Call effects() to recalculate data-speed and data-lag attributes
-    // This re-scans the content for new elements with parallax effects
-    if (typeof smootherInstance.effects === 'function') {
-      smootherInstance.effects('[data-speed], [data-lag]')
-      // console.log('🔄 ScrollSmoother effects recalculated')
+    // If ScrollSmoother is enabled (desktop), refresh its effects too
+    if (smootherEnabled && smootherInstance) {
+      // IMPORTANT: Call effects() to recalculate data-speed and data-lag attributes
+      // This re-scans the content for new elements with parallax effects
+      if (typeof smootherInstance.effects === 'function') {
+        smootherInstance.effects('[data-speed], [data-lag]')
+        // console.log('🔄 ScrollSmoother effects recalculated')
+      }
+
+      // Refresh ScrollSmoother layout
+      smootherInstance.refresh()
     }
 
-    // Refresh ScrollSmoother layout
-    smootherInstance.refresh()
-
-    // Also refresh ScrollTrigger to ensure everything recalculates
+    // ALWAYS refresh ScrollTrigger on both mobile and desktop
+    // This ensures scroll-triggered animations work after page transitions
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((nuxtApp as any).$ScrollTrigger) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -184,7 +183,7 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
       ;(window as any).ScrollTrigger.refresh()
     }
 
-    // console.log('🔄 ScrollSmoother refreshed')
+    // console.log('🔄 ScrollSmoother/ScrollTrigger refreshed')
   }
 
   /**
