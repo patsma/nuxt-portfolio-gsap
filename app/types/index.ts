@@ -53,6 +53,7 @@ export type Theme = 'dark' | 'light'
  */
 export interface MenuState {
   isOpen: boolean
+  isClosing: boolean
 }
 
 // ============================================================================

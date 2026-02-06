@@ -140,7 +140,7 @@
               :to="item.href"
               class="block pp-eiko-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
               :data-active="isActive(item.href)"
-              @click="close()"
+              @click.prevent="handleMobileNavClick(item.href)"
             >
               {{ item.label }}
             </NuxtLink>
@@ -156,12 +156,16 @@
 import HamburgerSVG from './SVG/HamburgerSVG.vue'
 import ThemeToggleSVG from './ThemeToggleSVG.vue'
 import { useLoadingStore } from '~/stores/loading'
+import { useMenuStore } from '~/stores/menu'
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
 import { useTokyoTime } from '~/composables/useTokyoTime'
 import { useTitleRotationStore } from '~/stores/title-rotation'
 
 // Loading store for font readiness check
 const loadingStore = useLoadingStore()
+
+// Menu store for coordinated navigation
+const menuStore = useMenuStore()
 
 // Nuxt GSAP services (provided by GSAP Nuxt module/plugin)
 const nuxtApp = useNuxtApp()
@@ -179,8 +183,14 @@ const titleStore = useTitleRotationStore()
 // Client-side only flag for SSR safety
 const isClient = ref(false)
 
-// Shared menu state for consistent header behavior
-const isOpen = useState<boolean>('headerMenuOpen', () => false)
+// Router for programmatic navigation after menu close
+const router = useRouter()
+
+// Track if we're navigating (to coordinate headroom resume)
+const isNavigating = ref(false)
+
+// Computed wrapper for menu store state (replaces useState)
+const isOpen = computed(() => menuStore.isOpen)
 
 // Refs to animate
 const containerRef = ref<HTMLElement | null>(null)
@@ -638,10 +648,17 @@ watch(isOpen, (open) => {
   }
 
   // Animate unified menu (background + overlay + nav items)
-  // Plays as one cohesive timeline, reverses smoothly
   if (menuTl) {
-    if (open) menuTl.play()
-    else menuTl.reverse()
+    if (open) {
+      menuTl.play()
+    }
+    else {
+      // Hook into reverse complete to notify store when animation finishes
+      menuTl.eventCallback('onReverseComplete', () => {
+        menuStore.notifyAnimationComplete()
+      })
+      menuTl.reverse()
+    }
   }
 
   // Pause/resume headroom when menu toggles
@@ -650,8 +667,9 @@ watch(isOpen, (open) => {
       // Menu opening: pause headroom so header stays visible and stable
       nuxtApp.$headroom.pause()
     }
-    else {
-      // Menu closing: resume headroom for normal scroll behavior
+    else if (!isNavigating.value) {
+      // Menu closing WITHOUT navigation: resume headroom immediately
+      // (When navigating, page transition handles headroom resume)
       nuxtApp.$headroom.resume()
     }
   }
@@ -673,12 +691,24 @@ watch(
 
 // Menu interactions
 function toggle() {
-  isOpen.value = !isOpen.value
+  menuStore.toggle()
 }
 
-function close() {
-  isOpen.value = false
+/**
+ * Handle mobile nav link clicks
+ * Waits for menu close animation to complete before navigating
+ * This ensures smooth, predictable transition sequencing
+ */
+async function handleMobileNavClick(href: string): Promise<void> {
+  isNavigating.value = true
+  await menuStore.closeWithAnimation()
+  router.push(href)
 }
+
+// Reset navigation flag after page transition completes
+nuxtApp.hook('page:finish', () => {
+  isNavigating.value = false
+})
 
 onUnmounted(() => {
   // Clean up GSAP context
