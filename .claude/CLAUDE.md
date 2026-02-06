@@ -1,6 +1,32 @@
-# Morten 2025 - Codebase Guide
+# nuxt-portfolio-gsap
 
-Personal portfolio built with Nuxt 4, featuring directive-based GSAP page transitions, ScrollSmoother, theme-aware loading system, and smooth dark/light theme switching.
+## Project Context
+
+**This is a PUBLIC template repository** intended for submission to [nuxt.com/templates](https://nuxt.com/templates).
+
+| Item | Link |
+|------|------|
+| **This repo** | https://github.com/patsma/nuxt-portfolio-gsap |
+| **Live demo** | https://mp2025.netlify.app |
+| **Fork for submission** | https://github.com/patsma/nuxt.com |
+| **Submission instructions** | See `SUBMISSION.md` in repo root |
+
+### Submission Status
+
+- ✅ Template YAML file created in fork (`content/templates/nuxt-portfolio-gsap.yml`)
+- ✅ All required files present (LICENSE, README, .env.example, CUSTOMIZATION.md)
+- ✅ Demo is live
+- ⏳ PR to nuxt/nuxt.com not yet submitted
+
+### Related Repo
+
+There's a **private development repo** at `patsma/morten-2025` (located at `~/Sites/morten-2025/code`). This public template repo is the cleaned-up, release version.
+
+---
+
+# Codebase Guide
+
+GSAP-powered portfolio template built with Nuxt 4, featuring directive-based page transitions, ScrollSmoother, theme-aware loading system, and smooth dark/light theme switching.
 
 ## Quick Start
 
