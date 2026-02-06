@@ -15,7 +15,7 @@ import { useThrottleFn } from '@vueuse/core'
 const { leave, enter, beforeEnter, afterLeave } = usePageTransition()
 
 // ScrollSmoother manager for smooth scrolling
-const { createSmoother, killSmoother, scrollToTop, isEnabled }
+const { createSmoother, killSmoother, scrollToTop, isEnabled: _isEnabled }
   = useScrollSmootherManager()
 
 // Loading sequence manager
@@ -24,7 +24,6 @@ const { markScrollSmootherReady, markPageReady, isFirstLoad: _isFirstLoad }
 
 // Mobile/tablet detection
 const { isDesktop } = useIsMobile()
-
 
 // Access Nuxt app for $headroom plugin
 const nuxtApp = useNuxtApp()
@@ -81,7 +80,7 @@ onMounted(() => {
         ignoreMobileResize: true, // Prevents janky resizing on mobile devices
 
         // Headroom integration: update header visibility on scroll
-        onUpdate: (self: any) => {
+        onUpdate: (self: ScrollSmoother) => {
           if (nuxtApp.$headroom?.updateHeader) {
             const currentScroll = self.scrollTop()
             nuxtApp.$headroom.updateHeader(currentScroll)
