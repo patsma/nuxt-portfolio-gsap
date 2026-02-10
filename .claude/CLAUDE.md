@@ -1,42 +1,24 @@
-# nuxt-portfolio-gsap
+# CLAUDE.md
 
-## Project Context
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**This is a PUBLIC template repository** intended for submission to [nuxt.com/templates](https://nuxt.com/templates).
-
-| Item | Link |
-|------|------|
-| **This repo** | https://github.com/patsma/nuxt-portfolio-gsap |
-| **Live demo** | https://mp2025.netlify.app |
-| **Fork for submission** | https://github.com/patsma/nuxt.com |
-| **Submission instructions** | See `SUBMISSION.md` in repo root |
-
-### Submission Status
-
-- ✅ Template YAML file created in fork (`content/templates/nuxt-portfolio-gsap.yml`)
-- ✅ All required files present (LICENSE, README, .env.example, CUSTOMIZATION.md)
-- ✅ Demo is live
-- ⏳ PR to nuxt/nuxt.com not yet submitted
-
-### Related Repo
-
-There's a **private development repo** at `patsma/morten-2025` (located at `~/Sites/morten-2025/code`). This public template repo is the cleaned-up, release version.
-
----
-
-# Codebase Guide
+## Project Overview
 
 GSAP-powered portfolio template built with Nuxt 4, featuring directive-based page transitions, ScrollSmoother, theme-aware loading system, and smooth dark/light theme switching.
 
-## Quick Start
+**Live demo:** https://mp2025.netlify.app
+
+## Commands
 
 ```bash
-npm run dev              # Dev server (http://localhost:3000)
+npm run dev              # Dev server (http://localhost:3000) - includes SCSS watch
 npm run build            # Production build
-npm run styles:build     # Build SCSS manually
-npm run styles:watch     # Watch SCSS changes
-npm run preview          # Preview production build
 npm run generate         # Generate static site
+npm run preview          # Preview production build
+npm run lint             # ESLint check
+npm run lint:fix         # ESLint auto-fix
+npm run typecheck        # TypeScript type checking
+npm run styles:build     # Build SCSS manually (usually not needed)
 ```
 
 ## Key Systems
@@ -276,14 +258,7 @@ html.is-first-load [data-entrance-animate="true"] {
 
 **Why:** Fixed elements must be outside smooth-content (ScrollSmoother applies transform).
 
-## Development
-
-### Running Dev Server
-- `npm run dev` → http://localhost:3000
-- SCSS watch included automatically
-- Hot module replacement for Vue files
-
-### Page Structure Requirements
+## Page Structure Requirements
 
 ```vue
 <template>
@@ -294,9 +269,10 @@ html.is-first-load [data-entrance-animate="true"] {
 </template>
 ```
 
-### Debugging Page Transitions
+## Debugging
 
-Watch console logs:
+### Page Transitions
+Watch console logs for:
 ```
 🚀 Page LEAVE
 🔍 Found elements with directives: 5
@@ -305,42 +281,21 @@ Watch console logs:
 🔄 ScrollSmoother refreshed
 ```
 
-Missing logs indicate:
-- Directives not registered (check `plugins/page-transitions.ts`)
-- Wrong page structure (missing `.page-content`)
-- ScrollSmoother not initialized
+Missing logs indicate: directives not registered, wrong page structure (missing `.page-content`), or ScrollSmoother not initialized.
 
-## Production Ready
+## System Documentation
 
-✅ **All systems tested and documented:**
-- Loading system with theme-aware loader (no FOUC)
-- Entrance animation system (unified timeline coordinator)
-- Theme system (smooth GSAP transitions, SSR-safe)
-- Page transitions (Safari-optimized, manual control)
-- Scroll system (60fps, headroom integration)
+Detailed documentation for each system lives in `.claude/`:
 
-## Documentation
-
-### System Documentation
-
-- `.claude/LOADING_SYSTEM.md` - Loading & entrance animations
-- `.claude/THEME_SYSTEM.md` - Theme switching system
-- `.claude/PAGE_TRANSITIONS.md` - Page transition system
-- `.claude/SCROLL_SYSTEM.md` - Scroll system
-- `.claude/COMPONENT_PATTERNS.md` - Reusable section component patterns
-- `.claude/ELASTIC_BORDER.md` - Physics-based elastic border effect
-- `.claude/INTERACTIVE_CASE_STUDY.md` - Interactive case study gallery
-- `.claude/FLUID_GRADIENT.md` - TresJS WebGL background system
-- `.claude/OG_IMAGE_SYSTEM.md` - Dynamic social sharing images
-
-### Code Documentation
-
-Inline documentation in key files:
-- `app/composables/usePageTransition.ts` (471 lines with comments)
-- `app/composables/useEntranceAnimation.ts`
-- `app/composables/useThemeSwitch.ts`
-- `app/composables/useLoadingSequence.ts`
-- `app/directives/*.ts`
-- `server/plugins/inject-loader.ts`
-- `app/stores/theme.ts`
-- `app/stores/loading.ts`
+| Document | Description |
+|----------|-------------|
+| `LOADING_SYSTEM.md` | Theme-aware loader & entrance animations |
+| `THEME_SYSTEM.md` | Dark/light switching with GSAP |
+| `PAGE_TRANSITIONS.md` | Directive-based transition system |
+| `SCROLL_SYSTEM.md` | ScrollSmoother & headroom integration |
+| `COMPONENT_PATTERNS.md` | Reusable section patterns |
+| `FLUID_GRADIENT.md` | TresJS WebGL background system |
+| `OG_IMAGE_SYSTEM.md` | Dynamic social sharing images |
+| `MAGNETIC_EFFECT.md` | Spring physics hover effects |
+| `ELASTIC_BORDER.md` | Physics-based elastic border effect |
+| `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery |

@@ -21,6 +21,8 @@ const route = useRoute()
 const slug = String(route.params.slug || '')
 
 // Template refs for animations
+const titleRef = ref<HTMLElement | null>(null)
+const scrollButtonRef = ref<HTMLElement | null>(null)
 const bentoGridRef = ref<HTMLElement | null>(null)
 const detailsRef = ref<HTMLElement | null>(null)
 const navRef = ref<HTMLElement | null>(null)
@@ -33,6 +35,9 @@ let detailsScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
 let navScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
 let bodyScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
 let textScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
+
+// Track multiple body section ScrollTriggers
+const bodySectionScrollTriggers: ReturnType<typeof $ScrollTrigger.create>[] = []
 
 // Type for SplitText result (matches BiographySection pattern)
 interface SplitResult {
@@ -213,35 +218,174 @@ const createNavAnimation = () => {
 }
 
 /**
- * Create body content scroll animation
+ * Create hero title SplitText animation + scroll button animation
+ * Immediate on mount - hero is above fold, no ScrollTrigger needed
+ * Pattern from HeroSection.vue
+ */
+const createTitleAnimation = () => {
+  if (!titleRef.value) return
+
+  // Lock height before SplitText to prevent layout shift
+  const originalHeight = titleRef.value.offsetHeight
+  $gsap.set(titleRef.value, { height: originalHeight })
+
+  // Apply SplitText with masking for clean reveal
+  const split = $SplitText.create(titleRef.value, {
+    type: 'lines',
+    mask: 'lines'
+  })
+  splitInstances.push(split)
+
+  // Initial state: hidden below mask with rotation
+  $gsap.set(split.lines, {
+    yPercent: 100,
+    rotate: 20,
+    transformOrigin: '0% 0%'
+  })
+
+  // Create timeline for coordinated animation
+  const tl = $gsap.timeline()
+
+  // Animate title lines in
+  tl.to(split.lines, {
+    yPercent: 0,
+    rotate: 0,
+    duration: 1,
+    stagger: 0.08,
+    ease: 'back.out(1.2)'
+  })
+
+  // Animate scroll button with slight overlap
+  if (scrollButtonRef.value) {
+    $gsap.set(scrollButtonRef.value, { opacity: 0, y: 20 })
+    tl.to(scrollButtonRef.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power2.out'
+    }, '-=0.4') // Overlap with title animation
+  }
+}
+
+/**
+ * Create body content scroll animation with per-section animations
+ * Parses h2 sections and animates each independently
  */
 const createBodyAnimation = () => {
   if (!bodyRef.value) return
 
-  // Kill existing
+  // Kill existing single trigger
   if (bodyScrollTrigger) {
     bodyScrollTrigger.kill()
     bodyScrollTrigger = null
   }
 
-  // Clear and set initial state
-  $gsap.set(bodyRef.value, { clearProps: 'all' })
-  $gsap.set(bodyRef.value, { opacity: 0, y: 20 })
+  // Kill all section triggers
+  bodySectionScrollTriggers.forEach(st => st.kill())
+  bodySectionScrollTriggers.length = 0
 
-  const tl = $gsap.timeline()
-  tl.to(bodyRef.value, {
-    opacity: 1,
-    y: 0,
-    duration: 0.6,
-    ease: 'power2.out'
+  // Find the prose container and h2 elements within rendered markdown
+  const proseContainer = bodyRef.value.querySelector('.prose')
+  if (!proseContainer) {
+    // No prose container - fallback to simple body animation
+    $gsap.set(bodyRef.value, { clearProps: 'all' })
+    $gsap.set(bodyRef.value, { opacity: 0, y: 20 })
+
+    const tl = $gsap.timeline()
+    tl.to(bodyRef.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power2.out'
+    })
+
+    bodyScrollTrigger = $ScrollTrigger.create({
+      trigger: bodyRef.value,
+      start: 'top 80%',
+      animation: tl,
+      toggleActions: 'play pause resume reverse',
+      invalidateOnRefresh: true
+    })
+    return
+  }
+
+  // Query h2 elements directly within the prose container
+  const h2Elements = proseContainer.querySelectorAll('h2')
+
+  if (h2Elements.length === 0) {
+    // No h2 elements - fallback to simple body animation
+    $gsap.set(bodyRef.value, { clearProps: 'all' })
+    $gsap.set(bodyRef.value, { opacity: 0, y: 20 })
+
+    const tl = $gsap.timeline()
+    tl.to(bodyRef.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power2.out'
+    })
+
+    bodyScrollTrigger = $ScrollTrigger.create({
+      trigger: bodyRef.value,
+      start: 'top 80%',
+      animation: tl,
+      toggleActions: 'play pause resume reverse',
+      invalidateOnRefresh: true
+    })
+    return
+  }
+
+  // Group each h2 with its following siblings until next h2
+  const sections: Element[][] = []
+  h2Elements.forEach((h2) => {
+    const section: Element[] = [h2]
+    let sibling = h2.nextElementSibling
+    while (sibling && sibling.tagName !== 'H2') {
+      section.push(sibling)
+      sibling = sibling.nextElementSibling
+    }
+    sections.push(section)
   })
 
-  bodyScrollTrigger = $ScrollTrigger.create({
-    trigger: bodyRef.value,
-    start: 'top 80%',
-    animation: tl,
-    toggleActions: 'play pause resume reverse',
-    invalidateOnRefresh: true
+  // Animate each section independently with its own ScrollTrigger
+  sections.forEach((sectionElements) => {
+    const h2 = sectionElements[0] as HTMLElement
+    const content = sectionElements.slice(1)
+
+    // Create paused timeline for this section
+    const tl = $gsap.timeline({ paused: true })
+
+    // H2 animates with fade + y (simpler, more reliable than SplitText in prose)
+    $gsap.set(h2, { opacity: 0, y: 30 })
+
+    tl.to(h2, {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: 'power3.out'
+    })
+
+    // Content fades in with stagger, slight overlap with h2
+    if (content.length > 0) {
+      $gsap.set(content, { opacity: 0, y: 20 })
+      tl.to(content, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out'
+      }, '-=0.3')
+    }
+
+    // Create ScrollTrigger for this specific section and track for cleanup
+    const sectionTrigger = $ScrollTrigger.create({
+      trigger: h2,
+      start: 'top 80%',
+      animation: tl,
+      toggleActions: 'play pause resume reverse',
+      invalidateOnRefresh: true
+    })
+    bodySectionScrollTriggers.push(sectionTrigger)
   })
 }
 
@@ -312,6 +456,7 @@ const createTextAnimation = () => {
  * Called after proper timing coordination
  */
 const initScrollAnimations = () => {
+  createTitleAnimation()
   createBentoAnimation()
   createDetailsAnimation()
   createNavAnimation()
@@ -354,6 +499,10 @@ onUnmounted(() => {
   navScrollTrigger?.kill()
   bodyScrollTrigger?.kill()
   textScrollTrigger?.kill()
+
+  // Cleanup body section ScrollTriggers
+  bodySectionScrollTriggers.forEach(st => st.kill())
+  bodySectionScrollTriggers.length = 0
 
   bentoScrollTrigger = null
   detailsScrollTrigger = null
@@ -421,7 +570,10 @@ onUnmounted(() => {
       <!-- Hero Section - custom inline with project title -->
       <section class="content-grid w-full min-h-[100dvh] grid items-center">
         <div class="breakout3 translate-y-[var(--space-xl)]">
-          <h1 class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter">
+          <h1
+            ref="titleRef"
+            class="font-display font-[100] text-4xl md:text-6xl leading-[131%] tracking-tighter"
+          >
             <span class="text-[var(--theme-text-60)]">Case</span>
             <em class="text-[var(--theme-text-100)] italic font-[300]"> Study</em>
             <span class="text-[var(--theme-text-40)]"> - </span>
@@ -429,7 +581,10 @@ onUnmounted(() => {
           </h1>
 
           <!-- Scroll down button -->
-          <div class="flex justify-end pt-[var(--space-xl)]">
+          <div
+            ref="scrollButtonRef"
+            class="flex justify-end pt-[var(--space-xl)]"
+          >
             <ScrollButtonSVG />
           </div>
         </div>

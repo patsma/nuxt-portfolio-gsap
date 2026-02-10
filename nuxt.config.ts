@@ -88,6 +88,15 @@ export default defineNuxtConfig({
             #__nuxt.loaded {
               opacity: 1;
             }
+
+            /* NuxtLoadingIndicator theme-aware colors */
+            .nuxt-loading-indicator {
+              background: rgba(255, 250, 245, 1) !important; /* Light theme: cream bar */
+            }
+
+            .theme-dark .nuxt-loading-indicator {
+              background: rgba(9, 9, 37, 1) !important; /* Dark theme: navy bar */
+            }
           `
         }
       ],

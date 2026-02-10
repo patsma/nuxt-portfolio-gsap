@@ -1,16 +1,35 @@
-<script setup>
+<script setup lang="ts">
 /**
  * Lab Project Detail Page
  *
  * Displays a single lab project with full content from Nuxt Content collection.
- * Follows the blog/[slug].vue pattern with prev/next navigation.
+ * Follows the work/[slug].vue pattern with prev/next navigation.
+ *
+ * Animation Strategy:
+ * - Page transitions: v-page-fade on main section, v-page-stagger with leaveOnly on images/entries
+ * - ScrollTrigger: IN animations handled by ScrollTrigger for bento grid, entries, and nav
+ * - Coordination: First load vs navigation handled via loadingStore/pageTransitionStore
  */
 
 // Use the content-driven HeroSection
 import HeroSection from '~/components/content/HeroSection.vue'
 
+const { $gsap, $ScrollTrigger } = useNuxtApp()
+const loadingStore = useLoadingStore()
+const pageTransitionStore = usePageTransitionStore()
+
 const route = useRoute()
 const slug = String(route.params.slug || '')
+
+// Template refs for animations
+const bentoGridRef = ref<HTMLElement | null>(null)
+const entriesRef = ref<HTMLElement | null>(null)
+const navRef = ref<HTMLElement | null>(null)
+
+// Module-level ScrollTrigger instances for cleanup
+let bentoScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
+let entriesScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
+let navScrollTrigger: ReturnType<typeof $ScrollTrigger.create> | null = null
 
 // Fetch the lab project by its path
 const {
@@ -31,7 +50,7 @@ const { data: allProjects } = await useAsyncData(
   () => queryCollection('lab').all()
 )
 
-const normalizePath = p => String(p || '').replace(/\/+$/, '')
+const normalizePath = (p: string | undefined | null) => String(p || '').replace(/\/+$/, '')
 const currentPath = computed(() => normalizePath(`/lab/${slug}`))
 const navList = computed(() => {
   const list = (allProjects.value || []).slice()
@@ -44,7 +63,7 @@ const navList = computed(() => {
   return list
     .map(p => ({
       title: p.title || p.slug || '(untitled)',
-      path: p.path || p._path
+      path: p.path || (p as { _path?: string })._path
     }))
     .filter(i => !!i.path)
 })
@@ -67,7 +86,7 @@ const nextProject = computed(() => {
 /**
  * Parse and format date deterministically across SSR/CSR
  */
-const parseISODate = (iso) => {
+const parseISODate = (iso: string | undefined | null): Date | null => {
   if (!iso) return null
   const isShort = /^\d{4}-\d{2}-\d{2}$/.test(iso)
   const safe = isShort ? `${iso}T00:00:00Z` : iso
@@ -75,7 +94,7 @@ const parseISODate = (iso) => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 
-const _formatDate = (iso) => {
+const _formatDate = (iso: string | undefined | null): string => {
   const d = parseISODate(iso)
   if (!d) return iso || ''
   try {
@@ -111,6 +130,165 @@ const projectEntries = computed(() => {
     title: project.value?.title || '',
     description: project.value?.description || ''
   }]
+})
+
+/**
+ * Create bento grid scroll animation
+ * Images fade in with stagger and subtle y-offset
+ */
+const createBentoAnimation = () => {
+  if (!bentoGridRef.value) return
+
+  // Kill existing
+  if (bentoScrollTrigger) {
+    bentoScrollTrigger.kill()
+    bentoScrollTrigger = null
+  }
+
+  const images = bentoGridRef.value.querySelectorAll('.bento-left, .bento-top-right, .bento-bottom-right')
+  if (!images?.length) return
+
+  // Clear inline styles from page transitions, set initial hidden state
+  $gsap.set(images, { clearProps: 'all' })
+  $gsap.set(images, { opacity: 0, y: 30, scale: 0.98 })
+
+  const tl = $gsap.timeline()
+  tl.to(images, {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    duration: 0.8,
+    stagger: 0.15,
+    ease: 'power2.out'
+  })
+
+  bentoScrollTrigger = $ScrollTrigger.create({
+    trigger: bentoGridRef.value,
+    start: 'top 80%',
+    animation: tl,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+/**
+ * Create entries section scroll animation
+ * Grid entries fade in with stagger
+ */
+const createEntriesAnimation = () => {
+  if (!entriesRef.value) return
+
+  // Kill existing
+  if (entriesScrollTrigger) {
+    entriesScrollTrigger.kill()
+    entriesScrollTrigger = null
+  }
+
+  const entries = entriesRef.value.querySelectorAll('.lab-entry-grid')
+  if (!entries?.length) return
+
+  // Clear and set initial state
+  $gsap.set(entries, { clearProps: 'all' })
+  $gsap.set(entries, { opacity: 0, y: 20 })
+
+  const tl = $gsap.timeline()
+  tl.to(entries, {
+    opacity: 1,
+    y: 0,
+    duration: 0.6,
+    stagger: 0.08,
+    ease: 'power2.out'
+  })
+
+  entriesScrollTrigger = $ScrollTrigger.create({
+    trigger: entriesRef.value,
+    start: 'top 80%',
+    animation: tl,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+/**
+ * Create nav section scroll animation
+ */
+const createNavAnimation = () => {
+  if (!navRef.value) return
+
+  // Kill existing
+  if (navScrollTrigger) {
+    navScrollTrigger.kill()
+    navScrollTrigger = null
+  }
+
+  // Clear and set initial state
+  $gsap.set(navRef.value, { clearProps: 'all' })
+  $gsap.set(navRef.value, { opacity: 0, y: 20 })
+
+  const tl = $gsap.timeline()
+  tl.to(navRef.value, {
+    opacity: 1,
+    y: 0,
+    duration: 0.6,
+    ease: 'power2.out'
+  })
+
+  navScrollTrigger = $ScrollTrigger.create({
+    trigger: navRef.value,
+    start: 'top 85%',
+    animation: tl,
+    toggleActions: 'play pause resume reverse',
+    invalidateOnRefresh: true
+  })
+}
+
+/**
+ * Initialize all scroll animations
+ * Called after proper timing coordination
+ */
+const initScrollAnimations = () => {
+  createBentoAnimation()
+  createEntriesAnimation()
+  createNavAnimation()
+}
+
+onMounted(() => {
+  if (!$ScrollTrigger) return
+
+  // Coordinate with page transition system
+  // First load: Create immediately after mount
+  // Navigation: Recreate after page transition completes
+  if (loadingStore.isFirstLoad) {
+    nextTick(() => {
+      initScrollAnimations()
+    })
+  }
+  else {
+    // After page navigation, wait for page transition to complete
+    const unwatch = watch(
+      () => pageTransitionStore.isTransitioning,
+      (isTransitioning) => {
+        if (!isTransitioning) {
+          nextTick(() => {
+            initScrollAnimations()
+          })
+          unwatch()
+        }
+      },
+      { immediate: true }
+    )
+  }
+})
+
+onUnmounted(() => {
+  // Cleanup all ScrollTrigger instances
+  bentoScrollTrigger?.kill()
+  entriesScrollTrigger?.kill()
+  navScrollTrigger?.kill()
+
+  bentoScrollTrigger = null
+  entriesScrollTrigger = null
+  navScrollTrigger = null
 })
 </script>
 
@@ -171,12 +349,17 @@ const projectEntries = computed(() => {
       <!-- Content below hero -->
       <div class="content-grid">
         <!-- Bento Image Grid -->
+        <!-- Page transition OUT only (leaveOnly), ScrollTrigger handles IN animation -->
         <div
           v-if="project.images?.length >= 3"
           class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
         >
           <!-- Mobile: stacked, Desktop: bento grid -->
-          <div class="bento-grid">
+          <div
+            ref="bentoGridRef"
+            v-page-stagger="{ stagger: 0.1, leaveOnly: true }"
+            class="bento-grid"
+          >
             <!-- Large image (left, spans 2 rows on desktop) -->
             <div class="bento-left overflow-hidden rounded-lg">
               <NuxtImg
@@ -227,7 +410,12 @@ const projectEntries = computed(() => {
         </div>
 
         <!-- Project Entries: 3-column grid with multiple entries support -->
-        <div class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]">
+        <!-- Page transition OUT only (leaveOnly), ScrollTrigger handles IN animation -->
+        <div
+          ref="entriesRef"
+          v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
+          class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
+        >
           <div
             v-for="(entry, index) in projectEntries"
             :key="index"
@@ -270,8 +458,11 @@ const projectEntries = computed(() => {
         </div>
 
         <!-- Navigation (simple prev/next) -->
+        <!-- Page transition OUT only (leaveOnly), ScrollTrigger handles IN animation -->
         <nav
           v-if="prevProject || nextProject"
+          ref="navRef"
+          v-page-fade:up="{ leaveOnly: true }"
           class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
         >
           <div class="flex justify-between items-center">
