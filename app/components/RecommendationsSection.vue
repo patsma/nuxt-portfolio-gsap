@@ -121,7 +121,10 @@ const executeRefresh = () => {
   // Excludes:
   // - Update-only triggers (marquees only use onUpdate, don't need position refresh)
   const triggersToRefresh = $ScrollTrigger.getAll().filter(
-    st => st.pin || st.animation || st.vars?.onEnter || st.vars?.onLeave
+    (st) => {
+      const trigger = st as ScrollTrigger & { animation?: gsap.core.Animation; vars?: ScrollTrigger.Vars }
+      return trigger.pin || trigger.animation || trigger.vars?.onEnter || trigger.vars?.onLeave
+    }
   )
 
   triggersToRefresh.forEach((trigger) => {
