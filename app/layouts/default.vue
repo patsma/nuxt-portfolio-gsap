@@ -63,7 +63,7 @@ onMounted(() => {
     const content = document.getElementById('smooth-content')
 
     if (!wrapper || !content) {
-      console.error('⚠️ ScrollSmoother wrapper elements not found in layout')
+      // console.error('⚠️ ScrollSmoother wrapper elements not found in layout')
       // Mark as ready anyway to prevent blocking
       markScrollSmootherReady()
       return

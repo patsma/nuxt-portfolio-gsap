@@ -283,22 +283,24 @@ const router = useRouter()
  * Intercepts navigation to ensure preview closes smoothly before route change
  */
 const navigateWithAnimation = (to: string) => {
+  /*
   console.log('🔴 navigateWithAnimation called', {
     showPreview: showPreview.value,
     isNavigating: isNavigating.value,
     to
   })
+  */
 
   if (showPreview.value) {
     // Run clip-out animation, then navigate
     clearActivePreviewImmediate(() => {
-      console.log('✅ Animation complete, navigating to:', to)
+      // console.log('✅ Animation complete, navigating to:', to)
       router.push(to)
     })
   }
   else {
     // No preview showing, navigate immediately
-    console.log('⏭️ No preview, navigating immediately to:', to)
+    // console.log('⏭️ No preview, navigating immediately to:', to)
     router.push(to)
   }
 }
@@ -315,10 +317,10 @@ provide('navigateWithAnimation', navigateWithAnimation)
 onBeforeRouteLeave((_to, _from, next) => {
   // If preview is showing and we haven't started navigation animation yet
   if (showPreview.value && !isNavigating.value) {
-    console.log('🛡️ onBeforeRouteLeave: Preview visible, running clip-out animation')
+    // console.log('🛡️ onBeforeRouteLeave: Preview visible, running clip-out animation')
     // Run clip-out animation, then proceed with navigation
     clearActivePreviewImmediate(() => {
-      console.log('🛡️ onBeforeRouteLeave: Animation complete, proceeding')
+      // console.log('🛡️ onBeforeRouteLeave: Animation complete, proceeding')
       next()
     })
     return // Don't call next() yet - wait for animation

@@ -105,7 +105,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       loadingStore.setGsapReady()
     }
     else {
-      console.warn('⚠️ GSAP not available during initialization')
+      // console.warn('⚠️ GSAP not available during initialization')
       // Try again after a delay
       setTimeout(() => {
         const nuxtApp = useNuxtApp() as { $gsap?: GSAPInstance }
@@ -122,7 +122,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
         loadingStore.setFontsReady()
       }
       catch (error) {
-        console.warn('⚠️ Font loading check failed:', error)
+        // console.warn('⚠️ Font loading check failed:', error)
         loadingStore.setFontsReady() // Mark as ready anyway
       }
     }
@@ -152,7 +152,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
           }
         })
       )
-      console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`)
+      // console.log(`🚀 Fired 'app:ready' event after ${totalDuration}ms`)
     }
 
     // Auto-start animations if configured
@@ -186,7 +186,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
    */
   const createEntranceTimeline = (): GSAPTimeline | null => {
     if (!$gsap) {
-      console.warn('⚠️ GSAP not available for entrance timeline')
+      // console.warn('⚠️ GSAP not available for entrance timeline')
       return null
     }
 
@@ -194,11 +194,11 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       paused: true,
       onStart: () => {
         loadingStore.startAnimating()
-        console.log('🎬 Entrance timeline started')
+        // console.log('🎬 Entrance timeline started')
       },
       onComplete: () => {
         loadingStore.setAnimationsComplete()
-        console.log('✨ Entrance timeline complete')
+        // console.log('✨ Entrance timeline complete')
       }
     })
 
@@ -211,7 +211,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
    */
   const startInitialAnimations = (): void => {
     if (!loadingStore.isReady) {
-      console.warn('⚠️ Cannot start animations - app not ready')
+      // console.warn('⚠️ Cannot start animations - app not ready')
       return
     }
 

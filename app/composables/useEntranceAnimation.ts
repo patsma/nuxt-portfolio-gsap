@@ -171,7 +171,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
         }
       }
       catch (error) {
-        console.error('❌ Error creating entrance animation:', error)
+        // console.error('❌ Error creating entrance animation:', error)
       }
     })
 
@@ -190,7 +190,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
     options: EntranceAnimationOptions = {} as EntranceAnimationOptions
   ): void => {
     if (!element) {
-      console.warn('⚠️ setupEntrance: No element provided')
+      // console.warn('⚠️ setupEntrance: No element provided')
       return
     }
 
@@ -201,7 +201,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
     } = options
 
     if (typeof animate !== 'function') {
-      console.warn('⚠️ setupEntrance: animate must be a function')
+      // console.warn('⚠️ setupEntrance: animate must be a function')
       return
     }
 
@@ -241,7 +241,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
           animate(element)
         }
         catch (error) {
-          console.error('❌ Error running immediate animation:', error)
+          // console.error('❌ Error running immediate animation:', error)
         }
       }
     }
@@ -258,7 +258,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
     const { $ScrollTrigger } = nuxtApp
 
     if (!$ScrollTrigger) {
-      console.warn('⚠️ ScrollTrigger not available for fallback')
+      // console.warn('⚠️ ScrollTrigger not available for fallback')
       return
     }
 
@@ -278,7 +278,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
       })
     }
     catch (error) {
-      console.error('❌ Error setting up ScrollTrigger fallback:', error)
+      // console.error('❌ Error setting up ScrollTrigger fallback:', error)
     }
   }
 

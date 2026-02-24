@@ -126,9 +126,11 @@ export const useAccordionAnimation = (options: AccordionAnimationOptions): void 
     // Check if page transition is active (this should NOT be happening during accordion)
     const pageTransitionStore = usePageTransitionStore()
     if (pageTransitionStore?.isTransitioning) {
+      /*
       console.error(`[${componentName}] WARNING: Page transition is ACTIVE during accordion animation!`, {
         isTransitioning: pageTransitionStore.isTransitioning
       })
+      */
     }
 
     // Pause headroom before animation starts to prevent header from reacting to content height changes

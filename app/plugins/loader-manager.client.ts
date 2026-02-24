@@ -80,7 +80,7 @@ export default defineNuxtPlugin(() => {
     setTimeout(() => {
       const loader = document.getElementById('app-initial-loader')
       if (loader) {
-        console.warn('⚠️ Loader fallback timeout triggered - forcing removal')
+        // console.warn('⚠️ Loader fallback timeout triggered - forcing removal')
         removeLoader()
       }
     }, FALLBACK_TIMEOUT)

@@ -54,7 +54,7 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
   const createSmoother = (config: ScrollSmootherConfig = {}): ScrollSmootherInstance | null => {
     // Only run on client side
     if (typeof window === 'undefined') {
-      console.warn('⚠️ ScrollSmoother can only run on client side')
+      // console.warn('⚠️ ScrollSmoother can only run on client side')
       return null
     }
 
@@ -107,9 +107,11 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
     }
 
     if (!ScrollSmootherClass) {
+      /*
       console.error(
         '❌ ScrollSmoother not found - check that scrollSmoother is enabled in nuxt.config.ts'
       )
+      */
       return null
     }
 
@@ -121,7 +123,7 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
       // console.log('Instance:', smootherInstance)
     }
     catch (error) {
-      console.error('❌ Failed to create ScrollSmoother:', error)
+      // console.error('❌ Failed to create ScrollSmoother:', error)
       smootherEnabled = false
       return null
     }

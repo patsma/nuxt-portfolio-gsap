@@ -108,7 +108,7 @@ const qsa = selector =>
 const createAnimation = () => {
   const svgRoot = svgComponentRef.value?.svgRootRef
   if (!svgRoot) {
-    console.warn('Zaksa: SVG root not found')
+    // console.warn('Zaksa: SVG root not found')
     return null
   }
 

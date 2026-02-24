@@ -1,10 +1,10 @@
 ✔ Replace all assets with proper ones @started(26-02-24 02:04) @done(26-02-24 02:50) @lasted(46m15s)
 ✔ Refactor videos so the all start with the proper first frame poster functionality @done(26-02-24 03:19)
-- Ensure the things are loading with lazy loading and working with our GSAP etc 
-- Clear console logs, comment out
-- We probably need to Delete the fonts and replace with free ones - check about the licensing please
-- Reduce the hover time to trigger slideshow on interactive case study
+✔ Ensure the things are loading with lazy loading and working with our GSAP etc @done(26-02-24 03:41)
+- Clear console logs, comment out @started(26-02-24 03:41)
+- Reduce the hover time to 1.5s to trigger slideshow on interactive case study
 - Add better loader pure CSS
+- We probably need to Delete the fonts and replace with free ones - check about the licensing please
 - Ensure content isn't with AI dashes - final copy check
 - Prepare the readme
 - Deploy the github

@@ -62,10 +62,10 @@ export const usePageTransitionStore = defineStore('pageTransition', {
       this.contentElement = document.getElementById('smooth-content')
 
       if (!this.contentElement) {
-        console.warn('[PageTransition] #smooth-content not found')
+        // console.warn('[PageTransition] #smooth-content not found')
       }
 
-      console.log('[PageTransition] Store initialized')
+      // console.log('[PageTransition] Store initialized')
     },
 
     /**
@@ -76,11 +76,11 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      */
     async startFadeOut(): Promise<void> {
       if (this.isTransitioning) {
-        console.warn('[PageTransition] Already transitioning, ignoring startFadeOut')
+        // console.warn('[PageTransition] Already transitioning, ignoring startFadeOut')
         return
       }
 
-      console.log('[PageTransition] Starting fade out')
+      // console.log('[PageTransition] Starting fade out')
 
       this.isTransitioning = true
       this.state = 'fading-out'
@@ -91,7 +91,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
       // Wait for CSS transition to complete
       return new Promise((resolve) => {
         if (!this.contentElement) {
-          console.warn('[PageTransition] No content element, resolving immediately')
+          // console.warn('[PageTransition] No content element, resolving immediately')
           resolve()
           return
         }
@@ -106,7 +106,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
             event.target === this.contentElement
             && event.propertyName === 'opacity'
           ) {
-            console.log('[PageTransition] Fade out complete')
+            // console.log('[PageTransition] Fade out complete')
 
             // Move to swapping state
             this.state = 'swapping'
@@ -123,7 +123,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
 
         // Fallback timeout in case transitionend doesn't fire
         const fallbackTimeout = setTimeout(() => {
-          console.warn('[PageTransition] Fade out transitionend timeout, forcing resolve')
+          // console.warn('[PageTransition] Fade out transitionend timeout, forcing resolve')
           this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
           this.state = 'swapping'
           resolve()
@@ -145,11 +145,11 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      */
     async startFadeIn(): Promise<void> {
       if (this.state !== 'swapping') {
-        console.warn('[PageTransition] Not in swapping state, ignoring startFadeIn')
+        // console.warn('[PageTransition] Not in swapping state, ignoring startFadeIn')
         return
       }
 
-      console.log('[PageTransition] Starting fade in')
+      // console.log('[PageTransition] Starting fade in')
 
       this.state = 'fading-in'
 
@@ -159,7 +159,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
       // Wait for CSS transition to complete
       return new Promise((resolve) => {
         if (!this.contentElement) {
-          console.warn('[PageTransition] No content element, resolving immediately')
+          // console.warn('[PageTransition] No content element, resolving immediately')
           this.reset()
           resolve()
           return
@@ -175,7 +175,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
             event.target === this.contentElement
             && event.propertyName === 'opacity'
           ) {
-            console.log('[PageTransition] Fade in complete')
+            // console.log('[PageTransition] Fade in complete')
 
             // Clean up listener
             this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
@@ -192,7 +192,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
 
         // Fallback timeout
         const fallbackTimeout = setTimeout(() => {
-          console.warn('[PageTransition] Fade in transitionend timeout, forcing resolve')
+          // console.warn('[PageTransition] Fade in transitionend timeout, forcing resolve')
           this.contentElement?.removeEventListener('transitionend', handleTransitionEnd)
           this.reset()
           resolve()
@@ -210,7 +210,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Reset transition state to idle
      */
     reset(): void {
-      console.log('[PageTransition] Reset to idle')
+      // console.log('[PageTransition] Reset to idle')
 
       this.state = 'idle'
       this.isTransitioning = false
@@ -230,7 +230,7 @@ export const usePageTransitionStore = defineStore('pageTransition', {
      * Called on errors or when transition gets stuck
      */
     forceReset(): void {
-      console.warn('[PageTransition] Force reset')
+      // console.warn('[PageTransition] Force reset')
       this.reset()
 
       // Also update content element reference

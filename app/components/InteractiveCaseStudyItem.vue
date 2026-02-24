@@ -277,10 +277,12 @@ const handleMouseLeave = () => {
  * If navigateWithAnimation injection fails, fallback to direct router.push()
  */
 const handleClickCapture = (event: MouseEvent) => {
+  /*
   console.log('🟡 handleClickCapture fired', {
     hasNavigateWithAnimation: !!navigateWithAnimation,
     to: props.to
   })
+  */
 
   // ALWAYS prevent default on desktop - we handle navigation manually
   // This ensures NuxtLink never processes the click directly
@@ -293,7 +295,7 @@ const handleClickCapture = (event: MouseEvent) => {
   }
   else {
     // Fallback if injection failed - navigate immediately
-    console.warn('⚠️ navigateWithAnimation not available, using direct navigation')
+    // console.warn('⚠️ navigateWithAnimation not available, using direct navigation')
     router.push(props.to)
   }
 }

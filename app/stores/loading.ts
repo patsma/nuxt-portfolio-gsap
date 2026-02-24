@@ -185,7 +185,7 @@ export const useLoadingStore = defineStore('loading', {
      * Force ready state (fallback for timeout scenarios)
      */
     forceReady(): void {
-      console.warn('⚠️ Forcing ready state (fallback)')
+      // console.warn('⚠️ Forcing ready state (fallback)')
       this.gsapReady = true
       this.scrollSmootherReady = true
       this.pageReady = true

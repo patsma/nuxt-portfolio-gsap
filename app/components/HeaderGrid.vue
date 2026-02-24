@@ -267,7 +267,7 @@ async function waitForFonts(): Promise<void> {
       await document.fonts.ready
     }
     catch (error) {
-      console.warn('⚠️ Font loading wait failed:', error)
+      // console.warn('⚠️ Font loading wait failed:', error)
     }
   }
 }
@@ -368,7 +368,7 @@ onMounted(() => {
           || null
 
       if (!svgRoot) {
-        console.warn('HeaderGrid: hamburger SVG root not found')
+        // console.warn('HeaderGrid: hamburger SVG root not found')
         return
       }
 
@@ -377,9 +377,11 @@ onMounted(() => {
       const openedPaths = svgRoot.querySelectorAll('#opened path')
 
       if (!closedPaths.length || !openedPaths.length) {
+        /*
         console.warn(
           'HeaderGrid: expected #closed and #opened path groups in HamburgerSVG'
         )
+        */
         return
       }
 

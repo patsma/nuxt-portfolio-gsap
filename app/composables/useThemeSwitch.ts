@@ -168,7 +168,7 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     // Find SVG elements within this button's context using attribute selectors
     const svgRoot = button.querySelector('svg')
     if (!svgRoot) {
-      console.warn('useThemeSwitch: SVG not found in button', button.id)
+      // console.warn('useThemeSwitch: SVG not found in button', button.id)
       return
     }
 
@@ -182,10 +182,12 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     const background = svgRoot.querySelector('[id$="-bg"]')
 
     if (!sunDark || !moonWhite || !sunLightInner || !moonDark) {
+      /*
       console.warn(
         'useThemeSwitch: Required SVG elements not found in button',
         button.id
       )
+      */
       return
     }
 
@@ -283,7 +285,7 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
    */
   const initThemeSwitch = (): (() => void) | undefined => {
     if (!$gsap || !$MorphSVGPlugin) {
-      console.warn('useThemeSwitch: GSAP or MorphSVGPlugin not available')
+      // console.warn('useThemeSwitch: GSAP or MorphSVGPlugin not available')
       return
     }
 
@@ -292,7 +294,7 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
     const themeSwitchMobile = document.querySelector('#themeSwitchMobile') as HTMLElement | null
 
     if (!themeSwitchDesktop && !themeSwitchMobile) {
-      console.warn('useThemeSwitch: No theme switch buttons found')
+      // console.warn('useThemeSwitch: No theme switch buttons found')
       return
     }
 

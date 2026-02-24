@@ -29,9 +29,11 @@ export default defineNuxtPlugin(() => {
 
     // Check if size actually changed (not just a scroll event)
     if (currentWidth !== initialWidth || currentHeight !== initialHeight) {
+      /*
       console.log(
         `📐 Window resized: ${initialWidth}x${initialHeight} → ${currentWidth}x${currentHeight}. Reloading...`
       )
+      */
 
       // Use Nuxt's built-in reload function with loop protection
       reloadNuxtApp({
@@ -48,7 +50,9 @@ export default defineNuxtPlugin(() => {
   // Attach resize listener
   window.addEventListener('resize', handleResize, { passive: true })
 
+  /*
   console.log(
-    // `✅ Resize reload active (${initialWidth}x${initialHeight})`
+    `✅ Resize reload active (${initialWidth}x${initialHeight})`
   )
+  */
 })

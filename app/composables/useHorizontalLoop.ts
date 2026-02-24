@@ -69,10 +69,10 @@ export const useHorizontalLoop = (gsap: GSAPInstance): HorizontalLoopReturn => {
 
   // Safety check: ensure GSAP is available
   if (!$gsap) {
-    console.error('[useHorizontalLoop] GSAP instance is not available')
+    // console.error('[useHorizontalLoop] GSAP instance is not available')
     return {
       createLoop: () => {
-        console.error('[useHorizontalLoop] Cannot create loop - GSAP not initialized')
+        // console.error('[useHorizontalLoop] Cannot create loop - GSAP not initialized')
         return null
       }
     }

@@ -394,5 +394,5 @@ export default defineNuxtPlugin((nuxtApp) => {
     '✅ Mobile Debug Console loaded. Tap the 🐛 button to open, then tap \'Copy Logs\' to copy everything to clipboard.'
   )
 
-  console.log('✅ Mobile Debug Console active - tap 🐛 button or triple-tap to open')
+  // console.log('✅ Mobile Debug Console active - tap 🐛 button or triple-tap to open')
 })

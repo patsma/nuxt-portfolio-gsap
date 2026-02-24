@@ -91,7 +91,7 @@ export const usePageTransition = (): PageTransitionReturn => {
     position: number
   ): void => {
     if (!$SplitText) {
-      console.warn('⚠️ SplitText not available, skipping split animation')
+      // console.warn('⚠️ SplitText not available, skipping split animation')
       return
     }
 
@@ -399,7 +399,7 @@ export const usePageTransition = (): PageTransitionReturn => {
     animatedElementsForCleanup = new Set(elements)
 
     if (elements.length === 0) {
-      console.warn('⚠️ No elements with page animation directives found')
+      // console.warn('⚠️ No elements with page animation directives found')
       done()
       return
     }
@@ -425,7 +425,7 @@ export const usePageTransition = (): PageTransitionReturn => {
           animateStagger(element, config, 'out', tl, position)
           break
         default:
-          console.warn(`⚠️ Unknown animation type: ${type}`)
+          // console.warn(`⚠️ Unknown animation type: ${type}`)
       }
     })
   }
@@ -439,7 +439,7 @@ export const usePageTransition = (): PageTransitionReturn => {
       const elements = findAnimatedElements(el)
 
       if (elements.length === 0) {
-        console.warn('⚠️ No elements with page animation directives found')
+        // console.warn('⚠️ No elements with page animation directives found')
         $gsap.set(el, { visibility: 'visible' })
         done()
         return
@@ -490,7 +490,7 @@ export const usePageTransition = (): PageTransitionReturn => {
                 animateStagger(element, config, 'in', tl, position)
                 break
               default:
-                console.warn(`⚠️ Unknown animation type: ${type}`)
+                // console.warn(`⚠️ Unknown animation type: ${type}`)
             }
           })
         })

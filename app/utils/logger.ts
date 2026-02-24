@@ -106,7 +106,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` (${Object.entries(context).map(([k, v]) => `${k}: ${v}`).join(', ')})`
         : ''
 
-      console.log(formatLog('STATE', '🔄', `${from} → ${to}${contextStr}`))
+      // console.log(formatLog('STATE', '🔄', `${from} → ${to}${contextStr}`))
     },
 
     /**
@@ -119,7 +119,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.log(formatLog('ANIM', '🎬', `Starting ${name} (duration: ${expectedDuration}ms)${contextStr}`))
+      // console.log(formatLog('ANIM', '🎬', `Starting ${name} (duration: ${expectedDuration}ms)${contextStr}`))
       timings.set(name, performance.now())
     },
 
@@ -151,7 +151,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.log(formatLog('ANIM', '✅', `${name} complete${perfInfo}${contextStr}`))
+      // console.log(formatLog('ANIM', '✅', `${name} complete${perfInfo}${contextStr}`))
     },
 
     /**
@@ -164,15 +164,15 @@ export const createPreviewLogger = (): PreviewLogger => {
 
       switch (action) {
         case 'loading':
-          console.log(formatLog('PRELOAD', '⏳', `Loading: ${filename}`))
+          // console.log(formatLog('PRELOAD', '⏳', `Loading: ${filename}`))
           break
         case 'cached': {
           const durationStr = duration ? ` (${duration}ms)` : ''
-          console.log(formatLog('PRELOAD', '✓', `Cached: ${filename}${durationStr}`))
+          // console.log(formatLog('PRELOAD', '✓', `Cached: ${filename}${durationStr}`))
           break
         }
         case 'failed':
-          console.error(formatLog('PRELOAD', '❌', `Failed: ${filename}`))
+          // console.error(formatLog('PRELOAD', '❌', `Failed: ${filename}`))
           break
       }
     },
@@ -184,15 +184,19 @@ export const createPreviewLogger = (): PreviewLogger => {
       if (currentLogLevel > LogLevel.DEBUG) return
 
       if (clamped) {
+        /*
         console.log(formatLog('POSITION', '📍',
           `Clamped (x: ${Math.round(position.x)} → ${Math.round(clamped.x)}, `
           + `y: ${Math.round(position.y)} → ${Math.round(clamped.y)}, reason: ${reason})`
         ))
+        */
       }
       else {
+        /*
         console.log(formatLog('POSITION', '📍',
           `Set (x: ${Math.round(position.x)}, y: ${Math.round(position.y)})`
         ))
+        */
       }
     },
 
@@ -207,10 +211,10 @@ export const createPreviewLogger = (): PreviewLogger => {
         .map(([name]) => name)
 
       if (missing.length > 0) {
-        console.error(formatLog('REFS', '❌', `Missing refs: ${missing.join(', ')}`))
+        // console.error(formatLog('REFS', '❌', `Missing refs: ${missing.join(', ')}`))
       }
       else {
-        console.log(formatLog('REFS', '✓', 'All refs valid'))
+        // console.log(formatLog('REFS', '✓', 'All refs valid'))
       }
     },
 
@@ -233,7 +237,7 @@ export const createPreviewLogger = (): PreviewLogger => {
       }
       const emoji = emojiMap[route] || '🎯'
 
-      console.log(formatLog('ROUTE', emoji, `${route}${contextStr}`))
+      // console.log(formatLog('ROUTE', emoji, `${route}${contextStr}`))
     },
 
     /**
@@ -246,7 +250,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.warn(formatLog('WARN', '⚠️', `${message}${contextStr}`))
+      // console.warn(formatLog('WARN', '⚠️', `${message}${contextStr}`))
     },
 
     /**
@@ -259,7 +263,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.error(formatLog('ERROR', '💥', `${message}${contextStr}`))
+      // console.error(formatLog('ERROR', '💥', `${message}${contextStr}`))
     },
 
     /**
@@ -272,7 +276,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` State: ${JSON.stringify(state)}`
         : ''
 
-      console.warn(formatLog('RACE', '⚡', `${description}${stateStr}`))
+      // console.warn(formatLog('RACE', '⚡', `${description}${stateStr}`))
     },
 
     /**
@@ -285,7 +289,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.log(formatLog('INFO', 'ℹ️', `${message}${contextStr}`))
+      // console.log(formatLog('INFO', 'ℹ️', `${message}${contextStr}`))
     },
 
     /**
@@ -298,7 +302,7 @@ export const createPreviewLogger = (): PreviewLogger => {
         ? ` ${JSON.stringify(context)}`
         : ''
 
-      console.log(formatLog('DEBUG', '🔍', `${message}${contextStr}`))
+      // console.log(formatLog('DEBUG', '🔍', `${message}${contextStr}`))
     },
 
     /**
@@ -309,10 +313,10 @@ export const createPreviewLogger = (): PreviewLogger => {
 
       const line = '━'.repeat(40)
       if (label) {
-        console.log(`\n${line}\n  ${label}\n${line}`)
+        // console.log(`\n${line}\n  ${label}\n${line}`)
       }
       else {
-        console.log(`\n${line}\n`)
+        // console.log(`\n${line}\n`)
       }
     }
   }
