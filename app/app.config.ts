@@ -6,6 +6,18 @@
  */
 export default defineAppConfig({
   /**
+   * Typography - Single source of truth for fonts
+   * The fonts.client.ts plugin applies these to CSS variables
+   * @nuxt/fonts will automatically load these font families
+   */
+  fonts: {
+    // Display font for headings (serif)
+    display: 'Fraunces',
+    // Body font for paragraphs and UI (sans-serif)
+    body: 'Inter'
+  },
+
+  /**
    * Your personal/brand identity
    */
   identity: {
