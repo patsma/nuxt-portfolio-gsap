@@ -8,7 +8,7 @@
 ✔ easy way of switching fonts @started(26-02-24 04:20) @done(26-02-24 05:36) @lasted(1h16m51s)
 ✔ Fix interactive case study - when hovering over some items like from the previous than the last item it works fine, but wen we hover from item 2 to the end of the section quickly we don't have a nice animaiton, things just vanish midway in a glitchy way, we need a smooth way for this type of scenario, finish one animaiton and later hide the preiview instead of ugly glitching or killing it @started(26-02-24 05:36) @done(26-02-24 05:36) @lasted(59s)
 ✔ Ensure content isn't with AI dashes - final copy check @done(26-02-24 05:40)
-- Prepare the readme
-- Deploy the github
-- Deploy to netlify
+✔ Prepare the readme @done(26-02-24 05:48)
+✔ Deploy the github @done(26-02-24 05:48)
+✔ Deploy to netlify @done(26-02-24 05:48)
 - Prepare a content list - how to divide this into tutorial, post ideas 
