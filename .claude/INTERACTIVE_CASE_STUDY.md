@@ -98,7 +98,7 @@ After hovering for 1 second, additional images cycle with a left-to-right clip r
 ```
 
 **Timing:**
-- **Delay**: 1s before slideshow starts
+- **Delay**: 0.5s before slideshow starts
 - **Interval**: 2s between images
 - **Reveal**: 600ms left-to-right clip animation
 - **Loop**: Continuous (main → slideshow images → main → ...)

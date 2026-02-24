@@ -140,7 +140,7 @@ const ANIMATION_CONFIG: AnimationConfig = {
     clearDelay: 100
   },
   slideshow: {
-    delay: 1000, // 1s before starting
+    delay: 500, // 0.5s before starting
     interval: 2000, // 2s between images
     revealDuration: 600 // Clip animation duration
   }

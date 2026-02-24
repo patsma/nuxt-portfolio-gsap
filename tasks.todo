@@ -1,9 +1,9 @@
 ✔ Replace all assets with proper ones @started(26-02-24 02:04) @done(26-02-24 02:50) @lasted(46m15s)
 ✔ Refactor videos so the all start with the proper first frame poster functionality @done(26-02-24 03:19)
 ✔ Ensure the things are loading with lazy loading and working with our GSAP etc @done(26-02-24 03:41)
-- Clear console logs, comment out @started(26-02-24 03:41)
-- Reduce the hover time to 1.5s to trigger slideshow on interactive case study
-- Add better loader pure CSS
+✔ Clear console logs, comment out @started(26-02-24 03:41) @done(26-02-24 03:51) @lasted(10m36s)
+- Reduce the hover time to 0.5s to trigger slideshow on interactive case study
+- Add better loader pure CSS - we could be a bit more creative, currently there is just one almost still gradient - we could try a couple so this have organic live alive feeling
 - We probably need to Delete the fonts and replace with free ones - check about the licensing please
 - Ensure content isn't with AI dashes - final copy check
 - Prepare the readme
