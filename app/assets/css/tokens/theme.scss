@@ -8,14 +8,14 @@
   /* Set Tailwind's font-sans to our body family for convenience */
   --font-sans: var(--font-body);
   /* Project fonts (loaded via @nuxt/fonts) */
-  --font-pp-eiko:
-    "PP Eiko", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-instrument-serif:
+    "Instrument Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   --font-ibm-plex-sans-jp:
     "IBM Plex Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
     Roboto, Helvetica, Arial;
 
   /* Semantic font roles for easy swapping */
-  --font-display: var(--font-pp-eiko);
+  --font-display: var(--font-instrument-serif);
   --font-body: var(--font-ibm-plex-sans-jp);
 
   /* Neutral palette — Static color definitions (single source of truth)

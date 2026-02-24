@@ -288,7 +288,7 @@ Generated automatically from design tokens - no need to manually create them.
   Biography
 </h2>
 
-<!-- Display heading -->
+<!-- Display heading (uses Instrument Serif via --font-display) -->
 <h1 class="pp-eiko-mobile-h1 md:pp-eiko-desktop-h1 text-[var(--theme-text-100)]">
   Large Heading
 </h1>
@@ -296,7 +296,8 @@ Generated automatically from design tokens - no need to manually create them.
 
 **Available utility classes:**
 
-- **PP Eiko:** `pp-eiko-mobile-h1`, `pp-eiko-laptop-h2`, `pp-eiko-desktop-h3`, etc.
+- **Display Font (Instrument Serif):** `pp-eiko-mobile-h1`, `pp-eiko-laptop-h2`, `pp-eiko-desktop-h3`, etc.
+  - Note: Class names retain "pp-eiko-" prefix for Figma compatibility
 - **IBM Plex Sans JP:** `ibm-plex-sans-jp-mobile-p1`, `ibm-plex-sans-jp-laptop-p2`, `ibm-plex-sans-jp-desktop-caption`, etc.
 - **Custom styles:** `ibm-plex-sans-jp-mobile-custom-labels`, `pp-eiko-desktop-custom-navigation`, etc.
 

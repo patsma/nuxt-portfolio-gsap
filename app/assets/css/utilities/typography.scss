@@ -81,14 +81,17 @@
 }
 
 /*
-  Figma-compatible utilities — PP Eiko (exact px + percent leading)
+  Figma-compatible utilities — Display Font (Instrument Serif)
   - Use one class per style, matching Figma naming closely
   - Sizes reference tokens defined in :root within theme.scss
   - Keep this section in sync with design when specs change
+  - NOTE: Class names retain "pp-eiko-" prefix for Figma compatibility
+  - Font family uses var(--font-display) which points to Instrument Serif
+  - Instrument Serif only has Regular (400) weight - all weights use 400
 */
 @utility pp-eiko-mobile-h1 {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h1);
   line-height: 120%;
@@ -97,7 +100,7 @@
 }
 @utility pp-eiko-mobile-h1-bold {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h1-bold);
   line-height: 120%;
@@ -105,7 +108,7 @@
 }
 @utility pp-eiko-mobile-h1-italic {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h1-italic);
   line-height: 120%;
@@ -121,7 +124,7 @@
 }
 @utility pp-eiko-mobile-h2-enlarged {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h2-enlarged);
   line-height: 120%;
@@ -129,7 +132,7 @@
 }
 @utility pp-eiko-mobile-h2-enlarged-italic {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h2-enlarged-italic);
   line-height: 120%;
@@ -145,7 +148,7 @@
 }
 @utility pp-eiko-mobile-h3-italic {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---mobile---h3--italic);
   line-height: 140%;
@@ -153,7 +156,7 @@
 }
 @utility pp-eiko-mobile-h3-enlarged {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---h3-enlarged);
   line-height: 110%;
@@ -161,7 +164,7 @@
 }
 @utility pp-eiko-mobile-custom-navigation-menu-items {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---mobile---custom---navigation--menu-items);
   line-height: 100%;
@@ -169,7 +172,7 @@
 }
 @utility pp-eiko-laptop-h1 {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h1);
   line-height: 120%;
@@ -177,7 +180,7 @@
 }
 @utility pp-eiko-laptop-h1-bold {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h1-bold);
   line-height: 120%;
@@ -185,7 +188,7 @@
 }
 @utility pp-eiko-laptop-h1-italic {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---laptop---h1--italic);
   line-height: 120%;
@@ -201,7 +204,7 @@
 }
 @utility pp-eiko-laptop-h2-enlarged {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h2-enlarged);
   line-height: 120%;
@@ -209,7 +212,7 @@
 }
 @utility pp-eiko-laptop-h2-enlarged-italic {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---laptop---h2-enlarged-italic);
   line-height: 120%;
@@ -217,7 +220,7 @@
 }
 @utility pp-eiko-laptop-h3-enlarged {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---laptop---h3-enlarged);
   line-height: 110%;
@@ -225,7 +228,7 @@
 }
 @utility pp-eiko-desktop-h1 {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h1);
   line-height: 120%;
@@ -233,7 +236,7 @@
 }
 @utility pp-eiko-desktop-h1-bold {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h1-bold);
   line-height: 120%;
@@ -241,7 +244,7 @@
 }
 @utility pp-eiko-desktop-h1-italic {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h1-italic);
   line-height: 120%;
@@ -257,7 +260,7 @@
 }
 @utility pp-eiko-desktop-h2-enlarged {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h2-enlarged);
   line-height: 120%;
@@ -265,7 +268,7 @@
 }
 @utility pp-eiko-desktop-h2-enlarged-italic {
   font-family: var(--font-display);
-  font-weight: 100;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h2-enlarged-italic);
   line-height: 120%;
@@ -281,7 +284,7 @@
 }
 @utility pp-eiko-desktop-h3-italic {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   font-size: var(--p-p--eiko---desktop---h3-italic);
   line-height: 140%;
@@ -289,7 +292,7 @@
 }
 @utility pp-eiko-desktop-h3-enlarged {
   font-family: var(--font-display);
-  font-weight: 300;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---h3-enlarged);
   line-height: 110%;
@@ -297,7 +300,7 @@
 }
 @utility pp-eiko-desktop-custom-navigation {
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 400;
   font-style: normal;
   font-size: var(--p-p--eiko---desktop---custom---navigation);
   line-height: 100%;

@@ -269,9 +269,9 @@ export default defineNuxtConfig({
     // Explicitly define families
     families: [
       {
-        name: 'PP Eiko',
+        name: 'Instrument Serif',
         provider: 'local',
-        weights: ['100', '300', '400', '500', '800', '900'],
+        weights: ['400'],
         styles: ['normal', 'italic'],
         global: true
       },
