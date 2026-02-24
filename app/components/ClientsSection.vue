@@ -144,7 +144,7 @@ const createSectionAnimation = () => {
 /**
  * Create word-by-word opacity animation using SplitText
  */
-const createWordAnimations = () => {
+const createWordAnimations = async () => {
   if (wordScrollTriggerInstance) {
     wordScrollTriggerInstance.kill()
     wordScrollTriggerInstance = null
@@ -152,6 +152,9 @@ const createWordAnimations = () => {
 
   splitInstances.forEach(split => split.revert?.())
   splitInstances.length = 0
+
+  // Wait for fonts before SplitText to ensure accurate word metrics
+  await document.fonts.ready
 
   const masterTl = $gsap.timeline({ paused: true })
 

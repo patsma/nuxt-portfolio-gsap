@@ -94,7 +94,7 @@ const createSectionAnimation = () => {
 /**
  * Create masked line reveal animation using SplitText
  */
-const createLineAnimations = () => {
+const createLineAnimations = async () => {
   if (lineScrollTriggerInstance) {
     lineScrollTriggerInstance.kill()
     lineScrollTriggerInstance = null
@@ -106,6 +106,9 @@ const createLineAnimations = () => {
   const masterTl = $gsap.timeline({ paused: true })
   const paragraphs = contentRef.value?.querySelectorAll('p')
   if (!paragraphs?.length) return
+
+  // Wait for fonts before SplitText to ensure accurate line breaks
+  await document.fonts.ready
 
   paragraphs.forEach((el, pIndex) => {
     $gsap.set(el, { clearProps: 'all' })
