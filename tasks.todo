@@ -1,6 +1,6 @@
-- Replace all assets with proper ones @started(26-02-24 02:04)
+✔ Replace all assets with proper ones @started(26-02-24 02:04) @done(26-02-24 02:50) @lasted(46m15s)
 - Refactor videos so the all start with the proper first frame poster functionality
-- Ensure the things are loading with easy loading ease loading etc
+- Ensure the things are loading with lazy loading and working with our GSAP etc 
 - Delete the fonts, replace with free ones
 - Add better loader pure CSS
 - Ensure content isn't with AI dashes

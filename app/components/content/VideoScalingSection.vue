@@ -12,7 +12,7 @@
         <video
           ref="videoRef"
           :src="videoSrc"
-          :poster="posterSrc"
+          :poster="posterUrl"
           class="parallax-media w-full h-full object-cover cursor-pointer"
           playsinline
           preload="auto"
@@ -110,8 +110,11 @@ const { isDesktop } = useIsMobile()
 
 const sectionRef = ref(null)
 const containerRef = ref(null)
-const videoRef = ref(null)
+const videoRef = ref<HTMLVideoElement | null>(null)
 const playButtonRef = ref(null)
+
+// Extract first frame from video as poster (falls back to posterSrc prop)
+const { posterUrl } = useVideoPoster(videoRef, props.posterSrc)
 
 const isPlaying = ref(false)
 const hasEnded = ref(false)
