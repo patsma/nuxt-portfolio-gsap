@@ -5,6 +5,19 @@
  * These types enable TypeScript support for useAppConfig() throughout the app.
  */
 
+/**
+ * Font configuration for easy font swapping
+ *
+ * Display fonts (serif/display): 'Instrument Serif', 'Playfair Display', 'Fraunces', 'Cormorant Garamond'
+ * Body fonts (sans-serif): 'IBM Plex Sans JP', 'Inter', 'DM Sans'
+ */
+export interface AppConfigFonts {
+  /** Display font for headings. Must match a font family in nuxt.config.ts */
+  display: string
+  /** Body font for paragraphs. Must match a font family in nuxt.config.ts */
+  body: string
+}
+
 export interface AppConfigIdentity {
   /** Display name in header and metadata */
   name: string
@@ -54,6 +67,7 @@ export interface AppConfigFooter {
 
 declare module 'nuxt/schema' {
   interface CustomAppConfig {
+    fonts?: AppConfigFonts
     identity?: AppConfigIdentity
     social?: AppConfigSocial
     site?: AppConfigSite

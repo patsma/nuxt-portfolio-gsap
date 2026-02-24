@@ -4,19 +4,11 @@
   - Includes additional ultra-wide breakpoints
 */
 @theme {
-  /* Font families (project) */
-  /* Set Tailwind's font-sans to our body family for convenience */
+  /* Font families - generic fallbacks, overridden by fonts.client.ts plugin
+     The plugin reads app.config.ts and applies the selected fonts at runtime */
+  --font-display: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-sans: var(--font-body);
-  /* Project fonts (loaded via @nuxt/fonts) */
-  --font-instrument-serif:
-    "Instrument Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-ibm-plex-sans-jp:
-    "IBM Plex Sans JP", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, Helvetica, Arial;
-
-  /* Semantic font roles for easy swapping */
-  --font-display: var(--font-instrument-serif);
-  --font-body: var(--font-ibm-plex-sans-jp);
 
   /* Neutral palette — Static color definitions (single source of truth)
      Keep RGBA to preserve intended alpha across utilities like borders and rings */

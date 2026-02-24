@@ -258,6 +258,7 @@ export default defineNuxtConfig({
   },
 
   // Nuxt Fonts configuration (provider-based)
+  // All fonts listed here are AVAILABLE - app.config.ts selects which are USED
   fonts: {
     // Global defaults applied when resolving families automatically from CSS
     defaults: {
@@ -266,8 +267,9 @@ export default defineNuxtConfig({
       preload: true,
       subsets: ['latin', 'latin-ext']
     },
-    // Explicitly define families
+    // Explicitly define families - multiple options for each role
     families: [
+      // === DISPLAY FONTS (Serif/Display for headings) ===
       {
         name: 'Instrument Serif',
         provider: 'local',
@@ -276,10 +278,47 @@ export default defineNuxtConfig({
         global: true
       },
       {
+        name: 'Playfair Display',
+        provider: 'google',
+        weights: ['400', '500', '600', '700'],
+        styles: ['normal', 'italic'],
+        global: true
+      },
+      {
+        name: 'Fraunces',
+        provider: 'google',
+        weights: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+        styles: ['normal', 'italic'],
+        global: true
+      },
+      {
+        name: 'Cormorant Garamond',
+        provider: 'google',
+        weights: ['300', '400', '500', '600', '700'],
+        styles: ['normal', 'italic'],
+        global: true
+      },
+
+      // === BODY FONTS (Sans-serif for paragraphs) ===
+      {
         name: 'IBM Plex Sans JP',
         provider: 'local',
         weights: ['100', '200', '300', '400', '500', '600', '700'],
         styles: ['normal'],
+        global: true
+      },
+      {
+        name: 'Inter',
+        provider: 'google',
+        weights: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+        styles: ['normal', 'italic'],
+        global: true
+      },
+      {
+        name: 'DM Sans',
+        provider: 'google',
+        weights: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+        styles: ['normal', 'italic'],
         global: true
       }
     ]
