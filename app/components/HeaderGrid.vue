@@ -44,11 +44,11 @@
             >
               <div class="flex flex-col">
                 <span
-                  class="body-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                  class="body-mobile-custom-navigation-caption text-center text-[var(--theme-text-100)]"
                 >{{ appConfig.identity?.name || 'Your Name' }}</span>
                 <span
                   ref="titleElementRef"
-                  class="body-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
+                  class="body-mobile-custom-navigation-caption text-center text-[var(--theme-text-60)]"
                 >{{ titleStore.currentText }}</span>
               </div>
             </NuxtLink>
@@ -267,7 +267,7 @@ async function waitForFonts(): Promise<void> {
       await document.fonts.ready
     }
     catch (error) {
-      // console.warn('⚠️ Font loading wait failed:', error)
+      console.warn('⚠️ Font loading wait failed:', error)
     }
   }
 }

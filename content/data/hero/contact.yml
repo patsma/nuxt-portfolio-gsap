@@ -10,7 +10,7 @@ headline:
     variant: default
   - text: " real"
     variant: emphasis
-  - text: " – drop me a line and let's start a"
+  - text: " - drop me a line and let's start a"
     variant: default
   - text: " conversation"
     variant: italic

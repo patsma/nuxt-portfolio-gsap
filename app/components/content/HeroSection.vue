@@ -65,7 +65,7 @@
         <div
           v-if="shouldShowScrollButton"
           ref="buttonRef"
-          class="md:ml-auto"
+          class="md:ml-auto max-sm:pb-20 max-sm:pt-10"
         >
           <ScrollButtonSVG
             v-page-fade:left
