@@ -417,6 +417,54 @@ The page transition system filters out `display: none` elements, so only the vis
    - Missing `✅` log = callback not firing from `clearActivePreviewImmediate`
    - Verify parent provides `navigateWithAnimation` before children mount
 
+## Bug Fixes
+
+### Multi-Slot Visibility During Transitions (2026-02-24)
+
+**Problem:** When hovering an item during a slideshow/item transition and quickly moving cursor outside the section, the preview showed glitchy behavior:
+- Two images visible with unfinished clip-path animations
+- Preview would "stick" then suddenly vanish
+
+**Root Cause:** The 3-slot carousel system means during slideshow or item transitions, **multiple slots are visible simultaneously**:
+- Slot A: animating OUT (partial clip-path, e.g., 70% visible)
+- Slot B: animating IN (partial clip-path, e.g., 30% visible)
+
+Both `executeClear()` and `clearActivePreviewInstant()` only handled the "active" slot, leaving other mid-transition slots visible with partial clip states.
+
+**Solution:** Fix both exit paths to handle multi-slot scenarios:
+
+```typescript
+// Pattern applied to both executeClear() and clearActivePreviewInstant()
+
+// 1. Kill all slot animations immediately
+const allSlots = [slotA.value, slotB.value, slotC.value].filter(Boolean)
+allSlots.forEach(slot => $gsap.killTweensOf(slot))
+
+// 2. Hide non-active slots instantly
+allSlots.forEach(slot => {
+  if (slot !== activeSlot) {
+    $gsap.set(slot, { opacity: 0 })
+  }
+})
+
+// 3. Ensure active slot is fully visible before animating out
+$gsap.set(activeSlot, { clipPath: 'inset(0% 0% 0% 0%)' })
+
+// 4. Animate active slot with clean clip exit animation
+$gsap.to(activeSlot, {
+  clipPath: clipPaths[direction].closed,
+  duration: 0.35,
+  ease: 'power2.in'
+})
+```
+
+**Files Modified:**
+- `app/composables/useInteractiveCaseStudyPreview.ts`
+  - `executeClear()` - debounced cursor exit
+  - `clearActivePreviewInstant()` - scroll-based exit
+
+**Key Insight:** Any exit path must account for the carousel being in a mid-transition state where multiple slots have partial visibility.
+
 ## Entrance & Scroll Animations
 
 ### Dual Animation Modes
@@ -552,4 +600,4 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 ---
 
 **Status:** ✅ Stable & Production-Ready
-**Last Updated:** 2026-02-03 (Mobile performance optimizations)
+**Last Updated:** 2026-02-24 (Multi-slot visibility bug fix)
