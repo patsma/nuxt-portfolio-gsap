@@ -131,7 +131,7 @@ const props = withDefaults(defineProps<Props>(), {
   showServices: undefined, // undefined = use data value
   showScrollButton: undefined, // undefined = use data value
   animateEntrance: true,
-  position: '<-0.3'
+  position: '0'
 })
 
 // Fetch hero data from collection by ID
