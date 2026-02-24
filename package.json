@@ -16,7 +16,6 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@maz-ui/nuxt": "^4.1.6",
     "@nuxt/content": "^3.6.3",
     "@nuxt/eslint": "^1.6.0",
     "@nuxt/fonts": "^0.11.4",

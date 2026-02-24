@@ -15,7 +15,7 @@
           :poster="posterUrl"
           class="parallax-media w-full h-full object-cover cursor-pointer"
           playsinline
-          preload="auto"
+          preload="metadata"
           muted
           @click="handlePlayPause"
           @play="isPlaying = true"

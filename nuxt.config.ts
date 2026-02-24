@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
 
-  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', 'nuxt-studio', '@maz-ui/nuxt', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt', 'nuxt-og-image'],
+  modules: ['@nuxt/fonts', '@nuxt/icon', '@nuxt/image', '@nuxt/eslint', '@hypernym/nuxt-gsap', '@pinia/nuxt', '@nuxt/content', 'nuxt-studio', 'nuxt-mcp', '@tresjs/nuxt', '@vueuse/nuxt', 'nuxt-og-image'],
 
   components: [
     { path: '~/components', pathPrefix: false },
@@ -181,6 +181,11 @@ export default defineNuxtConfig({
   },
   compatibilityDate: '2025-07-15',
 
+  // Enable Nitro compression for smaller payloads
+  nitro: {
+    compressPublicAssets: true
+  },
+
   // Enable TailwindCSS v4 via Vite plugin
   vite: {
     plugins: [tailwindcss()]
@@ -245,6 +250,20 @@ export default defineNuxtConfig({
     },
     extraEases: {
       custom: true
+    }
+  },
+
+  // Image optimization presets
+  image: {
+    quality: 80,
+    format: ['webp', 'avif', 'png', 'jpg'],
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536
     }
   },
 

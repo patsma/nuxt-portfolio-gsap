@@ -50,7 +50,7 @@
               :src="slotAImage.image"
               :alt="slotAImage.imageAlt"
               class="preview-image"
-              loading="eager"
+              loading="lazy"
               data-speed="0.95"
             />
           </div>
@@ -64,7 +64,7 @@
               :src="slotBImage.image"
               :alt="slotBImage.imageAlt"
               class="preview-image"
-              loading="eager"
+              loading="lazy"
               data-speed="0.95"
             />
           </div>
@@ -78,7 +78,7 @@
               :src="slotCImage.image"
               :alt="slotCImage.imageAlt"
               class="preview-image"
-              loading="eager"
+              loading="lazy"
               data-speed="0.95"
             />
           </div>

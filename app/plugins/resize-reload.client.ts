@@ -49,6 +49,6 @@ export default defineNuxtPlugin(() => {
   window.addEventListener('resize', handleResize, { passive: true })
 
   console.log(
-    `✅ Resize reload active (${initialWidth}x${initialHeight})`
+    // `✅ Resize reload active (${initialWidth}x${initialHeight})`
   )
 })
