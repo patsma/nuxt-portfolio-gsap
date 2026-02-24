@@ -5,11 +5,11 @@ client: "Vertex Labs"
 role: "App Design & Prototyping"
 year: "2024"
 tag: "MOBILE"
-cover: "/assets/dummy/placeholder.jpg"
+cover: "/assets/dummy/placeholder6.jpg"
 images:
-  - "/assets/dummy/placeholder.jpg"
-  - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder2.jpg"
+  - "/assets/dummy/placeholder6.jpg"
+  - "/assets/dummy/placeholder8.jpg"
+  - "/assets/dummy/placeholder4.jpg"
 description: "A mobile-first application designed to make complex data accessible and actionable on the go."
 displayOrder: 5
 ---

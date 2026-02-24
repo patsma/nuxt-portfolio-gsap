@@ -8,8 +8,8 @@ tag: "E-COMMERCE"
 cover: "/assets/dummy/placeholder2.jpg"
 images:
   - "/assets/dummy/placeholder2.jpg"
-  - "/assets/dummy/placeholder3.jpg"
-  - "/assets/dummy/placeholder.jpg"
+  - "/assets/dummy/placeholder4.jpg"
+  - "/assets/dummy/placeholder6.jpg"
 description: "A visually stunning e-commerce experience that elevates product presentation and simplifies the purchasing journey."
 displayOrder: 3
 ---

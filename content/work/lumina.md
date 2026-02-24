@@ -8,8 +8,8 @@ tag: "BRANDING"
 cover: "/assets/dummy/placeholder.jpg"
 images:
   - "/assets/dummy/placeholder.jpg"
-  - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder2.jpg"
+  - "/assets/dummy/placeholder5.jpg"
+  - "/assets/dummy/placeholder6.jpg"
 description: "A comprehensive brand identity system paired with a modern digital presence for a forward-thinking startup."
 displayOrder: 1
 ---

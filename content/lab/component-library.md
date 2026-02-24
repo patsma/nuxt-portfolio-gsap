@@ -2,12 +2,12 @@
 title: "Component Library Starter"
 slug: "component-library"
 shortTitle: "Component Library"
-thumbnail: "/assets/dummy/placeholder.jpg"
-cover: "/assets/dummy/placeholder.jpg"
+thumbnail: "/assets/dummy/placeholder4.jpg"
+cover: "/assets/dummy/placeholder4.jpg"
 images:
-  - "/assets/dummy/placeholder.jpg"
-  - "/assets/dummy/placeholder2.jpg"
-  - "/assets/dummy/placeholder3.jpg"
+  - "/assets/dummy/placeholder4.jpg"
+  - "/assets/dummy/placeholder6.jpg"
+  - "/assets/dummy/placeholder8.jpg"
 description: "A starter kit for building your own component library with Vue 3, TypeScript, and Storybook. Includes documentation patterns, testing setup, and publishing workflows."
 date: "2025-12-01"
 tags: ["vue", "components", "storybook"]

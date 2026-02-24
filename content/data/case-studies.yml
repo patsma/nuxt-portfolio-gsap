@@ -6,9 +6,9 @@ items:
     image: "/assets/dummy/placeholder.jpg"
     imageAlt: "Lumina project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder1.jpg"
-      - "/assets/dummy/placeholder2.jpg"
-      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder5.jpg"
+      - "/assets/dummy/placeholder6.jpg"
+      - "/assets/dummy/placeholder7.jpg"
     slideshowImageAlts:
       - "Lumina brand system"
       - "Lumina mobile application"
@@ -22,8 +22,8 @@ items:
     image: "/assets/dummy/placeholder1.jpg"
     imageAlt: "Catalyst project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder2.jpg"
       - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder8.jpg"
     slideshowImageAlts:
       - "Catalyst dashboard design"
       - "Catalyst mobile interface"
@@ -36,8 +36,8 @@ items:
     image: "/assets/dummy/placeholder2.jpg"
     imageAlt: "Horizon project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder3.jpg"
-      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder4.jpg"
+      - "/assets/dummy/placeholder6.jpg"
       - "/assets/dummy/placeholder1.jpg"
     slideshowImageAlts:
       - "Horizon product pages"
@@ -52,8 +52,8 @@ items:
     image: "/assets/dummy/placeholder3.jpg"
     imageAlt: "Prism project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder.jpg"
-      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder7.jpg"
+      - "/assets/dummy/placeholder5.jpg"
       - "/assets/dummy/placeholder2.jpg"
     slideshowImageAlts:
       - "Prism component system"
@@ -65,12 +65,12 @@ items:
     slug: "vertex"
     tag: "MOBILE"
     description: "App design & prototyping"
-    image: "/assets/dummy/placeholder.jpg"
+    image: "/assets/dummy/placeholder6.jpg"
     imageAlt: "Vertex project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder1.jpg"
+      - "/assets/dummy/placeholder8.jpg"
       - "/assets/dummy/placeholder2.jpg"
-      - "/assets/dummy/placeholder3.jpg"
+      - "/assets/dummy/placeholder4.jpg"
     slideshowImageAlts:
       - "Vertex onboarding flow"
       - "Vertex core features"
@@ -81,12 +81,12 @@ items:
     slug: "nexus"
     tag: "REDESIGN"
     description: "Website redesign & development"
-    image: "/assets/dummy/placeholder1.jpg"
+    image: "/assets/dummy/placeholder7.jpg"
     imageAlt: "Nexus project preview"
     slideshowImages:
-      - "/assets/dummy/placeholder2.jpg"
+      - "/assets/dummy/placeholder1.jpg"
       - "/assets/dummy/placeholder3.jpg"
-      - "/assets/dummy/placeholder.jpg"
+      - "/assets/dummy/placeholder5.jpg"
     slideshowImageAlts:
       - "Nexus homepage design"
       - "Nexus responsive layouts"

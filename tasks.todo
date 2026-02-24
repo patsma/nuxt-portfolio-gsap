@@ -1,0 +1,10 @@
+- Replace all assets with proper ones @started(26-02-24 02:04)
+- Refactor videos so the all start with the proper first frame poster functionality
+- Ensure the things are loading with easy loading ease loading etc
+- Delete the fonts, replace with free ones
+- Add better loader pure CSS
+- Ensure content isn't with AI dashes
+- Prepare the readme
+- Deploy the github
+- Deploy to netlify
+- Prepare a content list - how to divide this into tutorial, post ideas 

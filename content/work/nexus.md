@@ -5,11 +5,11 @@ client: "Nexus Creative"
 role: "Website Redesign & Development"
 year: "2023"
 tag: "REDESIGN"
-cover: "/assets/dummy/placeholder1.jpg"
+cover: "/assets/dummy/placeholder7.jpg"
 images:
+  - "/assets/dummy/placeholder7.jpg"
   - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder2.jpg"
-  - "/assets/dummy/placeholder3.jpg"
+  - "/assets/dummy/placeholder5.jpg"
 description: "A complete website overhaul that transformed an outdated presence into a modern, high-performance showcase."
 displayOrder: 6
 ---

@@ -8,7 +8,7 @@ items:
     authorFirstName: "Alex"
     authorLastName: "Johnson"
     authorTitle: "CEO, Design Agency"
-    authorImage: "/assets/dummy/placeholder.jpg"
+    authorImage: "/assets/dummy/avatar1.jpg"
 
   - id: "rec-2"
     quote: "Transformed our digital presence"
@@ -17,7 +17,7 @@ items:
     authorFirstName: "Jordan"
     authorLastName: "Smith"
     authorTitle: "Product Lead, Tech Company"
-    authorImage: "/assets/dummy/placeholder2.jpg"
+    authorImage: "/assets/dummy/avatar2.jpg"
 
   - id: "rec-3"
     quote: "Creative vision meets execution"
@@ -26,7 +26,7 @@ items:
     authorFirstName: "Casey"
     authorLastName: "Williams"
     authorTitle: "CTO, Startup"
-    authorImage: "/assets/dummy/placeholder3.jpg"
+    authorImage: "/assets/dummy/avatar3.jpg"
 
   - id: "rec-4"
     quote: "Strategic and hands-on"
@@ -35,4 +35,4 @@ items:
     authorFirstName: "Morgan"
     authorLastName: "Davis"
     authorTitle: "Partner, Agency"
-    authorImage: "/assets/dummy/placeholder1.jpg"
+    authorImage: "/assets/dummy/avatar4.jpg"

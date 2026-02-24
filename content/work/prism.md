@@ -8,8 +8,8 @@ tag: "PLATFORM"
 cover: "/assets/dummy/placeholder3.jpg"
 images:
   - "/assets/dummy/placeholder3.jpg"
-  - "/assets/dummy/placeholder.jpg"
-  - "/assets/dummy/placeholder1.jpg"
+  - "/assets/dummy/placeholder7.jpg"
+  - "/assets/dummy/placeholder5.jpg"
 description: "A scalable design system and component library enabling consistent experiences across a suite of enterprise products."
 displayOrder: 4
 ---

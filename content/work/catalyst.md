@@ -8,8 +8,8 @@ tag: "WEB APP"
 cover: "/assets/dummy/placeholder1.jpg"
 images:
   - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder2.jpg"
   - "/assets/dummy/placeholder3.jpg"
+  - "/assets/dummy/placeholder8.jpg"
 description: "A powerful web application designed to streamline complex workflows and enhance team productivity."
 displayOrder: 2
 ---
