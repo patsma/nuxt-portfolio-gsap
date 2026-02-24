@@ -6,21 +6,19 @@ headline:
     variant: default
   - text: " free"
     variant: italic
-  - text: " to use my lab projects"
+  - text: " to explore my experiments"
     variant: default
-  - text: " as your own."
+  - text: " and side projects."
     variant: body
-  - text: " They are"
+  - text: " These are"
     variant: default
-  - text: " based"
+  - text: " personal"
     variant: body
-  - text: " on Morten"
+  - text: " explorations"
     variant: default
-  - text: " logic"
+  - text: " —"
+    variant: default
+  - text: " always"
     variant: italic
-  - text: " and"
-    variant: default
-  - text: " experience"
-    variant: italic
-  - text: ", but still experimental and always evolving"
-    variant: default
+  - text: " evolving"
+    variant: emphasis

@@ -16,8 +16,8 @@ export default defineNuxtConfig({
     layoutTransition: false, // No layout transitions needed
 
     head: {
-      title: 'Morten Stig Christensen – Digital Designer',
-      titleTemplate: '%s · Morten Stig Christensen',
+      title: 'Portfolio Template – Digital Designer',
+      titleTemplate: '%s · Portfolio Template',
       htmlAttrs: { lang: 'en' },
 
       // Inject loader CSS that renders immediately (works in SSR dev mode)
@@ -108,36 +108,37 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
+            'Portfolio showcasing digital design and development work. Crafting experiences rooted in purpose, function, and craft.'
         },
         // Open Graph Basics
         { property: 'og:type', content: 'website' },
-        { property: 'og:site_name', content: 'Morten Stig Christensen' },
+        { property: 'og:site_name', content: 'Portfolio Template' },
         {
           property: 'og:title',
-          content: 'Morten Stig Christensen – Digital Designer'
+          content: 'Portfolio Template – Digital Designer'
         },
         {
           property: 'og:description',
           content:
-            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
+            'Portfolio showcasing digital design and development work. Crafting experiences rooted in purpose, function, and craft.'
         },
         // Absolute URLs are required by some scrapers (e.g., Facebook)
+        // Update these in app.config.ts for your domain
         {
           property: 'og:url',
-          content: 'https://mschristensen.com'
+          content: 'https://example.com'
         },
         {
           property: 'og:image',
-          content: 'https://mschristensen.com/og.png'
+          content: 'https://example.com/og.png'
         },
         {
           property: 'og:image:secure_url',
-          content: 'https://mschristensen.com/og.png'
+          content: 'https://example.com/og.png'
         },
         {
           property: 'og:image:alt',
-          content: 'Morten Stig Christensen – Digital Designer'
+          content: 'Portfolio Template – Digital Designer'
         },
         { property: 'og:image:type', content: 'image/png' },
         { property: 'og:image:width', content: '1200' },
@@ -146,16 +147,16 @@ export default defineNuxtConfig({
         { name: 'twitter:card', content: 'summary_large_image' },
         {
           name: 'twitter:title',
-          content: 'Morten Stig Christensen – Digital Designer'
+          content: 'Portfolio Template – Digital Designer'
         },
         {
           name: 'twitter:description',
           content:
-            'Hey, I\'m Morten. A Danish digital designer and developer based in Tokyo, shaping experiences that are rooted in purpose, function, and craft.'
+            'Portfolio showcasing digital design and development work. Crafting experiences rooted in purpose, function, and craft.'
         },
         {
           name: 'twitter:image',
-          content: 'https://mschristensen.com/og.png'
+          content: 'https://example.com/og.png'
         }
       ],
       link: [
@@ -170,7 +171,8 @@ export default defineNuxtConfig({
   css: ['./app/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      siteUrl: 'https://mschristensen.com'
+      // Override via NUXT_PUBLIC_SITE_URL environment variable
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://example.com'
     }
   },
 
@@ -246,13 +248,14 @@ export default defineNuxtConfig({
     }
   },
 
-  // Nuxt Studio configuration (self-hosted)
+  // Nuxt Studio configuration
+  // Update with your GitHub repo details for CMS integration
   studio: {
     dev: false,
     repository: {
       provider: 'github',
-      owner: 'patsma',
-      repo: 'morten-2025',
+      owner: 'your-username',
+      repo: 'your-portfolio',
       branch: 'main'
     }
   }

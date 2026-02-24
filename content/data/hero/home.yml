@@ -2,31 +2,29 @@ id: home
 showServices: true
 showScrollButton: true
 headline:
-  - text: "Welcome, I am"
+  - text: "Hello, I'm a"
     variant: default
-  - text: " Morten"
+  - text: " creative"
     variant: emphasis
-  - text: " – a"
-    variant: default
-  - text: " Danish"
-    variant: italic
   - text: " designer"
     variant: body
-  - text: " based in"
-    variant: default
-  - text: " Tokyo"
-    variant: emphasis
-  - text: " approaching today's challenges with a"
+  - text: " with a passion for"
     variant: default
   - text: " digital"
+    variant: italic
+  - text: " experiences"
+    variant: default
+  - text: " — crafting"
+    variant: default
+  - text: " purposeful"
+    variant: emphasis
+  - text: " solutions"
     variant: body
-  - text: "-first"
+  - text: " that blend"
+    variant: default
+  - text: " form"
     variant: italic
   - text: " and"
     variant: default
-  - text: " user"
-    variant: body
-  - text: "-centred"
+  - text: " function"
     variant: italic
-  - text: " mindset"
-    variant: default

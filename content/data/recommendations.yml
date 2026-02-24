@@ -1,40 +1,38 @@
 items:
   - id: "rec-1"
-    quote: "An extraordinary individual"
+    quote: "An exceptional collaborator"
     fullRecommendation: |
-      I worked closely with Morten for almost three years while building an ambitious creative digital agency with Morten as a key player in executing on our most prominent digital design solutions.
+      Working together on multiple projects over the years has been a privilege. The attention to detail and ability to understand complex requirements while delivering intuitive, beautiful designs is remarkable.
 
-      Morten is always on the lookout for what's next and has a strong eye for spotting design trends and capturing the visual DNA of clients on all levels.
-
-      I have always been impressed by the speed and thoroughness that Morten shows in all projects he is a part of.
-    authorFirstName: "Thomas"
-    authorLastName: "Rømhild"
-    authorTitle: "CEO, Bærnholdt"
+      Every project benefits from a thorough, thoughtful approach that balances user needs with business objectives. I've always been impressed by the speed and quality of work delivered.
+    authorFirstName: "Alex"
+    authorLastName: "Johnson"
+    authorTitle: "CEO, Design Agency"
     authorImage: "/assets/dummy/placeholder.jpg"
 
   - id: "rec-2"
-    quote: "I understood once & for all"
+    quote: "Transformed our digital presence"
     fullRecommendation: |
-      Morten's user-centric approach significantly improved our platform's usability and conversion rates. His attention to detail and ability to translate complex requirements into intuitive designs has been invaluable to our product development process.
-    authorFirstName: "Jesper"
-    authorLastName: "Geldø Hansen"
-    authorTitle: "UX Writer, Microsoft"
+      Our platform's usability and conversion rates improved significantly after the redesign. The user-centric approach and ability to translate complex requirements into intuitive designs has been invaluable to our product development process.
+    authorFirstName: "Jordan"
+    authorLastName: "Smith"
+    authorTitle: "Product Lead, Tech Company"
     authorImage: "/assets/dummy/placeholder2.jpg"
 
   - id: "rec-3"
-    quote: "A talented passionate designer"
+    quote: "Creative vision meets execution"
     fullRecommendation: |
-      Working with Morten was a game-changer for our digital transformation. His creative vision and technical expertise helped us reimagine our entire user experience. He consistently delivered exceptional work that exceeded our expectations.
-    authorFirstName: "Mikkel"
-    authorLastName: "Kreiner"
-    authorTitle: "CTO, Arkyn"
+      A game-changer for our digital transformation. The creative vision and technical expertise helped us reimagine our entire user experience. Consistently delivered exceptional work that exceeded our expectations.
+    authorFirstName: "Casey"
+    authorLastName: "Williams"
+    authorTitle: "CTO, Startup"
     authorImage: "/assets/dummy/placeholder3.jpg"
 
   - id: "rec-4"
-    quote: "Fast and efficient at work and colleagues"
+    quote: "Strategic and hands-on"
     fullRecommendation: |
-      Morten brings an incredible combination of strategic thinking and hands-on design skills. His ability to understand business objectives and translate them into compelling user experiences sets him apart. A true professional in every sense.
-    authorFirstName: "Rune"
-    authorLastName: "Brændholt"
-    authorTitle: "Partner, Bærnholdt"
+      An incredible combination of strategic thinking and hands-on design skills. The ability to understand business objectives and translate them into compelling user experiences sets this work apart. A true professional in every sense.
+    authorFirstName: "Morgan"
+    authorLastName: "Davis"
+    authorTitle: "Partner, Agency"
     authorImage: "/assets/dummy/placeholder1.jpg"

@@ -120,15 +120,19 @@
             </a>
           </div>
 
-          <!-- Special Thanks (right/bottom) -->
+          <!-- Attribution (right/bottom) -->
           <div class="special-thanks lg:text-right">
             <p>
               <slot name="thanks">
-                Special thanks to <a
+                Template by <a
+                  class="underline pb-1"
+                  href="https://mschristensen.com"
+                  target="_blank"
+                >Morten Christensen</a> & <a
                   class="underline pb-1"
                   href="https://patryksmakosz.com/"
                   target="_blank"
-                >Patryk Smakosz </a> for the collaboration
+                >Patryk Smakosz</a>
               </slot>
             </p>
           </div>

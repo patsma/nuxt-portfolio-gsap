@@ -1,9 +1,9 @@
 ---
 title: About
-description: Learn more about Morten
+description: Learn more about the designer behind the work
 seo:
-  title: "About – Morten"
-  description: "Learn more about Morten, a Danish designer based in Tokyo with over a decade of experience."
+  title: "About – Portfolio Template"
+  description: "Learn more about a passionate designer with experience crafting digital experiences for brands worldwide."
 ---
 
 ::HeroSection{hero-id="about"}

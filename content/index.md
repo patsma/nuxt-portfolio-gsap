@@ -1,9 +1,9 @@
 ---
 title: Home
-description: Danish designer based in Tokyo
+description: Digital designer crafting purposeful experiences
 seo:
-  title: "Morten – Danish Designer in Tokyo"
-  description: "Danish designer based in Tokyo approaching today's challenges with a digital-first and user-centred mindset."
+  title: "Portfolio Template – Digital Designer"
+  description: "Digital designer crafting experiences rooted in purpose, function, and craft. Explore selected work in digital design and development."
 ---
 
 ::HeroSection{hero-id="home"}

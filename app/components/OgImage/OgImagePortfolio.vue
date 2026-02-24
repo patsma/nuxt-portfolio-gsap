@@ -15,8 +15,8 @@ withDefaults(defineProps<{
   title?: string
   description?: string
 }>(), {
-  title: 'Morten Stig Christensen',
-  description: 'Digital Designer in Tokyo'
+  title: 'Portfolio Template',
+  description: 'Digital Design & Development'
 })
 </script>
 
@@ -34,7 +34,7 @@ withDefaults(defineProps<{
     <div
       style="font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255, 250, 245, 0.4); margin-bottom: 40px;"
     >
-      mschristensen.com
+      example.com
     </div>
 
     <!-- Title -->
@@ -63,7 +63,7 @@ withDefaults(defineProps<{
         <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Development</span>
         <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Art Direction</span>
       </div>
-      <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Tokyo, Japan</span>
+      <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Your City</span>
     </div>
   </div>
 </template>

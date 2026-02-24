@@ -2,8 +2,8 @@
 title: Contact
 description: Get in touch
 seo:
-  title: "Contact – Morten"
-  description: "Get in touch with Morten, Danish designer based in Tokyo."
+  title: "Contact – Portfolio Template"
+  description: "Get in touch to discuss projects, collaborations, or opportunities."
 ---
 
 ::HeroSection{hero-id="contact"}

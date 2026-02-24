@@ -2,27 +2,25 @@ id: about
 showServices: false
 showScrollButton: true
 headline:
-  - text: "Driven by a high"
+  - text: "Driven by a"
     variant: default
   - text: " passion"
     variant: italic
-  - text: " for design, I craft compelling solutions backed by"
+  - text: " for design, I craft"
+    variant: default
+  - text: " compelling"
+    variant: emphasis
+  - text: " solutions backed by"
     variant: default
   - text: " insights"
-    variant: emphasis
+    variant: body
   - text: " and"
     variant: default
   - text: " real data"
-    variant: body
+    variant: emphasis
   - text: " to ensure a"
     variant: default
   - text: " meaningful"
-    variant: emphasis
+    variant: italic
   - text: " journey"
-    variant: italic
-  - text: " and an"
-    variant: default
-  - text: " engaging"
-    variant: italic
-  - text: " end-product"
     variant: default

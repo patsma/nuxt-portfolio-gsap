@@ -45,7 +45,7 @@
               <div class="flex flex-col">
                 <span
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                >Morten Christensen</span>
+                >{{ appConfig.identity?.name || 'Your Name' }}</span>
                 <span
                   ref="titleElementRef"
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
@@ -102,12 +102,13 @@
               <!-- Desktop: Location and date (dynamic time updated every second) -->
               <div class="hidden md:flex flex-col items-end">
                 <span
+                  v-if="appConfig.identity?.location"
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
-                >Tokyo, JP</span>
+                >{{ appConfig.identity.location }}</span>
                 <span
-                  v-if="isClient"
+                  v-if="isClient && timeEnabled"
                   class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
-                >{{ tokyoTime }}</span>
+                >{{ localTime }}</span>
               </div>
               <!-- Mobile: Theme toggle -->
               <ClientOnly>
@@ -158,7 +159,7 @@ import ThemeToggleSVG from './ThemeToggleSVG.vue'
 import { useLoadingStore } from '~/stores/loading'
 import { useMenuStore } from '~/stores/menu'
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
-import { useTokyoTime } from '~/composables/useTokyoTime'
+import { useLocalTime } from '~/composables/useLocalTime'
 import { useTitleRotationStore } from '~/stores/title-rotation'
 
 // Loading store for font readiness check
@@ -174,8 +175,11 @@ const { $gsap, $DrawSVGPlugin, $SplitText, $GSDevTools } = nuxtApp
 // Loading system integration
 const { isFirstLoad } = useLoadingSequence()
 
-// Dynamic time display for Tokyo
-const { tokyoTime } = useTokyoTime()
+// App config for identity settings
+const appConfig = useAppConfig()
+
+// Dynamic time display (configurable timezone)
+const { localTime, isEnabled: timeEnabled } = useLocalTime()
 
 // Animated title rotation system
 const titleStore = useTitleRotationStore()
