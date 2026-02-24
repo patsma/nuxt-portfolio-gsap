@@ -43,6 +43,92 @@ GSAP-animated dark/light theme with localStorage persistence and SSR compatibili
 --border-width-thick: 4px;
 ```
 
+## Font Configuration
+
+**Single source of truth:** `app/app.config.ts`
+
+The font system uses `@nuxt/fonts` for automatic font loading and a client plugin to apply fonts at runtime via CSS variables.
+
+### Configuration
+
+Edit `app.config.ts` to change fonts:
+
+```typescript
+export default defineAppConfig({
+  fonts: {
+    // Display font for headings (serif)
+    display: 'Fraunces',
+    // Body font for paragraphs and UI (sans-serif)
+    body: 'Inter'
+  },
+  // ... rest of config
+})
+```
+
+### How It Works
+
+**File:** `app/plugins/fonts.client.ts`
+
+1. Plugin runs on `app:mounted` hook (after DOM and CSS are ready)
+2. Reads font names from `useAppConfig().fonts`
+3. Sets CSS variables with proper fallback stacks:
+   - `--font-display` - Display/heading font (serif fallbacks)
+   - `--font-body` - Body text font (sans-serif fallbacks)
+   - `--font-sans` - Alias for body font
+
+```typescript
+// Plugin applies font stacks like:
+html.style.setProperty(
+  '--font-display',
+  '"Fraunces", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'
+)
+```
+
+`@nuxt/fonts` automatically detects font names and downloads them from Google Fonts (or other providers).
+
+### Recommended Fonts
+
+**Display fonts (serif):**
+- `Fraunces` - Variable optical size, great for large headings
+- `Instrument Serif` - Elegant, classic feel
+- `Playfair Display` - High contrast, editorial
+- `Cormorant` - Refined, book-like
+
+**Body fonts (sans-serif):**
+- `Inter` - Highly readable, excellent for UI
+- `DM Sans` - Geometric, clean
+- `IBM Plex Sans` - Professional, versatile
+- `Source Sans 3` - Adobe's open-source workhorse
+
+### Usage in CSS
+
+Typography utility classes use these CSS variables:
+
+```scss
+// In theme.scss
+--font-display: "Fraunces", ui-serif, Georgia, serif;
+--font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+--font-sans: var(--font-body);
+```
+
+```vue
+<!-- Tailwind arbitrary values -->
+<h1 class="font-[var(--font-display)]">Heading</h1>
+<p class="font-[var(--font-body)]">Body text</p>
+```
+
+### Troubleshooting
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| Font doesn't change | Plugin cached | Hard reload (Cmd+Shift+R) |
+| Font not loading | @nuxt/fonts can't find it | Check font name spelling, try Google Fonts URL directly |
+| FOUT (flash of unstyled text) | Font loading delay | Normal behavior; @nuxt/fonts handles font-display |
+| CSS variables empty | Plugin didn't run | Ensure fonts.client.ts exists, check console for errors |
+| Wrong font on first load | SSR/hydration mismatch | Expected - plugin runs client-side only |
+
+**After changing fonts:** Restart dev server (`npm run dev`) to ensure @nuxt/fonts detects the new font names.
+
 ## Implementation
 
 ### GSAP Animation Pattern
