@@ -14,7 +14,8 @@
 ✔ Change model to opus 4.6 @done(26-02-24 17:21)
 ✔ Fix local time component @done(26-02-24 17:49)
 ✔ Fix mobile arrow distance in hero @done(26-02-24 18:00)
-- restore resize, but listen only on width
-- 
+✔ restore resize, but listen only on width @started(26-02-24 18:09) @done(26-02-24 18:14) @lasted(5m43s)
+- Need to preload interactive case section images - ensure our loader depends on the assets - or we should have a nice spinners with placeholder that will fade out once the image loads
 - remove the docs, clear repository, prepare for sharing
 - Prepare a content list - how to divide this into tutorial, post ideas 
+- Add warp effect to video play
