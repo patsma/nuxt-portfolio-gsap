@@ -5,8 +5,8 @@
 ✔ Reduce the hover time to 0.5s to trigger slideshow on interactive case study @done(26-02-24 03:55)
 ✔ Add better loader pure CSS - we could be a bit more creative, currently there is just one almost still gradient - we could try a couple so this have organic live alive feeling, needs to be theme aware @started(26-02-24 03:56) @done(26-02-24 04:01) @lasted(5m29s)
 ✔ We probably need to Delete the fonts and replace with free ones - check about the licensing please, if it's good and we can share this as an open source - please let's do a license check and use some free font if we need to @started(26-02-24 04:02) @done(26-02-24 04:17) @lasted(15m34s)
-✔ easy way of switching fonts @started(26-02-24 04:20)
-- Fix interactive case study - when hovering over some items like from the previous than the last item it works fine, but wen we hover from item 2 to the end of the section quickly we don't have a nice animaiton, things just vanish midway in a glitchy way, we need a smooth way for this type of scenario, finish one animaiton and later hide the preiview instead of ugly glitching or killing it
+✔ easy way of switching fonts @started(26-02-24 04:20) @done(26-02-24 05:36) @lasted(1h16m51s)
+✔ Fix interactive case study - when hovering over some items like from the previous than the last item it works fine, but wen we hover from item 2 to the end of the section quickly we don't have a nice animaiton, things just vanish midway in a glitchy way, we need a smooth way for this type of scenario, finish one animaiton and later hide the preiview instead of ugly glitching or killing it @started(26-02-24 05:36) @done(26-02-24 05:36) @lasted(59s)
 - Ensure content isn't with AI dashes - final copy check
 - Prepare the readme
 - Deploy the github

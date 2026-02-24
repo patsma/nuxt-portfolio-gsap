@@ -41,6 +41,7 @@ interface GSAPTimeline {
   to: (targets: unknown, vars: Record<string, unknown>, position?: number | string) => GSAPTimeline
   fromTo: (targets: unknown, fromVars: Record<string, unknown>, toVars: Record<string, unknown>, position?: number | string) => GSAPTimeline
   kill: () => void
+  progress: (value?: number) => GSAPTimeline | number
 }
 
 export interface PreviewData {
@@ -1033,19 +1034,40 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
       return
     }
 
-    const element = getSlotElement(activeSlot.value)
+    // Kill any active timeline first
+    if (activeTimeline) {
+      activeTimeline.kill()
+      activeTimeline = null
+    }
+
+    // Kill tweens on ALL slots and hide non-active ones immediately
+    // This handles mid-slideshow/transition states where multiple slots are visible
+    const currentActive = activeSlot.value
+    const slots: SlotId[] = ['A', 'B', 'C']
+    slots.forEach((slot) => {
+      const element = getSlotElement(slot)
+      if (element) {
+        gsap.killTweensOf(element)
+        if (slot !== currentActive) {
+          // Non-active slots: hide instantly (they might be mid-transition)
+          gsap.set(element, { opacity: 0 })
+        }
+        else {
+          // Active slot: ensure fully visible before clip animation
+          gsap.set(element, { opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' })
+        }
+      }
+    })
+
+    const element = getSlotElement(currentActive)
     if (!element) {
       showPreview.value = false
       return
     }
 
-    slotStates.value[activeSlot.value].status = 'animating-out'
+    slotStates.value[currentActive].status = 'animating-out'
 
     const clipPaths = ANIMATION_CONFIG.clipPath[currentClipDirection.value]
-
-    if (activeTimeline) {
-      activeTimeline.kill()
-    }
 
     activeTimeline = gsap.timeline({
       onComplete: () => {
@@ -1221,27 +1243,50 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
 
     if (!showPreview.value || !activeSlot.value) return
 
-    // Kill any active GSAP animation (slideshow/transition/etc)
+    // Kill any active timeline
     if (activeTimeline) {
       activeTimeline.kill()
       activeTimeline = null
     }
 
-    // Reset ALL slots to fully visible clip-path (prevents mid-animation artifacts)
-    // NOTE: Don't call resetSlot() here - it sets opacity:0 which cuts short the fade
-    // Slot cleanup happens in cleanupAfterFade() called from @after-leave
+    // Kill tweens on non-active slots and hide them immediately
     const slots: SlotId[] = ['A', 'B', 'C']
+    const currentActive = activeSlot.value
     slots.forEach((slot) => {
       const element = getSlotElement(slot)
       if (element) {
         gsap.killTweensOf(element)
-        gsap.set(element, { clipPath: 'inset(0% 0% 0% 0%)' })
+        if (slot !== currentActive) {
+          // Non-active slots: hide instantly
+          gsap.set(element, { opacity: 0 })
+        }
+        else {
+          // Active slot: ensure fully visible before clip animation
+          gsap.set(element, { opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' })
+        }
       }
     })
 
-    // Let Vue Transition handle the fade out
-    // Slots will be reset in cleanupAfterFade() after fade completes
-    showPreview.value = false
+    // Animate active slot with clip from top (clean exit)
+    const activeElement = getSlotElement(currentActive)
+    if (activeElement) {
+      activeTimeline = gsap.timeline({
+        onComplete: () => {
+          showPreview.value = false
+          activeTimeline = null
+        }
+      })
+
+      activeTimeline.to(activeElement, {
+        clipPath: 'inset(0% 0% 100% 0%)', // Clip to top (disappears upward)
+        duration: 0.35,
+        ease: 'power2.in'
+      })
+    }
+    else {
+      // Fallback if no active element
+      showPreview.value = false
+    }
 
     forceHideUntil.value = Date.now() + 100
   }
