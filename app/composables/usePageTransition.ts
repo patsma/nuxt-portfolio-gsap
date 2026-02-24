@@ -404,30 +404,43 @@ export const usePageTransition = (): PageTransitionReturn => {
       return
     }
 
-    const tl = $gsap.timeline({ onComplete: done })
+    // Check if any elements use split animations
+    const hasSplit = elements.some(e => e._pageAnimation?.type === 'split')
 
-    elements.forEach((element, index) => {
-      const { type, config } = element._pageAnimation!
-      const position = index * 0.06 // Stagger start times
+    const buildLeaveTimeline = () => {
+      const tl = $gsap.timeline({ onComplete: done })
 
-      // Call appropriate animation function
-      switch (type) {
-        case 'split':
-          animateSplit(element, config, 'out', tl, position)
-          break
-        case 'fade':
-          animateFade(element, config, 'out', tl, position)
-          break
-        case 'clip':
-          animateClip(element, config, 'out', tl, position)
-          break
-        case 'stagger':
-          animateStagger(element, config, 'out', tl, position)
-          break
-        default:
-          // console.warn(`⚠️ Unknown animation type: ${type}`)
-      }
-    })
+      elements.forEach((element, index) => {
+        const { type, config } = element._pageAnimation!
+        const position = index * 0.06 // Stagger start times
+
+        // Call appropriate animation function
+        switch (type) {
+          case 'split':
+            animateSplit(element, config, 'out', tl, position)
+            break
+          case 'fade':
+            animateFade(element, config, 'out', tl, position)
+            break
+          case 'clip':
+            animateClip(element, config, 'out', tl, position)
+            break
+          case 'stagger':
+            animateStagger(element, config, 'out', tl, position)
+            break
+          default:
+            // console.warn(`⚠️ Unknown animation type: ${type}`)
+        }
+      })
+    }
+
+    // Ensure fonts are ready before SplitText (resolves near-instantly during navigation)
+    if (hasSplit) {
+      document.fonts.ready.then(buildLeaveTimeline)
+    }
+    else {
+      buildLeaveTimeline()
+    }
   }
 
   /**
@@ -455,44 +468,59 @@ export const usePageTransition = (): PageTransitionReturn => {
           const { refreshSmoother } = useScrollSmootherManager()
           refreshSmoother()
 
-          // Create timeline - resume headroom when animation completes
-          const tl = $gsap.timeline({
-            onComplete: () => {
-              done()
-              // Resume headroom AFTER visual transition completes
-              if (nuxtApp.$headroom?.resume) {
-                nuxtApp.$headroom.resume()
+          // Check if any enter elements use split animations
+          const hasSplit = elements.some(
+            e => e._pageAnimation?.type === 'split' && !e._pageAnimation.config.leaveOnly
+          )
+
+          const buildEnterTimeline = () => {
+            // Create timeline - resume headroom when animation completes
+            const tl = $gsap.timeline({
+              onComplete: () => {
+                done()
+                // Resume headroom AFTER visual transition completes
+                if (nuxtApp.$headroom?.resume) {
+                  nuxtApp.$headroom.resume()
+                }
               }
-            }
-          })
+            })
 
-          elements.forEach((element, index) => {
-            const { type, config } = element._pageAnimation!
-            const position = index * 0.08 // Stagger start times
+            elements.forEach((element, index) => {
+              const { type, config } = element._pageAnimation!
+              const position = index * 0.08 // Stagger start times
 
-            // Skip enter animation for leaveOnly elements - component handles visibility
-            if (config.leaveOnly) {
-              return
-            }
+              // Skip enter animation for leaveOnly elements - component handles visibility
+              if (config.leaveOnly) {
+                return
+              }
 
-            // Call appropriate animation function
-            switch (type) {
-              case 'split':
-                animateSplit(element, config, 'in', tl, position)
-                break
-              case 'fade':
-                animateFade(element, config, 'in', tl, position)
-                break
-              case 'clip':
-                animateClip(element, config, 'in', tl, position)
-                break
-              case 'stagger':
-                animateStagger(element, config, 'in', tl, position)
-                break
-              default:
-                // console.warn(`⚠️ Unknown animation type: ${type}`)
-            }
-          })
+              // Call appropriate animation function
+              switch (type) {
+                case 'split':
+                  animateSplit(element, config, 'in', tl, position)
+                  break
+                case 'fade':
+                  animateFade(element, config, 'in', tl, position)
+                  break
+                case 'clip':
+                  animateClip(element, config, 'in', tl, position)
+                  break
+                case 'stagger':
+                  animateStagger(element, config, 'in', tl, position)
+                  break
+                default:
+                  // console.warn(`⚠️ Unknown animation type: ${type}`)
+              }
+            })
+          }
+
+          // Ensure fonts are ready before SplitText (resolves near-instantly during navigation)
+          if (hasSplit) {
+            document.fonts.ready.then(buildEnterTimeline)
+          }
+          else {
+            buildEnterTimeline()
+          }
         })
       })
     })
