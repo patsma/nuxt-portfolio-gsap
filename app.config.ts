@@ -24,8 +24,8 @@ export default defineAppConfig({
    * - 'DM Sans' - Geometric, friendly
    */
   fonts: {
-    display: 'Instrument Serif',
-    body: 'IBM Plex Sans JP'
+    display: 'Fraunces',
+    body: 'Inter'
   },
 
   /**
