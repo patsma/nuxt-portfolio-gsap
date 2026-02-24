@@ -16,7 +16,7 @@ headline:
     variant: body
   - text: " explorations"
     variant: default
-  - text: " —"
+  - text: " -"
     variant: default
   - text: " always"
     variant: italic

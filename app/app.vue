@@ -47,5 +47,7 @@ onMounted(() => {
   </NuxtLayout>
 
   <!-- Smooth cursor trail effect (z-50, on top) - hidden on mobile (no cursor) -->
-  <CursorTrail v-if="!isMobile" />
+  <ClientOnly>
+    <CursorTrail v-if="!isMobile" />
+  </ClientOnly>
 </template>
