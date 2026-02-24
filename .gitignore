@@ -104,3 +104,4 @@ public/oldportfolio/*
 .env.sentry-build-plugin
 app/assets/css/post.css
 app/assets/css/pre.css tasks.todo
+app/assets/css/pre.css
