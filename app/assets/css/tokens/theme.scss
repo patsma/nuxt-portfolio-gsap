@@ -208,65 +208,58 @@
   --transition-hover-color: color var(--duration-hover) var(--ease-power2);
 }
 
-/* Figma Text-size styles using step tokens (no raw px) */
+/* Figma Text-size styles using step tokens (no raw px)
+   Semantic naming: display-* for headings, body-* for paragraphs */
 :root {
-  /* PP Eiko */
-  --p-p--eiko---mobile---h1: var(--step-4);
-  --p-p--eiko---mobile---h1-bold: var(--step-4);
-  --p-p--eiko---mobile---h1-italic: var(--step-4);
-  --p-p--eiko---mobile---h2: var(--step-3);
-  --p-p--eiko---mobile---h2-enlarged: var(--step-7);
-  --p-p--eiko---mobile---h2-enlarged-italic: var(--step-7);
-  --p-p--eiko---mobile---h3: var(--step-3);
-  --p-p--eiko---mobile---h3--italic: var(--step-3);
-  --p-p--eiko---mobile---h3-enlarged: var(--step-6);
-  --p-p--eiko---mobile---custom---navigation--menu-items: var(--step-2);
-  --p-p--eiko---laptop---h1: var(--step-8);
-  --p-p--eiko---laptop---h1-bold: var(--step-8);
-  --p-p--eiko---laptop---h1--italic: var(--step-8);
-  --p-p--eiko---laptop---h2: var(--step-4);
-  --p-p--eiko---laptop---h2-enlarged: var(--step-9);
-  --p-p--eiko---laptop---h2-enlarged-italic: var(--step-9);
-  --p-p--eiko---laptop---h3-enlarged: var(--step-10);
-  --p-p--eiko---desktop---h1: var(--step-9);
-  --p-p--eiko---desktop---h1-bold: var(--step-9);
-  --p-p--eiko---desktop---h1-italic: var(--step-9);
-  --p-p--eiko---desktop---h2: var(--step-5);
-  --p-p--eiko---desktop---h2-enlarged: var(--step-10);
-  --p-p--eiko---desktop---h2-enlarged-italic: var(--step-10);
-  --p-p--eiko---desktop---h3: var(--step-4);
-  --p-p--eiko---desktop---h3-italic: var(--step-4);
-  --p-p--eiko---desktop---h3-enlarged: var(--step-11);
-  --p-p--eiko---desktop---custom---navigation: var(--step-3);
-  --p-p--eiko---desktop-large---h2: var(--step-7);
+  /* Display font sizes (serif/display headings) */
+  --display-mobile-h1: var(--step-4);
+  --display-mobile-h1-bold: var(--step-4);
+  --display-mobile-h1-italic: var(--step-4);
+  --display-mobile-h2: var(--step-3);
+  --display-mobile-h2-enlarged: var(--step-7);
+  --display-mobile-h2-enlarged-italic: var(--step-7);
+  --display-mobile-h3: var(--step-3);
+  --display-mobile-h3-italic: var(--step-3);
+  --display-mobile-h3-enlarged: var(--step-6);
+  --display-mobile-custom-navigation-menu-items: var(--step-2);
+  --display-laptop-h1: var(--step-8);
+  --display-laptop-h1-bold: var(--step-8);
+  --display-laptop-h1-italic: var(--step-8);
+  --display-laptop-h2: var(--step-4);
+  --display-laptop-h2-enlarged: var(--step-9);
+  --display-laptop-h2-enlarged-italic: var(--step-9);
+  --display-laptop-h3-enlarged: var(--step-10);
+  --display-desktop-h1: var(--step-9);
+  --display-desktop-h1-bold: var(--step-9);
+  --display-desktop-h1-italic: var(--step-9);
+  --display-desktop-h2: var(--step-5);
+  --display-desktop-h2-enlarged: var(--step-10);
+  --display-desktop-h2-enlarged-italic: var(--step-10);
+  --display-desktop-h3: var(--step-4);
+  --display-desktop-h3-italic: var(--step-4);
+  --display-desktop-h3-enlarged: var(--step-11);
+  --display-desktop-custom-navigation: var(--step-3);
+  --display-desktop-large-h2: var(--step-7);
 
-  /* IBM Plex Sans JP */
-  --i-b-m--plex--sans--j-p---mobile---h1: var(--step-4);
-  --i-b-m--plex--sans--j-p---mobile---h2-enlarged: var(--step-7);
-  --i-b-m--plex--sans--j-p---mobile---caption: var(--step-2);
-  --i-b-m--plex--sans--j-p---mobile---p2: var(--step-3);
-  --i-b-m--plex--sans--j-p---mobile---p1: var(--step-2);
-  --i-b-m--plex--sans--j-p---mobile---button: var(--step-2);
-  --i-b-m--plex--sans--j-p---mobile---custom---labels: var(--step-0);
-  --i-b-m--plex--sans--j-p---mobile---custom---navigation--caption: var(
-    --step-1
-  );
-  --i-b-m--plex--sans--j-p---mobile---custom---navigation--subcaption: var(
-    --step-0
-  );
-  --i-b-m--plex--sans--j-p---laptop---h1: var(--step-8);
-  --i-b-m--plex--sans--j-p---laptop---h2-enlarged: var(--step-9);
-  --i-b-m--plex--sans--j-p---laptop---p2: var(--step-4);
-  --i-b-m--plex--sans--j-p---desktop---h1: var(--step-9);
-  --i-b-m--plex--sans--j-p---desktop---h2-enlarged: var(--step-10);
-  --i-b-m--plex--sans--j-p---desktop---caption: var(--step-3);
-  --i-b-m--plex--sans--j-p---desktop---p2: var(--step-6);
-  --i-b-m--plex--sans--j-p---desktop---p1: var(--step-2);
-  --i-b-m--plex--sans--j-p---desktop---custom---labels: var(--step-1);
-  --i-b-m--plex--sans--j-p---desktop---custom---navigation--caption: var(
-    --step-2
-  );
-  --i-b-m--plex--sans--j-p---desktop---custom---navigation--subcaption: var(
-    --step-1
-  );
+  /* Body font sizes (sans-serif paragraphs/UI) */
+  --body-mobile-h1: var(--step-4);
+  --body-mobile-h2-enlarged: var(--step-7);
+  --body-mobile-caption: var(--step-2);
+  --body-mobile-p2: var(--step-3);
+  --body-mobile-p1: var(--step-2);
+  --body-mobile-button: var(--step-2);
+  --body-mobile-custom-labels: var(--step-0);
+  --body-mobile-custom-navigation-caption: var(--step-1);
+  --body-mobile-custom-navigation-subcaption: var(--step-0);
+  --body-laptop-h1: var(--step-8);
+  --body-laptop-h2-enlarged: var(--step-9);
+  --body-laptop-p2: var(--step-4);
+  --body-desktop-h1: var(--step-9);
+  --body-desktop-h2-enlarged: var(--step-10);
+  --body-desktop-caption: var(--step-3);
+  --body-desktop-p2: var(--step-6);
+  --body-desktop-p1: var(--step-2);
+  --body-desktop-custom-labels: var(--step-1);
+  --body-desktop-custom-navigation-caption: var(--step-2);
+  --body-desktop-custom-navigation-subcaption: var(--step-1);
 }

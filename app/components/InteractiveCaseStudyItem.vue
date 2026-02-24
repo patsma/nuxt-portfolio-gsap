@@ -25,12 +25,12 @@
       <div class="item-content breakout3">
         <!-- Left: Title + Tag -->
         <div class="item-title-col">
-          <h2 class="item-title pp-eiko-desktop-h2">
+          <h2 class="item-title display-desktop-h2">
             {{ title }}
           </h2>
           <span
             v-if="tag"
-            class="item-tag ibm-plex-sans-jp-desktop-custom-labels"
+            class="item-tag body-desktop-custom-labels"
           >
             {{ tag }}
           </span>
@@ -38,7 +38,7 @@
 
         <!-- Right: Description -->
         <div class="item-description-col">
-          <p class="item-description ibm-plex-sans-jp-desktop-p1">
+          <p class="item-description body-desktop-p1">
             {{ description }}
           </p>
         </div>
@@ -61,17 +61,17 @@
     </div>
     <div class="card-content">
       <div class="card-header">
-        <h2 class="card-title pp-eiko-mobile-h2">
+        <h2 class="card-title display-mobile-h2">
           {{ title }}
         </h2>
         <span
           v-if="tag"
-          class="card-tag ibm-plex-sans-jp-mobile-custom-labels"
+          class="card-tag body-mobile-custom-labels"
         >
           {{ tag }}
         </span>
       </div>
-      <p class="card-description ibm-plex-sans-jp-mobile-p1">
+      <p class="card-description body-mobile-p1">
         {{ description }}
       </p>
     </div>

@@ -11,7 +11,7 @@
       <h2
         ref="labelRef"
         v-page-split:lines="{ leaveOnly: true }"
-        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
+        class="body-mobile-caption text-[var(--theme-text-40)]"
       >
         <slot name="label">
           Clients
@@ -28,7 +28,7 @@
         <!-- Primary clients list (larger text) -->
         <div
           ref="primaryRef"
-          class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-100)]"
+          class="display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-100)]"
         >
           <slot name="primary-clients" />
         </div>
@@ -36,7 +36,7 @@
         <!-- Secondary clients list (smaller text) -->
         <div
           ref="secondaryRef"
-          class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+          class="body-mobile-p1 md:body-laptop-p1 2xl:body-desktop-p1 text-[var(--theme-text-60)]"
         >
           <slot name="secondary-clients" />
         </div>

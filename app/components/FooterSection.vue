@@ -40,11 +40,11 @@
           >
             <a
               href="mailto:contact@mschristensen.com"
-              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+              class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
               <slot name="email">contact@mschristensen.com</slot>
             </a>
-            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+            <p class="body-mobile-p1 text-[var(--theme-text-40)]">
               <slot name="email-desc">
                 Got a project or something else?
               </slot>
@@ -64,11 +64,11 @@
               href="https://www.linkedin.com/in/mortengust/"
               target="_blank"
               rel="noopener noreferrer"
-              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+              class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
               <slot name="linkedin">LinkedIn</slot>
             </a>
-            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+            <p class="body-mobile-p1 text-[var(--theme-text-40)]">
               <slot name="linkedin-desc">
                 Let's connect? Also, my online resumé
               </slot>
@@ -88,11 +88,11 @@
               href="https://www.behance.net/mschristensen"
               target="_blank"
               rel="noopener noreferrer"
-              class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+              class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
               <slot name="behance">Behance</slot>
             </a>
-            <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+            <p class="body-mobile-p1 text-[var(--theme-text-40)]">
               <slot name="behance-desc">
                 My latest projects
               </slot>
@@ -107,7 +107,7 @@
       <FullWidthBorder :opacity="15" />
       <div class="socket-wrapper content-grid w-full">
         <div
-          class="socket breakout3 py-[var(--space-s)] flex flex-col gap-[var(--space-s)] lg:flex-row lg:items-center lg:justify-between ibm-plex-sans-jp-mobile-custom-labels uppercase text-[var(--theme-text-30)]"
+          class="socket breakout3 py-[var(--space-s)] flex flex-col gap-[var(--space-s)] lg:flex-row lg:items-center lg:justify-between body-mobile-custom-labels uppercase text-[var(--theme-text-30)]"
         >
           <!-- Copyright + Cookie Policy (left/top) -->
           <div class="copyright-policy flex gap-[var(--space-m)] items-center flex-wrap">

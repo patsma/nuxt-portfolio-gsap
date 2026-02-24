@@ -11,7 +11,7 @@
       <h2
         ref="labelRef"
         v-page-split:lines="{ leaveOnly: true }"
-        class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
+        class="body-mobile-caption text-[var(--theme-text-40)]"
       >
         <slot name="label">
           Awards &<br>Recognition
@@ -28,7 +28,7 @@
         <div
           ref="contentLeftRef"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
-          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
+          class="space-y-[var(--space-m)] body-mobile-p1 md:body-laptop-p1 2xl:body-desktop-p1 text-[var(--theme-text-100)]"
         >
           <slot name="awards-column" />
         </div>
@@ -37,7 +37,7 @@
         <div
           ref="contentRightRef"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
-          class="space-y-[var(--space-m)] ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)]"
+          class="space-y-[var(--space-m)] body-mobile-p1 md:body-laptop-p1 2xl:body-desktop-p1 text-[var(--theme-text-100)]"
         >
           <slot name="featured-column" />
         </div>

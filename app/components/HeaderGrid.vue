@@ -44,11 +44,11 @@
             >
               <div class="flex flex-col">
                 <span
-                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                  class="body-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
                 >{{ appConfig.identity?.name || 'Your Name' }}</span>
                 <span
                   ref="titleElementRef"
-                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
+                  class="body-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
                 >{{ titleStore.currentText }}</span>
               </div>
             </NuxtLink>
@@ -59,14 +59,14 @@
             >
               <NuxtLink
                 to="/"
-                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
                 :data-active="isActive('/')"
               >
                 Work
               </NuxtLink>
               <NuxtLink
                 to="/about"
-                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
                 :data-active="isActive('/about')"
               >
                 About
@@ -84,14 +84,14 @@
               </ClientOnly>
               <NuxtLink
                 to="/lab"
-                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
                 :data-active="isActive('/lab')"
               >
                 Lab
               </NuxtLink>
               <NuxtLink
                 to="/contact"
-                class="pp-eiko-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
+                class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
                 :data-active="isActive('/contact')"
               >
                 Contact
@@ -103,11 +103,11 @@
               <div class="hidden md:flex flex-col items-end">
                 <span
                   v-if="appConfig.identity?.location"
-                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
+                  class="body-mobile-custom-navigation-caption text-[var(--theme-text-100)]"
                 >{{ appConfig.identity.location }}</span>
                 <span
                   v-if="isClient && timeEnabled"
-                  class="ibm-plex-sans-jp-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
+                  class="body-mobile-custom-navigation-caption text-[var(--theme-text-60)]"
                 >{{ localTime }}</span>
               </div>
               <!-- Mobile: Theme toggle -->
@@ -139,7 +139,7 @@
               v-for="item in items"
               :key="'m-' + item.href"
               :to="item.href"
-              class="block pp-eiko-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
+              class="block display-mobile-custom-navigation-menu-items !text-7xl leading-tight nav-link text-[var(--theme-text-100)]"
               :data-active="isActive(item.href)"
               @click.prevent="handleMobileNavClick(item.href)"
             >

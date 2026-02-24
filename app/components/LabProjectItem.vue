@@ -24,7 +24,7 @@
           class="marquee-track"
         >
           <!-- Unit 1: Title (italic) → Thumbnail Image -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ shortTitle }}
           </span>
           <img
@@ -35,7 +35,7 @@
           >
 
           <!-- Unit 2: Title (italic) → Thumbnail Image (duplicate) -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ shortTitle }}
           </span>
           <img
@@ -46,7 +46,7 @@
           >
 
           <!-- Unit 3: Title (italic) → Thumbnail Image (duplicate) -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ shortTitle }}
           </span>
           <img
@@ -67,7 +67,7 @@
     >
       <div class="expanded-inner py-[var(--space-l)] flex flex-col gap-[var(--space-l)]">
         <!-- Title (big, full width) -->
-        <h3 class="pp-eiko-mobile-h1 md:pp-eiko-laptop-h1 2xl:pp-eiko-desktop-h1 text-[var(--theme-text-100)]">
+        <h3 class="display-mobile-h1 md:display-laptop-h1 2xl:display-desktop-h1 text-[var(--theme-text-100)]">
           {{ fullTitle }}
         </h3>
 
@@ -99,7 +99,7 @@
         <!-- Description + Arrow row -->
         <div class="grid grid-cols-[1fr_auto] md:grid-cols-[10fr_1fr] gap-[var(--space-xl)] md:gap-[var(--space-2xl)] items-start">
           <!-- Left: Description -->
-          <p class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed">
+          <p class="body-mobile-p1 md:body-laptop-p2 text-[var(--theme-text-60)] leading-relaxed">
             {{ description }}
           </p>
 
@@ -429,7 +429,7 @@ onUnmounted(() => {
 /**
  * Marquee text (project title)
  * PP Eiko Italic Thin typography from Figma
- * Typography handled by utility classes (pp-eiko-*-h2-enlarged)
+ * Typography handled by utility classes (display-*-h2-enlarged)
  */
 .marquee-text {
   display: inline-block;

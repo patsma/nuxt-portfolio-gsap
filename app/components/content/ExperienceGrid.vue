@@ -42,7 +42,7 @@
         <!-- Mobile/Tablet: Centered -->
         <button
           type="button"
-          class="lg:hidden block w-full ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-100)] font-medium text-center hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
+          class="lg:hidden block w-full body-mobile-p1 text-[var(--theme-text-100)] font-medium text-center hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
           @click="toggleExpanded"
         >
           {{ isExpanded ? showLessText : showMoreText }}
@@ -51,7 +51,7 @@
         <!-- Desktop: Aligned with items -->
         <button
           type="button"
-          class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-100)] font-medium hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
+          class="hidden lg:block body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-100)] font-medium hover:opacity-60 transition-opacity duration-[var(--duration-hover)]"
           @click="toggleExpanded"
         >
           {{ isExpanded ? showLessText : showMoreText }}

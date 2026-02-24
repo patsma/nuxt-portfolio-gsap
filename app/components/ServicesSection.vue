@@ -14,7 +14,7 @@
       <h2
         ref="labelRef"
         v-page-split:lines="{ leaveOnly: true }"
-        class="ibm-plex-sans-jp-mobile-caption 2xl:ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-40)]"
+        class="body-mobile-caption 2xl:body-desktop-caption text-[var(--theme-text-40)]"
       >
         <slot name="label">
           Services
@@ -33,7 +33,7 @@
         <div
           ref="contentLeftRef"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
-          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
+          class="space-y-[var(--space-m)] display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]"
         >
           <slot name="column-left" />
         </div>
@@ -42,7 +42,7 @@
         <div
           ref="contentRightRef"
           v-page-stagger="{ stagger: 0.08, leaveOnly: true }"
-          class="space-y-[var(--space-m)] pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]"
+          class="space-y-[var(--space-m)] display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]"
         >
           <slot name="column-right" />
         </div>

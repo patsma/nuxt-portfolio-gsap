@@ -7,7 +7,7 @@
     <h2
       ref="labelRef"
       v-page-split:lines="{ leaveOnly: true }"
-      class="breakout3 ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] mb-[var(--space-m)] md:mb-[var(--space-l)]"
+      class="breakout3 body-mobile-caption text-[var(--theme-text-40)] mb-[var(--space-m)] md:mb-[var(--space-l)]"
     >
       <slot name="label">
         Recommendations

@@ -302,7 +302,7 @@ onUnmounted(() => {
       <div class="breakout3 py-[var(--space-2xl)]">
         <div class="flex items-center gap-[var(--space-m)]">
           <div class="loading-spinner" />
-          <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-40)]">
+          <p class="body-mobile-p1 text-[var(--theme-text-40)]">
             Loading project...
           </p>
         </div>
@@ -320,10 +320,10 @@ onUnmounted(() => {
           role="status"
           aria-live="polite"
         >
-          <h1 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] mb-[var(--space-m)]">
+          <h1 class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] mb-[var(--space-m)]">
             Project Not Found
           </h1>
-          <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)] mb-[var(--space-l)]">
+          <p class="body-mobile-p1 text-[var(--theme-text-60)] mb-[var(--space-l)]">
             This lab project seems to have vanished. Perhaps it's still being experimented on.
           </p>
           <NuxtLink
@@ -424,7 +424,7 @@ onUnmounted(() => {
           >
             <!-- Column 1: Label (only visible on first row) -->
             <p
-              class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]"
+              class="body-mobile-caption text-[var(--theme-text-40)]"
               :class="{ 'md:invisible': index > 0 }"
             >
               Lab projects
@@ -435,7 +435,7 @@ onUnmounted(() => {
               :href="entry.link || '#'"
               :target="entry.link ? '_blank' : undefined"
               :rel="entry.link ? 'noopener' : undefined"
-              class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-100)] transition-colors cursor-pointer"
+              class="body-mobile-caption text-[var(--theme-text-40)] hover:text-[var(--theme-text-100)] transition-colors cursor-pointer"
               :class="{ 'underline underline-offset-4': entry.link }"
             >
               {{ entry.type || project.category || 'Template' }}
@@ -443,13 +443,13 @@ onUnmounted(() => {
 
             <!-- Column 3: Title + Description -->
             <div class="flex flex-col gap-[var(--space-m)]">
-              <h2 class="pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 text-[var(--theme-text-100)] leading-none md:-mt-[0.15em]">
+              <h2 class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] leading-none md:-mt-[0.15em]">
                 {{ entry.title }}
               </h2>
 
               <p
                 v-if="entry.description"
-                class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
+                class="body-mobile-p1 md:body-laptop-p2 text-[var(--theme-text-60)] leading-relaxed"
               >
                 {{ entry.description }}
               </p>
@@ -473,8 +473,8 @@ onUnmounted(() => {
               class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
             >
               <span class="text-xl">&larr;</span>
-              <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Prev</span>
-              <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ prevProject.title }}</span>
+              <span class="body-mobile-p1 md:hidden">Prev</span>
+              <span class="body-mobile-p1 hidden md:inline">{{ prevProject.title }}</span>
             </NuxtLink>
             <div v-else />
 
@@ -484,8 +484,8 @@ onUnmounted(() => {
               :to="nextProject.path"
               class="group flex items-center gap-[var(--space-s)] text-[var(--theme-text-60)] hover:text-[var(--theme-text-100)] transition-colors"
             >
-              <span class="ibm-plex-sans-jp-mobile-p1 md:hidden">Next</span>
-              <span class="ibm-plex-sans-jp-mobile-p1 hidden md:inline">{{ nextProject.title }}</span>
+              <span class="body-mobile-p1 md:hidden">Next</span>
+              <span class="body-mobile-p1 hidden md:inline">{{ nextProject.title }}</span>
               <span class="text-xl">&rarr;</span>
             </NuxtLink>
           </div>

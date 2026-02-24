@@ -3,7 +3,7 @@
     <div class="col-span-12 col-start-1 col-end-13 grid grid-flow-col grid-cols-12 gap-4 md:gap-0">
       <!-- Left label column (cols 2-4) -->
       <div
-        class="ibm-plex-sans-jp-desktop-caption text-[var(--theme-text-60)] col-start-2 col-end-12 grid text-base leading-[150%] md:col-start-2 md:col-end-4"
+        class="body-desktop-caption text-[var(--theme-text-60)] col-start-2 col-end-12 grid text-base leading-[150%] md:col-start-2 md:col-end-4"
       >
         Services
       </div>
@@ -17,7 +17,7 @@
           <div
             v-for="service in servicesColumn1"
             :key="service"
-            class="pp-eiko-desktop-h2 text-[var(--theme-text-100)] grid"
+            class="display-desktop-h2 text-[var(--theme-text-100)] grid"
           >
             {{ service }}
           </div>
@@ -28,7 +28,7 @@
           <div
             v-for="service in servicesColumn2"
             :key="service"
-            class="pp-eiko-desktop-h2 text-[var(--theme-text-100)] grid"
+            class="display-desktop-h2 text-[var(--theme-text-100)] grid"
           >
             {{ service }}
           </div>

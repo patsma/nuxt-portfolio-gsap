@@ -9,35 +9,35 @@
       class="marquee-track"
     >
       <!-- Unit 1: Japanese → Danish → English -->
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
 
       <!-- Unit 2: Japanese → Danish → English (duplicate for seamless loop) -->
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
 
       <!-- Unit 3: Japanese → Danish → English (duplicate for seamless loop) -->
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         お問い合わせ
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Kontakt mig
       </span>
-      <span class="marquee-text pp-eiko-mobile-h2 md:pp-eiko-laptop-h2 2xl:pp-eiko-desktop-h2 text-[var(--theme-text-60)]">
+      <span class="marquee-text display-mobile-h2 md:display-laptop-h2 2xl:display-desktop-h2 text-[var(--theme-text-60)]">
         Get in touch
       </span>
     </div>
@@ -190,7 +190,7 @@ onUnmounted(() => {
 /**
  * Marquee text (multilingual "Get in touch")
  * PP Eiko typography from Figma with responsive sizing
- * Typography handled by utility classes (pp-eiko-*-h2)
+ * Typography handled by utility classes (display-*-h2)
  */
 .marquee-text {
   display: inline-block;

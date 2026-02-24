@@ -24,7 +24,7 @@
           class="marquee-track"
         >
           <!-- Unit 1: Quote → Image → Name -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ quote }}
           </span>
           <img
@@ -34,11 +34,11 @@
             class="marquee-image"
           >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>
 
           <!-- Unit 2: Quote → Image → Name (duplicate) -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ quote }}
           </span>
           <img
@@ -48,11 +48,11 @@
             class="marquee-image"
           >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>
 
           <!-- Unit 3: Quote → Image → Name (duplicate) -->
-          <span class="marquee-text italic pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged text-[var(--theme-text-60)]">
+          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
             {{ quote }}
           </span>
           <img
@@ -62,7 +62,7 @@
             class="marquee-image"
           >
           <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name ibm-plex-sans-jp-mobile-h2-enlarged md:ibm-plex-sans-jp-laptop-h2-enlarged 2xl:ibm-plex-sans-jp-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name pp-eiko-mobile-h2-enlarged md:pp-eiko-laptop-h2-enlarged 2xl:pp-eiko-desktop-h2-enlarged">{{ authorLastName }}</span>
+            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
           </span>
         </div>
       </div>
@@ -76,12 +76,12 @@
     >
       <div class="expanded-inner py-[var(--space-l)] grid gap-[var(--space-m)] lg:grid-cols-[minmax(auto,12rem)_1fr] lg:gap-[var(--space-3xl)] items-start">
         <!-- Left column: Author title (matches BiographySection label pattern) -->
-        <p class="ibm-plex-sans-jp-mobile-caption text-[var(--theme-text-40)]">
+        <p class="body-mobile-caption text-[var(--theme-text-40)]">
           {{ authorTitle }}
         </p>
 
         <!-- Right column: Full recommendation text (ready for future markdown support) -->
-        <div class="ibm-plex-sans-jp-mobile-p1 md:ibm-plex-sans-jp-laptop-p2 text-[var(--theme-text-100)] leading-relaxed space-y-[var(--space-m)]">
+        <div class="body-mobile-p1 md:body-laptop-p2 text-[var(--theme-text-100)] leading-relaxed space-y-[var(--space-m)]">
           <p>{{ fullRecommendation }}</p>
         </div>
       </div>
@@ -395,7 +395,7 @@ onUnmounted(() => {
 /**
  * Marquee text (quote)
  * PP Eiko Italic Thin typography from Figma
- * Typography handled by utility classes (pp-eiko-*-h2-enlarged)
+ * Typography handled by utility classes (display-*-h2-enlarged)
  */
 .marquee-text {
   display: inline-block;

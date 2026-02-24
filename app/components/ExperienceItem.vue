@@ -12,24 +12,24 @@
       <!-- Mobile/Tablet: 2-column layout (hidden on desktop) -->
       <div class="grid grid-cols-2 gap-[var(--space-xs)] lg:hidden items-start">
         <!-- Left: Date Range -->
-        <p class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)]">
+        <p class="body-mobile-p1 text-[var(--theme-text-60)]">
           {{ dateRange }}
         </p>
 
         <!-- Right: Title, Company, Location stacked -->
         <div class="flex flex-col items-end text-right">
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
+            class="body-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
           >
             {{ title }}
           </p>
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
+            class="body-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
           >
             {{ company }}
           </p>
           <p
-            class="ibm-plex-sans-jp-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
+            class="body-mobile-p1 text-[var(--theme-text-60)] whitespace-nowrap"
           >
             {{ location }}
           </p>
@@ -39,28 +39,28 @@
       <!-- Desktop/Laptop: 4-column grid items -->
       <!-- Date Range -->
       <p
-        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+        class="hidden lg:block body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-60)]"
       >
         {{ dateRange }}
       </p>
 
       <!-- Job Title -->
       <p
-        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+        class="hidden lg:block body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-60)]"
       >
         {{ title }}
       </p>
 
       <!-- Company Name -->
       <p
-        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)]"
+        class="hidden lg:block body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-60)]"
       >
         {{ company }}
       </p>
 
       <!-- Location (right-aligned) -->
       <p
-        class="hidden lg:block ibm-plex-sans-jp-mobile-p1 2xl:ibm-plex-sans-jp-desktop-p1 text-[var(--theme-text-60)] text-right whitespace-nowrap"
+        class="hidden lg:block body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-60)] text-right whitespace-nowrap"
       >
         {{ location }}
       </p>
