@@ -39,7 +39,7 @@
           ref="servicesRef"
         >
           <nav
-            class="services-list pt-10 md:pt-0"
+            class="services-list pt-10"
             aria-label="Services"
           >
             <div
