@@ -41,20 +41,64 @@ export default defineNuxtConfig({
               pointer-events: none;
             }
 
-            /* Gradient loader - light theme */
+            /* Primary layer - breathing pulse (light theme) */
             .app-loader-gradient {
               position: fixed;
               inset: 0;
               width: 100vw;
               height: 100vh;
               background-image: radial-gradient(
-                circle,
-                rgba(255, 200, 196, 0.6),
-                rgba(255, 250, 245, 0.3),
-                rgba(255, 250, 245, 0.1)
+                circle at 50% 50%,
+                rgba(255, 200, 196, 0.5),
+                rgba(255, 250, 245, 0.2),
+                transparent 70%
               );
-              animation: app-gradient-pulse 2s infinite linear;
-              transform: scale(1);
+              animation: loader-breathe 2.5s ease-in-out infinite;
+            }
+
+            /* Layer 2 - slower offset drift */
+            .app-loader-gradient::before {
+              content: '';
+              position: absolute;
+              inset: -20%;
+              background-image: radial-gradient(
+                circle at 30% 70%,
+                rgba(255, 210, 200, 0.3),
+                transparent 60%
+              );
+              animation: loader-drift 3.7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+              animation-delay: -1.2s;
+            }
+
+            /* Layer 3 - ambient slow glow */
+            .app-loader-gradient::after {
+              content: '';
+              position: absolute;
+              inset: -10%;
+              background-image: radial-gradient(
+                circle at 70% 30%,
+                rgba(255, 190, 185, 0.25),
+                transparent 50%
+              );
+              animation: loader-ambient 5.3s ease-in-out infinite;
+              animation-delay: -2.1s;
+            }
+
+            /* Keyframes - opacity-based, smooth */
+            @keyframes loader-breathe {
+              0%, 100% { opacity: 0.7; transform: scale(1); }
+              50% { opacity: 1; transform: scale(1.15); }
+            }
+
+            @keyframes loader-drift {
+              0%, 100% { opacity: 0.4; transform: translate(0, 0); }
+              33% { opacity: 0.7; transform: translate(5%, -3%); }
+              66% { opacity: 0.5; transform: translate(-3%, 5%); }
+            }
+
+            @keyframes loader-ambient {
+              0%, 100% { opacity: 0.3; }
+              50% { opacity: 0.6; }
             }
 
             /* Dark theme overrides - class-based only */
@@ -66,17 +110,27 @@ export default defineNuxtConfig({
 
             .theme-dark .app-loader-gradient {
               background-image: radial-gradient(
-                circle,
-                rgba(45, 28, 70, 0.4),
+                circle at 50% 50%,
+                rgba(45, 28, 70, 0.5),
                 rgba(28, 45, 80, 0.2),
-                rgba(9, 9, 37, 0.05)
+                transparent 70%
               );
             }
 
-            @keyframes app-gradient-pulse {
-              0% { transform: scale(1.8); }
-              50% { transform: scale(1); }
-              100% { transform: scale(1.8); }
+            .theme-dark .app-loader-gradient::before {
+              background-image: radial-gradient(
+                circle at 30% 70%,
+                rgba(60, 35, 90, 0.3),
+                transparent 60%
+              );
+            }
+
+            .theme-dark .app-loader-gradient::after {
+              background-image: radial-gradient(
+                circle at 70% 30%,
+                rgba(35, 55, 95, 0.25),
+                transparent 50%
+              );
             }
 
             /* Hide main content initially to prevent flash */
