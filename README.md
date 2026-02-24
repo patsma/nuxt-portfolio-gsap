@@ -1,4 +1,4 @@
-# Morten 2025
+# Nuxt Portfolio GSAP
 
 **Personal portfolio with buttery smooth animations**
 
@@ -30,14 +30,14 @@ What makes it technically interesting: SSR-compatible animations with zero FOUC,
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Nuxt 4 (Vue 3) |
-| Language | TypeScript (strict, no `any`) |
+| Category  | Technology                                                   |
+| --------- | ------------------------------------------------------------ |
+| Framework | Nuxt 4 (Vue 3)                                               |
+| Language  | TypeScript (strict, no `any`, mostly)                        |
 | Animation | GSAP with Club plugins (ScrollSmoother, SplitText, MorphSVG) |
-| 3D/WebGL | TresJS with custom shaders |
-| Styling | TailwindCSS v4 + SCSS |
-| State | Pinia |
+| 3D/WebGL  | TresJS with custom shaders                                   |
+| Styling   | TailwindCSS v4 + SCSS                                        |
+| State     | Pinia                                                        |
 
 ## Quick Start
 
@@ -78,14 +78,14 @@ app/
 
 Detailed system documentation lives in `.claude/`:
 
-| Document | Description |
-|----------|-------------|
-| [LOADING_SYSTEM.md](.claude/LOADING_SYSTEM.md) | Theme-aware loader & entrance animations |
-| [THEME_SYSTEM.md](.claude/THEME_SYSTEM.md) | Dark/light switching with GSAP |
-| [PAGE_TRANSITIONS.md](.claude/PAGE_TRANSITIONS.md) | Directive-based transition system |
-| [SCROLL_SYSTEM.md](.claude/SCROLL_SYSTEM.md) | ScrollSmoother & headroom integration |
-| [COMPONENT_PATTERNS.md](.claude/COMPONENT_PATTERNS.md) | Reusable section patterns |
-| [FLUID_GRADIENT.md](.claude/FLUID_GRADIENT.md) | WebGL background system |
+| Document                                               | Description                              |
+| ------------------------------------------------------ | ---------------------------------------- |
+| [LOADING_SYSTEM.md](.claude/LOADING_SYSTEM.md)         | Theme-aware loader & entrance animations |
+| [THEME_SYSTEM.md](.claude/THEME_SYSTEM.md)             | Dark/light switching with GSAP           |
+| [PAGE_TRANSITIONS.md](.claude/PAGE_TRANSITIONS.md)     | Directive-based transition system        |
+| [SCROLL_SYSTEM.md](.claude/SCROLL_SYSTEM.md)           | ScrollSmoother & headroom integration    |
+| [COMPONENT_PATTERNS.md](.claude/COMPONENT_PATTERNS.md) | Reusable section patterns                |
+| [FLUID_GRADIENT.md](.claude/FLUID_GRADIENT.md)         | WebGL background system                  |
 
 ## Performance
 

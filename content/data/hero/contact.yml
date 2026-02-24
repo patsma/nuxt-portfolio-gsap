@@ -2,23 +2,15 @@ id: contact
 showServices: false
 showScrollButton: true
 headline:
-  - text: "Feel"
+  - text: "Got an"
     variant: default
-  - text: " free"
+  - text: " idea?"
     variant: italic
-  - text: " to reach out if you want to"
+  - text: " Let's turn it into something"
     variant: default
-  - text: " collaborate"
-    variant: italic
-  - text: ","
+  - text: " real"
+    variant: emphasis
+  - text: " – drop me a line and let's start a"
     variant: default
-  - text: " hire"
+  - text: " conversation"
     variant: italic
-  - text: ", or simply"
-    variant: default
-  - text: " have a"
-    variant: italic
-  - text: " chat"
-    variant: italic
-  - text: " with me"
-    variant: default
