@@ -191,6 +191,29 @@ html.is-first-load [data-entrance-animate="true"] {
 2. First load: Class exists → CSS hides elements → Animations play → Class removed
 3. Navigation: No class → CSS doesn't apply → Page transitions handle visibility
 
+## Critical Warnings (Don't Do This)
+
+### ❌ Don't Wrap Animated Components in ClientOnly
+
+**Never use `<ClientOnly>` on components with `data-entrance-animate="true"`:**
+
+```vue
+<!-- ❌ BAD - Component mounts too late, misses animation sequence -->
+<ClientOnly>
+  <CursorTrail v-if="!isMobile" />
+</ClientOnly>
+
+<!-- ✅ GOOD - Use v-if or import.meta.client guards instead -->
+<CursorTrail v-if="!isMobile" />
+```
+
+**Why:** `<ClientOnly>` delays component mounting until after hydration. By then, the entrance animation coordinator has already started collecting and playing animations. The component misses its slot in the sequence.
+
+**Alternatives for SSR safety:**
+- `v-if="someClientOnlyCondition"` - Component still mounts at correct time
+- `if (!import.meta.client) return` guards inside component
+- Canvas/WebGL elements are inert during SSR anyway
+
 ## Configuration
 
 ### Timing Options

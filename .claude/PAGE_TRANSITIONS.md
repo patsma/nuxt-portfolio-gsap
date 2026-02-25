@@ -468,10 +468,33 @@ Complete example showing:
 - ScrollTrigger setup for links
 - Proper cleanup in `onUnmounted()`
 
+## Critical Warnings (Don't Do This)
+
+### ❌ Don't Make Timeline Building Async
+
+**Never wrap timeline building in promises or async callbacks:**
+
+```javascript
+// ❌ BAD - Breaks transition done() callback timing
+const buildTimeline = () => { /* ... done() inside ... */ }
+if (hasSplit) {
+  document.fonts.ready.then(buildTimeline)  // BROKEN!
+}
+
+// ✅ GOOD - Keep synchronous
+const tl = $gsap.timeline({ onComplete: done })
+elements.forEach((el) => { /* add to timeline */ })
+```
+
+**Why:** The `done()` callback must fire synchronously within the transition lifecycle. Async wrappers cause the transition to never complete.
+
+**If you need font loading:** Handle it in the loading sequence (`useLoadingSequence.ts`), not in page transitions.
+
 ## Troubleshooting
 
 | Issue | Cause | Fix |
 |-------|-------|-----|
+| Page stuck, transitions don't complete | Async `document.fonts.ready.then()` in timeline building | Keep timeline building synchronous - never wrap in promises |
 | Animations not running | Directives not registered | Check `plugins/page-transitions.js` loads |
 | Elements jump during transition | ScrollSmoother not refreshed | Verify `refreshSmoother()` in enter() |
 | Scroll jump visible | Auto-scroll before animations | Set `scrollBehavior() { return false }` in router.options.ts |
