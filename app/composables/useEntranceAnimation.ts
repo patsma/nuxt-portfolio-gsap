@@ -170,7 +170,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
           masterTimeline!.add(animation, position)
         }
       }
-      catch (error) {
+      catch {
         // console.error('❌ Error creating entrance animation:', error)
       }
     })
@@ -240,7 +240,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
         try {
           animate(element)
         }
-        catch (error) {
+        catch {
           // console.error('❌ Error running immediate animation:', error)
         }
       }
@@ -277,7 +277,7 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
         once: true // Only animate once
       })
     }
-    catch (error) {
+    catch {
       // console.error('❌ Error setting up ScrollTrigger fallback:', error)
     }
   }

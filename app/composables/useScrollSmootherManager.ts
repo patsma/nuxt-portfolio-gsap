@@ -122,7 +122,7 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
       // console.log('✅ ScrollSmoother created successfully')
       // console.log('Instance:', smootherInstance)
     }
-    catch (error) {
+    catch {
       // console.error('❌ Failed to create ScrollSmoother:', error)
       smootherEnabled = false
       return null

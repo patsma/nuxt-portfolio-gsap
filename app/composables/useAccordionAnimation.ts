@@ -67,7 +67,7 @@ export const useAccordionAnimation = (options: AccordionAnimationOptions): void 
     itemRef,
     isExpanded,
     onRefreshComplete,
-    componentName = 'Accordion'
+    _componentName = 'Accordion'
   } = options
 
   const nuxtApp = useNuxtApp()

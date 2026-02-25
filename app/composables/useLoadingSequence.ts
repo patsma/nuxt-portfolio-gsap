@@ -121,7 +121,7 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
         await document.fonts.ready
         loadingStore.setFontsReady()
       }
-      catch (error) {
+      catch {
         // console.warn('⚠️ Font loading check failed:', error)
         loadingStore.setFontsReady() // Mark as ready anyway
       }
