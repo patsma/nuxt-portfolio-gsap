@@ -231,6 +231,12 @@ const expandedContentRef = ref<HTMLElement | null>(null)
 // Marquee animation instances
 let marqueeAnimation = null
 let scrollTriggerInstance = null
+let marqueeInitTimer: ReturnType<typeof setTimeout> | null = null
+let retryCount = 0
+const MAX_RETRIES = 3
+// Delay (ms) to let the page-enter transition finish before measuring layout.
+// Default page enter duration is 0.6s — 700ms gives it a safe margin.
+const MARQUEE_INIT_DELAY = 700
 
 // Computed property to check if this item is currently expanded
 const isExpanded = computed(() => activeItemId?.value === props.id)
@@ -251,64 +257,95 @@ const toggle = (event: Event | undefined) => {
 }
 
 /**
- * Setup marquee animation with ScrollTrigger control
- * Uses horizontalLoop helper for seamless infinite scrolling
- * Alternating directions: even index (0,2,4) left-to-right, odd index (1,3,5) right-to-left
+ * Setup marquee animation with ScrollTrigger control.
+ * Extracted to a named function so it can retry if layout measurements are invalid.
+ *
+ * On navigation, the CSS fade-in transition may still be running when this fires.
+ * If items share the same offsetLeft (inline-flex hasn't been computed yet), the
+ * horizontal loop gets degenerate xPercent values and items stack instead of looping.
+ *
+ * Retry strategy: up to MAX_RETRIES rAF frames, then proceed regardless as fallback.
  */
-onMounted(() => {
+const initMarquee = () => {
   if (!marqueeTrackRef.value || !marqueeContainerRef.value) return
 
-  // Wait for next tick to ensure DOM is fully rendered
-  nextTick(() => {
-    // Get all children in the track (should be 9 elements: 3 quotes + 3 images + 3 names)
-    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name')
-    if (items.length === 0) return
+  const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name')
+  if (items.length === 0) return
 
-    // Create seamless loop using useHorizontalLoop composable
-    // Alternate directions: even index (0,2,4) = left-to-right, odd index (1,3,5) = right-to-left
-    // IMPORTANT: Use 'reversed' config, NOT negative speed (negative speed breaks GSAP durations)
-    const shouldReverse = props.index % 2 !== 0
+  // Cleanup any previous (failed) attempt before re-measuring
+  if (marqueeAnimation) {
+    marqueeAnimation.kill()
+    marqueeAnimation = null
+  }
+  if (scrollTriggerInstance) {
+    scrollTriggerInstance.kill()
+    scrollTriggerInstance = null
+  }
 
-    // Calculate gap size to match CSS var(--space-l-xl) = clamp(36px, 48px, 66px)
-    // Use middle value for consistent spacing between loop cycles
-    const gapSize = 48 // Matches Figma spec, middle of fluid range
+  // Validate layout: last item must be further right than the first.
+  // If they share the same offsetLeft, inline-flex hasn't been computed yet.
+  const firstLeft = (items[0] as HTMLElement).offsetLeft
+  const lastLeft = (items[items.length - 1] as HTMLElement).offsetLeft
+  const firstWidth = (items[0] as HTMLElement).offsetWidth
 
-    marqueeAnimation = createLoop(items, {
-      repeat: -1, // Infinite repeat
-      speed: 1, // Always positive - direction controlled by 'reversed' config
-      reversed: shouldReverse, // true = right-to-left, false = left-to-right
-      paddingRight: gapSize, // Add gap between loop cycles for seamless connection
-      paused: true // Start paused
-    })
+  // console.debug(`[RecommendationItem #${props.index}] marquee check — firstLeft=${firstLeft} lastLeft=${lastLeft} firstWidth=${firstWidth} (attempt ${retryCount + 1})`)
 
-    // Debug: Uncomment to verify marquee direction setup
-    // console.log(`🎬 Marquee ${props.index}: ${shouldReverse ? 'REVERSED (right-to-left)' : 'FORWARD (left-to-right)'}, tl.reversed()=${marqueeAnimation.reversed()}, timeScale=${marqueeAnimation.timeScale()}`);
+  if (lastLeft <= firstLeft && retryCount < MAX_RETRIES) {
+    retryCount++
+    requestAnimationFrame(() => initMarquee())
+    return
+  }
 
-    // ScrollTrigger: Control marquee based on viewport visibility
-    // IMPORTANT: Use resume() instead of play() to respect reversed state
-    // play() resets direction to forward, resume() continues in current direction
-    scrollTriggerInstance = $ScrollTrigger.create({
-      trigger: marqueeContainerRef.value,
-      start: 'top bottom', // Starts when top of element enters bottom of viewport
-      end: 'bottom top', // Ends when bottom of element leaves top of viewport
-      onEnter: () => {
-        // Element entered viewport from below - start animation
-        marqueeAnimation?.resume()
-      },
-      onLeave: () => {
-        // Element left viewport from top - pause animation
-        marqueeAnimation?.pause()
-      },
-      onEnterBack: () => {
-        // Element re-entered viewport from above - resume animation
-        marqueeAnimation?.resume()
-      },
-      onLeaveBack: () => {
-        // Element left viewport from bottom - pause animation
-        marqueeAnimation?.pause()
-      }
-    })
+  retryCount = 0
+
+  // Create seamless loop using useHorizontalLoop composable.
+  // Alternate directions: even index (0,2,4) = left-to-right, odd index (1,3,5) = right-to-left.
+  // IMPORTANT: Use 'reversed' config, NOT negative speed (negative speed breaks GSAP durations).
+  const shouldReverse = props.index % 2 !== 0
+
+  // Calculate gap size to match CSS var(--space-l-xl) = clamp(36px, 48px, 66px).
+  // Use middle value for consistent spacing between loop cycles.
+  const gapSize = 48 // Matches Figma spec, middle of fluid range
+
+  marqueeAnimation = createLoop(items, {
+    repeat: -1, // Infinite repeat
+    speed: 1, // Always positive - direction controlled by 'reversed' config
+    reversed: shouldReverse, // true = right-to-left, false = left-to-right
+    paddingRight: gapSize, // Add gap between loop cycles for seamless connection
+    paused: true // Start paused
   })
+
+  // ScrollTrigger: Control marquee based on viewport visibility.
+  // IMPORTANT: Use resume() instead of play() to respect reversed state.
+  // play() resets direction to forward, resume() continues in current direction.
+  scrollTriggerInstance = $ScrollTrigger.create({
+    trigger: marqueeContainerRef.value,
+    start: 'top bottom', // Starts when top of element enters bottom of viewport
+    end: 'bottom top', // Ends when bottom of element leaves top of viewport
+    onEnter: () => {
+      // Element entered viewport from below - start animation
+      marqueeAnimation?.resume()
+    },
+    onLeave: () => {
+      // Element left viewport from top - pause animation
+      marqueeAnimation?.pause()
+    },
+    onEnterBack: () => {
+      // Element re-entered viewport from above - resume animation
+      marqueeAnimation?.resume()
+    },
+    onLeaveBack: () => {
+      // Element left viewport from bottom - pause animation
+      marqueeAnimation?.pause()
+    }
+  })
+}
+
+onMounted(() => {
+  if (!marqueeTrackRef.value || !marqueeContainerRef.value) return
+  // Delay init until after the page-enter transition has finished painting.
+  // nextTick is too early — layout measurements are invalid mid-transition.
+  marqueeInitTimer = setTimeout(() => initMarquee(), MARQUEE_INIT_DELAY)
 })
 
 /**
@@ -339,6 +376,10 @@ useAccordionAnimation({
 
 // Cleanup animations on unmount
 onUnmounted(() => {
+  if (marqueeInitTimer) {
+    clearTimeout(marqueeInitTimer)
+    marqueeInitTimer = null
+  }
   if (marqueeAnimation) {
     marqueeAnimation.kill()
     marqueeAnimation = null
