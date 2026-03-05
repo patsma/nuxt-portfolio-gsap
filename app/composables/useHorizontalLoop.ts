@@ -85,7 +85,6 @@ export const useHorizontalLoop = (gsap: GSAPInstance): HorizontalLoopReturn => {
     items: Element[] | NodeList | string,
     config: HorizontalLoopConfig = {}
   ): GSAPTimeline | null => {
-    // Convert items to array
     const itemsArray = $gsap.utils.toArray(items) as Element[]
 
     // Create timeline with infinite repeat and no easing
@@ -125,7 +124,6 @@ export const useHorizontalLoop = (gsap: GSAPInstance): HorizontalLoopReturn => {
       }
     })
 
-    // Reset x position
     $gsap.set(itemsArray, { x: 0 })
 
     // Calculate total width including padding

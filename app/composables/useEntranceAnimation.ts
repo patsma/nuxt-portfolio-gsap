@@ -263,7 +263,6 @@ export const useEntranceAnimation = (): EntranceAnimationReturn => {
     }
 
     try {
-      // Create animation
       const animation = animateFn(element)
 
       if (!animation) return

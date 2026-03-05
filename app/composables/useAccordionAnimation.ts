@@ -136,7 +136,6 @@ export const useAccordionAnimation = (options: AccordionAnimationOptions): void 
     // Pause headroom before animation starts to prevent header from reacting to content height changes
     nuxtApp.$headroom?.pause()
 
-    // Get actual content height for dynamic duration calculation
     const contentHeight = contentRef.value.scrollHeight
 
     // Calculate dynamic duration based on content size (larger content = longer duration)

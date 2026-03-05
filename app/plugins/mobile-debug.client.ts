@@ -24,7 +24,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   if (!isMobile) return
 
-  // State
   let isVisible = false
   let logs: LogEntry[] = []
   const MAX_LOGS = 50 // Keep last 50 logs
@@ -150,7 +149,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   `
   floatingBtn.onclick = () => toggleConsole()
 
-  // Append to body
   document.body.appendChild(container)
   document.body.appendChild(toggleBtn)
   document.body.appendChild(copyBtn)
@@ -195,7 +193,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     logs.push({ type, timestamp, message })
 
-    // Keep only last MAX_LOGS
     if (logs.length > MAX_LOGS) {
       logs = logs.slice(-MAX_LOGS)
     }
@@ -388,7 +385,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     addLog('error', '💥 UNHANDLED PROMISE REJECTION:', event.reason)
   })
 
-  // Initial log
   addLog(
     'info',
     '✅ Mobile Debug Console loaded. Tap the 🐛 button to open, then tap \'Copy Logs\' to copy everything to clipboard.'

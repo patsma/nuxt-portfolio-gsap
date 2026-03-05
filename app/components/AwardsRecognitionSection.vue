@@ -181,10 +181,3 @@ useScrollTriggerInit(
   }
 )
 </script>
-
-<style scoped>
-/**
- * Awards & Recognition section container styles
- * Minimal styling - most layout handled by Tailwind classes
- */
-</style>

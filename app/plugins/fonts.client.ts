@@ -13,7 +13,6 @@ export default defineNuxtPlugin({
       const appConfig = useAppConfig()
       const html = document.documentElement
 
-      // Apply display font from app.config.ts
       if (appConfig.fonts?.display) {
         html.style.setProperty(
           '--font-display',
@@ -21,7 +20,6 @@ export default defineNuxtPlugin({
         )
       }
 
-      // Apply body font from app.config.ts
       if (appConfig.fonts?.body) {
         const bodyFontStack = `"${appConfig.fonts.body}", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`
         html.style.setProperty('--font-body', bodyFontStack)

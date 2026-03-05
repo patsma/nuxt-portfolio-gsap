@@ -257,10 +257,3 @@ const cleanup = () => {
 // Use abstraction composable for page transition coordination
 useScrollTriggerInit(() => initScrollTrigger(), cleanup)
 </script>
-
-<style scoped>
-/**
- * Clients section container styles
- * Minimal styling - most layout handled by Tailwind classes
- */
-</style>

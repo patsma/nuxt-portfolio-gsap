@@ -28,12 +28,12 @@ video {
   /* Smooth opacity transition for hover effects */
   transition: opacity var(--duration-hover) var(--ease-power2);
 
-  /* Active state: reduced opacity */
+  /* Active state: reduced opacity — !important overrides GSAP inline opacity from entrance animation */
   &[data-active="true"] {
     opacity: 0.5 !important;
   }
 
-  /* Hover on non-active links */
+  /* Hover on non-active links — !important overrides GSAP inline opacity from entrance animation */
   &:not([data-active="true"]):hover {
     opacity: 0.5 !important;
   }

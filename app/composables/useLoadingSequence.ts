@@ -90,7 +90,6 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       animateOnReady = true
     } = options
 
-    // Start loading process
     loadingStore.startLoading()
     const startTime = Date.now()
 
@@ -100,7 +99,6 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     )
 
-    // Check GSAP availability
     if ($gsap) {
       loadingStore.setGsapReady()
     }
@@ -115,7 +113,6 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       }, 100)
     }
 
-    // Check font loading if needed
     if (checkFonts && typeof document !== 'undefined') {
       try {
         await document.fonts.ready
@@ -273,14 +270,12 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
 
     const tl = $gsap.timeline()
 
-    // Set initial state (hidden)
     $gsap.set(elements, {
       autoAlpha: 0,
       y: 20,
       ...animationProps.from
     })
 
-    // Animate in
     tl.to(elements, {
       autoAlpha: 1,
       y: 0,

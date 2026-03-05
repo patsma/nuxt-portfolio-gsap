@@ -115,7 +115,6 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
       return null
     }
 
-    // Create ScrollSmoother instance
     try {
       smootherInstance = ScrollSmootherClass.create(defaultConfig)
       smootherEnabled = true
@@ -156,7 +155,6 @@ export const useScrollSmootherManager = (): ScrollSmootherManagerReturn => {
    * Always refreshes ScrollTrigger on both mobile and desktop
    */
   const refreshSmoother = (): void => {
-    // Get ScrollTrigger from Nuxt app
     const nuxtApp = useNuxtApp()
 
     // If ScrollSmoother is enabled (desktop), refresh its effects too

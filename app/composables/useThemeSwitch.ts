@@ -513,7 +513,6 @@ export default function useThemeSwitch(): ThemeSwitchReturn {
       tl.progress(initialProgress).pause()
     })
 
-    // Return cleanup function
     return () => {
       if (ctx) ctx.revert()
     }

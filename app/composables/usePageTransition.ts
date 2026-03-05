@@ -75,9 +75,7 @@ export const usePageTransition = (): PageTransitionReturn => {
   const { $gsap, $SplitText } = nuxtApp
   const splitInstances: SplitResult[] = []
 
-  // ========================================
-  // ANIMATION FUNCTIONS
-  // ========================================
+  // ─────────── Animation Functions ───────────
 
   /**
    * SPLIT TEXT ANIMATION
@@ -347,9 +345,7 @@ export const usePageTransition = (): PageTransitionReturn => {
     splitInstances.length = 0
   }
 
-  // ========================================
-  // PAGE TRANSITION HOOKS
-  // ========================================
+  // ─────────── Page Transition Hooks ───────────
 
   /**
    * Find all elements with page animation configs

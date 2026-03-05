@@ -97,7 +97,3 @@ const hasImage = computed(
   () => typeof props.imageSrc === 'string' && props.imageSrc.length > 0
 )
 </script>
-
-<style scoped>
-/* Utilities handle presentation. */
-</style>
