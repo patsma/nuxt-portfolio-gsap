@@ -317,6 +317,31 @@ $gsap.set(items, { clearProps: 'all' })
 $gsap.set(items, { opacity: 0, y: 40 })
 ```
 
+### useScrollTriggerInit Abstraction
+
+**Prefer this over manual setup.** Used by 7+ section components (BiographySection, ExperienceSection, ServicesSection, ClientsSection, AwardsRecognitionSection, etc.).
+
+Handles first-load vs. navigation timing automatically — without it, ScrollTrigger initializes before the page reaches its final position after a transition.
+
+**Pattern:**
+```typescript
+let scrollTriggerInstance: ReturnType<typeof $ScrollTrigger.create> | null = null
+
+useScrollTriggerInit(
+  () => {
+    // Called after first load completes OR after page transition finishes
+    scrollTriggerInstance = $ScrollTrigger.create({ ... })
+  },
+  () => {
+    // Called on unmount
+    scrollTriggerInstance?.kill()
+    scrollTriggerInstance = null
+  }
+)
+```
+
+📖 **See** `.claude/SCROLL_SYSTEM.md` for full documentation.
+
 ### Refreshing ScrollTrigger After Dynamic Height Changes
 
 **Problem:** When content height changes dynamically (accordions, modals, lazy-loaded content), ScrollTrigger positions become stale. This breaks pinning for subsequent sections.

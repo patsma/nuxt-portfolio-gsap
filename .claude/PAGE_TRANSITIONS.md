@@ -495,7 +495,7 @@ elements.forEach((el) => { /* add to timeline */ })
 | Issue | Cause | Fix |
 |-------|-------|-----|
 | Page stuck, transitions don't complete | Async `document.fonts.ready.then()` in timeline building | Keep timeline building synchronous - never wrap in promises |
-| Animations not running | Directives not registered | Check `plugins/page-transitions.js` loads |
+| Animations not running | Directives not registered | Check `app/plugins/page-transitions.ts` loads |
 | Elements jump during transition | ScrollSmoother not refreshed | Verify `refreshSmoother()` in enter() |
 | Scroll jump visible | Auto-scroll before animations | Set `scrollBehavior() { return false }` in router.options.ts |
 | Header animates on link click | pause() changes header state | Ensure pause() only sets `isPaused = true` (see Fix #3) |

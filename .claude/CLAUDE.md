@@ -114,12 +114,20 @@ app/
 │   ├── pre.scss          # Tokens, base (BEFORE Tailwind)
 │   └── post.scss         # Components (AFTER Tailwind)
 ├── composables/
-│   ├── usePageTransition.ts           # Transition logic + Safari fixes
-│   ├── useScrollSmootherManager.ts    # ScrollSmoother lifecycle
-│   ├── useEntranceAnimation.ts        # Entrance animation coordinator
-│   ├── useThemeSwitch.ts              # Dark/light theme GSAP timeline
-│   ├── useLoadingSequence.ts          # Loading orchestrator
-│   └── useIsMobile.ts                 # Mobile detection
+│   ├── usePageTransition.ts              # Transition logic + Safari fixes
+│   ├── useScrollSmootherManager.ts       # ScrollSmoother lifecycle
+│   ├── useScrollTriggerInit.ts           # ScrollTrigger coordination abstraction (used by 7+ components)
+│   ├── useEntranceAnimation.ts           # Entrance animation coordinator
+│   ├── useThemeSwitch.ts                 # Dark/light theme GSAP timeline
+│   ├── useLoadingSequence.ts             # Loading orchestrator
+│   ├── useAccordionAnimation.ts          # GSAP accordion expand/collapse
+│   ├── useHorizontalLoop.ts              # Infinite horizontal marquee loop
+│   ├── useMagnetic.ts                    # Spring physics hover effect
+│   ├── useInteractiveCaseStudyPreview.ts # Case study hover preview state machine
+│   ├── useIsMobile.ts                    # Breakpoint detection (VueUse)
+│   ├── useLocalTime.ts                   # Live timezone clock
+│   ├── useVideoPoster.ts                 # First-frame video poster extraction
+│   └── useIOSSafari.ts                   # iOS Safari detection
 ├── directives/
 │   ├── v-page-split.ts       # SplitText animations
 │   ├── v-page-fade.ts        # Fade animations
@@ -129,10 +137,16 @@ app/
 │   ├── page-transitions.ts      # Register directives
 │   ├── theme.client.ts          # Theme initialization
 │   ├── loader-manager.client.ts # Loader removal
-│   └── headroom.client.ts       # Header show/hide
+│   ├── headroom.client.ts       # Header show/hide
+│   ├── fonts.client.ts          # Apply font CSS variables from app.config.ts
+│   ├── resize-reload.client.ts  # Reload on viewport resize (GSAP state reset)
+│   └── mobile-debug.client.ts   # On-screen debug console (disabled by default)
 ├── stores/
 │   ├── theme.ts             # Theme state (Pinia)
-│   └── loading.ts           # Loading state
+│   ├── loading.ts           # Loading state
+│   ├── pageTransition.ts    # Page transition state machine
+│   ├── menu.ts              # Hamburger menu open/close
+│   └── hints.ts             # UI hint tracking (localStorage)
 ├── layouts/
 │   └── default.vue          # ScrollSmoother + page transitions
 ├── pages/
@@ -141,7 +155,7 @@ app/
 │   └── contact.vue          # Contact
 ├── components/
 │   ├── HeaderGrid.vue              # Fixed header with mobile overlay
-│   ├── HeroSection.vue             # Hero with entrance animation support
+│   ├── content/HeroSection.vue     # Hero with entrance animation support
 │   ├── BiographySection.vue        # Simple 2-column section
 │   ├── ExperienceSection.vue       # Experience list with scroll animations
 │   ├── ExperienceItem.vue          # Individual experience entry
@@ -151,9 +165,9 @@ app/
 │   ├── CursorTrail.vue             # Cursor trail effect
 │   ├── FluidGradient.vue           # Animated gradient background
 │   └── ThemeToggleSVG.vue          # Theme switcher
-└── server/
-    └── plugins/
-        └── inject-loader.ts # Nitro plugin: loader + theme script + is-first-load class
+server/
+└── plugins/
+    └── inject-loader.ts # Nitro plugin: loader + theme script + is-first-load class
 ```
 
 ### Stack
@@ -226,6 +240,31 @@ const vPageFade: Directive<PageAnimationElement, FadeBindingValue> = {
 ```
 
 **Pattern:** Directives store config, composable reads and animates.
+
+### ScrollTrigger Initialization (useScrollTriggerInit)
+
+Abstracts the repetitive pattern of setting up ScrollTrigger animations that need to coordinate with the loading system and page transitions. Used by 7+ section components.
+
+```typescript
+// In any component that needs ScrollTrigger
+let scrollTriggerInstance: ScrollTriggerInstance | null = null
+
+useScrollTriggerInit(
+  () => {
+    // Init — called after first load or after page transition completes
+    scrollTriggerInstance = $ScrollTrigger.create({ ... })
+  },
+  () => {
+    // Cleanup — called on unmount
+    scrollTriggerInstance?.kill()
+    scrollTriggerInstance = null
+  }
+)
+```
+
+**Why:** Handles first-load vs navigation timing automatically. Without this, ScrollTrigger initializes before the page is in final position.
+
+📖 **See** `.claude/SCROLL_SYSTEM.md`
 
 ### HTML Class Scoping (FOUC Prevention)
 

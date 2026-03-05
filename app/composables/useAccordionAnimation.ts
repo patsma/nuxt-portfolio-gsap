@@ -49,6 +49,7 @@ export interface AccordionAnimationOptions {
   onRefreshComplete?: () => void
   /** Optional: component name for debug logging */
   componentName?: string
+  _componentName?: string
 }
 
 /**
