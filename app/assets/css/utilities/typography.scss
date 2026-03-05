@@ -83,435 +83,94 @@
 /*
   Display font utilities (serif/display headings)
   - Semantic class names: display-{breakpoint}-{style}
+  - Font size token name always matches the utility name (e.g. --display-mobile-h1)
   - Font family uses var(--font-display) configured via app.config.ts
   - Keep this section in sync with design when specs change
 */
-@utility display-mobile-h1 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
+@mixin display-util($name, $style, $lh, $tracking) {
+  @utility #{$name} {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-style: #{$style};
+    font-size: var(--#{$name});
+    line-height: #{$lh};
+    letter-spacing: #{$tracking};
+  }
 }
-@utility display-mobile-h1-bold {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h1-bold);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-mobile-h1-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-mobile-h1-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-mobile-h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-display-1);
-}
-@utility display-mobile-h2-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-3);
-}
-@utility display-mobile-h2-enlarged-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-mobile-h2-enlarged-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-3);
-}
-@utility display-mobile-h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h3);
-  line-height: 140%;
-  letter-spacing: 0;
-}
-@utility display-mobile-h3-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-mobile-h3-italic);
-  line-height: 140%;
-  letter-spacing: 0;
-}
-@utility display-mobile-h3-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-h3-enlarged);
-  line-height: 110%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-mobile-custom-navigation-menu-items {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-mobile-custom-navigation-menu-items);
-  line-height: 100%;
-  letter-spacing: 0;
-}
-@utility display-laptop-h1 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-laptop-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-laptop-h1-bold {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-laptop-h1-bold);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-laptop-h1-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-laptop-h1-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-laptop-h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-laptop-h2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-display-1);
-}
-@utility display-laptop-h2-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-laptop-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-laptop-h2-enlarged-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-laptop-h2-enlarged-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-laptop-h3-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-laptop-h3-enlarged);
-  line-height: 110%;
-  letter-spacing: var(--tracking-display-3);
-}
-@utility display-desktop-h1 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-desktop-h1-bold {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h1-bold);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-desktop-h1-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-desktop-h1-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-@utility display-desktop-h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-display-1);
-}
-@utility display-desktop-h2-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-3);
-}
-@utility display-desktop-h2-enlarged-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-desktop-h2-enlarged-italic);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-3);
-}
-@utility display-desktop-h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h3);
-  line-height: 140%;
-  letter-spacing: 0;
-}
-@utility display-desktop-h3-italic {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: italic;
-  font-size: var(--display-desktop-h3-italic);
-  line-height: 140%;
-  letter-spacing: 0;
-}
-@utility display-desktop-h3-enlarged {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-h3-enlarged);
-  line-height: 110%;
-  letter-spacing: var(--tracking-display-4);
-}
-@utility display-desktop-custom-navigation {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-custom-navigation);
-  line-height: 100%;
-  letter-spacing: 0;
-}
-@utility display-desktop-large-h2 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--display-desktop-large-h2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-display-1);
-}
+
+/* Mobile display styles */
+@include display-util(display-mobile-h1, normal, 120%, var(--tracking-display-2));
+@include display-util(display-mobile-h1-bold, normal, 120%, var(--tracking-display-2));
+@include display-util(display-mobile-h1-italic, italic, 120%, var(--tracking-display-2));
+@include display-util(display-mobile-h2, normal, 150%, var(--tracking-display-1));
+@include display-util(display-mobile-h2-enlarged, normal, 120%, var(--tracking-display-3));
+@include display-util(display-mobile-h2-enlarged-italic, italic, 120%, var(--tracking-display-3));
+@include display-util(display-mobile-h3, normal, 140%, 0);
+@include display-util(display-mobile-h3-italic, italic, 140%, 0);
+@include display-util(display-mobile-h3-enlarged, normal, 110%, var(--tracking-display-2));
+@include display-util(display-mobile-custom-navigation-menu-items, normal, 100%, 0);
+
+/* Laptop display styles */
+@include display-util(display-laptop-h1, normal, 120%, var(--tracking-display-2));
+@include display-util(display-laptop-h1-bold, normal, 120%, var(--tracking-display-2));
+@include display-util(display-laptop-h1-italic, italic, 120%, var(--tracking-display-2));
+@include display-util(display-laptop-h2, normal, 150%, var(--tracking-display-1));
+@include display-util(display-laptop-h2-enlarged, normal, 120%, var(--tracking-display-2));
+@include display-util(display-laptop-h2-enlarged-italic, italic, 120%, var(--tracking-display-2));
+@include display-util(display-laptop-h3-enlarged, normal, 110%, var(--tracking-display-3));
+
+/* Desktop display styles */
+@include display-util(display-desktop-h1, normal, 120%, var(--tracking-display-2));
+@include display-util(display-desktop-h1-bold, normal, 120%, var(--tracking-display-2));
+@include display-util(display-desktop-h1-italic, italic, 120%, var(--tracking-display-2));
+@include display-util(display-desktop-h2, normal, 150%, var(--tracking-display-1));
+@include display-util(display-desktop-h2-enlarged, normal, 120%, var(--tracking-display-3));
+@include display-util(display-desktop-h2-enlarged-italic, italic, 120%, var(--tracking-display-3));
+@include display-util(display-desktop-h3, normal, 140%, 0);
+@include display-util(display-desktop-h3-italic, italic, 140%, 0);
+@include display-util(display-desktop-h3-enlarged, normal, 110%, var(--tracking-display-4));
+@include display-util(display-desktop-custom-navigation, normal, 100%, 0);
+@include display-util(display-desktop-large-h2, normal, 150%, var(--tracking-display-1));
 
 /*
   Body font utilities (sans-serif paragraphs/UI)
   - Semantic class names: body-{breakpoint}-{style}
+  - Font size token name always matches the utility name (e.g. --body-mobile-h1)
   - Font family uses var(--font-body) configured via app.config.ts
 */
-@utility body-mobile-h1 {
-  /* 32px / 120%, weight Light */
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-style: normal;
-  font-size: var(--body-mobile-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-body-tight-2);
+@mixin body-util($name, $weight, $lh, $tracking) {
+  @utility #{$name} {
+    font-family: var(--font-body);
+    font-weight: #{$weight};
+    font-style: normal;
+    font-size: var(--#{$name});
+    line-height: #{$lh};
+    letter-spacing: #{$tracking};
+  }
 }
 
-@utility body-mobile-h2-enlarged {
-  /* 56px / 120%, weight ExtraLight */
-  font-family: var(--font-body);
-  font-weight: 200;
-  font-style: normal;
-  font-size: var(--body-mobile-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
+/* Mobile body styles */
+@include body-util(body-mobile-h1, 300, 120%, var(--tracking-body-tight-2));
+@include body-util(body-mobile-h2-enlarged, 200, 120%, var(--tracking-display-2));
+@include body-util(body-mobile-caption, 500, 150%, var(--tracking-body-tight-2));
+@include body-util(body-mobile-p2, 400, 150%, var(--tracking-body-tight-1));
+@include body-util(body-mobile-p1, 400, 150%, var(--tracking-body-tight-2));
+@include body-util(body-mobile-button, 500, 150%, var(--tracking-body-tight-2));
+@include body-util(body-mobile-custom-labels, 500, 110%, var(--tracking-body-wide-1));
+@include body-util(body-mobile-custom-navigation-caption, 400, 130%, var(--tracking-body-tight-1));
+@include body-util(body-mobile-custom-navigation-subcaption, 400, 120%, 0);
 
-@utility body-mobile-caption {
-  /* 16px / 150%, weight Medium */
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--body-mobile-caption);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-2);
-}
+/* Laptop body styles */
+@include body-util(body-laptop-h1, 300, 120%, var(--tracking-display-2));
+@include body-util(body-laptop-h2-enlarged, 200, 120%, var(--tracking-display-2));
+@include body-util(body-laptop-p2, 300, 150%, var(--tracking-body-tight-2));
 
-@utility body-mobile-p2 {
-  /* 24px / 150%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-mobile-p2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-1);
-}
-
-@utility body-mobile-p1 {
-  /* 16px / 150%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-mobile-p1);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-2);
-}
-
-@utility body-mobile-button {
-  /* 16px / 150%, weight Medium */
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--body-mobile-button);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-2);
-}
-
-@utility body-mobile-custom-labels {
-  /* 10px / 110%, weight Medium */
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--body-mobile-custom-labels);
-  line-height: 110%;
-  letter-spacing: var(--tracking-body-wide-1);
-}
-
-@utility body-mobile-custom-navigation-caption {
-  /* 12px / 130%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-mobile-custom-navigation-caption);
-  line-height: 130%;
-  letter-spacing: var(--tracking-body-tight-1);
-}
-
-@utility body-mobile-custom-navigation-subcaption {
-  /* 10px / 120%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-mobile-custom-navigation-subcaption);
-  line-height: 120%;
-  letter-spacing: 0;
-}
-
-@utility body-laptop-h1 {
-  /* 64px / 120%, weight Light */
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-style: normal;
-  font-size: var(--body-laptop-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-
-@utility body-laptop-h2-enlarged {
-  /* 80px / 120%, weight ExtraLight */
-  font-family: var(--font-body);
-  font-weight: 200;
-  font-style: normal;
-  font-size: var(--body-laptop-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-2);
-}
-
-@utility body-laptop-p2 {
-  /* 32px / 150%, weight Light */
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-style: normal;
-  font-size: var(--body-laptop-p2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-2);
-}
-
-@utility body-desktop-h1 {
-  /* 80px / 120%, weight Light */
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-style: normal;
-  font-size: var(--body-desktop-h1);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-3);
-}
-
-@utility body-desktop-h2-enlarged {
-  /* 104px / 120%, weight ExtraLight */
-  font-family: var(--font-body);
-  font-weight: 200;
-  font-style: normal;
-  font-size: var(--body-desktop-h2-enlarged);
-  line-height: 120%;
-  letter-spacing: var(--tracking-display-4);
-}
-
-@utility body-desktop-caption {
-  /* 24px / 150%, weight Medium */
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--body-desktop-caption);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-1);
-}
-
-@utility body-desktop-p2 {
-  /* 48px / 150%, weight Light */
-  font-family: var(--font-body);
-  font-weight: 300;
-  font-style: normal;
-  font-size: var(--body-desktop-p2);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-3);
-}
-
-@utility body-desktop-p1 {
-  /* 24px / 150%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-desktop-p1);
-  line-height: 150%;
-  letter-spacing: var(--tracking-body-tight-1);
-}
-
-@utility body-desktop-custom-labels {
-  /* 14px / 110%, weight Medium */
-  font-family: var(--font-body);
-  font-weight: 500;
-  font-style: normal;
-  font-size: var(--body-desktop-custom-labels);
-  line-height: 110%;
-  letter-spacing: var(--tracking-body-wide-2);
-}
-
-@utility body-desktop-custom-navigation-caption {
-  /* 16px / 100%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-desktop-custom-navigation-caption);
-  line-height: 100%;
-  letter-spacing: var(--tracking-body-tight-2);
-}
-
-@utility body-desktop-custom-navigation-subcaption {
-  /* 14px / 100%, weight Regular */
-  font-family: var(--font-body);
-  font-weight: 400;
-  font-style: normal;
-  font-size: var(--body-desktop-custom-navigation-subcaption);
-  line-height: 100%;
-  letter-spacing: 0;
-}
+/* Desktop body styles */
+@include body-util(body-desktop-h1, 300, 120%, var(--tracking-display-3));
+@include body-util(body-desktop-h2-enlarged, 200, 120%, var(--tracking-display-4));
+@include body-util(body-desktop-caption, 500, 150%, var(--tracking-body-tight-1));
+@include body-util(body-desktop-p2, 300, 150%, var(--tracking-body-tight-3));
+@include body-util(body-desktop-p1, 400, 150%, var(--tracking-body-tight-1));
+@include body-util(body-desktop-custom-labels, 500, 110%, var(--tracking-body-wide-2));
+@include body-util(body-desktop-custom-navigation-caption, 400, 100%, var(--tracking-body-tight-2));
+@include body-util(body-desktop-custom-navigation-subcaption, 400, 100%, 0);
