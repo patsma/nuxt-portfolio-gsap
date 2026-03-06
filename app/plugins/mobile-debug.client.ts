@@ -28,7 +28,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   let logs: LogEntry[] = []
   const MAX_LOGS = 50 // Keep last 50 logs
 
-  // Create debug console container
   const container = document.createElement('div')
   container.id = 'mobile-debug-console'
   container.style.cssText = `
@@ -48,7 +47,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     line-height: 1.4;
   `
 
-  // Create toggle button
   const toggleBtn = document.createElement('button')
   toggleBtn.textContent = '✕'
   toggleBtn.style.cssText = `
@@ -69,7 +67,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   `
   toggleBtn.onclick = () => toggleConsole()
 
-  // Create copy button
   const copyBtn = document.createElement('button')
   copyBtn.textContent = 'Copy Logs'
   copyBtn.style.cssText = `
@@ -90,7 +87,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   `
   copyBtn.onclick = () => copyLogsToClipboard()
 
-  // Create clear button
   const clearBtn = document.createElement('button')
   clearBtn.textContent = 'Clear'
   clearBtn.style.cssText = `
@@ -110,7 +106,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   `
   clearBtn.onclick = () => clearLogs()
 
-  // Create toast notification
   const toast = document.createElement('div')
   toast.style.cssText = `
     position: fixed;
@@ -239,7 +234,6 @@ export default defineNuxtPlugin((nuxtApp) => {
    * Copy logs to clipboard
    */
   const copyLogsToClipboard = async (): Promise<void> => {
-    // Create plain text version of logs
     const logText = logs
       .map((log) => {
         return `[${log.timestamp}] [${log.type.toUpperCase()}] ${log.message}`

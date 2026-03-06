@@ -49,7 +49,6 @@ export interface AccordionAnimationOptions {
   onRefreshComplete?: () => void
   /** Optional: component name for debug logging */
   componentName?: string
-  _componentName?: string
 }
 
 /**
@@ -68,7 +67,7 @@ export const useAccordionAnimation = (options: AccordionAnimationOptions): void 
     itemRef,
     isExpanded,
     onRefreshComplete,
-    _componentName = 'Accordion'
+    componentName: _componentName = 'Accordion'
   } = options
 
   const nuxtApp = useNuxtApp()

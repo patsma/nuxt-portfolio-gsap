@@ -146,7 +146,8 @@ app/
 │   ├── loading.ts           # Loading state
 │   ├── pageTransition.ts    # Page transition state machine
 │   ├── menu.ts              # Hamburger menu open/close
-│   └── hints.ts             # UI hint tracking (localStorage)
+│   ├── hints.ts             # UI hint tracking (localStorage)
+│   └── title-rotation.ts   # Hero title rotation state
 ├── layouts/
 │   └── default.vue          # ScrollSmoother + page transitions
 ├── pages/
@@ -338,3 +339,5 @@ Detailed documentation for each system lives in `.claude/`:
 | `MAGNETIC_EFFECT.md` | Spring physics hover effects |
 | `ELASTIC_BORDER.md` | Physics-based elastic border effect |
 | `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery |
+| `CONTENT_SYSTEM.md` | Nuxt Content YAML data system |
+| `NUXT-STUDIO.md` | Self-hosted Studio CMS integration |

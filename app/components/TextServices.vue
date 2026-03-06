@@ -60,8 +60,3 @@ const servicesColumn2 = [
   'Design Systems & Tokens'
 ]
 </script>
-
-<style scoped lang="scss">
-// Component-specific styles if needed
-// Currently using utility classes and theme variables
-</style>
