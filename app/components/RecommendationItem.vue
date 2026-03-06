@@ -23,47 +23,31 @@
           ref="marqueeTrackRef"
           class="marquee-track"
         >
-          <!-- Unit 1: Quote → Image → Name -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ quote }}
-          </span>
-          <img
-            v-if="authorImage"
-            :src="authorImage"
-            :alt="`${authorFirstName} ${authorLastName}`"
-            class="marquee-image"
+          <!-- 3 repeating units: quote → author image → author name -->
+          <template
+            v-for="n in 3"
+            :key="n"
           >
-          <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
-          </span>
-
-          <!-- Unit 2: Quote → Image → Name (duplicate) -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ quote }}
-          </span>
-          <img
-            v-if="authorImage"
-            :src="authorImage"
-            :alt="`${authorFirstName} ${authorLastName}`"
-            class="marquee-image"
-          >
-          <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
-          </span>
-
-          <!-- Unit 3: Quote → Image → Name (duplicate) -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ quote }}
-          </span>
-          <img
-            v-if="authorImage"
-            :src="authorImage"
-            :alt="`${authorFirstName} ${authorLastName}`"
-            class="marquee-image"
-          >
-          <span class="marquee-author-name text-[var(--theme-text-100)]">
-            <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
-          </span>
+            <span
+              :ref="addMarqueeRef"
+              class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]"
+            >
+              {{ quote }}
+            </span>
+            <img
+              v-if="authorImage"
+              :ref="addMarqueeRef"
+              :src="authorImage"
+              :alt="`${authorFirstName} ${authorLastName}`"
+              class="marquee-image"
+            >
+            <span
+              :ref="addMarqueeRef"
+              class="marquee-author-name text-[var(--theme-text-100)]"
+            >
+              <span class="author-first-name body-mobile-h2-enlarged md:body-laptop-h2-enlarged 2xl:body-desktop-h2-enlarged">{{ authorFirstName }}</span><span class="author-last-name display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged">{{ authorLastName }}</span>
+            </span>
+          </template>
         </div>
       </div>
     </button>
@@ -228,6 +212,13 @@ const marqueeContainerRef = ref(null)
 const marqueeTrackRef = ref(null)
 const expandedContentRef = ref<HTMLElement | null>(null)
 
+// Marquee element refs — collected via function ref, replaces querySelectorAll
+const marqueeRefs = ref<HTMLElement[]>([])
+onBeforeUpdate(() => { marqueeRefs.value = [] })
+const addMarqueeRef = (el: Element | null) => {
+  if (el instanceof HTMLElement) marqueeRefs.value.push(el)
+}
+
 // Marquee animation instances
 let marqueeAnimation = null
 let scrollTriggerInstance = null
@@ -265,8 +256,8 @@ let marqueeInitTimer: ReturnType<typeof setTimeout> | null = null
 const initMarquee = () => {
   if (!marqueeTrackRef.value || !marqueeContainerRef.value) return
 
-  // Get all children in the track (should be 9 elements: 3 quotes + 3 images + 3 names)
-  const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image, .marquee-author-name')
+  // Get all marquee children via template refs (9 elements: 3 quotes + 3 images + 3 names)
+  const items = marqueeRefs.value
   if (items.length === 0) return
 
   // Create seamless loop using useHorizontalLoop composable

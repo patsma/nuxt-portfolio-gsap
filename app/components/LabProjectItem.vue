@@ -23,38 +23,25 @@
           ref="marqueeTrackRef"
           class="marquee-track"
         >
-          <!-- Unit 1: Title (italic) → Thumbnail Image -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ shortTitle }}
-          </span>
-          <img
-            v-if="thumbnail"
-            :src="thumbnail"
-            :alt="shortTitle"
-            class="marquee-image"
+          <!-- 3 repeating units: title (italic) → thumbnail image -->
+          <template
+            v-for="n in 3"
+            :key="n"
           >
-
-          <!-- Unit 2: Title (italic) → Thumbnail Image (duplicate) -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ shortTitle }}
-          </span>
-          <img
-            v-if="thumbnail"
-            :src="thumbnail"
-            :alt="shortTitle"
-            class="marquee-image"
-          >
-
-          <!-- Unit 3: Title (italic) → Thumbnail Image (duplicate) -->
-          <span class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]">
-            {{ shortTitle }}
-          </span>
-          <img
-            v-if="thumbnail"
-            :src="thumbnail"
-            :alt="shortTitle"
-            class="marquee-image"
-          >
+            <span
+              :ref="addMarqueeRef"
+              class="marquee-text italic display-mobile-h2-enlarged md:display-laptop-h2-enlarged 2xl:display-desktop-h2-enlarged text-[var(--theme-text-60)]"
+            >
+              {{ shortTitle }}
+            </span>
+            <img
+              v-if="thumbnail"
+              :ref="addMarqueeRef"
+              :src="thumbnail"
+              :alt="shortTitle"
+              class="marquee-image"
+            >
+          </template>
         </div>
       </div>
     </button>
@@ -266,6 +253,13 @@ const marqueeContainerRef = ref(null)
 const marqueeTrackRef = ref(null)
 const expandedContentRef = ref<HTMLElement | null>(null)
 
+// Marquee element refs — collected via function ref, replaces querySelectorAll
+const marqueeRefs = ref<HTMLElement[]>([])
+onBeforeUpdate(() => { marqueeRefs.value = [] })
+const addMarqueeRef = (el: Element | null) => {
+  if (el instanceof HTMLElement) marqueeRefs.value.push(el)
+}
+
 // Marquee animation instances
 let marqueeAnimation = null
 let scrollTriggerInstance = null
@@ -298,8 +292,8 @@ onMounted(() => {
 
   // Wait for next tick to ensure DOM is fully rendered
   nextTick(() => {
-    // Get all children in the track (should be 6 elements: 3 titles + 3 images)
-    const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image')
+    // Get all marquee children via template refs (6 elements: 3 titles + 3 images)
+    const items = marqueeRefs.value
     if (items.length === 0) return
 
     // Create seamless loop using useHorizontalLoop composable
