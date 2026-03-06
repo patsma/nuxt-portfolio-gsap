@@ -214,7 +214,9 @@ const expandedContentRef = ref<HTMLElement | null>(null)
 
 // Marquee element refs — collected via function ref, replaces querySelectorAll
 const marqueeRefs = ref<HTMLElement[]>([])
-onBeforeUpdate(() => { marqueeRefs.value = [] })
+onBeforeUpdate(() => {
+  marqueeRefs.value = []
+})
 const addMarqueeRef = (el: Element | null) => {
   if (el instanceof HTMLElement) marqueeRefs.value.push(el)
 }
