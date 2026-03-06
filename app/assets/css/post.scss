@@ -16,6 +16,67 @@
 @use "./utilities/layout.scss";
 @use "./utilities/spacing.scss";
 
+// ─────────── Image Loader ───────────
+
+.img-wrapper {
+  position: relative;
+  display: block; // don't break inline images
+
+  // Solid background while loading
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: var(--theme-100);
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  // Spinner centered over the image
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--theme-15);
+    border-top-color: var(--theme-text-100);
+    animation: img-spin 0.7s linear infinite;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  // Image starts hidden
+  img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: block; // prevent inline gap
+  }
+
+  // Loaded: hide overlay + spinner, reveal image
+  &--loaded {
+    &::before,
+    &::after {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    img {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes img-spin {
+  to { transform: rotate(360deg); }
+}
+
 /*
   Notes:
   - Do not import Tailwind here. main.css owns the Tailwind import.

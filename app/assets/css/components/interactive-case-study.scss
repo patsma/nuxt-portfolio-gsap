@@ -123,6 +123,12 @@ html.is-first-load [data-entrance-animate='true'] {
   /* Clip-path for initial reveal handled by GSAP */
 }
 
+/* Ensure AppImage wrapper fills the preview slot */
+.preview-image-wrapper .img-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
 /* Preview image */
 .preview-image {
   width: 100%;
@@ -248,11 +254,15 @@ html.is-first-load [data-entrance-animate='true'] {
   width: 100%;
   height: 100%;
   object-fit: cover;
-
-  /* Subtle scale on touch/active */
-  transition: transform var(--duration-hover) var(--ease-power2);
 }
 
+/* Higher specificity (0-2-0) overrides .img-wrapper img (0-1-1) transition */
+/* Combines opacity (AppImage reveal) + transform (active scale) */
+.img-wrapper .card-image {
+  transition: opacity 0.4s ease, transform var(--duration-hover) var(--ease-power2);
+}
+
+/* Subtle scale on touch/active */
 .case-study-card:active .card-image {
   transform: scale(1.05);
 }

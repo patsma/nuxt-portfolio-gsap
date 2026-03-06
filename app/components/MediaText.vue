@@ -22,10 +22,11 @@
         >
           <!-- Media -->
           <div v-if="hasImage">
-            <NuxtImg
+            <AppImage
               :src="imageSrc"
               :alt="imageAlt"
               class="w-full h-auto rounded-md object-cover"
+              wrapper-class="rounded-md"
               sizes="sm:100vw md:50vw lg:50vw"
               format="webp"
               loading="lazy"

@@ -45,7 +45,7 @@
             ref="slotARef"
             class="preview-image-wrapper"
           >
-            <NuxtImg
+            <AppImage
               v-if="slotAImage"
               :src="slotAImage.image"
               :alt="slotAImage.imageAlt"
@@ -59,7 +59,7 @@
             ref="slotBRef"
             class="preview-image-wrapper"
           >
-            <NuxtImg
+            <AppImage
               v-if="slotBImage"
               :src="slotBImage.image"
               :alt="slotBImage.imageAlt"
@@ -73,7 +73,7 @@
             ref="slotCRef"
             class="preview-image-wrapper"
           >
-            <NuxtImg
+            <AppImage
               v-if="slotCImage"
               :src="slotCImage.image"
               :alt="slotCImage.imageAlt"

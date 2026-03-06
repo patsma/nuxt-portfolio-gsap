@@ -362,30 +362,33 @@ onUnmounted(() => {
           >
             <!-- Large image (left, spans 2 rows on desktop) -->
             <div class="bento-left overflow-hidden rounded-lg">
-              <NuxtImg
+              <AppImage
                 :src="project.images[0]"
                 :alt="project.title"
                 class="w-full h-full object-cover"
+                wrapper-class="w-full h-full"
                 loading="eager"
                 sizes="100vw md:50vw"
               />
             </div>
             <!-- Top right image -->
             <div class="bento-top-right overflow-hidden rounded-lg">
-              <NuxtImg
+              <AppImage
                 :src="project.images[1]"
                 :alt="`${project.title} - detail 1`"
                 class="w-full h-full object-cover"
+                wrapper-class="w-full h-full"
                 loading="eager"
                 sizes="100vw md:50vw"
               />
             </div>
             <!-- Bottom right image -->
             <div class="bento-bottom-right overflow-hidden rounded-lg">
-              <NuxtImg
+              <AppImage
                 :src="project.images[2]"
                 :alt="`${project.title} - detail 2`"
                 class="w-full h-full object-cover"
+                wrapper-class="w-full h-full"
                 loading="lazy"
                 sizes="100vw md:50vw"
               />
@@ -399,10 +402,11 @@ onUnmounted(() => {
           class="breakout3 py-[var(--space-xl)] md:py-[var(--space-2xl)]"
         >
           <div class="overflow-hidden rounded-lg aspect-[1184/666]">
-            <NuxtImg
+            <AppImage
               :src="project.cover || project.thumbnail"
               :alt="project.title"
               class="w-full h-full object-cover"
+              wrapper-class="w-full h-full"
               loading="eager"
               sizes="100vw"
             />

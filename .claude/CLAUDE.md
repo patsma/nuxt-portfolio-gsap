@@ -341,3 +341,4 @@ Detailed documentation for each system lives in `.claude/`:
 | `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery |
 | `CONTENT_SYSTEM.md` | Nuxt Content YAML data system |
 | `NUXT-STUDIO.md` | Self-hosted Studio CMS integration |
+| `APP_IMAGE_SYSTEM.md` | Shimmer skeleton image wrapper (AppImage) |

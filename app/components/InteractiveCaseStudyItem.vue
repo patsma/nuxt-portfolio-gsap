@@ -52,10 +52,11 @@
     class="case-study-card flex md:hidden"
   >
     <div class="card-image-container">
-      <NuxtImg
+      <AppImage
         :src="image"
         :alt="imageAlt"
         class="card-image"
+        wrapper-class="w-full h-full"
         loading="lazy"
       />
     </div>

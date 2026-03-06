@@ -9,11 +9,12 @@
       class="image-container breakout3 relative will-change-transform"
     >
       <div class="parallax-container">
-        <NuxtImg
+        <AppImage
           ref="imageRef"
           :src="imageSrc"
           :alt="imageAlt"
-          class="parallax-media w-full h-full object-cover"
+          class="parallax-media w-full object-cover"
+          wrapper-class="w-full h-full"
           loading="lazy"
         />
       </div>
@@ -241,10 +242,8 @@ useScrollTriggerInit(
   width: 100%;
 }
 
-.parallax-media {
-  width: 100%;
+/* .parallax-media is on the <img> inside AppImage — :deep() pierces the component boundary */
+:deep(.parallax-media) {
   height: 140%; /* 40% larger for parallax movement */
-  object-fit: cover;
-  display: block;
 }
 </style>

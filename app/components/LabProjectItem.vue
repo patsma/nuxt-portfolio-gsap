@@ -73,10 +73,11 @@
 
         <!-- Large image (full width, 1184:666 aspect ratio from design) -->
         <div class="overflow-hidden rounded-lg aspect-[1184/666]">
-          <NuxtImg
+          <AppImage
             :src="cover || thumbnail"
             :alt="fullTitle"
             class="w-full h-full object-cover"
+            wrapper-class="w-full h-full"
             loading="lazy"
             sizes="100vw md:90vw lg:80vw"
           />
