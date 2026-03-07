@@ -1,0 +1,21 @@
+/*
+  Centralized responsive breakpoints for SCSS
+  - Keep values equal to current behavior to avoid layout changes
+  - Use rem units for scale friendliness; comments show approximate px
+  - Provide simple mixins for clarity and consistency across components
+*/
+
+/* Core breakpoints used in components */
+$bp-md: 48rem; /* 768px */
+$bp-lg: 64rem; /* 1024px */
+$bp-2xl: 120rem; /* 1920px */
+$bp-xxl: 126.875rem; /* ~2030px */
+$bp-4xl: 156.25rem; /* ~2560px (kept value for existing behavior) */
+$bp-6xl: 237.5rem; /* ~3840px (kept value for existing behavior) */
+
+/* Media query helper: width upwards */
+@mixin up($minWidth) {
+  @media (width >= $minWidth) {
+    @content;
+  }
+}

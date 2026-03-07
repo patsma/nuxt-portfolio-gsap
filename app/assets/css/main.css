@@ -1,0 +1,14 @@
+/*
+  Main CSS orchestrator for TailwindCSS v4 compatibility
+  - Keep as CSS to ensure TailwindCSS v4 works properly with Vite
+  - Import SCSS modules as CSS (they're still SCSS files but imported here)
+*/
+
+/* Precompiled SCSS (tokens, base, early utilities) BEFORE Tailwind */
+@import "./pre.css";
+
+/* Tailwind (generated layers and responsive variants come after) */
+@import "tailwindcss";
+
+/* Postcompiled SCSS (components and late utilities) AFTER Tailwind */
+@import "./post.css";

@@ -1,0 +1,30 @@
+id: home
+showServices: true
+showScrollButton: true
+headline:
+  - text: "Hello, I'm a"
+    variant: default
+  - text: " creative"
+    variant: emphasis
+  - text: " designer"
+    variant: body
+  - text: " with a passion for"
+    variant: default
+  - text: " digital"
+    variant: italic
+  - text: " experiences"
+    variant: default
+  - text: " - crafting"
+    variant: default
+  - text: " purposeful"
+    variant: emphasis
+  - text: " solutions"
+    variant: body
+  - text: " that blend"
+    variant: default
+  - text: " form"
+    variant: italic
+  - text: " and"
+    variant: default
+  - text: " function"
+    variant: italic

@@ -1,0 +1,16 @@
+id: contact
+showServices: false
+showScrollButton: true
+headline:
+  - text: "Got an"
+    variant: default
+  - text: " idea?"
+    variant: italic
+  - text: " Let's turn it into something"
+    variant: default
+  - text: " real"
+    variant: emphasis
+  - text: " - drop me a line and let's start a"
+    variant: default
+  - text: " conversation"
+    variant: italic

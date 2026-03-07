@@ -1,0 +1,86 @@
+/* Fluid Spacing Utilities */
+@utility space-3xs {
+  gap: var(--space-3xs);
+}
+@utility space-2xs {
+  gap: var(--space-2xs);
+}
+@utility space-xs {
+  gap: var(--space-xs);
+}
+@utility space-s {
+  gap: var(--space-s);
+}
+@utility space-m {
+  gap: var(--space-m);
+}
+@utility space-l {
+  gap: var(--space-l);
+}
+@utility space-xl {
+  gap: var(--space-xl);
+}
+@utility space-2xl {
+  gap: var(--space-2xl);
+}
+@utility space-3xl {
+  gap: var(--space-3xl);
+}
+
+/* Margin utilities */
+@utility m-3xs {
+  margin: var(--space-3xs);
+}
+@utility m-2xs {
+  margin: var(--space-2xs);
+}
+@utility m-xs {
+  margin: var(--space-xs);
+}
+@utility m-s {
+  margin: var(--space-s);
+}
+@utility m-m {
+  margin: var(--space-m);
+}
+@utility m-l {
+  margin: var(--space-l);
+}
+@utility m-xl {
+  margin: var(--space-xl);
+}
+@utility m-2xl {
+  margin: var(--space-2xl);
+}
+@utility m-3xl {
+  margin: var(--space-3xl);
+}
+
+/* Padding utilities */
+@utility p-3xs {
+  padding: var(--space-3xs);
+}
+@utility p-2xs {
+  padding: var(--space-2xs);
+}
+@utility p-xs {
+  padding: var(--space-xs);
+}
+@utility p-s {
+  padding: var(--space-s);
+}
+@utility p-m {
+  padding: var(--space-m);
+}
+@utility p-l {
+  padding: var(--space-l);
+}
+@utility p-xl {
+  padding: var(--space-xl);
+}
+@utility p-2xl {
+  padding: var(--space-2xl);
+}
+@utility p-3xl {
+  padding: var(--space-3xl);
+}

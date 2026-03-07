@@ -1,0 +1,27 @@
+/* Utilities that Tailwind v4 will pick up */
+@utility header-safe-top {
+  padding-top: var(--size-header);
+}
+
+/* Make hero ~100dvh minus header, while keeping a white reveal at bottom */
+@utility hero-min-height {
+  min-height: calc(100dvh - var(--size-header));
+}
+
+/* Split background: top hero color, bottom reveal using shared token */
+@utility hero-split-bg {
+  background: linear-gradient(
+    to bottom,
+    var(--color-hero-bg) 0 calc(100% - var(--size-hero-reveal)),
+    var(--color-paper) calc(100% - var(--size-hero-reveal)) 100%
+  );
+}
+
+/* Image offsets */
+@utility hero-offset-image {
+  transform: translate(1rem, 6rem);
+}
+
+@utility hero-offset-image-sm {
+  transform: translate(calc(-50% + 0.75rem), 2rem);
+}

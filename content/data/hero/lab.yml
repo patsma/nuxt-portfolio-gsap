@@ -1,0 +1,24 @@
+id: lab
+showServices: false
+showScrollButton: true
+headline:
+  - text: "Feel"
+    variant: default
+  - text: " free"
+    variant: italic
+  - text: " to explore my experiments"
+    variant: default
+  - text: " and side projects."
+    variant: body
+  - text: " These are"
+    variant: default
+  - text: " personal"
+    variant: body
+  - text: " explorations"
+    variant: default
+  - text: " -"
+    variant: default
+  - text: " always"
+    variant: italic
+  - text: " evolving"
+    variant: emphasis

@@ -1,0 +1,21 @@
+/*
+  Pre-Tailwind SCSS bundle
+  - Compiled to pre.css and imported by main.css BEFORE Tailwind
+  - Place design tokens, base resets and utilities that must exist prior
+    to Tailwind so its responsive variants and layers can build on top.
+*/
+
+/* Design tokens and global theme variables */
+@use "./tokens/theme.scss";
+
+/* Base element resets or minimal globals */
+@use "./base/base.scss";
+
+/* Custom utilities that should allow responsive variants to override */
+@use "./utilities/typography.scss";
+
+/*
+  Notes:
+  - Keep this file small and focused. Prefer composables-like structure for SCSS.
+  - Avoid Tailwind directives here. Tailwind is imported only in main.css.
+*/

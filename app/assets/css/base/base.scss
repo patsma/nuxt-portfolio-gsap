@@ -1,0 +1,187 @@
+/* Base element resets or minimal globals */
+html {
+  min-height: 102dvh;
+  /* Transparent to reveal FluidGradient background */
+  background: transparent;
+}
+
+body {
+  /* Transparent to reveal FluidGradient background */
+  background: var(--theme-100);
+  color: var(--color-ink);
+  /* Smooth CSS transition for text color only (background is FluidGradient) */
+  transition: color var(--duration-theme) ease;
+}
+img,
+video {
+  width: 100%;
+  height: 100%;
+}
+/* Navigation link hover styles - CSS-based for simplicity and performance
+   - Active links stay at 50% opacity
+   - Inactive links fade to 50% on hover
+   - Uses CSS variables for consistent timing with theme system */
+.nav-link {
+  align-content: center;
+  /* Default state: full opacity */
+  opacity: 1;
+  /* Smooth opacity transition for hover effects */
+  transition: opacity var(--duration-hover) var(--ease-power2);
+
+  /* Active state: reduced opacity */
+  &[data-active="true"] {
+    opacity: 0.5 !important;
+  }
+
+  /* Hover on non-active links */
+  &:not([data-active="true"]):hover {
+    opacity: 0.5 !important;
+  }
+}
+
+/* Global utility: transition for hover effects with separate durations for colors vs other properties
+   - Border/text colors: --duration-hover (for hover state changes)
+   - Background colors: No CSS transition (GSAP handles at --duration-theme)
+   - Other properties: --duration-hover (shadows, transforms, etc.)
+   This prevents conflict between GSAP theme transitions and hover state transitions */
+.transition-hover {
+  transition:
+    border-color var(--duration-hover) var(--ease-smooth),
+    box-shadow var(--duration-hover) var(--ease-smooth),
+    transform var(--duration-hover) var(--ease-smooth),
+    opacity var(--duration-hover) var(--ease-smooth),
+    filter var(--duration-hover) var(--ease-smooth);
+}
+
+/* Text link underline - modern, theme-aware
+   Use .text-link class for inline hyperlinks (not navigation)
+   Underline fades in/out on hover, synced with GSAP opacity animation */
+.text-link {
+  position: relative;
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    block-size: 0.0825em; /* 1px equivalent that scales with font-size */
+    background-color: currentColor;
+    opacity: 0.3;
+    transform-origin: left;
+    transition: opacity var(--duration-hover) var(--ease-power2);
+  }
+
+  &:hover::after {
+    opacity: 0.5;
+  }
+}
+
+/* Theme-aware Nuxt Icon utilities
+   Use these classes to ensure icons inherit theme colors and scale properly */
+
+/* Default icon inherits text color from parent */
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+  color: currentColor;
+}
+
+/* Icon opacity variants - match text hierarchy */
+.icon-100 {
+  color: var(--theme-text-100);
+}
+
+.icon-60 {
+  color: var(--theme-text-60);
+}
+
+.icon-50 {
+  color: var(--theme-text-50);
+}
+
+.icon-40 {
+  color: var(--theme-text-40);
+}
+
+/* Icon size utilities using em (scales with parent font-size) */
+.icon-xs {
+  font-size: 0.75em; /* 12px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-sm {
+  font-size: 0.875em; /* 14px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-base {
+  font-size: 1em; /* Same as text */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-lg {
+  font-size: 1.25em; /* 20px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-xl {
+  font-size: 1.5em; /* 24px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.icon-2xl {
+  font-size: 2em; /* 32px at 16px base */
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+/* Entrance animation - hide elements on first load only
+   - Prevents flash of visible content before GSAP animation starts on first load
+   - Scoped to html.is-first-load class (injected by SSR, removed after entrance completes)
+   - On subsequent page navigations, class is absent so CSS doesn't apply
+   - This allows page transitions to handle element visibility normally */
+html.is-first-load [data-entrance-animate="true"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Parallax utilities - GSAP ScrollSmoother integration
+   - Works with data-speed="auto" attribute
+   - Fully responsive with no fixed values
+   - Container fills parent, element is 120% for movement range */
+
+/* Container for parallax elements
+   - Fills parent (100% height)
+   - Provides overflow: hidden for parallax effect
+   - Wrapper element controls actual height */
+.parallax-container {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+}
+
+/* Media (image/video) with parallax effect
+   - 120% height (20% larger than container)
+   - Provides room for parallax movement
+   - Use with data-speed="auto" */
+.parallax-media {
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Semantic z-index layers for depth control */
+.parallax-background {
+  z-index: 1;
+}
+
+.parallax-foreground {
+  z-index: 10;
+}

@@ -1,0 +1,41 @@
+@use "../tokens/breakpoints.scss" as bp;
+
+/* ============================================
+   Experience Section
+   ============================================
+
+   Experience list component with responsive layout.
+   Uses CSS Subgrid to inherit content-grid columns for perfect alignment.
+
+   Desktop/Laptop (≥1024px):
+   - CSS Subgrid inherits parent content-grid columns
+   - Items align to same grid lines across all rows
+
+   Mobile/Tablet (<1024px):
+   - 2-column layout (Date left, Title/Company/Location stacked right)
+
+   Theme Integration:
+   - Uses CSS custom properties for colors
+   - Border dividers via FullWidthBorder component
+*/
+
+/* ============================================
+   NESTED FULL-WIDTH ELEMENTS
+   ============================================ */
+
+/* Experience items are nested full-width-content (inside list which is also full-width-content) */
+/* Need explicit rule since content-grid.scss only handles direct children */
+.full-width-content > .experience-item.full-width-content {
+  grid-column: full-width;
+  display: grid;
+  grid-template-columns: inherit;
+}
+
+/* ============================================
+   EXPERIENCE ITEM
+   ============================================ */
+
+.experience-item {
+  /* Full-width grid for border and content */
+  position: relative;
+}

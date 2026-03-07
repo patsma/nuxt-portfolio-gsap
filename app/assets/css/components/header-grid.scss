@@ -1,0 +1,214 @@
+@use "../tokens/breakpoints.scss" as bp;
+
+/* Header container - fixed positioning with three-state headroom behavior
+   - Fixed outside ScrollSmoother content (per GSAP docs)
+   - Default: Full height, transparent (reveals FluidGradient)
+   - Compact: Reduced height with backdrop blur when scrolled
+   - Hidden: Translated out of view on scroll down */
+.header-grid {
+  /* Fixed positioning - works properly outside #smooth-content */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--size-header); /* Full height by default */
+  /* Transparent by default to reveal FluidGradient background */
+  background: transparent;
+  backdrop-filter: none;
+  /* High z-index to stay above content and overlay */
+  z-index: 50;
+  isolation: isolate;
+  /* Smooth transitions for all headroom state changes */
+  will-change: transform, height, background-color, backdrop-filter;
+  transition:
+    transform var(--duration-hover) var(--ease-power2),
+    height var(--duration-hover) var(--ease-power2),
+    background-color var(--duration-hover) var(--ease-power2),
+    backdrop-filter var(--duration-hover) var(--ease-power2);
+}
+
+/* Headroom states - three-state system for adaptive header behavior
+   STATE 1: headroom--top - At viewport top
+   - Full height, transparent background
+   - This is the default state, no additional styles needed
+
+   STATE 2: headroom--not-top - Scrolled but visible
+   - Compact height with backdrop blur for glass effect
+   - Theme-aware semi-transparent background */
+.header-grid.headroom--not-top {
+  height: var(--size-header-compact); /* Compact height: 64px → 80px */
+  background-color: var(--theme-5); /* 5% opacity, adapts to theme */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); /* Safari support */
+}
+
+/* STATE 3: headroom--unpinned - Hidden when scrolling down */
+.header-grid.headroom--unpinned {
+  transform: translateY(-100%);
+}
+
+/* Disable transitions during page transitions to prevent visible jumps
+   - Applied when headroom is paused
+   - Removed when headroom resumes */
+.header-grid.headroom--no-transition {
+  transition: none !important;
+}
+
+/* Slow transitions for dramatic post-transition animations
+   - Applied when header animates to top state after page transition
+   - Uses --duration-slow (800ms) for smooth, elegant reveal
+   - Automatically removed after animation completes */
+.header-grid.headroom--smooth-transition {
+  transition:
+    transform var(--duration-slow) var(--ease-power2),
+    height var(--duration-slow) var(--ease-power2),
+    background-color var(--duration-slow) var(--ease-power2),
+    backdrop-filter var(--duration-slow) var(--ease-power2);
+}
+
+/* Animated background - reveals when mobile menu opens
+   - Positioned absolutely to fill entire header
+   - Solid theme color (light or dark)
+   - Animated via clip-path from bottom to top
+   - Sits behind content but above body */
+.header-grid__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--theme-100);
+  z-index: -1; /* Behind header content */
+  will-change: clip-path;
+  clip-path: inset(100% 0 0 0); /* Initial state - hidden from top */
+}
+
+.header-grid__inner {
+  display: grid;
+  grid-template-rows: 100%; /* Inherit from parent header height */
+  height: 100%; /* Fill parent container */
+}
+
+.header-grid__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.header-grid__row--top {
+  height: var(--size-header);
+  transition: height var(--duration-hover) var(--ease-power2); /* Smooth height transition */
+}
+
+/* Compact row height when header is not at top */
+.headroom--not-top .header-grid__row--top {
+  height: var(--size-header-compact);
+}
+
+/* Hamburger button */
+.header-grid__hamburger {
+  cursor: pointer;
+  display: inline-flex;
+  width: 3.5rem;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: start;
+  color: var(--theme-text-100);
+  margin-left: -0.25rem;
+  margin-top: -0.25rem;
+}
+
+@include bp.up(bp.$bp-md) {
+  .header-grid__hamburger {
+    display: none;
+  }
+}
+
+.header-grid__hamburgerIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Brand/logo */
+.header-grid__brand {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  grid-column: 2; /* center column on mobile */
+  justify-self: center;
+  color: var(--theme-text-100);
+}
+
+@include bp.up(bp.$bp-md) {
+  .header-grid__brand {
+    grid-column: 1; /* move to left on desktop */
+    justify-self: start;
+  }
+}
+
+.header-grid__brandImage {
+  height: var(--size-header);
+  width: auto;
+}
+
+/* Navigation */
+.header-grid__nav {
+  grid-column: 2; /* center column */
+  display: none;
+  gap: var(--space-xl);
+}
+
+@include bp.up(bp.$bp-md) {
+  .header-grid__nav {
+    display: inline-flex; /* show on desktop */
+  }
+}
+
+/* Navigation link underline animation - premium feel
+   - Animates from center outwards on hover
+   - Uses theme colors for consistency
+   - Only shows on hover, not on active links
+   - Syncs with text opacity transition */
+.header-grid__nav .nav-link {
+  position: relative;
+
+  /* Underline using ::after pseudo-element */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -0.25em;
+    left: 50%;
+    transform: translateX(-50%); /* center the line */
+    width: 0%;
+    height: var(--border-width-thin);
+    background-color: var(--theme-text-100);
+    opacity: 0;
+    transition:
+      width var(--duration-hover) var(--ease-power2),
+      opacity var(--duration-hover) var(--ease-power2);
+  }
+
+  /* Hover on non-active links only: expand to full width and fade in */
+  &:not([data-active="true"]):hover::after {
+    width: 100%;
+    opacity: 0.5;
+  }
+}
+
+/* Right spacer */
+.header-grid__spacer {
+  grid-column: 3;
+}
+
+/* Mobile overlay - full screen menu
+   - GSAP handles all animations (clip-path)
+   - No CSS transitions to avoid conflicts
+   - Initial clip-path prevents FOUC (flash of white background) */
+#mobile-overlay {
+  z-index: -1;
+  will-change: clip-path;
+  clip-path: inset(
+    100% 0 0 0
+  ); /* Initially hidden at bottom - GSAP will animate from here */
+  /* Removed transition to let GSAP control everything */
+}

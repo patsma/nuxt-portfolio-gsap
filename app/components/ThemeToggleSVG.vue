@@ -1,0 +1,106 @@
+<script setup lang="ts">
+// SSR-safe unique ID using Nuxt's built-in composable
+const uid = useId()
+</script>
+
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 42.28 21.83"
+  >
+    <g
+      :id="`${uid}-Layer_2`"
+      data-name="Layer 2"
+    >
+      <g :id="`${uid}-toggle-theme`">
+        <!-- Background pill shape - GSAP controls fill -->
+        <path
+          :id="`${uid}-bg`"
+          fill="var(--theme-100)"
+          d="M11.14.91h20a10,10,0,0,1,10,10h0a10,10,0,0,1-10,10h-20a10,10,0,0,1-10-10h0A10,10,0,0,1,11.14.91Z"
+        />
+
+        <!-- Moon (right side) - light circle -->
+        <circle
+          :id="`${uid}-moon-white`"
+          cx="31.14"
+          cy="10.91"
+          r="8"
+        />
+
+        <!-- Moon crescent (dark) - will morph to sun-dark -->
+        <path
+          :id="`${uid}-moon-dark`"
+          class="moon-dark-element"
+          d="M30.54,4.91a6,6,0,1,0,6.6,6.7.64.64,0,0,0-1-.6,3.29,3.29,0,0,1-1.9.6A3.59,3.59,0,0,1,30.64,8a3.08,3.08,0,0,1,.6-1.9A.88.88,0,0,0,30.54,4.91Z"
+        />
+
+        <!-- Sun (left side) -->
+        <g :id="`${uid}-sun-light`">
+          <!-- Sun center - will morph to sun-dark -->
+          <path
+            :id="`${uid}-sun-light-inner`"
+            d="M11.14,8.19a2.73,2.73,0,0,0,0,5.45,2.73,2.73,0,0,0,0-5.45Z"
+          />
+
+          <!-- Sun beams - will fade out -->
+          <g :id="`${uid}-sun-light-beams`">
+            <path
+              d="M5.69,11.46H6.78a.55.55,0,0,0,.54-.55.54.54,0,0,0-.54-.54H5.69a.55.55,0,0,0-.55.54A.55.55,0,0,0,5.69,11.46Z"
+            />
+            <path
+              d="M15.51,11.46H16.6a.55.55,0,0,0,0-1.09H15.51a.55.55,0,0,0-.55.54A.55.55,0,0,0,15.51,11.46Z"
+            />
+            <path
+              d="M10.6,5.46V6.55a.54.54,0,0,0,.54.54.55.55,0,0,0,.55-.54V5.46a.55.55,0,0,0-1.09,0Z"
+            />
+            <path
+              d="M10.6,15.28v1.09a.54.54,0,0,0,.54.54.55.55,0,0,0,.55-.54V15.28a.55.55,0,0,0-.55-.55.55.55,0,0,0-.54.55Z"
+            />
+            <path
+              d="M7.87,6.87a.53.53,0,0,0-.77,0,.52.52,0,0,0,0,.76l.57.58a.54.54,0,1,0,.77-.77h0Z"
+            />
+            <path
+              d="M14.61,13.61a.54.54,0,0,0-.77.77l.58.58a.54.54,0,0,0,.77-.77h0Z"
+            />
+            <path
+              d="M15.19,7.63a.54.54,0,0,0-.77-.77l-.58.58a.55.55,0,0,0,0,.77.53.53,0,0,0,.77,0h0Z"
+            />
+            <path
+              d="M8.44,14.38a.54.54,0,0,0-.77-.77l-.57.58a.54.54,0,0,0,0,.77.55.55,0,0,0,.77,0Z"
+            />
+          </g>
+        </g>
+
+        <!-- Sun dark circle (hidden initially) -->
+        <circle
+          :id="`${uid}-sun-dark`"
+          class="sun-dark-element"
+          cx="11.14"
+          cy="10.91"
+          r="8"
+        />
+
+        <!-- Invisible rect for consistent viewBox -->
+        <rect
+          :id="`${uid}-dummy`"
+          width="42.28"
+          height="21.83"
+          fill="none"
+          opacity="0"
+        />
+      </g>
+    </g>
+  </svg>
+</template>
+
+<style scoped>
+/* Hide elements that will be animated on init to prevent flash */
+.sun-dark-element,
+.moon-dark-element {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Don't set fills - let GSAP handle all colors to avoid conflicts */
+</style>
