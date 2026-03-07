@@ -5,26 +5,32 @@ Theme-aware loader with SSR support, entrance animations, and resource tracking.
 ## Flow
 
 ```
-1. SSR injects loader HTML + theme detection script + asset list (Nitro plugin)
-1b. PerformanceObserver watches each /_nuxt/ chunk complete → bar fills in real-time
-2. Browser shows loader with correct theme + progress bar immediately
-3. Resources load (fonts, GSAP, ScrollSmoother)
-4. Minimum display time enforced (default 300ms)
-5. 'app:ready' event fires
-6. Loader fades out (500ms) — progress bar removed with it (child element)
-7. Entrance animations play in sequence
-8. 'app:complete' event fires
+1. SSR sends HTML — <head> contains:
+   - Inline blocking script: sets theme class + --loader-bg + is-first-load
+   - Inline <style>: all loader CSS (no external dependency)
+   - <link rel="preload" as="style"> for every CSS file (non-blocking)
+   - <script type="module"> for JS (non-blocking by default)
+2. Browser paints immediately — loader div is first in <body>, styled by inline CSS
+   └─ PerformanceObserver starts tracking /_nuxt/ assets → bar fills 0%→12%
+3. Vue hydrates → loader-manager plugin runs → bar jumps to 30%
+4. GSAP initializes → bar jumps to 50% (trickle was running toward 48%)
+5. document.fonts.ready resolves → bar jumps to 65% (trickle was running toward 63%)
+6. minLoadTime enforced (default 800ms) — trickle runs toward 88% during wait
+7. 'app:ready' fires → bar snaps to 90%, then loader-manager snaps to 100%
+8. Loader fades out (500ms) — bar removed as child of loader div
+9. Entrance animations play in sequence
+10. 'app:complete' fires
 ```
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `server/plugins/inject-loader.ts` | Injects theme script + `window.__NUXT_ASSETS__` + PerformanceObserver + loader HTML |
-| `nuxt.config.ts` | Loader CSS + `#loader-bar` progress bar CSS injected in `<head>` |
-| `app/plugins/loader-manager.client.ts` | Removes loader on 'app:ready' event (bar removed as child) |
+| `server/plugins/inject-loader.ts` | Theme script + `--loader-bg` var + PerformanceObserver (0→12%) + loader HTML + CSS non-blocking transform |
+| `nuxt.config.ts` | Inline loader CSS in `<head>`: `#loader-bar`, `.app-loader-gradient`, keyframes, dark theme overrides |
+| `app/plugins/loader-manager.client.ts` | Sets progress 30% on startup (Vue hydrated); snaps to 100% + removes loader on 'app:ready' |
 | `app/stores/loading.ts` | Tracks loading state (initial → loading → ready → animating → complete) |
-| `app/composables/useLoadingSequence.ts` | Orchestrates timing and resource checks |
+| `app/composables/useLoadingSequence.ts` | Orchestrates milestones: GSAP(50%) + fonts(65%) + trickle between each + 90% before app:ready |
 | `app/composables/useEntranceAnimation.ts` | Coordinates component entrance animations |
 | `app/app.vue` | Starts loading sequence: `initializeLoading()` |
 
@@ -44,20 +50,71 @@ document.documentElement.classList.toggle('theme-dark', isDark);
 
 ## Progress Bar
 
-Thin top bar (YouTube-style) that fills based on actual `/_nuxt/` asset loading — not time.
+Thin top bar driven by **real app lifecycle milestones**, not fake time or byte counts.
 
-**How it works:**
+### Why milestone-based, not asset bytes
 
-1. Nitro plugin extracts all `/_nuxt/` URLs from the server-rendered `html.head` arrays (Nuxt injects `<link rel="modulepreload">` and `<script>` tags there)
-2. Injects `window.__NUXT_ASSETS__ = ['/\_nuxt/chunk.js', ...]` into the loader script
-3. A `PerformanceObserver` with `buffered: true` watches for each URL completing
-4. Updates `--loader-progress` CSS custom property (0 → 1) as each asset loads
-5. `#loader-bar` width is driven by `calc(var(--loader-progress, 0) * 100%)`
-6. Bar is a child of `#app-initial-loader` — auto-removed when loader is removed
+Asset downloads finish in <100ms on fast connections, leaving the bar at 100% for 5-10 seconds while Vue hydrates and GSAP initializes. Milestone-based progress ties the bar to work that's actually happening — the bar only completes when the app is genuinely ready.
 
-**Fallback:** In dev mode, Nuxt doesn't generate chunked `/_nuxt/` assets, so `total === 0` and the bar stays hidden. The existing timer-based `app:ready` flow still removes the loader correctly.
+### Milestone map
 
-**CSS custom property:** `--loader-progress` — set on `<html>` by the injected script, consumed by `#loader-bar { width: calc(var(--loader-progress, 0) * 100%) }` in `nuxt.config.ts` head styles.
+| Value | Event | Where set |
+|-------|-------|-----------|
+| 0% → 12% | `/_nuxt/` assets downloading | PerformanceObserver in head script |
+| 30% | Vue hydrated (loader-manager plugin runs) | `loader-manager.client.ts` on startup |
+| 50% | GSAP initialized | `useLoadingSequence.ts` after `setGsapReady()` |
+| 65% | Fonts ready (`document.fonts.ready`) | `useLoadingSequence.ts` after `setFontsReady()` |
+| 90% | Min display time elapsed, about to fire `app:ready` | `useLoadingSequence.ts` |
+| 100% | `app:ready` received — fade-out begins | `loader-manager.client.ts` at `handleAppReady` |
+
+### Trickle between milestones
+
+Between real milestones the bar slowly creeps toward the next target so it never appears frozen. Uses asymptotic decay: each tick moves 8% of the remaining gap, naturally decelerating as it approaches the cap without ever reaching it. Stops immediately when the real milestone fires.
+
+```
+startTrickle(cap)  →  setInterval 160ms, moves current + (cap - current) * 0.08
+stopTrickle()      →  clearInterval, called before each setProgress(milestone)
+```
+
+Trickle ranges: 30%→~48% (GSAP wait), 50%→~63% (font wait), 65%→~88% (minLoadTime wait).
+
+### CSS
+
+```css
+#loader-bar {
+  width: calc(var(--loader-progress, 0) * 100%);
+  transition: width 0.3s linear; /* linear keeps trickle steps smooth */
+}
+html:not(.theme-dark) #loader-bar { border-top-color: #1a1a2e; }
+html.theme-dark #loader-bar { border-top-color: #f0e6d3; }
+```
+
+`linear` (not `ease`) — trickle fires every 160ms, linear makes chained small steps look like one continuous glide instead of a series of ease-in-ease-out blips.
+
+### Non-blocking CSS
+
+All `<link rel="stylesheet">` tags are transformed in the Nitro plugin to a preload+swap pattern so they no longer block first paint:
+
+```html
+<!-- Transformed from: -->
+<link rel="stylesheet" href="/_nuxt/main.css">
+
+<!-- To: -->
+<link rel="preload" as="style" href="/_nuxt/main.css" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/_nuxt/main.css"></noscript>
+```
+
+The loader covers the entire viewport (`z-index: 99999`) so there's no FOUC — by the time it fades (300ms+ after `app:ready`), all CSS has long since applied via the `onload` swap.
+
+### Theme-aware background without CSS
+
+The `--loader-bg` CSS variable is set by the blocking theme script (before any asset loads), so the loader background is correct on first paint without depending on any external stylesheet:
+
+```js
+document.documentElement.style.setProperty('--loader-bg', isDark ? '#090925' : '#fffaf5')
+```
+
+The loader div also carries inline `style="background:var(--loader-bg,#fffaf5)"` as belt-and-suspenders in case the `<style>` block hasn't parsed yet.
 
 ## Entrance Animation System
 
@@ -360,13 +417,19 @@ onUnmounted(() => {
 | Elements stay hidden after navigation | CSS applies without class check | Use `html.is-first-load` scoping |
 | Wrong animation order | Position parameters incorrect | Review GSAP position syntax table |
 | ScrollTrigger fallback broken | No config provided | Add `scrollTrigger` option to `setupEntrance()` |
-| Bar stays at 0% | No `/_nuxt/` URLs in head (expected in dev mode) | Normal — timer still removes loader; test in `npm run preview` |
-| Bar jumps to 100% instantly | All assets cached (correct behavior) | Expected on repeat visits — browser cache is the truth |
+| Bar stays at 0% then jumps | No `/_nuxt/` assets found (dev mode HMR) | Normal — milestone jumps still run (30%→50%→65%→100%); asset phase just skipped |
+| Bar hits 12% and stalls | Trickle not starting | Check `initializeLoading` is called from `app.vue`; trickle starts inside it |
+| Bar completes but loader stays | `app:ready` event not firing | Check `useLoadingSequence.initializeLoading()` is awaited in `app.vue` |
+| Bar jumps to 100% instantly | All assets cached + GSAP/fonts instant | Expected on repeat visits — milestones fire immediately when work is already done |
 
 ## Architecture Notes
 
 - **Nitro plugin** - Only way to inject HTML before SSR response (app.html doesn't work in dev)
-- **Blocking script** - Runs BEFORE loader renders, prevents FOUC
+- **Blocking script** - Runs BEFORE loader renders; sets theme class, `--loader-bg`, `is-first-load` — prevents FOUC
+- **Non-blocking CSS** - All `<link rel="stylesheet">` converted to `rel="preload"` + onload swap so body renders immediately
+- **Inline loader styles** - Both `<style>` block (nuxt.config.ts) AND `style=""` attribute on loader div; ensures loader renders on first byte with zero CSS dependency
+- **Milestone progress** - `--loader-progress` updated at real lifecycle events, not bytes or time
+- **Trickle animation** - `startTrickle(cap)` / `stopTrickle()` in `useLoadingSequence.ts` keep bar visually moving between milestones
 - **Module-level state** - `useEntranceAnimation.ts` shares master timeline across components
 - **Viewport detection** - In-viewport elements queue for entrance, below-fold use ScrollTrigger
 - **Event-driven** - Decoupled component communication via window events
