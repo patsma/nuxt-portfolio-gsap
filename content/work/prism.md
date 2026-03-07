@@ -1,17 +1,17 @@
 ---
-title: "Prism"
-slug: "prism"
-client: "Prism Platform"
-role: "Design System & Component Library"
-year: "2023"
-tag: "PLATFORM"
-cover: "/assets/dummy/placeholder3.jpg"
-images:
-  - "/assets/dummy/placeholder3.jpg"
-  - "/assets/dummy/placeholder7.jpg"
-  - "/assets/dummy/placeholder5.jpg"
-description: "A scalable design system and component library enabling consistent experiences across a suite of enterprise products."
+title: Prism
+description: A scalable design system and component library enabling consistent experiences across a suite of enterprise products.
+client: Prism Platform
+cover: /assets/dummy/placeholder3.jpg
 displayOrder: 4
+images:
+  - /assets/dummy/placeholder3.jpg
+  - /assets/dummy/placeholder7.jpg
+  - /assets/dummy/placeholder5.jpg
+role: Design System & Component Library
+slug: prism
+tag: PLATFORM
+year: "2023"
 ---
 
 ## Challenge

@@ -1,17 +1,17 @@
 ---
-title: "Nexus"
-slug: "nexus"
-client: "Nexus Creative"
-role: "Website Redesign & Development"
-year: "2023"
-tag: "REDESIGN"
-cover: "/assets/dummy/placeholder7.jpg"
-images:
-  - "/assets/dummy/placeholder7.jpg"
-  - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder5.jpg"
-description: "A complete website overhaul that transformed an outdated presence into a modern, high-performance showcase."
+title: Nexus
+description: A complete website overhaul that transformed an outdated presence into a modern, high-performance showcase.
+client: Nexus Creative
+cover: /assets/dummy/placeholder7.jpg
 displayOrder: 6
+images:
+  - /assets/dummy/placeholder7.jpg
+  - /assets/dummy/placeholder1.jpg
+  - /assets/dummy/placeholder5.jpg
+role: Website Redesign & Development
+slug: nexus
+tag: REDESIGN
+year: "2023"
 ---
 
 ## Challenge

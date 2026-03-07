@@ -1,17 +1,17 @@
 ---
-title: "Catalyst"
-slug: "catalyst"
-client: "Catalyst Technologies"
-role: "UX Strategy & Interface Design"
-year: "2024"
-tag: "WEB APP"
-cover: "/assets/dummy/placeholder1.jpg"
-images:
-  - "/assets/dummy/placeholder1.jpg"
-  - "/assets/dummy/placeholder3.jpg"
-  - "/assets/dummy/placeholder8.jpg"
-description: "A powerful web application designed to streamline complex workflows and enhance team productivity."
+title: Catalyst
+description: A powerful web application designed to streamline complex workflows and enhance team productivity.
+client: Catalyst Technologies
+cover: /assets/dummy/placeholder1.jpg
 displayOrder: 2
+images:
+  - /assets/dummy/placeholder1.jpg
+  - /assets/dummy/placeholder3.jpg
+  - /assets/dummy/placeholder8.jpg
+role: UX Strategy & Interface Design
+slug: catalyst
+tag: WEB APP
+year: "2024"
 ---
 
 ## Challenge

@@ -1,8 +1,5 @@
-id: lab
-showServices: false
-showScrollButton: true
 headline:
-  - text: "Feel"
+  - text: Feel
     variant: default
   - text: " free"
     variant: italic
@@ -22,3 +19,6 @@ headline:
     variant: italic
   - text: " evolving"
     variant: emphasis
+showScrollButton: true
+showServices: false
+title: Lab

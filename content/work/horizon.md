@@ -1,17 +1,17 @@
 ---
-title: "Horizon"
-slug: "horizon"
-client: "Horizon Commerce"
-role: "Art Direction & Visual Design"
-year: "2023"
-tag: "E-COMMERCE"
-cover: "/assets/dummy/placeholder2.jpg"
-images:
-  - "/assets/dummy/placeholder2.jpg"
-  - "/assets/dummy/placeholder4.jpg"
-  - "/assets/dummy/placeholder6.jpg"
-description: "A visually stunning e-commerce experience that elevates product presentation and simplifies the purchasing journey."
+title: Horizon
+description: A visually stunning e-commerce experience that elevates product presentation and simplifies the purchasing journey.
+client: Horizon Commerce
+cover: /assets/dummy/placeholder2.jpg
 displayOrder: 3
+images:
+  - /assets/dummy/placeholder2.jpg
+  - /assets/dummy/placeholder4.jpg
+  - /assets/dummy/placeholder6.jpg
+role: Art Direction & Visual Design
+slug: horizon
+tag: E-COMMERCE
+year: "2023"
 ---
 
 ## Challenge

@@ -1,8 +1,5 @@
-id: contact
-showServices: false
-showScrollButton: true
 headline:
-  - text: "Got an"
+  - text: Got an
     variant: default
   - text: " idea?"
     variant: italic
@@ -14,3 +11,6 @@ headline:
     variant: default
   - text: " conversation"
     variant: italic
+showScrollButton: true
+showServices: false
+title: Contact

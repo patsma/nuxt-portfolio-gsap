@@ -1,8 +1,5 @@
-id: about
-showServices: false
-showScrollButton: true
 headline:
-  - text: "Driven by a"
+  - text: Driven by a
     variant: default
   - text: " passion"
     variant: italic
@@ -24,3 +21,6 @@ headline:
     variant: italic
   - text: " journey"
     variant: default
+showScrollButton: true
+showServices: false
+title: About

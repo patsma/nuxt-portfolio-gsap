@@ -1,17 +1,17 @@
 ---
-title: "Lumina"
-slug: "lumina"
-client: "Lumina Brand Co."
-role: "Brand Identity & Digital Design"
-year: "2024"
-tag: "BRANDING"
-cover: "/assets/dummy/placeholder.jpg"
-images:
-  - "/assets/dummy/placeholder.jpg"
-  - "/assets/dummy/placeholder5.jpg"
-  - "/assets/dummy/placeholder6.jpg"
-description: "A comprehensive brand identity system paired with a modern digital presence for a forward-thinking startup."
+title: Lumina
+description: A comprehensive brand identity system paired with a modern digital presence for a forward-thinking startup.
+client: Lumina Brand Co.
+cover: /assets/dummy/placeholder.jpg
 displayOrder: 1
+images:
+  - /assets/dummy/placeholder.jpg
+  - /assets/dummy/placeholder5.jpg
+  - /assets/dummy/placeholder6.jpg
+role: Brand Identity & Digital Design
+slug: lumina
+tag: BRANDING
+year: "2024"
 ---
 
 ## Challenge
