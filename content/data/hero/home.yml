@@ -1,12 +1,9 @@
-id: home
-showServices: true
-showScrollButton: true
 headline:
-  - text: "Hello, I'm a"
+  - text: Hello, I'm a
     variant: default
   - text: " creative"
     variant: emphasis
-  - text: " designer"
+  - text: " Designer"
     variant: body
   - text: " with a passion for"
     variant: default
@@ -28,3 +25,6 @@ headline:
     variant: default
   - text: " function"
     variant: italic
+showScrollButton: true
+showServices: true
+title: Home
