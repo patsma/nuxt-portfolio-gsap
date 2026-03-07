@@ -78,9 +78,10 @@ export default defineNitroPlugin((nitroApp) => {
                 var path = entry.name.replace(location.origin, '');
                 if (assets.indexOf(path) !== -1) {
                   loaded = Math.min(loaded + 1, total);
-                  // Cap at 0.85 — the final 15% is reserved for Vue hydration + init,
-                  // completed when app:ready fires in loader-manager.client.ts
-                  setProgress((loaded / total) * 0.85);
+                  // Cap at 0.12 — assets are just downloads, not app initialization.
+                  // The remaining 88% tracks real Vue/GSAP/font milestones via
+                  // loader-manager.client.ts and useLoadingSequence.ts
+                  setProgress((loaded / total) * 0.12);
                   if (loaded >= total) observer.disconnect();
                 }
               });

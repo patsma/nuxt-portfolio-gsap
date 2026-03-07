@@ -30,6 +30,10 @@ export default defineNuxtPlugin(() => {
     // Prevents ~20px offset issue caused by early scroll state
     window.scrollTo(0, 0)
 
+    // Vue has hydrated — mark that milestone on the progress bar (30%)
+    // Assets finished at 0-12%, this jump signals real JS execution has begun
+    document.documentElement.style.setProperty('--loader-progress', '0.30')
+
     // console.log('🎨 Loader manager plugin initialized');
     // console.log('📍 Initial scroll position reset to top');
 

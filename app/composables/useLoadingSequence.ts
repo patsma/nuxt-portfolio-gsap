@@ -80,6 +80,43 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
   const { $gsap } = useNuxtApp() as unknown as { $gsap: GSAPInstance }
 
   /**
+   * Set --loader-progress CSS variable to advance the loading bar.
+   * Called at each real app lifecycle milestone so the bar reflects
+   * actual initialization state, not just asset download bytes.
+   */
+  const setProgress = (v: number): void => {
+    if (typeof document !== 'undefined')
+      document.documentElement.style.setProperty('--loader-progress', String(v))
+  }
+
+  /**
+   * Trickle: slowly creep toward `cap` so the bar never looks frozen between milestones.
+   * Each tick moves 8% of the remaining distance — asymptotic, so it naturally decelerates
+   * without ever reaching the cap. Stops when the next real milestone fires.
+   */
+  let trickleTimer: ReturnType<typeof setInterval> | null = null
+
+  const stopTrickle = (): void => {
+    if (trickleTimer !== null) {
+      clearInterval(trickleTimer)
+      trickleTimer = null
+    }
+  }
+
+  const startTrickle = (cap: number): void => {
+    stopTrickle()
+    trickleTimer = setInterval(() => {
+      if (typeof document === 'undefined') return
+      const current = parseFloat(
+        document.documentElement.style.getPropertyValue('--loader-progress') || '0'
+      )
+      const remaining = cap - current
+      if (remaining <= 0.003) return
+      setProgress(current + remaining * 0.08)
+    }, 160)
+  }
+
+  /**
    * Initialize the loading sequence
    * Should be called in app.vue or main layout
    */
@@ -99,8 +136,13 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     )
 
+    // Trickle toward GSAP milestone while we wait for it to initialize
+    startTrickle(0.48)
+
     if ($gsap) {
+      stopTrickle()
       loadingStore.setGsapReady()
+      setProgress(0.50)
     }
     else {
       // console.warn('⚠️ GSAP not available during initialization')
@@ -108,24 +150,38 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       setTimeout(() => {
         const nuxtApp = useNuxtApp() as { $gsap?: GSAPInstance }
         if (nuxtApp.$gsap) {
+          stopTrickle()
           loadingStore.setGsapReady()
+          setProgress(0.50)
         }
       }, 100)
     }
 
+    // Trickle toward fonts milestone while document.fonts.ready resolves
+    startTrickle(0.63)
+
     if (checkFonts && typeof document !== 'undefined') {
       try {
         await document.fonts.ready
+        stopTrickle()
         loadingStore.setFontsReady()
+        setProgress(0.65)
       }
       catch {
         // console.warn('⚠️ Font loading check failed:', error)
+        stopTrickle()
         loadingStore.setFontsReady() // Mark as ready anyway
+        setProgress(0.65)
       }
     }
     else {
+      stopTrickle()
       loadingStore.setFontsReady()
+      setProgress(0.65)
     }
+
+    // Trickle toward the end during minLoadTime — this is the longest visible gap
+    startTrickle(0.88)
 
     // CRITICAL: Always enforce minimum display time
     // This ensures the loader is visible even on fast connections
@@ -137,9 +193,12 @@ export const useLoadingSequence = (): LoadingSequenceReturn => {
       await new Promise<void>(resolve => setTimeout(resolve, remainingTime))
     }
 
+    stopTrickle()
+
     // CRITICAL: Fire app:ready event AFTER minimum time is enforced
     // This ensures loader stays visible for the full duration
     if (typeof window !== 'undefined') {
+      setProgress(0.90) // About to fire — app fully ready, just about to hand off
       const totalDuration = Date.now() - startTime
       window.dispatchEvent(
         new CustomEvent('app:ready', {

@@ -49,7 +49,7 @@ export default defineNuxtConfig({
               left: 0;
               height: 3px;
               width: calc(var(--loader-progress, 0) * 100%);
-              transition: width 0.25s ease;
+              transition: width 0.3s linear;
               pointer-events: none;
               z-index: 1;
             }
