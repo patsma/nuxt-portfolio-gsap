@@ -41,6 +41,21 @@ export default defineNuxtConfig({
               pointer-events: none;
             }
 
+            /* True progress bar - fills based on actual /_nuxt/ asset loading */
+            /* Child of #app-initial-loader, auto-removed when loader is removed */
+            #loader-bar {
+              position: absolute;
+              top: 0;
+              left: 0;
+              height: 3px;
+              width: calc(var(--loader-progress, 0) * 100%);
+              transition: width 0.25s ease;
+              pointer-events: none;
+              z-index: 1;
+            }
+            html:not(.theme-dark) #loader-bar { background: #1a1a2e; }
+            html.theme-dark #loader-bar { background: #f0e6d3; }
+
             /* Primary layer - breathing pulse (light theme) */
             .app-loader-gradient {
               position: fixed;

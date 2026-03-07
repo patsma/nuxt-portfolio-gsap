@@ -5,12 +5,13 @@ Theme-aware loader with SSR support, entrance animations, and resource tracking.
 ## Flow
 
 ```
-1. SSR injects loader HTML + theme detection script (Nitro plugin)
-2. Browser shows loader with correct theme immediately
+1. SSR injects loader HTML + theme detection script + asset list (Nitro plugin)
+1b. PerformanceObserver watches each /_nuxt/ chunk complete → bar fills in real-time
+2. Browser shows loader with correct theme + progress bar immediately
 3. Resources load (fonts, GSAP, ScrollSmoother)
 4. Minimum display time enforced (default 300ms)
 5. 'app:ready' event fires
-6. Loader fades out (500ms)
+6. Loader fades out (500ms) — progress bar removed with it (child element)
 7. Entrance animations play in sequence
 8. 'app:complete' event fires
 ```
@@ -19,9 +20,9 @@ Theme-aware loader with SSR support, entrance animations, and resource tracking.
 
 | File | Purpose |
 |------|---------|
-| `server/plugins/inject-loader.ts` | Injects theme script + loader HTML before SSR response |
-| `nuxt.config.ts` | Loader CSS injected in `<head>` |
-| `app/plugins/loader-manager.client.ts` | Removes loader on 'app:ready' event |
+| `server/plugins/inject-loader.ts` | Injects theme script + `window.__NUXT_ASSETS__` + PerformanceObserver + loader HTML |
+| `nuxt.config.ts` | Loader CSS + `#loader-bar` progress bar CSS injected in `<head>` |
+| `app/plugins/loader-manager.client.ts` | Removes loader on 'app:ready' event (bar removed as child) |
 | `app/stores/loading.ts` | Tracks loading state (initial → loading → ready → animating → complete) |
 | `app/composables/useLoadingSequence.ts` | Orchestrates timing and resource checks |
 | `app/composables/useEntranceAnimation.ts` | Coordinates component entrance animations |
@@ -40,6 +41,23 @@ document.documentElement.classList.toggle('theme-dark', isDark);
 ```
 
 **Priority:** localStorage (manual toggle) → `prefers-color-scheme` → light (default)
+
+## Progress Bar
+
+Thin top bar (YouTube-style) that fills based on actual `/_nuxt/` asset loading — not time.
+
+**How it works:**
+
+1. Nitro plugin extracts all `/_nuxt/` URLs from the server-rendered `html.head` arrays (Nuxt injects `<link rel="modulepreload">` and `<script>` tags there)
+2. Injects `window.__NUXT_ASSETS__ = ['/\_nuxt/chunk.js', ...]` into the loader script
+3. A `PerformanceObserver` with `buffered: true` watches for each URL completing
+4. Updates `--loader-progress` CSS custom property (0 → 1) as each asset loads
+5. `#loader-bar` width is driven by `calc(var(--loader-progress, 0) * 100%)`
+6. Bar is a child of `#app-initial-loader` — auto-removed when loader is removed
+
+**Fallback:** In dev mode, Nuxt doesn't generate chunked `/_nuxt/` assets, so `total === 0` and the bar stays hidden. The existing timer-based `app:ready` flow still removes the loader correctly.
+
+**CSS custom property:** `--loader-progress` — set on `<html>` by the injected script, consumed by `#loader-bar { width: calc(var(--loader-progress, 0) * 100%) }` in `nuxt.config.ts` head styles.
 
 ## Entrance Animation System
 
@@ -342,6 +360,8 @@ onUnmounted(() => {
 | Elements stay hidden after navigation | CSS applies without class check | Use `html.is-first-load` scoping |
 | Wrong animation order | Position parameters incorrect | Review GSAP position syntax table |
 | ScrollTrigger fallback broken | No config provided | Add `scrollTrigger` option to `setupEntrance()` |
+| Bar stays at 0% | No `/_nuxt/` URLs in head (expected in dev mode) | Normal — timer still removes loader; test in `npm run preview` |
+| Bar jumps to 100% instantly | All assets cached (correct behavior) | Expected on repeat visits — browser cache is the truth |
 
 ## Architecture Notes
 

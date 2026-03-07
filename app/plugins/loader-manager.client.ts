@@ -63,6 +63,10 @@ export default defineNuxtPlugin(() => {
     const handleAppReady = (): void => {
       // console.log('🚀 App ready event received:', event.detail);
 
+      // Complete the progress bar — jump from wherever assets left off (max 85%) to 100%
+      // This signals that Vue hydration + app init is done, not just asset downloads
+      document.documentElement.style.setProperty('--loader-progress', '1')
+
       // Double RAF ensures Safari has painted DOM before we manipulate it
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
