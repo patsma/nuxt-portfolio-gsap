@@ -381,8 +381,8 @@ export default defineNuxtConfig({
     dev: false,
     repository: {
       provider: 'github',
-      owner: 'your-username',
-      repo: 'your-portfolio',
+      owner: 'patsma',
+      repo: 'nuxt-portfolio-gsap',
       branch: 'main'
     }
   }
