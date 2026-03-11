@@ -23,6 +23,7 @@
  *
  * Cached image handling: browsers sometimes fire @load before onMounted,
  * so we check img.complete in nextTick to avoid a phantom shimmer on repeat visits.
+ * NuxtImg renders to <img> — access underlying element via $el.
  */
 defineOptions({ inheritAttrs: false })
 
@@ -42,15 +43,6 @@ function handleLoad() {
 }
 
 onMounted(() => {
-  // Synchronous check: In Vue 3, NuxtImg is fully mounted before AppImage's
-  // onMounted runs, so $el is available immediately. For preloaded/cached images,
-  // img.complete is true here — set isLoaded immediately so no shimmer flashes
-  // before GSAP reveals the slot in the case study preview system.
-  const imgEl = imgRef.value?.$el as HTMLImageElement | undefined
-  if (imgEl?.complete && imgEl.naturalWidth > 0) {
-    isLoaded.value = true
-    return
-  }
   // Fallback: nextTick for edge cases where $el isn't immediately accessible,
   // or when @load fires before onMounted on repeat visits.
   nextTick(() => {
