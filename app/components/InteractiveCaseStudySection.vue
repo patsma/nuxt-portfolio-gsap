@@ -41,11 +41,16 @@
           :style="{ aspectRatio: currentAspectRatio }"
         >
           <!-- 3-slot carousel system: always animate INTO a fresh slot -->
+          <!-- Plain <img> instead of <AppImage>: images are always preloaded before
+               a slot is shown, so the shimmer/spinner is never needed. AppImage routes
+               through NuxtImg/IPX which transforms the URL (e.g. /_ipx/q_80/...),
+               causing a cache miss against the raw-URL preload. Plain <img> uses the
+               exact same URL as preloadImage() → instant cache hit, no flash. -->
           <div
             ref="slotARef"
             class="preview-image-wrapper"
           >
-            <AppImage
+            <img
               v-if="slotAImage"
               :src="slotAImage.image"
               :alt="slotAImage.imageAlt"
@@ -59,12 +64,12 @@
             ref="slotBRef"
             class="preview-image-wrapper"
           >
-            <AppImage
+            <img
               v-if="slotBImage"
               :src="slotBImage.image"
               :alt="slotBImage.imageAlt"
               class="preview-image"
-              loading="lazy"
+              loading="eager"
               data-speed="0.95"
             />
           </div>
@@ -73,12 +78,12 @@
             ref="slotCRef"
             class="preview-image-wrapper"
           >
-            <AppImage
+            <img
               v-if="slotCImage"
               :src="slotCImage.image"
               :alt="slotCImage.imageAlt"
               class="preview-image"
-              loading="lazy"
+              loading="eager"
               data-speed="0.95"
             />
           </div>

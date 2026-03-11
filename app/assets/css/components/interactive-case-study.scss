@@ -130,7 +130,14 @@ html.is-first-load [data-entrance-animate='true'] {
 }
 
 /* Preview image */
+/* position: absolute + inset: 0 guarantees the image fills .preview-image-wrapper
+   reliably without depending on a height: 100% cascade chain. Previously the
+   .img-wrapper intermediate div (from AppImage) made height: 100% resolve correctly;
+   without that wrapper, absolute positioning is the simplest rock-solid alternative. */
 .preview-image {
+  display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
