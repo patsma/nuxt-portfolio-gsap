@@ -80,9 +80,17 @@ export default defineNuxtPlugin((nuxtApp) => {
       }
     }
     else {
-      // Between AT_TOP_THRESHOLD and SCROLL_THRESHOLD - show compact header (STATE 2)
-      headerElement.classList.remove('headroom--top', 'headroom--unpinned')
-      headerElement.classList.add('headroom--not-top')
+      // Between AT_TOP_THRESHOLD and SCROLL_THRESHOLD
+      if (scrollDirection === -1) {
+        // Scrolling UP — show compact header with solid background (STATE 2)
+        headerElement.classList.remove('headroom--top', 'headroom--unpinned')
+        headerElement.classList.add('headroom--not-top')
+      }
+      else {
+        // Scrolling DOWN — stay transparent, background pre-loads off-screen at SCROLL_THRESHOLD
+        headerElement.classList.add('headroom--top')
+        headerElement.classList.remove('headroom--not-top', 'headroom--unpinned')
+      }
     }
 
     lastScrollTop = currentScroll

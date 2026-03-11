@@ -82,8 +82,10 @@ onMounted(() => {
 | State | Class | Scroll Position | Appearance |
 |-------|-------|----------------|------------|
 | At Top | `headroom--top` | `scrollY ≤ 10px` | Full height, transparent background |
-| Not Top | `headroom--not-top` | `10px < scrollY ≤ 100px` OR scrolling up | Compact height, backdrop blur |
+| Not Top | `headroom--not-top` | Scrolling up past 100px, OR scrolling up in 10–100px zone | Compact height, solid theme background |
 | Hidden | `headroom--unpinned` | Scrolling down past 100px | Translated out of view |
+
+**Direction-aware 10–100px zone:** In the 10–100px range, the class applied depends on scroll direction — scrolling up applies `headroom--not-top` (solid, compact), scrolling down applies `headroom--unpinned` (hidden). This means the solid background is pre-loaded while the header is off-screen, so when it slides back in it's already fully solid from frame 1.
 
 ### Pause/Resume Pattern
 
@@ -267,42 +269,56 @@ const enter = (el: Element, done: () => void): void => {
 **File:** `app/assets/css/components/header-grid.scss`
 
 ```scss
+/* Transitions: transform + height only. background-color intentionally
+   omitted — GSAP animates --theme-100 each frame (theme toggle), so
+   CSS transitions on color would conflict with GSAP's easing. */
 .header-grid {
   position: fixed;
-  height: var(--size-header); // Full height by default
-  // Normal scroll transitions: 300ms (--duration-hover)
+  height: var(--size-header);
+  background: transparent;
+  will-change: transform, height;
   transition: transform var(--duration-hover) var(--ease-power2),
-              height var(--duration-hover) var(--ease-power2),
-              background-color var(--duration-hover) var(--ease-power2),
-              backdrop-filter var(--duration-hover) var(--ease-power2);
+              height var(--duration-hover) var(--ease-power2);
 
-  // STATE 1: At top (default)
-  // Full height, transparent
-
-  // STATE 2: Not at top
-  &.headroom--not-top {
-    height: var(--size-header-compact); // Compact: 64-80px
-    background-color: var(--theme-5); // 5% opacity
-    backdrop-filter: blur(4px);
+  /* Solid background overlay — opacity transitions for scroll state,
+     GSAP owns the color (theme toggle). Decoupled intentionally. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--theme-100);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity var(--duration-hover) var(--ease-power2);
   }
 
-  // STATE 3: Hidden
+  /* STATE 2: compact + solid background */
+  &.headroom--not-top {
+    height: var(--size-header-compact);
+    &::before { opacity: 1; }
+  }
+
+  /* STATE 3: hidden */
   &.headroom--unpinned {
     transform: translateY(-100%);
+    /* Pre-load solid background off-screen (after slide-out completes).
+       When headroom--not-top fires, ::before is already opacity 1
+       → header slides back in fully solid from frame 1. */
+    &::before {
+      opacity: 1;
+      transition-property: opacity;
+      transition-duration: 0ms;
+      transition-delay: var(--duration-hover);
+    }
   }
 
-  // Disable transitions during page transitions
-  &.headroom--no-transition {
-    transition: none !important;
-  }
+  &.headroom--no-transition,
+  &.headroom--no-transition::before { transition: none !important; }
 
-  // Slow transitions for post-transition animations
-  // Applied by resume() for smooth 800ms reveal after page transitions
   &.headroom--smooth-transition {
     transition: transform var(--duration-slow) var(--ease-power2),
-                height var(--duration-slow) var(--ease-power2),
-                background-color var(--duration-slow) var(--ease-power2),
-                backdrop-filter var(--duration-slow) var(--ease-power2);
+                height var(--duration-slow) var(--ease-power2);
   }
 }
 ```
@@ -511,6 +527,7 @@ onUnmounted(() => {
 | ScrollTrigger pinning at wrong position | Content height changed after initialization | Call ScrollTrigger.refresh() after animations (see Component Patterns) |
 | ScrollSmoother active on mobile | isDesktop check missing | Verify useIsMobile() check in layout |
 | Scaling section pins on mobile | Wrong animation mode | Check isDesktop.value in scaling section init |
+| Solid background visible while header slides off-screen | 10–100px zone applies headroom--not-top regardless of direction | Direction-aware else block in headroom.client.ts + ::before pre-loading on headroom--unpinned |
 
 ## Performance
 

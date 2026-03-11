@@ -3,7 +3,7 @@
 /* Header container - fixed positioning with three-state headroom behavior
    - Fixed outside ScrollSmoother content (per GSAP docs)
    - Default: Full height, transparent (reveals FluidGradient)
-   - Compact: Reduced height with backdrop blur when scrolled
+   - Compact: Solid theme background via ::before opacity (no text bleed-through)
    - Hidden: Translated out of view on scroll down */
 .header-grid {
   /* Fixed positioning - works properly outside #smooth-content */
@@ -18,28 +18,40 @@
   /* High z-index to stay above content and overlay */
   z-index: 50;
   isolation: isolate;
-  /* Smooth transitions for all headroom state changes */
-  will-change: transform, height, background-color, backdrop-filter;
+  /* Smooth transitions for headroom state changes (background-color omitted — GSAP owns --theme-100) */
+  will-change: transform, height;
   transition:
     transform var(--duration-hover) var(--ease-power2),
-    height var(--duration-hover) var(--ease-power2),
-    background-color var(--duration-hover) var(--ease-power2),
-    backdrop-filter var(--duration-hover) var(--ease-power2);
+    height var(--duration-hover) var(--ease-power2);
+}
+
+/* Solid background overlay — opacity-based so GSAP can freely animate --theme-100
+   without CSS transition conflicts. Opacity transitions handle the scroll fade,
+   GSAP handles the color (theme toggle). */
+.header-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: var(--theme-100); /* GSAP owns this value — no CSS transition on color */
+  opacity: 0; /* transparent by default (headroom--top state) */
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity var(--duration-hover) var(--ease-power2);
 }
 
 /* Headroom states - three-state system for adaptive header behavior
    STATE 1: headroom--top - At viewport top
-   - Full height, transparent background
+   - Full height, transparent background (::before opacity 0)
    - This is the default state, no additional styles needed
 
    STATE 2: headroom--not-top - Scrolled but visible
-   - Compact height with backdrop blur for glass effect
-   - Theme-aware semi-transparent background */
+   - Compact height, solid theme background via ::before opacity */
 .header-grid.headroom--not-top {
   height: var(--size-header-compact); /* Compact height: 64px → 80px */
-  background-color: var(--theme-5); /* 5% opacity, adapts to theme */
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px); /* Safari support */
+}
+
+.header-grid.headroom--not-top::before {
+  opacity: 1; /* fade in solid background */
 }
 
 /* STATE 3: headroom--unpinned - Hidden when scrolling down */
@@ -47,10 +59,25 @@
   transform: translateY(-100%);
 }
 
+/* Pre-load solid background while off-screen.
+   Delay matches the slide-out duration so opacity snaps to 1 only after the header
+   is fully off-screen. When headroom--not-top replaces this, opacity is already 1
+   and the header slides back in already solid (no fade-in during the reveal). */
+.header-grid.headroom--unpinned::before {
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: 0ms;
+  transition-delay: var(--duration-hover);
+}
+
 /* Disable transitions during page transitions to prevent visible jumps
    - Applied when headroom is paused
    - Removed when headroom resumes */
 .header-grid.headroom--no-transition {
+  transition: none !important;
+}
+
+.header-grid.headroom--no-transition::before {
   transition: none !important;
 }
 
@@ -61,9 +88,7 @@
 .header-grid.headroom--smooth-transition {
   transition:
     transform var(--duration-slow) var(--ease-power2),
-    height var(--duration-slow) var(--ease-power2),
-    background-color var(--duration-slow) var(--ease-power2),
-    backdrop-filter var(--duration-slow) var(--ease-power2);
+    height var(--duration-slow) var(--ease-power2);
 }
 
 /* Animated background - reveals when mobile menu opens
