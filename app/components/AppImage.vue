@@ -27,15 +27,20 @@
  */
 defineOptions({ inheritAttrs: false })
 
-defineProps({
+const props = defineProps({
   /** Extra classes applied to the wrapper div (e.g. 'w-full h-full' for fixed-height containers) */
   wrapperClass: {
     type: String,
     default: ''
+  },
+  /** Skip shimmer — use when image is guaranteed preloaded (e.g. preview slots) */
+  preloaded: {
+    type: Boolean,
+    default: false
   }
 })
 
-const isLoaded = ref(false)
+const isLoaded = ref(props.preloaded)
 const imgRef = useTemplateRef<{ $el: HTMLImageElement }>('imgRef')
 
 function handleLoad() {
@@ -43,6 +48,16 @@ function handleLoad() {
 }
 
 onMounted(() => {
+  // TEMP DEBUG — remove after verification
+  const imgEl = imgRef.value?.$el as HTMLImageElement | undefined
+  console.log('[AppImage] mount:', {
+    preloaded: props.preloaded,
+    isLoaded: isLoaded.value,
+    src: imgEl?.src,
+    complete: imgEl?.complete,
+    naturalWidth: imgEl?.naturalWidth
+  })
+
   // Fallback: nextTick for edge cases where $el isn't immediately accessible,
   // or when @load fires before onMounted on repeat visits.
   nextTick(() => {

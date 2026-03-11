@@ -268,6 +268,7 @@ interface ComposableOptions {
 
 export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: ComposableOptions): InteractiveCaseStudyPreviewReturn => {
   const log = createPreviewLogger()
+  const $img = useImage() // generates same IPX URL as NuxtImg (e.g. /_ipx/q_80/...)
 
   // 3-slot image state
   const slotAImage = ref<PreviewData | null>(null)
@@ -397,30 +398,34 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
   }
 
   /**
-   * Preload image for instant display on hover
+   * Preload image for instant display on hover.
+   * Uses IPX-transformed URL (same as NuxtImg) so browser cache key matches.
    */
   const preloadImage = (src: string): Promise<number> => {
+    const ipxSrc = $img(src, { quality: 80 }) // match NuxtImg's transform
+    // TEMP DEBUG — remove after verification
+    console.log('[preload]', { raw: src, ipx: ipxSrc, cached: preloadedImages.has(ipxSrc) })
     return new Promise((resolve, reject) => {
-      if (preloadedImages.has(src)) {
-        const cached = preloadedImages.get(src)!
-        log.preload('cached', src)
+      if (preloadedImages.has(ipxSrc)) {
+        const cached = preloadedImages.get(ipxSrc)!
+        log.preload('cached', ipxSrc)
         resolve(cached.aspectRatio)
         return
       }
 
-      log.preload('loading', src)
+      log.preload('loading', ipxSrc)
       const img = new Image()
       img.onload = () => {
         const aspectRatio = img.naturalWidth / img.naturalHeight
-        preloadedImages.set(src, { img, aspectRatio })
-        log.preload('cached', src)
+        preloadedImages.set(ipxSrc, { img, aspectRatio })
+        log.preload('cached', ipxSrc)
         resolve(aspectRatio)
       }
       img.onerror = () => {
-        log.preload('failed', src)
-        reject(new Error(`Failed to preload image: ${src}`))
+        log.preload('failed', ipxSrc)
+        reject(new Error(`Failed to preload image: ${ipxSrc}`))
       }
-      img.src = src
+      img.src = ipxSrc
     })
   }
 
