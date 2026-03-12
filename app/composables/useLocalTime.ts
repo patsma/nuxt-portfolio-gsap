@@ -80,6 +80,3 @@ export function useLocalTime(): LocalTimeReturn {
     isActive
   }
 }
-
-// Re-export for backwards compatibility
-export { useLocalTime as useTokyoTime }

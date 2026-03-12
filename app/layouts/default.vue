@@ -162,17 +162,7 @@ onUnmounted(() => {
           />
         </div>
       </div>
-      <FooterSection>
-        <template #linkedin>
-          linkedin.com/in/mortengust
-        </template>
-        <template #behance>
-          behance.net/mschristensen
-        </template>
-        <template #email>
-          contact@mschristensen.com
-        </template>
-      </FooterSection>
+      <FooterSection />
     </div>
   </div>
 </template>

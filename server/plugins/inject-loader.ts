@@ -117,7 +117,7 @@ export default defineNitroPlugin((nitroApp) => {
         (_match, attrs) => {
           return [
             `<link rel="preload" as="style"${attrs} onload="this.onload=null;this.rel='stylesheet'">`,
-            `<noscript><link rel="stylesheet"${attrs}></noscript>`,
+            `<noscript><link rel="stylesheet"${attrs}></noscript>`
           ].join('')
         }
       )

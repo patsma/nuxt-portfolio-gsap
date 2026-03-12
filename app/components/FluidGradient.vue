@@ -1,7 +1,7 @@
 <template>
   <div
     ref="containerRef"
-    class="fluid-gradient fixed left-0 top-0 z-0 w-full h-screen pointer-events-none"
+    class="fluid-gradient fixed left-0 top-0 z-0 w-full h-screen"
     aria-hidden="true"
     data-entrance-animate="true"
   >

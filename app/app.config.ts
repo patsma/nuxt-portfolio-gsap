@@ -35,7 +35,7 @@ export default defineAppConfig({
     timezone: 'America/New_York',
 
     // Contact email
-    email: 'hello@example.com'
+    email: 'contact@mschristensen.com'
   },
 
   /**
@@ -43,8 +43,8 @@ export default defineAppConfig({
    * Set any to null to hide from footer
    */
   social: {
-    linkedin: 'https://linkedin.com/in/yourprofile',
-    behance: 'https://behance.net/yourprofile',
+    linkedin: 'https://www.linkedin.com/in/mortengust/',
+    behance: 'https://www.behance.net/mschristensen',
     dribbble: null,
     github: null,
     twitter: null,

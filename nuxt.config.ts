@@ -380,7 +380,7 @@ export default defineNuxtConfig({
   studio: {
     repository: {
       provider: 'github',
-      owner: 'patsma',
+      owner: 'your-github-username',
       repo: 'nuxt-portfolio-gsap',
       branch: 'main'
     }

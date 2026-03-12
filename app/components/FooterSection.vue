@@ -39,10 +39,10 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="mailto:contact@mschristensen.com"
+              :href="`mailto:${appConfig.identity.email}`"
               class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
             >
-              <slot name="email">contact@mschristensen.com</slot>
+              <slot name="email">{{ appConfig.identity.email }}</slot>
             </a>
             <p class="body-mobile-p1 text-[var(--theme-text-40)]">
               <slot name="email-desc">
@@ -61,7 +61,7 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="https://www.linkedin.com/in/mortengust/"
+              :href="appConfig.social.linkedin ?? '#'"
               target="_blank"
               rel="noopener noreferrer"
               class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
@@ -85,7 +85,7 @@
             class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
           >
             <a
-              href="https://www.behance.net/mschristensen"
+              :href="appConfig.social.behance ?? '#'"
               target="_blank"
               rel="noopener noreferrer"
               class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
@@ -204,6 +204,8 @@
 
 import FooterMarquee from '~/components/FooterMarquee.vue'
 import FullWidthBorder from '~/components/FullWidthBorder.vue'
+
+const appConfig = useAppConfig()
 
 const props = defineProps({
   /**

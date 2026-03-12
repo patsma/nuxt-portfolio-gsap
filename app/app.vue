@@ -12,17 +12,19 @@ import useIsMobile from '~/composables/useIsMobile'
 // Mobile detection for cursor trail
 const { isMobile } = useIsMobile()
 
+const appConfig = useAppConfig()
+
 // Global SEO defaults
 useSeoMeta({
-  ogSiteName: 'Morten Stig Christensen',
+  ogSiteName: appConfig.identity.name,
   ogType: 'website',
   twitterCard: 'summary_large_image'
 })
 
 // Default OG image for all pages (can be overridden per-page)
 defineOgImageComponent('Portfolio', {
-  title: 'Morten Stig Christensen',
-  description: 'Digital Designer in Tokyo · Shaping experiences rooted in purpose, function, and craft'
+  title: appConfig.identity.name,
+  description: `${appConfig.identity.title} · ${appConfig.site.description}`
 })
 
 // Initialize loading sequence

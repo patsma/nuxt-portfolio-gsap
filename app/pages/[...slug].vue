@@ -32,6 +32,8 @@ if (!page.value && import.meta.client) {
   })
 }
 
+const appConfig = useAppConfig()
+
 // SEO
 useSeoMeta({
   title: page.value?.seo?.title || page.value?.title,
@@ -41,8 +43,8 @@ useSeoMeta({
 // Dynamic OG image - use page title/description if available
 if (page.value) {
   defineOgImageComponent('Portfolio', {
-    title: page.value?.seo?.title || page.value?.title || 'Morten Stig Christensen',
-    description: page.value?.seo?.description || page.value?.description || 'Digital Designer in Tokyo'
+    title: page.value?.seo?.title || page.value?.title || appConfig.identity.name,
+    description: page.value?.seo?.description || page.value?.description || appConfig.identity.title
   })
 }
 </script>
