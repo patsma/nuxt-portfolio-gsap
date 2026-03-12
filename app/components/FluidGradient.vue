@@ -274,7 +274,7 @@ defineExpose({
   width: 100%;
   height: 100vh;
   z-index: 0;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 
 .gradient-overlay {
@@ -287,6 +287,6 @@ defineExpose({
   height: 100%;
   background-color: var(--theme-100);
   opacity: 0.4;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 </style>
