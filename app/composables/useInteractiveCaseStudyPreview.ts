@@ -403,8 +403,6 @@ export const useInteractiveCaseStudyPreview = ({ gsap, getRefs, getCursor }: Com
    */
   const preloadImage = (src: string): Promise<number> => {
     const ipxSrc = $img(src, { quality: 80 }) // match NuxtImg's transform
-    // TEMP DEBUG — remove after verification
-    console.log('[preload]', { raw: src, ipx: ipxSrc, cached: preloadedImages.has(ipxSrc) })
     return new Promise((resolve, reject) => {
       if (preloadedImages.has(ipxSrc)) {
         const cached = preloadedImages.get(ipxSrc)!

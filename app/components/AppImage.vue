@@ -48,16 +48,6 @@ function handleLoad() {
 }
 
 onMounted(() => {
-  // TEMP DEBUG — remove after verification
-  const imgEl = imgRef.value?.$el as HTMLImageElement | undefined
-  console.log('[AppImage] mount:', {
-    preloaded: props.preloaded,
-    isLoaded: isLoaded.value,
-    src: imgEl?.src,
-    complete: imgEl?.complete,
-    naturalWidth: imgEl?.naturalWidth
-  })
-
   // Fallback: nextTick for edge cases where $el isn't immediately accessible,
   // or when @load fires before onMounted on repeat visits.
   nextTick(() => {
