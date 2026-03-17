@@ -1,9 +1,9 @@
 ---
 title: Project based design system for websites – Built in Figma
-description: Kickstart your next website project and build a better bridge between designer and developer. By using this free design system template you will save time and deliver faster, cover all of the basics exactly how the developers want it, and gain more time to focus on being a creative while remaining structured and making that almost near perfect design handoff to the developers.
 category: Template
 cover: /assets/dummy/placeholder5.jpg
 date: 2025-12-15
+description: Kickstart your next website project and build a better bridge between designer and developer. By using this free design system template you will save time and deliver faster, cover all of the basics exactly how the developers want it, and gain more time to focus on being a creative while remaining structured and making that almost near perfect design handoff to the developers.
 entries:
   - type: Template
     link: https://figma.com/community

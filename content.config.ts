@@ -1,4 +1,4 @@
-import { defineContentConfig, defineCollection, z } from '@nuxt/content'
+import { defineContentConfig, defineCollection, z, property } from '@nuxt/content'
 
 // ============================================
 // REUSABLE SCHEMAS
@@ -14,7 +14,7 @@ import { defineContentConfig, defineCollection, z } from '@nuxt/content'
  */
 const heroTextSegmentSchema = z.object({
   text: z.string(),
-  variant: z.enum(['default', 'emphasis', 'body', 'italic']).optional().default('default')
+  variant: z.enum(['default', 'emphasis', 'body', 'italic']).optional().default('default').describe('default = 60% opacity, emphasis = full weight, body = body font, italic = italic style')
 })
 
 /**
@@ -22,15 +22,15 @@ const heroTextSegmentSchema = z.object({
  */
 const caseStudySchema = z.object({
   title: z.string(),
-  slug: z.string().optional(), // URL slug for detail page
+  slug: z.string().optional().describe('URL slug for the /work/[slug] detail page'),
   description: z.string(),
-  tag: z.string().optional(),
-  image: z.string(),
-  imageAlt: z.string(),
+  tag: z.string().optional().describe('Category label shown on hover (e.g. BRANDING, APP, WEB)'),
+  image: property(z.string()).editor({ input: 'media' }).describe('Preview image shown in the interactive gallery'),
+  imageAlt: z.string().describe('Alt text for the preview image'),
   slideshowImages: z.array(z.string()).optional(),
   slideshowImageAlts: z.array(z.string()).optional(),
   to: z.string().optional(),
-  clipDirection: z.enum(['center', 'left', 'right', 'top', 'bottom', 'random']).optional()
+  clipDirection: z.enum(['center', 'left', 'right', 'top', 'bottom', 'random']).optional().describe('Direction of the clip-path reveal animation')
 })
 
 /**
@@ -63,12 +63,12 @@ const featuredSchema = z.object({
  */
 const recommendationSchema = z.object({
   id: z.string(),
-  quote: z.string(),
-  fullRecommendation: z.string(),
+  quote: z.string().describe('Short excerpt shown in the collapsed card'),
+  fullRecommendation: z.string().describe('Full text shown when card is expanded'),
   authorFirstName: z.string(),
   authorLastName: z.string(),
   authorTitle: z.string(),
-  authorImage: z.string().optional()
+  authorImage: property(z.string()).editor({ input: 'media' }).optional().describe('Author avatar image (optional)')
 })
 
 /**
@@ -111,7 +111,7 @@ export default defineContentConfig({
           props: z.object({
             title: z.string().optional(),
             description: z.string().optional(),
-            cover: z.string().optional()
+            cover: property(z.string()).editor({ input: 'media' }).optional()
           }).optional()
         }).optional().describe('Open Graph image configuration')
       })
@@ -215,10 +215,10 @@ export default defineContentConfig({
       schema: z.object({
         title: z.string(), // Full project title
         slug: z.string(), // URL slug
-        shortTitle: z.string(), // Short title for marquee (italic)
-        thumbnail: z.string(), // Small image for marquee
-        cover: z.string().optional(), // Large image for expanded view
-        images: z.array(z.string()).optional(), // Bento grid images (3 images: 1 large + 2 small)
+        shortTitle: z.string().describe('Short title for the marquee (shown in italic)'),
+        thumbnail: property(z.string()).editor({ input: 'media' }).describe('Small image shown in the marquee strip'),
+        cover: property(z.string()).editor({ input: 'media' }).optional().describe('Large image shown in the expanded bento view'),
+        images: z.array(property(z.string()).editor({ input: 'media' })).optional().describe('Bento grid images (3 images: 1 large + 2 small)'),
         description: z.string(), // Description text for expanded view
         date: z.string().optional(), // ISO date string
         tags: z.array(z.string()).optional(),
@@ -247,10 +247,10 @@ export default defineContentConfig({
         role: z.string().optional(), // Designer's role
         year: z.string().optional(), // Project year
         tag: z.string().optional(), // Category (APP, INTRANET, etc.)
-        cover: z.string().optional(), // Main cover image
-        images: z.array(z.string()).optional(), // Bento grid images (3+ ideal)
+        cover: property(z.string()).editor({ input: 'media' }).optional().describe('Main cover image for the case study'),
+        images: z.array(property(z.string()).editor({ input: 'media' })).optional().describe('Bento grid images (3+ recommended)'),
         description: z.string().optional(), // Brief description
-        displayOrder: z.number().optional().default(99), // Navigation order
+        displayOrder: z.number().optional().default(99).describe('Lower numbers appear first in navigation (default: 99)'),
         liveLink: z.string().optional() // Link to live project
       })
     })
