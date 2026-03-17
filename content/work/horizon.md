@@ -1,8 +1,8 @@
 ---
 title: Horizon
-description: A visually stunning e-commerce experience that elevates product presentation and simplifies the purchasing journey.
 client: Horizon Commerce
 cover: /assets/dummy/placeholder2.jpg
+description: A visually stunning e-commerce experience that elevates product presentation and simplifies the purchasing journey.
 displayOrder: 3
 images:
   - /assets/dummy/placeholder2.jpg

@@ -1,9 +1,9 @@
 ---
 title: Wireframing starter kit for UX designers
-description: Accelerate in the wireframing stage by using this bundle of basic website components to work faster and to avoid time wasting. However, don't limit yourself to the template – continue to use your imagination and collaborate closely with your team to bring forth those industry breaking concepts and ideas.
 category: Template
 cover: /assets/dummy/placeholder8.jpg
 date: 2025-11-20
+description: Accelerate in the wireframing stage by using this bundle of basic website components to work faster and to avoid time wasting. However, don't limit yourself to the template – continue to use your imagination and collaborate closely with your team to bring forth those industry breaking concepts and ideas.
 entries:
   - type: Template
     link: https://figma.com/community

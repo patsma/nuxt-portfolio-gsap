@@ -1,8 +1,8 @@
 ---
 title: Prism
-description: A scalable design system and component library enabling consistent experiences across a suite of enterprise products.
 client: Prism Platform
 cover: /assets/dummy/placeholder3.jpg
+description: A scalable design system and component library enabling consistent experiences across a suite of enterprise products.
 displayOrder: 4
 images:
   - /assets/dummy/placeholder3.jpg

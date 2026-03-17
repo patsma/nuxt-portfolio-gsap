@@ -1,8 +1,8 @@
 ---
 title: Lumina
-description: A comprehensive brand identity system paired with a modern digital presence for a forward-thinking startup.
 client: Lumina Brand Co.
 cover: /assets/dummy/placeholder.jpg
+description: A comprehensive brand identity system paired with a modern digital presence for a forward-thinking startup.
 displayOrder: 1
 images:
   - /assets/dummy/placeholder.jpg

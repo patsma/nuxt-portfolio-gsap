@@ -218,7 +218,7 @@ export default defineContentConfig({
         shortTitle: z.string().describe('Short title for the marquee (shown in italic)'),
         thumbnail: property(z.string()).editor({ input: 'media' }).describe('Small image shown in the marquee strip'),
         cover: property(z.string()).editor({ input: 'media' }).optional().describe('Large image shown in the expanded bento view'),
-        images: z.array(property(z.string()).editor({ input: 'media' })).optional().describe('Bento grid images (3 images: 1 large + 2 small)'),
+        images: z.array(z.string()).optional().describe('Bento grid images (3 images: 1 large + 2 small)'),
         description: z.string(), // Description text for expanded view
         date: z.string().optional(), // ISO date string
         tags: z.array(z.string()).optional(),
@@ -248,7 +248,7 @@ export default defineContentConfig({
         year: z.string().optional(), // Project year
         tag: z.string().optional(), // Category (APP, INTRANET, etc.)
         cover: property(z.string()).editor({ input: 'media' }).optional().describe('Main cover image for the case study'),
-        images: z.array(property(z.string()).editor({ input: 'media' })).optional().describe('Bento grid images (3+ recommended)'),
+        images: z.array(z.string()).optional().describe('Bento grid images (3+ recommended)'),
         description: z.string().optional(), // Brief description
         displayOrder: z.number().optional().default(99).describe('Lower numbers appear first in navigation (default: 99)'),
         liveLink: z.string().optional() // Link to live project

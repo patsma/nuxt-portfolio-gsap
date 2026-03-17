@@ -1,8 +1,8 @@
 ---
 title: Catalyst
-description: A powerful web application designed to streamline complex workflows and enhance team productivity.
 client: Catalyst Technologies
 cover: /assets/dummy/placeholder1.jpg
+description: A powerful web application designed to streamline complex workflows and enhance team productivity.
 displayOrder: 2
 images:
   - /assets/dummy/placeholder1.jpg

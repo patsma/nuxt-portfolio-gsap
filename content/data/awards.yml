@@ -1,13 +1,13 @@
 awards:
   - count: 2
-    name: "Awwwards"
+    name: Awwwards
   - count: 5
-    name: "Behance"
+    name: Behance
   - count: 3
-    name: "CSS Design Awards"
+    name: CSS Design Awards
   - count: 1
-    name: "Site of the Day"
-
+    name: Site of the Day
 featured:
-  - name: "Design Rush – Featured"
-  - name: "Design Publication – Featured"
+  - name: Design Rush – Featured
+  - name: Design Publication – Featured
+title: Awards

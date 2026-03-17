@@ -1,17 +1,17 @@
 ---
-title: "Vertex"
-slug: "vertex"
-client: "Vertex Labs"
-role: "App Design & Prototyping"
-year: "2024"
-tag: "MOBILE"
-cover: "/assets/dummy/placeholder6.jpg"
-images:
-  - "/assets/dummy/placeholder6.jpg"
-  - "/assets/dummy/placeholder8.jpg"
-  - "/assets/dummy/placeholder4.jpg"
-description: "A mobile-first application designed to make complex data accessible and actionable on the go."
+title: Vertex
+client: Vertex Labs
+cover: /assets/dummy/placeholder6.jpg
+description: A mobile-first application designed to make complex data accessible and actionable on the go.
 displayOrder: 5
+images:
+  - /assets/dummy/placeholder6.jpg
+  - /assets/dummy/placeholder8.jpg
+  - /assets/dummy/placeholder4.jpg
+role: App Design & Prototyping
+slug: vertex
+tag: MOBILE
+year: "2024"
 ---
 
 ## Challenge

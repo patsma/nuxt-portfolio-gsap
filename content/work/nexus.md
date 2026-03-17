@@ -1,8 +1,8 @@
 ---
 title: Nexus
-description: A complete website overhaul that transformed an outdated presence into a modern, high-performance showcase.
 client: Nexus Creative
 cover: /assets/dummy/placeholder7.jpg
+description: A complete website overhaul that transformed an outdated presence into a modern, high-performance showcase.
 displayOrder: 6
 images:
   - /assets/dummy/placeholder7.jpg

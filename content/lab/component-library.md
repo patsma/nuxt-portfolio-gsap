@@ -1,9 +1,9 @@
 ---
 title: Component Library Starter
-description: A starter kit for building your own component library with Vue 3, TypeScript, and Storybook. Includes documentation patterns, testing setup, and publishing workflows.
 category: Template
 cover: /assets/dummy/placeholder4.jpg
 date: 2025-12-01
+description: A starter kit for building your own component library with Vue 3, TypeScript, and Storybook. Includes documentation patterns, testing setup, and publishing workflows.
 entries:
   - type: Template
     link: https://github.com/example/component-library
@@ -17,7 +17,7 @@ shortTitle: Component Library
 slug: component-library
 status: stable
 tags:
-  - vue
+  - "vue "
   - components
   - storybook
 thumbnail: /assets/dummy/placeholder4.jpg
