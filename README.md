@@ -11,6 +11,8 @@
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![TresJS](https://img.shields.io/badge/TresJS-WebGL-black?logo=three.js&logoColor=white)
 
+[![YouTube](https://img.shields.io/badge/YouTube-Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/watch?v=_-5rJ3g3WJo)
+
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/patsma/nuxt-portfolio-gsap)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/patsma/nuxt-portfolio-gsap)
 
