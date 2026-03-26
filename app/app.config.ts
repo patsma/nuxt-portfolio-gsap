@@ -43,10 +43,10 @@ export default defineAppConfig({
    * Set any to null to hide from footer
    */
   social: {
-    linkedin: 'https://www.linkedin.com/in/mortengust/',
+    linkedin: 'https://www.linkedin.com/in/mortenstigchristensen/',
     behance: 'https://www.behance.net/mschristensen',
     dribbble: null,
-    github: null,
+    github: 'https://github.com/patsma/nuxt-portfolio-gsap',
     twitter: null,
     instagram: null
   },

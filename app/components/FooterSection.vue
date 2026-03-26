@@ -100,6 +100,30 @@
           </div>
         </div>
       </div>
+
+      <!-- Link Item 4: GitHub -->
+      <div v-if="appConfig.social.github" class="link-item full-width-content">
+        <FullWidthBorder :opacity="15" />
+        <div class="link-item-wrapper content-grid w-full">
+          <div
+            class="link-item-content breakout3 py-[var(--space-m)] flex flex-col gap-[var(--space-xs)] lg:flex-row lg:items-center lg:justify-between"
+          >
+            <a
+              :href="appConfig.social.github"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="display-mobile-h2 md:display-laptop-h2 text-[var(--theme-text-100)] hover:opacity-80 transition-opacity duration-[var(--duration-hover)]"
+            >
+              <slot name="github">GitHub</slot>
+            </a>
+            <p class="body-mobile-p1 text-[var(--theme-text-40)]">
+              <slot name="github-desc">
+                Source code &amp; open source work
+              </slot>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Section 4: Socket (Copyright + Cookie Policy + Special Thanks) -->
