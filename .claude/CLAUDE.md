@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GSAP-powered portfolio template built with Nuxt 4, featuring directive-based page transitions, ScrollSmoother, theme-aware loading system, and smooth dark/light theme switching.
+Minimal GSAP-powered boilerplate template built with Nuxt 4. Preserves core animation infrastructure — directive-based page transitions, ScrollSmoother, theme-aware loading system, entrance animations, and smooth dark/light theme switching — stripped of all content-specific components.
 
-**Live demo:** https://mp2025.netlify.app
+**Branch:** `minimal-boilerplate` — use as a foundation for new GSAP+Nuxt projects.
 
 ## Commands
 
@@ -84,25 +84,9 @@ ScrollSmoother with headroom header behavior for buttery smooth scrolling.
 
 Reusable component architectures and layout patterns for building consistent section components.
 
-**Patterns:** FullWidthBorder abstraction, 4-column grid layouts, BiographySection, ExperienceSection, scroll animations, responsive strategies
+**Patterns:** FullWidthBorder abstraction, content-grid layouts, scroll animations, responsive strategies
 
 📖 **See** `.claude/COMPONENT_PATTERNS.md`
-
-### Magnetic Effect
-
-Spring physics composable for organic magnetic hover effects.
-
-**Features:** Spring physics with timeScale, velocity tracking, auto-disabled on mobile, reusable composable
-
-📖 **See** `.claude/MAGNETIC_EFFECT.md`
-
-### Fluid Gradient
-
-TresJS WebGL background with theme-aware colors and scroll-reactive effects.
-
-**Features:** Custom GLSL shaders, GSAP ticker rendering, theme color transitions, scroll-based parameter animation, mobile-optimized (30fps simplified shader)
-
-📖 **See** `.claude/FLUID_GRADIENT.md`
 
 ### OG Image System
 
@@ -123,20 +107,15 @@ app/
 │   ├── pre.scss          # Tokens, base (BEFORE Tailwind)
 │   └── post.scss         # Components (AFTER Tailwind)
 ├── composables/
-│   ├── usePageTransition.ts              # Transition logic + Safari fixes
-│   ├── useScrollSmootherManager.ts       # ScrollSmoother lifecycle
-│   ├── useScrollTriggerInit.ts           # ScrollTrigger coordination abstraction (used by 7+ components)
-│   ├── useEntranceAnimation.ts           # Entrance animation coordinator
-│   ├── useThemeSwitch.ts                 # Dark/light theme GSAP timeline
-│   ├── useLoadingSequence.ts             # Loading orchestrator
-│   ├── useAccordionAnimation.ts          # GSAP accordion expand/collapse
-│   ├── useHorizontalLoop.ts              # Infinite horizontal marquee loop
-│   ├── useMagnetic.ts                    # Spring physics hover effect
-│   ├── useInteractiveCaseStudyPreview.ts # Case study hover preview state machine
-│   ├── useIsMobile.ts                    # Breakpoint detection (VueUse)
-│   ├── useLocalTime.ts                   # Live timezone clock
-│   ├── useVideoPoster.ts                 # First-frame video poster extraction
-│   └── useIOSSafari.ts                   # iOS Safari detection
+│   ├── usePageTransition.ts        # Transition logic + Safari fixes
+│   ├── useScrollSmootherManager.ts # ScrollSmoother lifecycle
+│   ├── useScrollTriggerInit.ts     # ScrollTrigger coordination abstraction
+│   ├── useEntranceAnimation.ts     # Entrance animation coordinator
+│   ├── useThemeSwitch.ts           # Dark/light theme GSAP timeline
+│   ├── useLoadingSequence.ts       # Loading orchestrator
+│   ├── useIsMobile.ts              # Breakpoint detection (VueUse)
+│   ├── useLocalTime.ts             # Live timezone clock
+│   └── useIOSSafari.ts             # iOS Safari detection
 ├── directives/
 │   ├── v-page-split.ts       # SplitText animations
 │   ├── v-page-fade.ts        # Fade animations
@@ -148,33 +127,31 @@ app/
 │   ├── loader-manager.client.ts # Loader removal
 │   ├── headroom.client.ts       # Header show/hide
 │   ├── fonts.client.ts          # Apply font CSS variables from app.config.ts
-│   ├── resize-reload.client.ts  # Reload on viewport resize (GSAP state reset)
-│   └── mobile-debug.client.ts   # On-screen debug console (disabled by default)
+│   └── resize-reload.client.ts  # Reload on viewport resize (GSAP state reset)
 ├── stores/
 │   ├── theme.ts             # Theme state (Pinia)
 │   ├── loading.ts           # Loading state
 │   ├── pageTransition.ts    # Page transition state machine
-│   ├── menu.ts              # Hamburger menu open/close
-│   ├── hints.ts             # UI hint tracking (localStorage)
-│   └── title-rotation.ts   # Hero title rotation state
+│   └── menu.ts              # Hamburger menu open/close
 ├── layouts/
 │   └── default.vue          # ScrollSmoother + page transitions
 ├── pages/
-│   ├── index.vue            # Home
-│   ├── about.vue            # About
-│   └── contact.vue          # Contact
+│   └── [...slug].vue        # Catch-all MDC page renderer
 ├── components/
 │   ├── HeaderGrid.vue              # Fixed header with mobile overlay
-│   ├── content/HeroSection.vue     # Hero with entrance animation support
-│   ├── BiographySection.vue        # Simple 2-column section
-│   ├── ExperienceSection.vue       # Experience list with scroll animations
-│   ├── ExperienceItem.vue          # Individual experience entry
-│   ├── InteractiveCaseStudySection.vue  # Gallery with hover preview
-│   ├── InteractiveCaseStudyItem.vue     # Individual case study item
+│   ├── FooterSection.vue           # Minimal footer with social links
 │   ├── FullWidthBorder.vue         # Reusable border divider
-│   ├── CursorTrail.vue             # Cursor trail effect
-│   ├── FluidGradient.vue           # Animated gradient background
-│   └── ThemeToggleSVG.vue          # Theme switcher
+│   ├── AppImage.vue                # Image with shimmer skeleton
+│   ├── ThemeToggleSVG.vue          # Theme switcher
+│   ├── SVG/HamburgerSVG.vue        # Hamburger icon animation
+│   ├── SVG/ScrollButtonSVG.vue     # Scroll indicator
+│   ├── OgImage/OgImagePortfolio.vue # OG image template
+│   ├── content/HeroSection.vue      # Hero with entrance animations
+│   ├── content/TextSection.vue      # Text section with scroll reveal
+│   ├── content/ImageSection.vue     # Image with parallax
+│   ├── content/ImageScalingSection.vue  # Scroll-driven image growth
+│   ├── content/VideoScalingSection.vue  # Scroll-driven video growth
+│   └── content/SpacerComponent.vue      # Vertical spacer
 server/
 └── plugins/
     └── inject-loader.ts # Nitro plugin: loader + theme script + is-first-load class
@@ -261,7 +238,7 @@ const vPageFade: Directive<PageAnimationElement, FadeBindingValue> = {
 
 ### ScrollTrigger Initialization (useScrollTriggerInit)
 
-Abstracts the repetitive pattern of setting up ScrollTrigger animations that need to coordinate with the loading system and page transitions. Used by 7+ section components.
+Abstracts the repetitive pattern of setting up ScrollTrigger animations that need to coordinate with the loading system and page transitions.
 
 ```typescript
 // In any component that needs ScrollTrigger
@@ -316,16 +293,15 @@ html.is-first-load [data-entrance-animate='true'] {
 
 **Why:** Fixed elements must be outside smooth-content (ScrollSmoother applies transform).
 
-## Page Structure Requirements
+## Pages
 
-```vue
-<template>
-  <div class="page-content">
-    <h1 v-page-split:chars data-speed="0.7">Title</h1>
-    <p v-page-fade:up data-lag="0.15">Content</p>
-  </div>
-</template>
-```
+Three template pages via MDC content rendering (`app/pages/[...slug].vue`):
+
+- **Home** (`content/index.md`) — Hero + image scaling + text section
+- **Demo** (`content/demo.md`) — All components stacked for testing
+- **Blank** (`content/blank.md`) — Empty starter page (hero + spacer)
+
+Add new pages by creating `.md` files in `content/`.
 
 ## Debugging
 
@@ -347,18 +323,14 @@ Missing logs indicate: directives not registered, wrong page structure (missing 
 
 Detailed documentation for each system lives in `.claude/`:
 
-| Document                    | Description                               |
-| --------------------------- | ----------------------------------------- |
-| `LOADING_SYSTEM.md`         | Theme-aware loader & entrance animations  |
-| `THEME_SYSTEM.md`           | Dark/light switching with GSAP            |
-| `PAGE_TRANSITIONS.md`       | Directive-based transition system         |
-| `SCROLL_SYSTEM.md`          | ScrollSmoother & headroom integration     |
-| `COMPONENT_PATTERNS.md`     | Reusable section patterns                 |
-| `FLUID_GRADIENT.md`         | TresJS WebGL background system            |
-| `OG_IMAGE_SYSTEM.md`        | Dynamic social sharing images             |
-| `MAGNETIC_EFFECT.md`        | Spring physics hover effects              |
-| `ELASTIC_BORDER.md`         | Physics-based elastic border effect       |
-| `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery            |
-| `CONTENT_SYSTEM.md`         | Nuxt Content YAML data system             |
-| `NUXT-STUDIO.md`            | Self-hosted Studio CMS integration        |
-| `APP_IMAGE_SYSTEM.md`       | Shimmer skeleton image wrapper (AppImage) |
+| Document                | Description                               |
+| ----------------------- | ----------------------------------------- |
+| `LOADING_SYSTEM.md`     | Theme-aware loader & entrance animations  |
+| `THEME_SYSTEM.md`       | Dark/light switching with GSAP            |
+| `PAGE_TRANSITIONS.md`   | Directive-based transition system         |
+| `SCROLL_SYSTEM.md`      | ScrollSmoother & headroom integration     |
+| `COMPONENT_PATTERNS.md` | Reusable section patterns                 |
+| `OG_IMAGE_SYSTEM.md`    | Dynamic social sharing images             |
+| `CONTENT_SYSTEM.md`     | Nuxt Content YAML data system             |
+| `NUXT-STUDIO.md`        | Self-hosted Studio CMS integration        |
+| `APP_IMAGE_SYSTEM.md`   | Shimmer skeleton image wrapper (AppImage) |

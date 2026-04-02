@@ -1,32 +1,20 @@
-# Nuxt Portfolio GSAP
+# Nuxt Portfolio GSAP — Minimal Boilerplate
 
-**Personal portfolio with buttery smooth animations**
-
-[![Live Demo](https://img.shields.io/badge/Live-Demo-00DC82?style=for-the-badge)](https://nuxt-portfolio-gsap.netlify.app/)
+**GSAP-powered Nuxt 4 starter template with smooth animations**
 
 ![Nuxt](https://img.shields.io/badge/Nuxt-4-00DC82?logo=nuxt.js&logoColor=white)
 ![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3-88CE02?logo=greensock&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4?logo=tailwindcss&logoColor=white)
-![TresJS](https://img.shields.io/badge/TresJS-WebGL-black?logo=three.js&logoColor=white)
-
-[![YouTube](https://img.shields.io/badge/YouTube-Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/watch?v=_-5rJ3g3WJo)
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/patsma/nuxt-portfolio-gsap)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/patsma/nuxt-portfolio-gsap)
-
----
-
-![Preview](./docs/preview.png)
 
 > **Note:** GSAP plugins (ScrollSmoother, SplitText, MorphSVG) are now **completely free** as of 2025!
 
 ## About
 
-A custom-built portfolio featuring directive-based page transitions, smooth scrolling, and WebGL backgrounds. Every animation system is hand-crafted - no templates, no page builders, just clean TypeScript and GSAP.
+Minimal boilerplate stripped from the [full portfolio template](https://github.com/patsma/nuxt-portfolio-gsap). Core animation infrastructure preserved — page transitions, smooth scrolling, entrance animations, theme switching — without content-specific components.
 
-What makes it technically interesting: SSR-compatible animations with zero FOUC, Safari-specific performance optimizations, and a unified timeline sequencer that coordinates entrance animations across components.
+Use this as a foundation. All the hard plumbing is done.
 
 ## Features
 
@@ -41,15 +29,14 @@ What makes it technically interesting: SSR-compatible animations with zero FOUC,
 
 - **60fps Desktop** - Optimized GSAP animations with proper cleanup
 - **Safari Fixes** - Height lock fix, enter animation timing, ScrollSmoother settings
-- **Mobile Optimized** - Automatic frame rate reduction (60fps → 30fps)
+- **Mobile Optimized** - Native scroll on mobile, ScrollSmoother on desktop
 - **FOUC Prevention** - SSR-injected theme script and `is-first-load` class scoping
 
 ### Visual
 
-- **Fluid Gradient** - WebGL background with TresJS and custom GLSL shaders
 - **Theme System** - Dark/light with GSAP color transitions
 - **Headroom Header** - Auto-hide/show on scroll direction
-- **Magnetic Effects** - Spring physics hover interactions
+- **Loading System** - Theme-aware loader with progress bar
 
 ### Developer Experience
 
@@ -64,24 +51,18 @@ What makes it technically interesting: SSR-compatible animations with zero FOUC,
 | --------- | ------------------------------------------------------------------------ |
 | Framework | Nuxt 4 (Vue 3)                                                           |
 | Language  | TypeScript (strict mode)                                                 |
-| Animation | GSAP with Club plugins - ScrollSmoother, SplitText, MorphSVG (now free!) |
-| 3D/WebGL  | TresJS with custom GLSL shaders                                          |
+| Animation | GSAP with Club plugins — ScrollSmoother, SplitText, MorphSVG (now free!) |
 | Styling   | TailwindCSS v4 + SCSS                                                    |
 | State     | Pinia                                                                    |
+| Content   | Nuxt Content (MDC + YAML)                                                |
 
 ## Quick Start
-
-### One-Click Deploy
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/patsma/nuxt-portfolio-gsap)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/patsma/nuxt-portfolio-gsap)
-
-### Local Development
 
 ```bash
 # Clone
 git clone https://github.com/patsma/nuxt-portfolio-gsap.git
 cd nuxt-portfolio-gsap
+git checkout minimal-boilerplate
 
 # Install
 npm install
@@ -93,6 +74,16 @@ npm run dev
 npm run build
 ```
 
+## Template Pages
+
+| Page  | Route    | Purpose                             |
+| ----- | -------- | ----------------------------------- |
+| Home  | `/`      | Hero + image scaling + text section |
+| Demo  | `/demo`  | All components stacked for testing  |
+| Blank | `/blank` | Empty starter (hero + spacer)       |
+
+Add new pages by creating `.md` files in `content/`.
+
 ## Architecture
 
 ```
@@ -100,6 +91,7 @@ app/
 ├── composables/          # Animation & scroll logic
 │   ├── usePageTransition.ts
 │   ├── useScrollSmootherManager.ts
+│   ├── useScrollTriggerInit.ts
 │   ├── useEntranceAnimation.ts
 │   └── useThemeSwitch.ts
 ├── directives/           # Page transition directives
@@ -107,9 +99,18 @@ app/
 │   ├── v-page-fade.ts
 │   ├── v-page-clip.ts
 │   └── v-page-stagger.ts
-├── components/           # Vue components
+├── components/
+│   ├── content/          # MDC content components
+│   │   ├── HeroSection.vue
+│   │   ├── TextSection.vue
+│   │   ├── ImageSection.vue
+│   │   └── ImageScalingSection.vue
+│   ├── HeaderGrid.vue
+│   ├── FooterSection.vue
+│   └── ThemeToggleSVG.vue
 ├── layouts/              # ScrollSmoother wrapper
-└── pages/                # Route pages
+└── pages/
+    └── [...slug].vue     # Catch-all MDC renderer
 ```
 
 ## Documentation
@@ -123,8 +124,9 @@ Detailed system documentation lives in `.claude/`:
 | [PAGE_TRANSITIONS.md](.claude/PAGE_TRANSITIONS.md)     | Directive-based transition system        |
 | [SCROLL_SYSTEM.md](.claude/SCROLL_SYSTEM.md)           | ScrollSmoother & headroom integration    |
 | [COMPONENT_PATTERNS.md](.claude/COMPONENT_PATTERNS.md) | Reusable section patterns                |
-| [FLUID_GRADIENT.md](.claude/FLUID_GRADIENT.md)         | WebGL background system                  |
-| [MAGNETIC_EFFECT.md](.claude/MAGNETIC_EFFECT.md)       | Spring physics hover effects             |
+| [OG_IMAGE_SYSTEM.md](.claude/OG_IMAGE_SYSTEM.md)       | Dynamic social sharing images            |
+| [CONTENT_SYSTEM.md](.claude/CONTENT_SYSTEM.md)         | Nuxt Content YAML data system            |
+| [APP_IMAGE_SYSTEM.md](.claude/APP_IMAGE_SYSTEM.md)     | Shimmer skeleton image wrapper           |
 
 ## Credits
 

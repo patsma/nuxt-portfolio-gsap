@@ -299,11 +299,11 @@ html.is-first-load [data-entrance-animate='true'] {
 ```vue
 <!-- ❌ BAD - Component mounts too late, misses animation sequence -->
 <ClientOnly>
-  <CursorTrail v-if="!isMobile" />
+  <MyAnimatedComponent v-if="!isMobile" />
 </ClientOnly>
 
 <!-- ✅ GOOD - Use v-if or import.meta.client guards instead -->
-<CursorTrail v-if="!isMobile" />
+<MyAnimatedComponent v-if="!isMobile" />
 ```
 
 **Why:** `<ClientOnly>` delays component mounting until after hydration. By then, the entrance animation coordinator has already started collecting and playing animations. The component misses its slot in the sequence.

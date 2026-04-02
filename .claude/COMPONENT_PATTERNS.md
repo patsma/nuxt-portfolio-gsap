@@ -2,6 +2,8 @@
 
 Reusable component architectures and layout patterns for building consistent, maintainable section components.
 
+> **Minimal Boilerplate Note:** Some full components (BiographySection, ExperienceSection, InteractiveCaseStudy) were stripped from this template. The animation patterns and layout approaches below are preserved as references for building new sections.
+
 ## Table of Contents
 
 1. [Reusable Components](#reusable-components)
@@ -68,7 +70,7 @@ Parent elements must have `position: relative` for the border to position correc
 - Follows DRY principle, single source of truth
 - Easier to update globally
 
-📖 **Full Documentation:** `.claude/ELASTIC_BORDER.md`
+**Note:** The elastic border effect is built into FullWidthBorder. See the component source for implementation details.
 
 ---
 
@@ -197,12 +199,7 @@ Parent elements must have `position: relative` for the border to position correc
 
 **Files:**
 
-- `app/components/InteractiveCaseStudySection.vue`
-- `app/components/InteractiveCaseStudyItem.vue`
-- `app/assets/css/components/interactive-case-study.scss`
-- `app/composables/useInteractiveCaseStudyPreview.ts`
-
-**Reference:** `.claude/INTERACTIVE_CASE_STUDY.md`
+**Note:** The full InteractiveCaseStudy components were stripped in the minimal boilerplate. The pattern above is preserved as a reference for re-implementing complex hover-preview galleries.
 
 ---
 
