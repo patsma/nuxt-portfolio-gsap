@@ -8,7 +8,7 @@
       <!-- Left column: scrolls naturally -->
       <div ref="leftColumnRef">
         <!-- Hero panel -->
-        <div class="min-h-screen flex flex-col justify-center pt-[var(--size-header)]">
+        <div ref="heroPanelRef" class="min-h-screen flex flex-col justify-center pt-[var(--size-header)]">
           <h1
             ref="headlineRef"
             v-page-split:lines="{ animateFrom: 'below' }"
@@ -57,7 +57,7 @@
         <!-- Features panel -->
         <div
           id="features"
-          class="min-h-screen flex flex-col justify-center"
+          class="min-h-screen flex flex-col justify-center relative z-10"
         >
           <ScrollingDemoAccordionItem
             v-for="(feature, index) in features"
@@ -110,6 +110,7 @@ const sectionRef = ref<HTMLElement | null>(null)
 const rightColumnRef = ref<HTMLElement | null>(null)
 const leftColumnRef = ref<HTMLElement | null>(null)
 const spacerRef = ref<HTMLElement | null>(null)
+const heroPanelRef = ref<HTMLElement | null>(null)
 const headlineRef = ref<HTMLElement | null>(null)
 const descriptionRef = ref<HTMLElement | null>(null)
 const buttonsRef = ref<HTMLElement | null>(null)
@@ -263,14 +264,14 @@ onUnmounted(() => {
 })
 
 const initScrollTrigger = () => {
-  if (!sectionRef.value || !rightColumnRef.value || !leftColumnRef.value) return
+  if (!sectionRef.value || !leftColumnRef.value) return
 
   if (pinScrollTrigger) {
     pinScrollTrigger.kill()
     pinScrollTrigger = null
   }
 
-  if (isDesktop.value) {
+  if (isDesktop.value && rightColumnRef.value) {
     baseLeftHeight = leftColumnRef.value.scrollHeight
     const scrollDistance = Math.max(baseLeftHeight - window.innerHeight, 1)
 
@@ -286,6 +287,16 @@ const initScrollTrigger = () => {
     // Watch for height changes in real-time (fires every frame during GSAP accordion animation)
     resizeObserver = new ResizeObserver(() => adjustSpacer())
     resizeObserver.observe(leftColumnRef.value)
+  }
+  else if (heroPanelRef.value) {
+    // Mobile: pin the hero, accordion slides up over it (card stack)
+    pinScrollTrigger = $ScrollTrigger.create({
+      trigger: heroPanelRef.value,
+      start: 'top top',
+      end: '+=25%',
+      pin: true,
+      pinSpacing: false
+    })
   }
 }
 
