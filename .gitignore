@@ -106,3 +106,6 @@ public/oldportfolio/*
 app/assets/css/post.css
 app/assets/css/pre.css
 app/assets/css/pre.css
+
+# Git worktrees
+.worktrees
