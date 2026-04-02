@@ -75,7 +75,6 @@
  */
 
 import type { ScrollTriggerInstance, GSAPTimeline } from '~/types/nuxt-gsap'
-import useMagnetic from '~/composables/useMagnetic'
 
 const props = defineProps({
   videoSrc: {
@@ -113,8 +112,8 @@ const containerRef = ref(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
 const playButtonRef = ref(null)
 
-// Extract first frame from video as poster (falls back to posterSrc prop)
-const { posterUrl } = useVideoPoster(videoRef, props.posterSrc)
+// Use posterSrc prop directly as poster
+const posterUrl = computed(() => props.posterSrc)
 
 const isPlaying = ref(false)
 const hasEnded = ref(false)
@@ -122,18 +121,6 @@ const hasEnded = ref(false)
 let videoScrollTrigger: ScrollTriggerInstance | null = null
 let entranceScrollTrigger: ScrollTriggerInstance | null = null
 let buttonTimeline: GSAPTimeline | null = null
-
-// Apply magnetic effect to play button (like ScrollButtonSVG)
-// Must be called at top level - composable has its own onMounted
-useMagnetic(playButtonRef, {
-  threshold: 150,
-  maxDisplacement: 28,
-  strength: 0.5,
-  stiffness: 0.08,
-  damping: 0.82,
-  velocityInfluence: 1.5,
-  timeScale: 0.4
-})
 
 const handlePlayPause = () => {
   if (!videoRef.value) return

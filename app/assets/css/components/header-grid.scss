@@ -1,4 +1,4 @@
-@use "../tokens/breakpoints.scss" as bp;
+@use '../tokens/breakpoints.scss' as bp;
 
 /* Header container - fixed positioning with three-state headroom behavior
    - Fixed outside ScrollSmoother content (per GSAP docs)
@@ -32,7 +32,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-color: var(--theme-100); /* GSAP owns this value — no CSS transition on color */
+  background-color: var(
+    --theme-100
+  ); /* GSAP owns this value — no CSS transition on color */
   opacity: 0; /* transparent by default (headroom--top state) */
   z-index: -1;
   pointer-events: none;
@@ -199,7 +201,7 @@
 
   /* Underline using ::after pseudo-element */
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: -0.25em;
     left: 50%;
@@ -214,7 +216,7 @@
   }
 
   /* Hover on non-active links only: expand to full width and fade in */
-  &:not([data-active="true"]):hover::after {
+  &:not([data-active='true']):hover::after {
     width: 100%;
     opacity: 0.5;
   }

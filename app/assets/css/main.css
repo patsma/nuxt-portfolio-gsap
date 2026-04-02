@@ -5,10 +5,10 @@
 */
 
 /* Precompiled SCSS (tokens, base, early utilities) BEFORE Tailwind */
-@import "./pre.css";
+@import './pre.css';
 
 /* Tailwind (generated layers and responsive variants come after) */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Postcompiled SCSS (components and late utilities) AFTER Tailwind */
-@import "./post.css";
+@import './post.css';

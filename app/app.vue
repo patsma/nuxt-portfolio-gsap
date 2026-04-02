@@ -7,10 +7,6 @@
  */
 
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
-import useIsMobile from '~/composables/useIsMobile'
-
-// Mobile detection for cursor trail
-const { isMobile } = useIsMobile()
 
 const appConfig = useAppConfig()
 
@@ -30,24 +26,16 @@ defineOgImageComponent('Portfolio', {
 // Initialize loading sequence
 const { initializeLoading } = useLoadingSequence()
 onMounted(() => {
-  // Start the loading sequence with options
   initializeLoading({
-    checkFonts: true, // Wait for custom fonts to load
-    minLoadTime: 300, // Minimum time to display loader (ensures visibility)
-    animateOnReady: true // Auto-start entrance animations when ready
+    checkFonts: true,
+    minLoadTime: 300,
+    animateOnReady: true
   })
 })
 </script>
 
 <template>
-  <!-- Fluid gradient background (z-0, behind everything) -->
-
-  <FluidGradient />
-
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-
-  <!-- Smooth cursor trail effect (z-50, on top) - hidden on mobile (no cursor) -->
-  <CursorTrail v-if="!isMobile" />
 </template>

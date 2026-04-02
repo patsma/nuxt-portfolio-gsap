@@ -1,8 +1,0 @@
-id: work
-showServices: false
-showScrollButton: true
-headline:
-  - text: "Case"
-    variant: default
-  - text: " Study"
-    variant: italic

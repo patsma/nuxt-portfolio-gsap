@@ -49,7 +49,7 @@
                 <span
                   ref="titleElementRef"
                   class="body-mobile-custom-navigation-caption text-center md:text-left text-[var(--theme-text-60)]"
-                >{{ titleStore.currentText }}</span>
+                >{{ appConfig.identity?.title || 'Creative Developer' }}</span>
               </div>
             </NuxtLink>
             <!-- Desktop nav centered (hidden on mobile) -->
@@ -62,14 +62,14 @@
                 class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
                 :data-active="isActive('/')"
               >
-                Work
+                Home
               </NuxtLink>
               <NuxtLink
-                to="/about"
+                to="/demo"
                 class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-                :data-active="isActive('/about')"
+                :data-active="isActive('/demo')"
               >
-                About
+                Demo
               </NuxtLink>
               <!-- Theme toggle in desktop nav -->
               <ClientOnly>
@@ -83,18 +83,11 @@
                 </button>
               </ClientOnly>
               <NuxtLink
-                to="/lab"
+                to="/blank"
                 class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-                :data-active="isActive('/lab')"
+                :data-active="isActive('/blank')"
               >
-                Lab
-              </NuxtLink>
-              <NuxtLink
-                to="/contact"
-                class="display-mobile-custom-navigation-menu-items nav-link text-[var(--theme-text-100)]"
-                :data-active="isActive('/contact')"
-              >
-                Contact
+                Blank
               </NuxtLink>
             </nav>
             <!-- Right spacer: location/date on desktop, theme toggle on mobile -->
@@ -160,7 +153,6 @@ import { useLoadingStore } from '~/stores/loading'
 import { useMenuStore } from '~/stores/menu'
 import { useLoadingSequence } from '~/composables/useLoadingSequence'
 import { useLocalTime } from '~/composables/useLocalTime'
-import { useTitleRotationStore } from '~/stores/title-rotation'
 
 // Loading store for font readiness check
 const loadingStore = useLoadingStore()
@@ -180,9 +172,6 @@ const appConfig = useAppConfig()
 
 // Dynamic time display (configurable timezone)
 const { localTime, isEnabled: timeEnabled } = useLocalTime()
-
-// Animated title rotation system
-const titleStore = useTitleRotationStore()
 
 // Client-side only flag for SSR safety
 const isClient = ref(false)
@@ -238,10 +227,9 @@ interface NavItem {
 }
 
 const items: NavItem[] = [
-  { label: 'Work', href: '/' },
-  { label: 'About', href: '/about' },
-  { label: 'Lab', href: '/lab' },
-  { label: 'Contact', href: '/contact' }
+  { label: 'Home', href: '/' },
+  { label: 'Demo', href: '/demo' },
+  { label: 'Blank', href: '/blank' }
 ]
 
 // Active route highlighting
@@ -274,13 +262,12 @@ async function waitForFonts(): Promise<void> {
 
 /**
  * Set up SplitText animation for the title element
- * Creates a timeline that fades characters in and out, then cycles to next title
+ * Simple fade-in of characters on load
  */
 async function setupTitleAnimation(): Promise<void> {
   if (!titleElementRef.value || !$SplitText || !$gsap) return
 
-  // CRITICAL: Wait for fonts to be loaded before creating SplitText
-  // This prevents "SplitText called before fonts loaded" warning
+  // Wait for fonts to be loaded before creating SplitText
   await waitForFonts()
 
   // Clean up previous SplitText instance
@@ -288,18 +275,11 @@ async function setupTitleAnimation(): Promise<void> {
     titleSplitInstance.revert?.()
   }
 
-  // CRITICAL: Force DOM to match current store value
-  // SplitText.revert() restores the original text it captured, not the reactive store value
-  if (titleElementRef.value) {
-    titleElementRef.value.textContent = titleStore.currentText
-  }
-
-  // Create new SplitText instance with the updated text
+  // Create new SplitText instance
   titleSplitInstance = $SplitText.create(titleElementRef.value, {
     type: 'chars'
   })
 
-  // Create animation timeline (no repeat - cycling handled by watcher/store)
   if (titleTl) {
     titleTl.kill()
   }
@@ -312,22 +292,6 @@ async function setupTitleAnimation(): Promise<void> {
     opacity: 0,
     stagger: 0.1,
     ease: 'power2.out'
-  })
-
-  // Fade out characters with stagger, then update to next title
-  titleTl.to(titleSplitInstance.chars, {
-    duration: 2,
-    opacity: 0,
-    stagger: 0.1,
-    ease: 'power2.in',
-    onComplete: () => {
-      // Advance to next title in rotation
-      titleStore.updateText()
-      // Directly chain to next animation (don't rely on watcher)
-      nextTick(() => {
-        setupTitleAnimation()
-      })
-    }
   })
 }
 
@@ -680,20 +644,6 @@ watch(isOpen, (open) => {
     }
   }
 })
-
-// Watch for title text changes and re-animate
-// This is triggered by the animation timeline's onComplete callback
-watch(
-  () => titleStore.currentText,
-  (newVal, oldVal) => {
-    // Only re-animate if this is not the initial setup
-    if (oldVal !== undefined) {
-      nextTick(() => {
-        setupTitleAnimation()
-      })
-    }
-  }
-)
 
 // Menu interactions
 function toggle() {

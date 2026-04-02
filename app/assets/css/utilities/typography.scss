@@ -99,38 +99,153 @@
 }
 
 /* Mobile display styles */
-@include display-util(display-mobile-h1, normal, 120%, var(--tracking-display-2));
-@include display-util(display-mobile-h1-bold, normal, 120%, var(--tracking-display-2));
-@include display-util(display-mobile-h1-italic, italic, 120%, var(--tracking-display-2));
-@include display-util(display-mobile-h2, normal, 150%, var(--tracking-display-1));
-@include display-util(display-mobile-h2-enlarged, normal, 120%, var(--tracking-display-3));
-@include display-util(display-mobile-h2-enlarged-italic, italic, 120%, var(--tracking-display-3));
+@include display-util(
+  display-mobile-h1,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-mobile-h1-bold,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-mobile-h1-italic,
+  italic,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-mobile-h2,
+  normal,
+  150%,
+  var(--tracking-display-1)
+);
+@include display-util(
+  display-mobile-h2-enlarged,
+  normal,
+  120%,
+  var(--tracking-display-3)
+);
+@include display-util(
+  display-mobile-h2-enlarged-italic,
+  italic,
+  120%,
+  var(--tracking-display-3)
+);
 @include display-util(display-mobile-h3, normal, 140%, 0);
 @include display-util(display-mobile-h3-italic, italic, 140%, 0);
-@include display-util(display-mobile-h3-enlarged, normal, 110%, var(--tracking-display-2));
-@include display-util(display-mobile-custom-navigation-menu-items, normal, 100%, 0);
+@include display-util(
+  display-mobile-h3-enlarged,
+  normal,
+  110%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-mobile-custom-navigation-menu-items,
+  normal,
+  100%,
+  0
+);
 
 /* Laptop display styles */
-@include display-util(display-laptop-h1, normal, 120%, var(--tracking-display-2));
-@include display-util(display-laptop-h1-bold, normal, 120%, var(--tracking-display-2));
-@include display-util(display-laptop-h1-italic, italic, 120%, var(--tracking-display-2));
-@include display-util(display-laptop-h2, normal, 150%, var(--tracking-display-1));
-@include display-util(display-laptop-h2-enlarged, normal, 120%, var(--tracking-display-2));
-@include display-util(display-laptop-h2-enlarged-italic, italic, 120%, var(--tracking-display-2));
-@include display-util(display-laptop-h3-enlarged, normal, 110%, var(--tracking-display-3));
+@include display-util(
+  display-laptop-h1,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-laptop-h1-bold,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-laptop-h1-italic,
+  italic,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-laptop-h2,
+  normal,
+  150%,
+  var(--tracking-display-1)
+);
+@include display-util(
+  display-laptop-h2-enlarged,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-laptop-h2-enlarged-italic,
+  italic,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-laptop-h3-enlarged,
+  normal,
+  110%,
+  var(--tracking-display-3)
+);
 
 /* Desktop display styles */
-@include display-util(display-desktop-h1, normal, 120%, var(--tracking-display-2));
-@include display-util(display-desktop-h1-bold, normal, 120%, var(--tracking-display-2));
-@include display-util(display-desktop-h1-italic, italic, 120%, var(--tracking-display-2));
-@include display-util(display-desktop-h2, normal, 150%, var(--tracking-display-1));
-@include display-util(display-desktop-h2-enlarged, normal, 120%, var(--tracking-display-3));
-@include display-util(display-desktop-h2-enlarged-italic, italic, 120%, var(--tracking-display-3));
+@include display-util(
+  display-desktop-h1,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-desktop-h1-bold,
+  normal,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-desktop-h1-italic,
+  italic,
+  120%,
+  var(--tracking-display-2)
+);
+@include display-util(
+  display-desktop-h2,
+  normal,
+  150%,
+  var(--tracking-display-1)
+);
+@include display-util(
+  display-desktop-h2-enlarged,
+  normal,
+  120%,
+  var(--tracking-display-3)
+);
+@include display-util(
+  display-desktop-h2-enlarged-italic,
+  italic,
+  120%,
+  var(--tracking-display-3)
+);
 @include display-util(display-desktop-h3, normal, 140%, 0);
 @include display-util(display-desktop-h3-italic, italic, 140%, 0);
-@include display-util(display-desktop-h3-enlarged, normal, 110%, var(--tracking-display-4));
+@include display-util(
+  display-desktop-h3-enlarged,
+  normal,
+  110%,
+  var(--tracking-display-4)
+);
 @include display-util(display-desktop-custom-navigation, normal, 100%, 0);
-@include display-util(display-desktop-large-h2, normal, 150%, var(--tracking-display-1));
+@include display-util(
+  display-desktop-large-h2,
+  normal,
+  150%,
+  var(--tracking-display-1)
+);
 
 /*
   Body font utilities (sans-serif paragraphs/UI)
@@ -151,26 +266,71 @@
 
 /* Mobile body styles */
 @include body-util(body-mobile-h1, 300, 120%, var(--tracking-body-tight-2));
-@include body-util(body-mobile-h2-enlarged, 200, 120%, var(--tracking-display-2));
-@include body-util(body-mobile-caption, 500, 150%, var(--tracking-body-tight-2));
+@include body-util(
+  body-mobile-h2-enlarged,
+  200,
+  120%,
+  var(--tracking-display-2)
+);
+@include body-util(
+  body-mobile-caption,
+  500,
+  150%,
+  var(--tracking-body-tight-2)
+);
 @include body-util(body-mobile-p2, 400, 150%, var(--tracking-body-tight-1));
 @include body-util(body-mobile-p1, 400, 150%, var(--tracking-body-tight-2));
 @include body-util(body-mobile-button, 500, 150%, var(--tracking-body-tight-2));
-@include body-util(body-mobile-custom-labels, 500, 110%, var(--tracking-body-wide-1));
-@include body-util(body-mobile-custom-navigation-caption, 400, 130%, var(--tracking-body-tight-1));
+@include body-util(
+  body-mobile-custom-labels,
+  500,
+  110%,
+  var(--tracking-body-wide-1)
+);
+@include body-util(
+  body-mobile-custom-navigation-caption,
+  400,
+  130%,
+  var(--tracking-body-tight-1)
+);
 @include body-util(body-mobile-custom-navigation-subcaption, 400, 120%, 0);
 
 /* Laptop body styles */
 @include body-util(body-laptop-h1, 300, 120%, var(--tracking-display-2));
-@include body-util(body-laptop-h2-enlarged, 200, 120%, var(--tracking-display-2));
+@include body-util(
+  body-laptop-h2-enlarged,
+  200,
+  120%,
+  var(--tracking-display-2)
+);
 @include body-util(body-laptop-p2, 300, 150%, var(--tracking-body-tight-2));
 
 /* Desktop body styles */
 @include body-util(body-desktop-h1, 300, 120%, var(--tracking-display-3));
-@include body-util(body-desktop-h2-enlarged, 200, 120%, var(--tracking-display-4));
-@include body-util(body-desktop-caption, 500, 150%, var(--tracking-body-tight-1));
+@include body-util(
+  body-desktop-h2-enlarged,
+  200,
+  120%,
+  var(--tracking-display-4)
+);
+@include body-util(
+  body-desktop-caption,
+  500,
+  150%,
+  var(--tracking-body-tight-1)
+);
 @include body-util(body-desktop-p2, 300, 150%, var(--tracking-body-tight-3));
 @include body-util(body-desktop-p1, 400, 150%, var(--tracking-body-tight-1));
-@include body-util(body-desktop-custom-labels, 500, 110%, var(--tracking-body-wide-2));
-@include body-util(body-desktop-custom-navigation-caption, 400, 100%, var(--tracking-body-tight-2));
+@include body-util(
+  body-desktop-custom-labels,
+  500,
+  110%,
+  var(--tracking-body-wide-2)
+);
+@include body-util(
+  body-desktop-custom-navigation-caption,
+  400,
+  100%,
+  var(--tracking-body-tight-2)
+);
 @include body-util(body-desktop-custom-navigation-subcaption, 400, 100%, 0);

@@ -24,6 +24,7 @@ npm run styles:build     # Build SCSS manually (usually not needed)
 ## Key Systems
 
 ### Loading System
+
 Theme-aware initial loader with SSR support and entrance animation sequencing.
 
 **Features:** Blocking theme detection, minimum display time enforcement, entrance animation coordinator, event-driven resource tracking
@@ -31,13 +32,14 @@ Theme-aware initial loader with SSR support and entrance animation sequencing.
 📖 **See** `.claude/LOADING_SYSTEM.md`
 
 ### Entrance Animation System
+
 Unified GSAP timeline sequencer for component entrance animations on first page load.
 
 **Pattern:** Components use `setupEntrance()` with GSAP position parameters for full timing control.
 
 ```typescript
 setupEntrance(elementRef.value, {
-  position: '<-0.3',  // Overlap previous by 0.3s
+  position: '<-0.3', // Overlap previous by 0.3s
   animate: (el: HTMLElement) => {
     const tl = $gsap.timeline()
     tl.to(el, { autoAlpha: 1, y: 0, duration: 0.8 })
@@ -51,6 +53,7 @@ setupEntrance(elementRef.value, {
 📖 **See** `.claude/LOADING_SYSTEM.md` (Entrance Animation System section)
 
 ### Theme System
+
 GSAP-animated dark/light theme with localStorage persistence and SSR compatibility.
 
 **Features:** Smooth color transitions, manual toggle overrides system preference, SVG icon morphing, Pinia store with hydration, no FOUC
@@ -60,6 +63,7 @@ GSAP-animated dark/light theme with localStorage persistence and SSR compatibili
 📖 **See** `.claude/THEME_SYSTEM.md`
 
 ### Page Transitions
+
 Directive-based GSAP transitions with manual control. NO auto-detection - mark exactly which elements animate.
 
 **Directives:** `v-page-split`, `v-page-fade`, `v-page-clip`, `v-page-stagger`
@@ -69,6 +73,7 @@ Directive-based GSAP transitions with manual control. NO auto-detection - mark e
 📖 **See** `.claude/PAGE_TRANSITIONS.md`
 
 ### Scroll System
+
 ScrollSmoother with headroom header behavior for buttery smooth scrolling.
 
 **Features:** 60fps smooth scrolling, parallax effects (data-speed, data-lag), headroom auto-hide/show, pause/resume during transitions
@@ -76,6 +81,7 @@ ScrollSmoother with headroom header behavior for buttery smooth scrolling.
 📖 **See** `.claude/SCROLL_SYSTEM.md`
 
 ### Component Patterns
+
 Reusable component architectures and layout patterns for building consistent section components.
 
 **Patterns:** FullWidthBorder abstraction, 4-column grid layouts, BiographySection, ExperienceSection, scroll animations, responsive strategies
@@ -83,6 +89,7 @@ Reusable component architectures and layout patterns for building consistent sec
 📖 **See** `.claude/COMPONENT_PATTERNS.md`
 
 ### Magnetic Effect
+
 Spring physics composable for organic magnetic hover effects.
 
 **Features:** Spring physics with timeScale, velocity tracking, auto-disabled on mobile, reusable composable
@@ -90,6 +97,7 @@ Spring physics composable for organic magnetic hover effects.
 📖 **See** `.claude/MAGNETIC_EFFECT.md`
 
 ### Fluid Gradient
+
 TresJS WebGL background with theme-aware colors and scroll-reactive effects.
 
 **Features:** Custom GLSL shaders, GSAP ticker rendering, theme color transitions, scroll-based parameter animation, mobile-optimized (30fps simplified shader)
@@ -97,6 +105,7 @@ TresJS WebGL background with theme-aware colors and scroll-reactive effects.
 📖 **See** `.claude/FLUID_GRADIENT.md`
 
 ### OG Image System
+
 Dynamic social sharing images with nuxt-og-image module.
 
 **Features:** Custom template, global defaults, per-page dynamic generation, dev debug panel
@@ -183,12 +192,15 @@ server/
 ### GSAP Integration (@hypernym/nuxt-gsap)
 
 **Premium plugins:**
+
 - MorphSVG, DrawSVG, SplitText, ScrollSmoother, CustomBounce/Wiggle, GSDevTools
 
 **Extra plugins:**
+
 - ScrollTrigger, Observer, Flip, MotionPath
 
 **Access:**
+
 ```typescript
 const { $gsap, $ScrollTrigger, $SplitText } = useNuxtApp()
 ```
@@ -231,10 +243,15 @@ import type { Directive, DirectiveBinding } from 'vue'
 import type { FadeBindingValue, PageAnimationElement } from '~/types/directives'
 
 const vPageFade: Directive<PageAnimationElement, FadeBindingValue> = {
-  mounted(el: PageAnimationElement, binding: DirectiveBinding<FadeBindingValue>) {
+  mounted(
+    el: PageAnimationElement,
+    binding: DirectiveBinding<FadeBindingValue>
+  ) {
     el._pageAnimation = {
       type: 'fade',
-      config: { /* ... */ }
+      config: {
+        /* ... */
+      }
     }
   }
 }
@@ -271,13 +288,14 @@ useScrollTriggerInit(
 
 ```css
 /* base.scss - only applies when class exists */
-html.is-first-load [data-entrance-animate="true"] {
+html.is-first-load [data-entrance-animate='true'] {
   opacity: 0;
   visibility: hidden;
 }
 ```
 
 **Flow:**
+
 1. SSR injects `is-first-load` class before page loads
 2. First load: Class exists → CSS hides → Animations play → Class removed
 3. Navigation: No class → Elements visible → Page transitions work
@@ -312,7 +330,9 @@ html.is-first-load [data-entrance-animate="true"] {
 ## Debugging
 
 ### Page Transitions
+
 Watch console logs for:
+
 ```
 🚀 Page LEAVE
 🔍 Found elements with directives: 5
@@ -327,18 +347,18 @@ Missing logs indicate: directives not registered, wrong page structure (missing 
 
 Detailed documentation for each system lives in `.claude/`:
 
-| Document | Description |
-|----------|-------------|
-| `LOADING_SYSTEM.md` | Theme-aware loader & entrance animations |
-| `THEME_SYSTEM.md` | Dark/light switching with GSAP |
-| `PAGE_TRANSITIONS.md` | Directive-based transition system |
-| `SCROLL_SYSTEM.md` | ScrollSmoother & headroom integration |
-| `COMPONENT_PATTERNS.md` | Reusable section patterns |
-| `FLUID_GRADIENT.md` | TresJS WebGL background system |
-| `OG_IMAGE_SYSTEM.md` | Dynamic social sharing images |
-| `MAGNETIC_EFFECT.md` | Spring physics hover effects |
-| `ELASTIC_BORDER.md` | Physics-based elastic border effect |
-| `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery |
-| `CONTENT_SYSTEM.md` | Nuxt Content YAML data system |
-| `NUXT-STUDIO.md` | Self-hosted Studio CMS integration |
-| `APP_IMAGE_SYSTEM.md` | Shimmer skeleton image wrapper (AppImage) |
+| Document                    | Description                               |
+| --------------------------- | ----------------------------------------- |
+| `LOADING_SYSTEM.md`         | Theme-aware loader & entrance animations  |
+| `THEME_SYSTEM.md`           | Dark/light switching with GSAP            |
+| `PAGE_TRANSITIONS.md`       | Directive-based transition system         |
+| `SCROLL_SYSTEM.md`          | ScrollSmoother & headroom integration     |
+| `COMPONENT_PATTERNS.md`     | Reusable section patterns                 |
+| `FLUID_GRADIENT.md`         | TresJS WebGL background system            |
+| `OG_IMAGE_SYSTEM.md`        | Dynamic social sharing images             |
+| `MAGNETIC_EFFECT.md`        | Spring physics hover effects              |
+| `ELASTIC_BORDER.md`         | Physics-based elastic border effect       |
+| `INTERACTIVE_CASE_STUDY.md` | Interactive case study gallery            |
+| `CONTENT_SYSTEM.md`         | Nuxt Content YAML data system             |
+| `NUXT-STUDIO.md`            | Self-hosted Studio CMS integration        |
+| `APP_IMAGE_SYSTEM.md`       | Shimmer skeleton image wrapper (AppImage) |

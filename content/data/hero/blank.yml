@@ -1,0 +1,12 @@
+id: blank
+headline:
+  - text: "Your "
+    variant: default
+  - text: "blank canvas"
+    variant: emphasis
+  - text: " — start building "
+    variant: default
+  - text: "here"
+    variant: italic
+showServices: false
+showScrollButton: false

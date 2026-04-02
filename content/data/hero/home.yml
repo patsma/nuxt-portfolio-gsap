@@ -1,30 +1,16 @@
+id: home
 headline:
-  - text: Hello, I'm a
+  - text: "Build "
     variant: default
-  - text: " creative"
+  - text: "beautiful"
+    variant: italic
+  - text: " websites with "
+    variant: default
+  - text: "smooth animations"
     variant: emphasis
-  - text: " Designer"
+  - text: " and "
+    variant: default
+  - text: "modern tooling"
     variant: body
-  - text: " with a passion for"
-    variant: default
-  - text: " digital"
-    variant: italic
-  - text: " experiences"
-    variant: default
-  - text: " - crafting"
-    variant: default
-  - text: " purposeful"
-    variant: emphasis
-  - text: " solutions"
-    variant: body
-  - text: " that blend"
-    variant: default
-  - text: " form"
-    variant: italic
-  - text: " and"
-    variant: default
-  - text: " function"
-    variant: italic
-showScrollButton: true
 showServices: true
-title: Home
+showScrollButton: true

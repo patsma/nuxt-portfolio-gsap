@@ -77,25 +77,3 @@ export interface PageTransitionState {
 
 // ============================================================================
 // Title Rotation Types
-// ============================================================================
-
-/**
- * Title rotation store state shape
- */
-export interface TitleRotationState {
-  textArray: string[]
-  currentIndex: number
-}
-
-// ============================================================================
-// Hints Types
-// ============================================================================
-
-/**
- * Hints store - uses setup syntax, so no state interface needed
- * The store exposes these methods:
- * - hasShown(hintKey: string): boolean
- * - markAsShown(hintKey: string): void
- * - loadPersistedHints(): void
- * - resetHints(): void
- */

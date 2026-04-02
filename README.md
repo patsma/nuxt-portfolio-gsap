@@ -31,24 +31,28 @@ What makes it technically interesting: SSR-compatible animations with zero FOUC,
 ## Features
 
 ### Animation
+
 - **Page Transitions** - Directive-based GSAP animations (`v-page-split`, `v-page-fade`, `v-page-clip`, `v-page-stagger`)
 - **Entrance Animations** - Unified timeline sequencer for coordinated first-load animations
 - **Smooth Scrolling** - ScrollSmoother with parallax effects (`data-speed`, `data-lag`)
 - **Theme Morphing** - SVG icon morphing between dark/light states
 
 ### Performance
+
 - **60fps Desktop** - Optimized GSAP animations with proper cleanup
 - **Safari Fixes** - Height lock fix, enter animation timing, ScrollSmoother settings
 - **Mobile Optimized** - Automatic frame rate reduction (60fps → 30fps)
 - **FOUC Prevention** - SSR-injected theme script and `is-first-load` class scoping
 
 ### Visual
+
 - **Fluid Gradient** - WebGL background with TresJS and custom GLSL shaders
 - **Theme System** - Dark/light with GSAP color transitions
 - **Headroom Header** - Auto-hide/show on scroll direction
 - **Magnetic Effects** - Spring physics hover interactions
 
 ### Developer Experience
+
 - **TypeScript** - Strict mode with full type coverage
 - **Nuxt 4** - Latest features and Vue 3 Composition API
 - **Well Documented** - Comprehensive `.claude/` system docs
@@ -56,14 +60,14 @@ What makes it technically interesting: SSR-compatible animations with zero FOUC,
 
 ## Tech Stack
 
-| Category  | Technology                                                                 |
-| --------- | -------------------------------------------------------------------------- |
-| Framework | Nuxt 4 (Vue 3)                                                             |
-| Language  | TypeScript (strict mode)                                                   |
-| Animation | GSAP with Club plugins - ScrollSmoother, SplitText, MorphSVG (now free!)   |
-| 3D/WebGL  | TresJS with custom GLSL shaders                                            |
-| Styling   | TailwindCSS v4 + SCSS                                                      |
-| State     | Pinia                                                                      |
+| Category  | Technology                                                               |
+| --------- | ------------------------------------------------------------------------ |
+| Framework | Nuxt 4 (Vue 3)                                                           |
+| Language  | TypeScript (strict mode)                                                 |
+| Animation | GSAP with Club plugins - ScrollSmoother, SplitText, MorphSVG (now free!) |
+| 3D/WebGL  | TresJS with custom GLSL shaders                                          |
+| Styling   | TailwindCSS v4 + SCSS                                                    |
+| State     | Pinia                                                                    |
 
 ## Quick Start
 

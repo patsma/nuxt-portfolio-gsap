@@ -1,0 +1,12 @@
+id: demo
+headline:
+  - text: "Component "
+    variant: default
+  - text: "showcase"
+    variant: emphasis
+  - text: " — every building block in "
+    variant: default
+  - text: "one place"
+    variant: italic
+showServices: false
+showScrollButton: true

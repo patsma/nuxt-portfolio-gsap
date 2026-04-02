@@ -6,10 +6,10 @@ Self-hosted Nuxt Studio for visual content editing. Runs locally at `/_studio` r
 
 ## Access URLs
 
-| Environment | Studio URL |
-|-------------|------------|
-| Local | http://localhost:3000/_studio |
-| Production | https://mp2025.netlify.app/_studio |
+| Environment | Studio URL                         |
+| ----------- | ---------------------------------- |
+| Local       | http://localhost:3000/\_studio     |
+| Production  | https://mp2025.netlify.app/_studio |
 
 Studio runs as part of your Nuxt app - no external domain.
 
@@ -80,25 +80,25 @@ Then visit `http://localhost:3000/_studio` and authenticate with GitHub.
 
 ### YAML Data Files (`content/data/`)
 
-| File | Description | Schema |
-|------|-------------|--------|
-| `hero/*.yml` | Hero section content | headline segments, services toggle |
-| `services.yml` | Services list | array of strings |
-| `case-studies.yml` | Case study gallery items | title, description, image, link |
-| `experience.yml` | Work history | date range, title, company, location |
-| `clients.yml` | Client lists | primary/secondary arrays |
-| `awards.yml` | Awards & recognition | awards count/name, featured names |
-| `recommendations.yml` | Testimonials | quote, author info |
-| `biography/*.yml` | Biography paragraphs | label, paragraphs array |
+| File                  | Description              | Schema                               |
+| --------------------- | ------------------------ | ------------------------------------ |
+| `hero/*.yml`          | Hero section content     | headline segments, services toggle   |
+| `services.yml`        | Services list            | array of strings                     |
+| `case-studies.yml`    | Case study gallery items | title, description, image, link      |
+| `experience.yml`      | Work history             | date range, title, company, location |
+| `clients.yml`         | Client lists             | primary/secondary arrays             |
+| `awards.yml`          | Awards & recognition     | awards count/name, featured names    |
+| `recommendations.yml` | Testimonials             | quote, author info                   |
+| `biography/*.yml`     | Biography paragraphs     | label, paragraphs array              |
 
 ### Page Collections
 
-| Collection | Path | Description |
-|------------|------|-------------|
-| `pages` | `content/*.md` | MDC pages (root-level) |
-| `projects` | `content/projects/*.md` | Project case studies |
-| `blog` | `content/blog/*.md` | Blog posts |
-| `lab` | `content/lab/*.md` | Experimental projects |
+| Collection | Path                    | Description            |
+| ---------- | ----------------------- | ---------------------- |
+| `pages`    | `content/*.md`          | MDC pages (root-level) |
+| `projects` | `content/projects/*.md` | Project case studies   |
+| `blog`     | `content/blog/*.md`     | Blog posts             |
+| `lab`      | `content/lab/*.md`      | Experimental projects  |
 
 ## Schema Configuration
 
@@ -118,6 +118,7 @@ All schemas are defined in `content.config.ts` using Zod. Studio reads these sch
 Image fields like `image`, `cover`, `thumbnail` are defined as `z.string()` containing the path to the image (e.g., `/images/project.jpg`).
 
 To upload images:
+
 1. Add images to `public/images/` directory
 2. Reference them in content as `/images/filename.jpg`
 
@@ -161,6 +162,7 @@ content/
 ### Publishing
 
 Changes are committed directly to your GitHub repository. If you have:
+
 - **Netlify auto-deploy:** Changes go live automatically after commit
 - **Manual deploy:** Pull changes and deploy manually
 
@@ -169,6 +171,7 @@ Changes are committed directly to your GitHub repository. If you have:
 ### Studio Route Not Loading
 
 Ensure:
+
 - `nuxt-studio` is in dependencies (not devDependencies)
 - Module is listed in `nuxt.config.ts` modules array
 - Dev server is running
@@ -176,6 +179,7 @@ Ensure:
 ### Authentication Errors
 
 Check:
+
 - GitHub OAuth app callback URL matches exactly
 - Environment variables are set correctly
 - Both `CLIENT_ID` and `CLIENT_SECRET` are provided
@@ -183,6 +187,7 @@ Check:
 ### Schema Validation Errors
 
 If Studio shows validation errors:
+
 1. Check `content.config.ts` for schema issues
 2. Ensure content files match their schema definitions
 3. Run `npm run dev` and check console for Zod errors

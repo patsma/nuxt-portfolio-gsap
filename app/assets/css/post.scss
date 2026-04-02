@@ -5,16 +5,12 @@
 */
 
 /* Component styles */
-@use "./components/content-grid.scss";
-@use "./components/header-grid.scss";
-@use "./components/interactive-case-study.scss";
-@use "./components/experience-section.scss";
-@use "./components/service-tags.scss";
-@use "./components/recommendations-section.scss";
+@use './components/content-grid.scss';
+@use './components/header-grid.scss';
 
 /* Additional utilities that can safely come after Tailwind */
-@use "./utilities/layout.scss";
-@use "./utilities/spacing.scss";
+@use './utilities/layout.scss';
+@use './utilities/spacing.scss';
 
 // ─────────── Image Loader ───────────
 
@@ -74,7 +70,9 @@
 }
 
 @keyframes img-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /*

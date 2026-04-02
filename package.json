@@ -23,7 +23,6 @@
     "@nuxt/image": "^1.11.0",
     "@pinia/nuxt": "^0.11.2",
     "@sentry/nuxt": "^10.11.0",
-    "@tresjs/nuxt": "^4.0.0",
     "@vueuse/nuxt": "^14.0.0",
     "better-sqlite3": "^12.2.0",
     "eslint": "^9.31.0",
@@ -32,7 +31,6 @@
     "nuxt-og-image": "^5.1.13",
     "nuxt-studio": "^1.4.0",
     "pinia": "^3.0.3",
-    "three": "^0.180.0",
     "vue": "^3.5.21",
     "vue-router": "^4.5.1"
   },

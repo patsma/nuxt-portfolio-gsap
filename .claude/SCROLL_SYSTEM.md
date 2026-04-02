@@ -33,14 +33,14 @@ Page Transitions
 
 ## Core Files
 
-| File | Purpose |
-|------|---------|
+| File                                          | Purpose                                                   |
+| --------------------------------------------- | --------------------------------------------------------- |
 | `app/composables/useScrollSmootherManager.ts` | Module-level composable managing lifecycle (desktop only) |
-| `app/composables/useScrollTriggerInit.ts` | Abstracts page transition coordination for ScrollTrigger |
-| `app/composables/useIsMobile.ts` | Mobile detection (isDesktop for >= 1024px) |
-| `app/plugins/headroom.client.ts` | Header visibility with pause/resume |
-| `app/composables/usePageTransition.ts` | Coordinates headroom with transitions |
-| `app/assets/css/components/header-grid.scss` | Transform-based header animations |
+| `app/composables/useScrollTriggerInit.ts`     | Abstracts page transition coordination for ScrollTrigger  |
+| `app/composables/useIsMobile.ts`              | Mobile detection (isDesktop for >= 1024px)                |
+| `app/plugins/headroom.client.ts`              | Header visibility with pause/resume                       |
+| `app/composables/usePageTransition.ts`        | Coordinates headroom with transitions                     |
+| `app/assets/css/components/header-grid.scss`  | Transform-based header animations                         |
 
 ## ScrollSmoother Setup
 
@@ -55,10 +55,10 @@ onMounted(() => {
     createSmoother({
       wrapper: '#smooth-wrapper',
       content: '#smooth-content',
-      smooth: 1,                     // Safari-optimized (2+ drops to 14fps)
-      effects: true,                 // Enable data-speed and data-lag
-      normalizeScroll: true,         // Improves Safari + touch
-      ignoreMobileResize: true,      // Prevents mobile jank
+      smooth: 1, // Safari-optimized (2+ drops to 14fps)
+      effects: true, // Enable data-speed and data-lag
+      normalizeScroll: true, // Improves Safari + touch
+      ignoreMobileResize: true, // Prevents mobile jank
       onUpdate: (self) => {
         nuxtApp.$headroom?.updateHeader(self.scrollTop())
       }
@@ -71,19 +71,19 @@ onMounted(() => {
 
 **File:** `app/plugins/headroom.client.ts`
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| `AT_TOP_THRESHOLD` | 10px | Distance to be considered "at top" |
-| `SCROLL_THRESHOLD` | 100px | Distance before hiding header |
-| `THROTTLE_DELAY` | 100ms | Update frequency (~10 times/sec) using VueUse `useThrottleFn` |
+| Setting            | Value | Purpose                                                       |
+| ------------------ | ----- | ------------------------------------------------------------- |
+| `AT_TOP_THRESHOLD` | 10px  | Distance to be considered "at top"                            |
+| `SCROLL_THRESHOLD` | 100px | Distance before hiding header                                 |
+| `THROTTLE_DELAY`   | 100ms | Update frequency (~10 times/sec) using VueUse `useThrottleFn` |
 
 ### Three-State System
 
-| State | Class | Scroll Position | Appearance |
-|-------|-------|----------------|------------|
-| At Top | `headroom--top` | `scrollY ≤ 10px` | Full height, transparent background |
-| Not Top | `headroom--not-top` | Scrolling up past 100px, OR scrolling up in 10–100px zone | Compact height, solid theme background |
-| Hidden | `headroom--unpinned` | Scrolling down past 100px | Translated out of view |
+| State   | Class                | Scroll Position                                           | Appearance                             |
+| ------- | -------------------- | --------------------------------------------------------- | -------------------------------------- |
+| At Top  | `headroom--top`      | `scrollY ≤ 10px`                                          | Full height, transparent background    |
+| Not Top | `headroom--not-top`  | Scrolling up past 100px, OR scrolling up in 10–100px zone | Compact height, solid theme background |
+| Hidden  | `headroom--unpinned` | Scrolling down past 100px                                 | Translated out of view                 |
 
 **Direction-aware 10–100px zone:** In the 10–100px range, the class applied depends on scroll direction — scrolling up applies `headroom--not-top` (solid, compact), scrolling down applies `headroom--unpinned` (hidden). This means the solid background is pre-loaded while the header is off-screen, so when it slides back in it's already fully solid from frame 1.
 
@@ -155,19 +155,21 @@ onComplete → headroom.resume()
 
 **Different methods for different use cases:**
 
-| Method | Use Case | Behavior |
-|--------|----------|----------|
-| `pause()` | Both page transitions and accordions | Freezes header in current state |
-| `resume()` | Page transitions only | Smoothly animates header to top state (800ms) |
-| `unpause()` | Accordions/height changes only | Re-enables updates without animation, uses skipNextUpdate |
+| Method      | Use Case                             | Behavior                                                  |
+| ----------- | ------------------------------------ | --------------------------------------------------------- |
+| `pause()`   | Both page transitions and accordions | Freezes header in current state                           |
+| `resume()`  | Page transitions only                | Smoothly animates header to top state (800ms)             |
+| `unpause()` | Accordions/height changes only       | Re-enables updates without animation, uses skipNextUpdate |
 
 **When to use which:**
+
 - **Page transitions:** Use `pause()` → `resume()` (animates to top)
 - **Accordions/dynamic content:** Use `pause()` → `unpause()` (no animation, syncs scroll position)
 
 ### skipNextUpdate Pattern
 
 When `unpause()` is called, it sets an internal `skipNextUpdate = true` flag. The next `updateHeader()` call will:
+
 1. Skip header state changes (no show/hide/compact)
 2. Sync `lastScrollTop` to current scroll position
 3. Clear `skipNextUpdate` flag
@@ -175,6 +177,7 @@ When `unpause()` is called, it sets an internal `skipNextUpdate = true` flag. Th
 **Why this matters:** After `ScrollTrigger.refresh()`, ScrollSmoother takes time to settle. The `skipNextUpdate` pattern ensures headroom syncs to the ACTUAL final scroll position instead of reacting to intermediate scroll changes during the settling animation.
 
 **Example:** RecommendationItem accordion (lines 326-389)
+
 ```typescript
 // Pause before animation
 nuxtApp.$headroom?.pause()
@@ -203,16 +206,18 @@ $gsap.to(expandedContentRef.value, {
 **Solution:** Use targeted refresh pattern instead of global refresh.
 
 **Anti-Pattern (causes reversals on iOS Safari):**
+
 ```typescript
 // BAD: Reverses entrance animations on iOS Safari
 $ScrollTrigger.refresh() // Refreshes ALL triggers globally
 ```
 
 **Correct Pattern (targeted refresh):**
+
 ```typescript
 // GOOD: Only refreshes pinned sections, leaves entrance animations alone
-const pinnedTriggers = $ScrollTrigger.getAll().filter(st => st.pin)
-pinnedTriggers.forEach(trigger => trigger.refresh())
+const pinnedTriggers = $ScrollTrigger.getAll().filter((st) => st.pin)
+pinnedTriggers.forEach((trigger) => trigger.refresh())
 ```
 
 **Additional Protection:** Use `once: true` on entrance ScrollTriggers to auto-destroy after first play.
@@ -221,8 +226,8 @@ pinnedTriggers.forEach(trigger => trigger.refresh())
 $ScrollTrigger.create({
   trigger: element,
   animation: timeline,
-  once: true,  // Auto-destroys after entrance animation completes
-  toggleActions: 'play none none none', // Only play on enter, no reversal
+  once: true, // Auto-destroys after entrance animation completes
+  toggleActions: 'play none none none' // Only play on enter, no reversal
 })
 ```
 
@@ -277,8 +282,9 @@ const enter = (el: Element, done: () => void): void => {
   height: var(--size-header);
   background: transparent;
   will-change: transform, height;
-  transition: transform var(--duration-hover) var(--ease-power2),
-              height var(--duration-hover) var(--ease-power2);
+  transition:
+    transform var(--duration-hover) var(--ease-power2),
+    height var(--duration-hover) var(--ease-power2);
 
   /* Solid background overlay — opacity transitions for scroll state,
      GSAP owns the color (theme toggle). Decoupled intentionally. */
@@ -296,7 +302,9 @@ const enter = (el: Element, done: () => void): void => {
   /* STATE 2: compact + solid background */
   &.headroom--not-top {
     height: var(--size-header-compact);
-    &::before { opacity: 1; }
+    &::before {
+      opacity: 1;
+    }
   }
 
   /* STATE 3: hidden */
@@ -314,11 +322,14 @@ const enter = (el: Element, done: () => void): void => {
   }
 
   &.headroom--no-transition,
-  &.headroom--no-transition::before { transition: none !important; }
+  &.headroom--no-transition::before {
+    transition: none !important;
+  }
 
   &.headroom--smooth-transition {
-    transition: transform var(--duration-slow) var(--ease-power2),
-                height var(--duration-slow) var(--ease-power2);
+    transition:
+      transform var(--duration-slow) var(--ease-power2),
+      height var(--duration-slow) var(--ease-power2);
   }
 }
 ```
@@ -326,6 +337,7 @@ const enter = (el: Element, done: () => void): void => {
 **Why transform:** GPU-accelerated, no layout reflow (unlike `top` property).
 
 **Transition timing:**
+
 - Normal scroll behavior: 300ms (`--duration-hover`) - responsive and snappy
 - Page transition animation: 800ms (`--duration-slow`) - smooth and dramatic
 
@@ -339,12 +351,12 @@ const enter = (el: Element, done: () => void): void => {
 .parallax-container {
   overflow: hidden;
   position: relative;
-  height: 100%;  // Fills parent
+  height: 100%; // Fills parent
 }
 
 .parallax-media {
   width: 100%;
-  height: 120%;  // 20% larger for movement
+  height: 120%; // 20% larger for movement
   object-fit: cover;
   display: block;
 }
@@ -353,6 +365,7 @@ const enter = (el: Element, done: () => void): void => {
 ### Usage Pattern
 
 **Three-layer structure:**
+
 1. Wrapper controls height (vh, %, Tailwind, etc.)
 2. Container fills wrapper (100%)
 3. Media is 120% of container for parallax movement
@@ -389,7 +402,7 @@ const enter = (el: Element, done: () => void): void => {
 ### Refresh After Route Change
 
 ```typescript
-refreshSmoother()  // Recalculates parallax for new content
+refreshSmoother() // Recalculates parallax for new content
 ```
 
 ## Mobile/Tablet Behavior (< 1024px)
@@ -398,13 +411,13 @@ ScrollSmoother is **disabled** on mobile and tablet for native scroll experience
 
 ### Desktop vs Mobile/Tablet
 
-| Feature | Desktop (≥1024px) | Mobile/Tablet (<1024px) |
-|---------|-------------------|-------------------------|
-| ScrollSmoother | Enabled | Disabled |
-| Parallax (data-speed/lag) | Active | Ignored |
-| Scaling sections | Pinned, scrubbed | Non-pinned, scrubbed |
-| Headroom scroll source | ScrollSmoother.onUpdate | window scroll event |
-| Scroll feel | Smooth interpolation | Native browser scroll |
+| Feature                   | Desktop (≥1024px)       | Mobile/Tablet (<1024px) |
+| ------------------------- | ----------------------- | ----------------------- |
+| ScrollSmoother            | Enabled                 | Disabled                |
+| Parallax (data-speed/lag) | Active                  | Ignored                 |
+| Scaling sections          | Pinned, scrubbed        | Non-pinned, scrubbed    |
+| Headroom scroll source    | ScrollSmoother.onUpdate | window scroll event     |
+| Scroll feel               | Smooth interpolation    | Native browser scroll   |
 
 ### How It Works
 
@@ -417,7 +430,9 @@ onMounted(() => {
   nextTick(() => {
     if (isDesktop.value) {
       // Desktop: ScrollSmoother with headroom integration
-      createSmoother({ /* config */ })
+      createSmoother({
+        /* config */
+      })
     } else {
       // Mobile/Tablet: Native scroll with headroom
       setupNativeScrollHeadroom()
@@ -429,6 +444,7 @@ onMounted(() => {
 ### Scaling Section Mobile Behavior
 
 On mobile/tablet, `ImageScalingSection` and `VideoScalingSection`:
+
 - Same grow animation (small → full viewport)
 - Scrubbed to scroll position (not time-based)
 - NO pinning - section scrolls naturally
@@ -436,23 +452,25 @@ On mobile/tablet, `ImageScalingSection` and `VideoScalingSection`:
 - No parallax effect (manual yPercent animation removed)
 
 **Desktop mode:**
+
 ```typescript
 $ScrollTrigger.create({
   trigger: sectionRef.value,
   start: 'top top',
   end: `+=${scrollAmount}`,
-  pin: true,  // PINNED
+  pin: true, // PINNED
   scrub: 1
 })
 ```
 
 **Mobile mode:**
+
 ```typescript
 $ScrollTrigger.create({
   trigger: sectionRef.value,
-  start: 'top bottom',  // Start when section enters viewport
-  end: 'top top',       // End when section reaches top
-  pin: false,           // NO PINNING
+  start: 'top bottom', // Start when section enters viewport
+  end: 'top top', // End when section reaches top
+  pin: false, // NO PINNING
   scrub: 1
 })
 ```
@@ -474,6 +492,7 @@ useScrollTriggerInit(
 ```
 
 **Replaces:**
+
 ```typescript
 // OLD PATTERN (~25 lines per component)
 const loadingStore = useLoadingStore()
@@ -503,6 +522,7 @@ onUnmounted(() => {
 ```
 
 **Components using this pattern:**
+
 - BiographySection
 - ExperienceSection
 - RecommendationsSection
@@ -515,23 +535,24 @@ onUnmounted(() => {
 
 ## Troubleshooting
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Header snaps when clicking link | pause() changes header state | pause() should only set isPaused = true (freeze in place) |
-| Header doesn't animate after transition | resume() doesn't change classes | resume() must add headroom--top and remove others (with transitions enabled) |
-| Scroll jump visible to user | Auto-scroll before animations | Scroll in `afterLeave()` when content hidden |
-| Headroom not hiding | onUpdate not called | Verify callback in createSmoother() |
-| Fixed elements broken | Inside smooth-content | Move outside (see DOM structure) |
-| Headroom resumes too early | Using page:finish hook | Resume in enter() `onComplete` instead |
-| 14fps on Safari | smooth value too high | Use `smooth: 1` (see setup) |
-| ScrollTrigger pinning at wrong position | Content height changed after initialization | Call ScrollTrigger.refresh() after animations (see Component Patterns) |
-| ScrollSmoother active on mobile | isDesktop check missing | Verify useIsMobile() check in layout |
-| Scaling section pins on mobile | Wrong animation mode | Check isDesktop.value in scaling section init |
+| Issue                                                   | Cause                                                           | Fix                                                                                           |
+| ------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Header snaps when clicking link                         | pause() changes header state                                    | pause() should only set isPaused = true (freeze in place)                                     |
+| Header doesn't animate after transition                 | resume() doesn't change classes                                 | resume() must add headroom--top and remove others (with transitions enabled)                  |
+| Scroll jump visible to user                             | Auto-scroll before animations                                   | Scroll in `afterLeave()` when content hidden                                                  |
+| Headroom not hiding                                     | onUpdate not called                                             | Verify callback in createSmoother()                                                           |
+| Fixed elements broken                                   | Inside smooth-content                                           | Move outside (see DOM structure)                                                              |
+| Headroom resumes too early                              | Using page:finish hook                                          | Resume in enter() `onComplete` instead                                                        |
+| 14fps on Safari                                         | smooth value too high                                           | Use `smooth: 1` (see setup)                                                                   |
+| ScrollTrigger pinning at wrong position                 | Content height changed after initialization                     | Call ScrollTrigger.refresh() after animations (see Component Patterns)                        |
+| ScrollSmoother active on mobile                         | isDesktop check missing                                         | Verify useIsMobile() check in layout                                                          |
+| Scaling section pins on mobile                          | Wrong animation mode                                            | Check isDesktop.value in scaling section init                                                 |
 | Solid background visible while header slides off-screen | 10–100px zone applies headroom--not-top regardless of direction | Direction-aware else block in headroom.client.ts + ::before pre-loading on headroom--unpinned |
 
 ## Performance
 
 **Optimizations:**
+
 - Single scroll listener (ScrollSmoother's internal)
 - Throttled updates (100ms between header changes using VueUse `useThrottleFn`)
 - GPU-accelerated animations (transform-based)
@@ -539,6 +560,7 @@ onUnmounted(() => {
 - Cached DOM references
 
 **Safari Performance:**
+
 - `smooth: 1` maintains 60fps (2+ drops to 14fps)
 - `normalizeScroll: true` improves behavior
 - `ignoreMobileResize: true` prevents jank
@@ -546,21 +568,26 @@ onUnmounted(() => {
 ## Files Reference
 
 **Composables:**
+
 - `app/composables/useScrollSmootherManager.ts` - Lifecycle management (desktop only)
 - `app/composables/useScrollTriggerInit.ts` - Page transition coordination abstraction
 - `app/composables/useIsMobile.ts` - Mobile/desktop detection
 - `app/composables/usePageTransition.ts` - Transition coordination
 
 **Plugins:**
+
 - `app/plugins/headroom.client.ts` - Header visibility logic
 
 **Components:**
+
 - `app/components/HeaderGrid.vue` - Fixed header
 
 **Styles:**
+
 - `app/assets/css/components/header-grid.scss` - Header animations
 - `app/assets/css/tokens/theme.scss` - Design tokens
 
 **Config:**
+
 - `app/router.options.ts` - Disable automatic scroll
 - `app/layouts/default.vue` - ScrollSmoother + transitions integration
