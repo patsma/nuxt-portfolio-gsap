@@ -56,7 +56,7 @@ const itemRef = ref<HTMLElement | null>(null)
 
 useAccordionAnimation({
   contentRef,
-  itemRef,
+  itemRef: ref(null),
   isExpanded,
   componentName: 'ScrollingDemoAccordionItem'
 })

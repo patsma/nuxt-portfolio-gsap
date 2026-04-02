@@ -60,6 +60,9 @@
             <FullWidthBorder spacing="0" />
           </div>
         </div>
+
+        <!-- Height compensator: absorbs accordion height changes to keep pin stable -->
+        <div ref="spacerRef" class="hidden lg:block" aria-hidden="true" />
       </div>
 
       <!-- Right column: pinned on desktop -->
@@ -88,8 +91,11 @@ const { isDesktop } = useIsMobile()
 const sectionRef = ref<HTMLElement | null>(null)
 const rightColumnRef = ref<HTMLElement | null>(null)
 const leftColumnRef = ref<HTMLElement | null>(null)
+const spacerRef = ref<HTMLElement | null>(null)
 
 let pinScrollTrigger: ScrollTriggerInstance | null = null
+let baseLeftHeight = 0
+let resizeObserver: ResizeObserver | null = null
 
 const { getSmoother } = useScrollSmootherManager()
 
@@ -104,9 +110,22 @@ const handleScrollToFeatures = () => {
   }
 }
 
-// Provide requestRefresh so accordion height changes recalculate the pin end position
+/**
+ * Adjust spacer height to keep total left column height constant.
+ * Called every frame during accordion animation via ResizeObserver.
+ */
+const adjustSpacer = () => {
+  if (!leftColumnRef.value || !spacerRef.value || !baseLeftHeight) return
+
+  const currentSpacerHeight = spacerRef.value.offsetHeight
+  const contentHeight = leftColumnRef.value.scrollHeight - currentSpacerHeight
+  const newSpacerHeight = Math.max(baseLeftHeight - contentHeight, 0)
+  spacerRef.value.style.height = `${newSpacerHeight}px`
+}
+
+// requestRefresh still needed for headroom unpause callback chain
 provide('requestRefresh', (callback?: () => void) => {
-  $ScrollTrigger.refresh()
+  adjustSpacer()
   callback?.()
 })
 
@@ -138,7 +157,8 @@ const initScrollTrigger = () => {
   }
 
   if (isDesktop.value) {
-    const scrollDistance = Math.max(leftColumnRef.value.scrollHeight - window.innerHeight, 1)
+    baseLeftHeight = leftColumnRef.value.scrollHeight
+    const scrollDistance = Math.max(baseLeftHeight - window.innerHeight, 1)
 
     pinScrollTrigger = $ScrollTrigger.create({
       trigger: sectionRef.value,
@@ -148,6 +168,10 @@ const initScrollTrigger = () => {
       anticipatePin: 1,
       invalidateOnRefresh: true
     })
+
+    // Watch for height changes in real-time (fires every frame during GSAP accordion animation)
+    resizeObserver = new ResizeObserver(() => adjustSpacer())
+    resizeObserver.observe(leftColumnRef.value)
   }
 }
 
@@ -156,6 +180,8 @@ useScrollTriggerInit(
   () => {
     pinScrollTrigger?.kill()
     pinScrollTrigger = null
+    resizeObserver?.disconnect()
+    resizeObserver = null
   }
 )
 </script>
