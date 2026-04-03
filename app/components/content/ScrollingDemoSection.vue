@@ -1,14 +1,14 @@
 <template>
   <section
     ref="sectionRef"
-    class="scrolling-demo-section content-grid w-full -mt-[var(--size-header)] opacity-0 invisible"
+    class="scrolling-demo-section content-grid w-full -mt-[var(--size-header)]"
     data-entrance-animate="true"
   >
     <div class="breakout3 grid grid-cols-1 lg:grid-cols-2 lg:gap-[var(--space-l)]">
       <!-- Left column: scrolls naturally -->
       <div ref="leftColumnRef">
         <!-- Hero panel -->
-        <div ref="heroPanelRef" class="min-h-screen flex flex-col justify-center pt-[var(--size-header)]">
+        <div ref="heroPanelRef" class="lg:min-h-screen flex flex-col lg:justify-center pt-[calc(var(--size-header)+var(--space-xl))] lg:pt-[var(--size-header)] pb-[var(--space-l)] lg:pb-0">
           <h1
             ref="headlineRef"
             v-page-split:lines="{ animateFrom: 'below' }"
@@ -19,6 +19,7 @@
 
           <p
             ref="descriptionRef"
+            v-page-fade:up="{ distance: 25 }"
             class="body-mobile-p1 md:body-desktop-p1 text-[var(--theme-text-60)] mb-[var(--space-l)] max-w-xl"
           >
             A next-generation platform that adapts to how you work.
@@ -27,7 +28,7 @@
           </p>
 
           <!-- Mobile image placement -->
-          <div class="lg:hidden mb-[var(--space-l)]">
+          <div ref="mobileImageRef" v-page-fade:up class="lg:hidden mb-[var(--space-l)]">
             <AppImage
               src="/assets/dummy/placeholder3.jpg"
               alt="Product dashboard preview"
@@ -39,7 +40,8 @@
 
           <div
             ref="buttonsRef"
-            class="flex flex-wrap gap-[var(--space-s)] invisible"
+            v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
+            class="flex flex-wrap gap-[var(--space-s)]"
           >
             <button
               class="inline-flex items-center px-[var(--space-m)] py-[var(--space-xs)] border border-[var(--theme-text-100)] rounded-full body-mobile-p1 2xl:body-desktop-p1 text-[var(--theme-text-100)] opacity-60 hover:opacity-100 transition-opacity duration-[var(--duration-hover)] ease-[var(--ease-power2)] cursor-pointer"
@@ -57,7 +59,7 @@
         <!-- Features panel -->
         <div
           id="features"
-          class="min-h-screen flex flex-col justify-center relative z-10"
+          class="lg:min-h-screen flex flex-col pt-[var(--space-l)] lg:pt-0 lg:justify-center"
         >
           <ScrollingDemoAccordionItem
             v-for="(feature, index) in features"
@@ -85,7 +87,7 @@
         ref="rightColumnRef"
         class="hidden lg:flex h-screen items-center self-start"
       >
-        <div ref="imageWrapperRef">
+        <div ref="imageWrapperRef" v-page-clip:bottom>
           <AppImage
             src="/assets/dummy/placeholder3.jpg"
             alt="Product dashboard preview"
@@ -115,6 +117,7 @@ const headlineRef = ref<HTMLElement | null>(null)
 const descriptionRef = ref<HTMLElement | null>(null)
 const buttonsRef = ref<HTMLElement | null>(null)
 const imageWrapperRef = ref<HTMLElement | null>(null)
+const mobileImageRef = ref<HTMLElement | null>(null)
 
 let pinScrollTrigger: ScrollTriggerInstance | null = null
 let baseLeftHeight = 0
@@ -208,6 +211,7 @@ onMounted(() => {
       }
       if (descriptionRef.value) $gsap.set(descriptionRef.value, { opacity: 0, y: 25 })
       if (imageWrapperRef.value) $gsap.set(imageWrapperRef.value, { clipPath: 'inset(100% 0% 0% 0%)' })
+      if (mobileImageRef.value) $gsap.set(mobileImageRef.value, { clipPath: 'inset(100% 0% 0% 0%)' })
       if (buttonsRef.value) {
         $gsap.set(buttonsRef.value, { autoAlpha: 0 })
         const buttons = buttonsRef.value.querySelectorAll('button')
@@ -236,8 +240,9 @@ onMounted(() => {
       }
 
       // 3. Image -clip reveal from bottom (like InteractiveCaseStudy pattern)
-      if (imageWrapperRef.value) {
-        tl.to(imageWrapperRef.value, {
+      const activeImageRef = isDesktop.value ? imageWrapperRef.value : mobileImageRef.value
+      if (activeImageRef) {
+        tl.to(activeImageRef, {
           clipPath: 'inset(0% 0% 0% 0%)',
           duration: 1,
           ease: 'power2.out'
@@ -287,16 +292,6 @@ const initScrollTrigger = () => {
     // Watch for height changes in real-time (fires every frame during GSAP accordion animation)
     resizeObserver = new ResizeObserver(() => adjustSpacer())
     resizeObserver.observe(leftColumnRef.value)
-  }
-  else if (heroPanelRef.value) {
-    // Mobile: pin the hero, accordion slides up over it (card stack)
-    pinScrollTrigger = $ScrollTrigger.create({
-      trigger: heroPanelRef.value,
-      start: 'top top',
-      end: '+=25%',
-      pin: true,
-      pinSpacing: false
-    })
   }
 }
 

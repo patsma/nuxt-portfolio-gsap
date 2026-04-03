@@ -17,7 +17,7 @@ Actual: solid color + spinner visible before image appears.
 
 ```typescript
 const img = new Image()
-img.src = '/images/foo.jpg'  // ← browser caches this URL
+img.src = '/images/foo.jpg' // ← browser caches this URL
 ```
 
 But `<NuxtImg>` (used inside `<AppImage>`) transforms URLs through the IPX processor. With `image: { quality: 80 }` in `nuxt.config.ts`, NuxtImg actually requests:
@@ -34,13 +34,27 @@ Browser cache has `/images/foo.jpg`. NuxtImg requests `/_ipx/q_80/images/foo.jpg
 
 ```scss
 .img-wrapper {
-  &::before { opacity: 1; transition: opacity 0.3s ease; }  // solid bg
-  &::after  { opacity: 1; transition: opacity 0.3s ease; }  // spinner
-  img { opacity: 0; transition: opacity 0.3s ease; }
+  &::before {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  } // solid bg
+  &::after {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  } // spinner
+  img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
   &--loaded {
-    &::before, &::after { opacity: 0; }
-    img { opacity: 1; }
+    &::before,
+    &::after {
+      opacity: 0;
+    }
+    img {
+      opacity: 1;
+    }
   }
 }
 ```
@@ -62,7 +76,9 @@ onMounted(() => {
     isLoaded.value = true
     return
   }
-  nextTick(() => { /* ... */ })
+  nextTick(() => {
+    /* ... */
+  })
 })
 ```
 
@@ -95,24 +111,26 @@ Rationale: absolute positioning removes dependency on the height cascade.
 
 ## Files Involved
 
-| File | Role |
-|------|------|
-| `app/components/InteractiveCaseStudySection.vue` | 3 slot wrappers (`slotARef/B/C`) + `<AppImage>` inside each |
-| `app/composables/useInteractiveCaseStudyPreview.ts` | `preloadImage()` (~line 402), slot state machine, `await nextTick()` before slot assignment |
-| `app/components/AppImage.vue` | Shimmer wrapper — `isLoaded` ref, `NuxtImg`, CSS pseudo-elements |
-| `app/assets/css/post.scss` | `.img-wrapper` shimmer CSS (lines ~26–73) |
-| `app/assets/css/components/interactive-case-study.scss` | `.preview-image`, `.preview-image-wrapper .img-wrapper { width/height: 100% }` |
-| `nuxt.config.ts` | `image: { quality: 80 }` → drives IPX URL transformation |
+| File                                                    | Role                                                                                        |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `app/components/InteractiveCaseStudySection.vue`        | 3 slot wrappers (`slotARef/B/C`) + `<AppImage>` inside each                                 |
+| `app/composables/useInteractiveCaseStudyPreview.ts`     | `preloadImage()` (~line 402), slot state machine, `await nextTick()` before slot assignment |
+| `app/components/AppImage.vue`                           | Shimmer wrapper — `isLoaded` ref, `NuxtImg`, CSS pseudo-elements                            |
+| `app/assets/css/post.scss`                              | `.img-wrapper` shimmer CSS (lines ~26–73)                                                   |
+| `app/assets/css/components/interactive-case-study.scss` | `.preview-image`, `.preview-image-wrapper .img-wrapper { width/height: 100% }`              |
+| `nuxt.config.ts`                                        | `image: { quality: 80 }` → drives IPX URL transformation                                    |
 
 ### Key CSS Rule (do not remove)
 
 `interactive-case-study.scss` line 127:
+
 ```scss
 .preview-image-wrapper .img-wrapper {
   width: 100%;
   height: 100%;
 }
 ```
+
 This targets AppImage's inner `.img-wrapper` div. Without it, image sizing breaks.
 
 ---
@@ -157,7 +175,7 @@ const props = defineProps({
 
 // In onMounted or immediately:
 if (props.preloaded) {
-  isLoaded.value = true  // skip shimmer entirely
+  isLoaded.value = true // skip shimmer entirely
 }
 ```
 

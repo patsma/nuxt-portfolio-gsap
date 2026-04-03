@@ -6,10 +6,11 @@ Nuxt Content integration for managing portfolio content via YAML data files, con
 
 **Architecture:** MDC pages + YAML data collections + content-driven Vue components
 **Location:**
+
 - MDC pages in `content/*.md`
 - Data files in `content/data/`
 - Components in `app/components/content/`
-**Pattern:** Pages rendered via `<ContentRenderer>`, components fetch their own data via `queryCollection()`
+  **Pattern:** Pages rendered via `<ContentRenderer>`, components fetch their own data via `queryCollection()`
 
 ## Content Structure
 
@@ -41,16 +42,16 @@ content/
 
 All located in `app/components/content/`:
 
-| Component | Data Source | Props |
-|-----------|-------------|-------|
-| `HeroSection` | `data/hero/*.yml` | `heroId`, `showServices`, `showScrollButton` |
-| `BiographyGrid` | `data/biography/*.yml` | `biographyId` |
-| `CaseStudyGrid` | `data/case-studies.yml` | `animateEntrance`, `animateOnScroll` |
-| `ExperienceGrid` | `data/experience.yml` | `limit`, `viewMoreText`, `viewMoreTo` |
-| `ServicesGrid` | `data/services.yml` | - |
-| `ClientsGrid` | `data/clients.yml` | - |
-| `AwardsGrid` | `data/awards.yml` | - |
-| `RecommendationsGrid` | `data/recommendations.yml` | - |
+| Component             | Data Source                | Props                                        |
+| --------------------- | -------------------------- | -------------------------------------------- |
+| `HeroSection`         | `data/hero/*.yml`          | `heroId`, `showServices`, `showScrollButton` |
+| `BiographyGrid`       | `data/biography/*.yml`     | `biographyId`                                |
+| `CaseStudyGrid`       | `data/case-studies.yml`    | `animateEntrance`, `animateOnScroll`         |
+| `ExperienceGrid`      | `data/experience.yml`      | `limit`, `viewMoreText`, `viewMoreTo`        |
+| `ServicesGrid`        | `data/services.yml`        | -                                            |
+| `ClientsGrid`         | `data/clients.yml`         | -                                            |
+| `AwardsGrid`          | `data/awards.yml`          | -                                            |
+| `RecommendationsGrid` | `data/recommendations.yml` | -                                            |
 
 ## Data Fetching Pattern
 
@@ -65,7 +66,7 @@ const { data } = await useAsyncData('services', () =>
 // Multi-file collection (hero, biography - matched by ID)
 const { data } = await useAsyncData(`hero-${props.heroId}`, async () => {
   const all = await queryCollection('hero').all()
-  return all.find(h => h.stem?.endsWith(props.heroId)) || null
+  return all.find((h) => h.stem?.endsWith(props.heroId)) || null
 })
 ```
 
@@ -131,14 +132,15 @@ import CaseStudyGrid from '~/components/content/CaseStudyGrid.vue'
 ### Add a new hero
 
 1. Create `content/data/hero/[page-name].yml`:
+
 ```yaml
 id: page-name
 showServices: false
 showScrollButton: true
 headline:
-  - text: "Your headline "
+  - text: 'Your headline '
     variant: default
-  - text: "with styling"
+  - text: 'with styling'
     variant: emphasis
 ```
 
@@ -147,25 +149,27 @@ headline:
 ### Add a case study
 
 Edit `content/data/case-studies.yml`:
+
 ```yaml
 items:
-  - title: "New Project"
-    tag: "APP"
-    description: "Art direction & UI"
-    image: "/assets/images/project.jpg"
-    imageAlt: "Project preview"
-    to: "/work/new-project"
+  - title: 'New Project'
+    tag: 'APP'
+    description: 'Art direction & UI'
+    image: '/assets/images/project.jpg'
+    imageAlt: 'Project preview'
+    to: '/work/new-project'
 ```
 
 ### Add experience
 
 Edit `content/data/experience.yml`:
+
 ```yaml
 items:
-  - dateRange: "2024 – Current"
-    title: "Position Title"
-    company: "Company Name"
-    location: "City"
+  - dateRange: '2024 – Current'
+    title: 'Position Title'
+    company: 'Company Name'
+    location: 'City'
 ```
 
 ## MDC Page Rendering
@@ -196,13 +200,14 @@ useSeoMeta({
 ### MDC Page File Example
 
 `content/index.md`:
+
 ```markdown
 ---
 title: Home
 description: Danish designer based in Tokyo
 seo:
-  title: "Morten – Danish Designer in Tokyo"
-  description: "Danish designer based in Tokyo..."
+  title: 'Morten – Danish Designer in Tokyo'
+  description: 'Danish designer based in Tokyo...'
 ---
 
 ::HeroSection{hero-id="home"}
@@ -226,19 +231,19 @@ seo:
 
 All components in `app/components/content/` are auto-registered for MDC:
 
-| Component | MDC Usage |
-|-----------|-----------|
-| `HeroSection` | `::HeroSection{hero-id="home"}::` |
-| `BiographyGrid` | `::BiographyGrid{biography-id="about"}::` |
-| `CaseStudyGrid` | `::CaseStudyGrid::` |
-| `ExperienceGrid` | `::ExperienceGrid{view-more-text="View all"}::` |
-| `ServicesGrid` | `::ServicesGrid::` |
-| `ClientsGrid` | `::ClientsGrid::` |
-| `AwardsGrid` | `::AwardsGrid::` |
-| `RecommendationsGrid` | `::RecommendationsGrid::` |
+| Component             | MDC Usage                                                   |
+| --------------------- | ----------------------------------------------------------- |
+| `HeroSection`         | `::HeroSection{hero-id="home"}::`                           |
+| `BiographyGrid`       | `::BiographyGrid{biography-id="about"}::`                   |
+| `CaseStudyGrid`       | `::CaseStudyGrid::`                                         |
+| `ExperienceGrid`      | `::ExperienceGrid{view-more-text="View all"}::`             |
+| `ServicesGrid`        | `::ServicesGrid::`                                          |
+| `ClientsGrid`         | `::ClientsGrid::`                                           |
+| `AwardsGrid`          | `::AwardsGrid::`                                            |
+| `RecommendationsGrid` | `::RecommendationsGrid::`                                   |
 | `VideoScalingSection` | `::VideoScalingSection{video-src="..." poster-src="..."}::` |
-| `ImageScalingSection` | `::ImageScalingSection{image-src="..." image-alt="..."}::` |
-| `SpacerComponent` | `::SpacerComponent{size="md"}::` |
+| `ImageScalingSection` | `::ImageScalingSection{image-src="..." image-alt="..."}::`  |
+| `SpacerComponent`     | `::SpacerComponent{size="md"}::`                            |
 
 ### Nuxt Studio Compatibility
 
@@ -248,14 +253,19 @@ MDC pages are compatible with Nuxt Studio for visual editing. The `pages` collec
 // content.config.ts
 pages: defineCollection({
   type: 'page',
-  source: { include: '*.md', exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**'] },
+  source: {
+    include: '*.md',
+    exclude: ['data/**', 'projects/**', 'blog/**', 'lab/**']
+  },
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    seo: z.object({
-      title: z.string().optional(),
-      description: z.string().optional()
-    }).optional()
+    seo: z
+      .object({
+        title: z.string().optional(),
+        description: z.string().optional()
+      })
+      .optional()
   })
 })
 ```

@@ -7,8 +7,10 @@
   /* Font families - Fallback defaults only
      Actual fonts are set by fonts.client.ts plugin from app.config.ts
      These fallbacks ensure readable text if plugin hasn't run yet */
-  --font-display: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-body:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
   --font-sans: var(--font-body);
 
   /* Neutral palette — Static color definitions (single source of truth)

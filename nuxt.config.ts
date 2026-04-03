@@ -378,6 +378,7 @@ export default defineNuxtConfig({
   // Nuxt Studio configuration
   // Update with your GitHub repo details for CMS integration
   studio: {
+    dev: false,
     repository: {
       provider: 'github',
       owner: 'your-github-username',

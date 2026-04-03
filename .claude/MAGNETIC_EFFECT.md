@@ -3,6 +3,7 @@
 Spring physics composable for organic magnetic hover effects. Elements gently pull toward the cursor when nearby, with natural overshoot and oscillation.
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [How It Works](#how-it-works)
 3. [Configuration](#configuration)
@@ -16,6 +17,7 @@ Spring physics composable for organic magnetic hover effects. Elements gently pu
 **File:** `app/composables/useMagnetic.ts`
 
 **Features:**
+
 - Spring physics simulation for organic movement
 - Velocity tracking: faster mouse = more dramatic pull
 - `timeScale` option: stretch animation in time while keeping spring character
@@ -24,6 +26,7 @@ Spring physics composable for organic magnetic hover effects. Elements gently pu
 - Automatic cleanup on unmount
 
 **Visual Behavior:**
+
 - **Cursor approaches** → Element gently drifts toward cursor
 - **Cursor within threshold** → Element follows with spring lag
 - **Fast cursor movement** → More dramatic pull with velocity boost
@@ -75,19 +78,20 @@ timeScale: 0.25
 
 ### Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `threshold` | 150 | Detection radius in pixels |
-| `maxDisplacement` | 28 | Maximum movement in pixels |
-| `strength` | 0.5 | Pull strength (0-1) |
-| `stiffness` | 0.08 | Spring stiffness (higher = faster response) |
-| `damping` | 0.85 | Spring damping (higher = less bounce) |
-| `velocityInfluence` | 1.5 | Mouse velocity effect multiplier |
-| `timeScale` | 1.0 | Animation speed (lower = slower) |
+| Option              | Default | Description                                 |
+| ------------------- | ------- | ------------------------------------------- |
+| `threshold`         | 150     | Detection radius in pixels                  |
+| `maxDisplacement`   | 28      | Maximum movement in pixels                  |
+| `strength`          | 0.5     | Pull strength (0-1)                         |
+| `stiffness`         | 0.08    | Spring stiffness (higher = faster response) |
+| `damping`           | 0.85    | Spring damping (higher = less bounce)       |
+| `velocityInfluence` | 1.5     | Mouse velocity effect multiplier            |
+| `timeScale`         | 1.0     | Animation speed (lower = slower)            |
 
 ### Presets
 
 **Subtle/Professional:**
+
 ```typescript
 useMagnetic(ref, {
   threshold: 120,
@@ -101,6 +105,7 @@ useMagnetic(ref, {
 ```
 
 **Organic/Fluid (ScrollButtonSVG):**
+
 ```typescript
 useMagnetic(ref, {
   threshold: 150,
@@ -114,6 +119,7 @@ useMagnetic(ref, {
 ```
 
 **Playful/Bouncy:**
+
 ```typescript
 useMagnetic(ref, {
   threshold: 180,
@@ -163,9 +169,7 @@ const { isActive } = useMagnetic(cardRef, {
 </script>
 
 <template>
-  <div ref="cardRef" :class="{ 'is-magnetic': isActive }">
-    Card content
-  </div>
+  <div ref="cardRef" :class="{ 'is-magnetic': isActive }">Card content</div>
 </template>
 ```
 
@@ -211,7 +215,8 @@ Runs via requestAnimationFrame, stops when settled:
 ```typescript
 const runPhysics = () => {
   // Spring force (scaled by timeScale)
-  const forceX = (spring.targetX - spring.x) * config.stiffness * config.timeScale
+  const forceX =
+    (spring.targetX - spring.x) * config.stiffness * config.timeScale
 
   // Apply force to velocity
   spring.velocityX += forceX
@@ -266,14 +271,14 @@ onUnmounted(() => {
 
 ## Troubleshooting
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Effect not working | On mobile/touch device | Expected - disabled for performance |
-| Too fast/bouncy | timeScale too high | Lower timeScale (try 0.3-0.5) |
-| Too slow/sluggish | timeScale too low | Raise timeScale (try 0.6-0.8) |
-| Not enough movement | maxDisplacement too low | Increase maxDisplacement |
-| Triggers too early | threshold too high | Lower threshold |
-| No spring bounce | damping too high | Lower damping (try 0.75-0.82) |
+| Issue               | Cause                   | Fix                                 |
+| ------------------- | ----------------------- | ----------------------------------- |
+| Effect not working  | On mobile/touch device  | Expected - disabled for performance |
+| Too fast/bouncy     | timeScale too high      | Lower timeScale (try 0.3-0.5)       |
+| Too slow/sluggish   | timeScale too low       | Raise timeScale (try 0.6-0.8)       |
+| Not enough movement | maxDisplacement too low | Increase maxDisplacement            |
+| Triggers too early  | threshold too high      | Lower threshold                     |
+| No spring bounce    | damping too high        | Lower damping (try 0.75-0.82)       |
 
 ---
 

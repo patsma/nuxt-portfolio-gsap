@@ -19,9 +19,9 @@ Thin `NuxtImg` wrapper that shows a theme-aware shimmer skeleton while loading, 
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `wrapperClass` | `String` | `''` | Classes applied to the `.img-wrapper` div |
+| Prop           | Type     | Default | Description                               |
+| -------------- | -------- | ------- | ----------------------------------------- |
+| `wrapperClass` | `String` | `''`    | Classes applied to the `.img-wrapper` div |
 
 All other attributes (`src`, `alt`, `class`, `sizes`, etc.) are forwarded to `NuxtImg`/`<img>` via `v-bind="$attrs"` (`inheritAttrs: false`).
 
@@ -29,23 +29,23 @@ All other attributes (`src`, `alt`, `class`, `sizes`, etc.) are forwarded to `Nu
 
 ## Where It's Used
 
-| File | Usage |
-|------|-------|
-| `InteractiveCaseStudySection.vue` | 3× preview slots (slotA / slotB / slotC) |
-| `InteractiveCaseStudyItem.vue` | Mobile card image |
-| `MediaText.vue` | Image + text section |
-| `LabProjectItem.vue` | Expanded cover image |
-| `work/[slug].vue` | Bento grid (3×) + fallback cover |
-| `lab/[slug].vue` | Bento grid (3×) + fallback cover |
+| File                              | Usage                                        |
+| --------------------------------- | -------------------------------------------- |
+| `InteractiveCaseStudySection.vue` | 3× preview slots (slotA / slotB / slotC)     |
+| `InteractiveCaseStudyItem.vue`    | Mobile card image                            |
+| `MediaText.vue`                   | Image + text section                         |
+| `LabProjectItem.vue`              | Expanded cover image                         |
+| `work/[slug].vue`                 | Bento grid (3×) + fallback cover             |
+| `lab/[slug].vue`                  | Bento grid (3×) + fallback cover             |
 | `content/ImageScalingSection.vue` | Parallax image (GSAP ref via `defineExpose`) |
 
 ### NOT used (by design)
 
-| File | Reason |
-|------|--------|
+| File                                     | Reason                                                              |
+| ---------------------------------------- | ------------------------------------------------------------------- |
 | `RecommendationItem.vue` marquee `<img>` | GSAP `querySelectorAll('.marquee-image')` targets elements directly |
-| `LabProjectItem.vue` marquee `<img>` | Same reason — wrapping would break GSAP loop |
-| `VideoScalingSection.vue` | Has its own first-frame poster system |
+| `LabProjectItem.vue` marquee `<img>`     | Same reason — wrapping would break GSAP loop                        |
+| `VideoScalingSection.vue`                | Has its own first-frame poster system                               |
 
 ---
 
@@ -61,7 +61,8 @@ All other attributes (`src`, `alt`, `class`, `sizes`, etc.) are forwarded to `Nu
   // Solid background overlay while loading
   &::before {
     content: '';
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background: var(--theme-100);
     z-index: 1;
     transition: opacity 0.3s ease;
@@ -70,8 +71,11 @@ All other attributes (`src`, `alt`, `class`, `sizes`, etc.) are forwarded to `Nu
   // Spinner
   &::after {
     content: '';
-    position: absolute; inset: 0; margin: auto;
-    width: 20px; height: 20px;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 20px;
+    height: 20px;
     border: 2px solid transparent;
     border-top-color: var(--theme-text-100);
     border-radius: 50%;
@@ -85,8 +89,14 @@ All other attributes (`src`, `alt`, `class`, `sizes`, etc.) are forwarded to `Nu
   }
 
   &--loaded {
-    &::before, &::after { opacity: 0; pointer-events: none; }
-    img { opacity: 1; }
+    &::before,
+    &::after {
+      opacity: 0;
+      pointer-events: none;
+    }
+    img {
+      opacity: 1;
+    }
   }
 }
 ```
@@ -148,7 +158,9 @@ For global CSS (not scoped), classes on AppImage's `<img>` work normally — e.g
 
 ```scss
 .img-wrapper .card-image {
-  transition: opacity 0.4s ease, transform var(--duration-hover) var(--ease-power2);
+  transition:
+    opacity 0.4s ease,
+    transform var(--duration-hover) var(--ease-power2);
 }
 ```
 
@@ -161,7 +173,9 @@ For components that need to animate the `<img>` element directly (e.g. ImageScal
 ```ts
 // AppImage.vue
 defineExpose({
-  get $el() { return imgRef.value?.$el as HTMLElement | undefined }
+  get $el() {
+    return imgRef.value?.$el as HTMLElement | undefined
+  }
 })
 ```
 
@@ -186,7 +200,9 @@ The getter (not a computed) ensures GSAP receives the raw `HTMLElement`, not a r
 Both use `querySelectorAll` to collect DOM elements for the GSAP horizontal loop:
 
 ```js
-const items = marqueeTrackRef.value.querySelectorAll('.marquee-text, .marquee-image')
+const items = marqueeTrackRef.value.querySelectorAll(
+  '.marquee-text, .marquee-image'
+)
 ```
 
 Wrapping marquee `<img>` tags in AppImage would cause GSAP to animate the `<img>` inside the wrapper while `.img-wrapper` stays in place, breaking the loop.

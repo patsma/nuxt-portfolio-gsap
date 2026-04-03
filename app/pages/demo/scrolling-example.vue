@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-page-fade
-    class="page-content"
-  >
+  <div class="page-content">
     <ScrollingDemoSection />
 
     <!-- Bottom spacer — gives the page breathing room after the pinned section -->

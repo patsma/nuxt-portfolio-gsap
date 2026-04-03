@@ -259,7 +259,9 @@ html.is-first-load [data-entrance-animate='true'] {
 /* Higher specificity (0-2-0) overrides .img-wrapper img (0-1-1) transition */
 /* Combines opacity (AppImage reveal) + transform (active scale) */
 .img-wrapper .card-image {
-  transition: opacity 0.4s ease, transform var(--duration-hover) var(--ease-power2);
+  transition:
+    opacity 0.4s ease,
+    transform var(--duration-hover) var(--ease-power2);
 }
 
 /* Subtle scale on touch/active */

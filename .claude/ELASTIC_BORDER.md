@@ -3,6 +3,7 @@
 Physics-based wobbly border effect using spring simulation. Borders bend organically when the mouse hovers near them, with velocity-sensitive physics for natural momentum and overshoot.
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [How It Works](#how-it-works)
 3. [Physics Configuration](#physics-configuration)
@@ -17,6 +18,7 @@ Physics-based wobbly border effect using spring simulation. Borders bend organic
 **File:** `app/components/FullWidthBorder.vue`
 
 **Features:**
+
 - Physics-based spring simulation for organic movement
 - Velocity-sensitive: faster mouse movement = more dramatic bending
 - Natural overshoot and oscillation on fast movements
@@ -26,6 +28,7 @@ Physics-based wobbly border effect using spring simulation. Borders bend organic
 - Theme-aware stroke color using CSS custom properties
 
 **Visual Behavior:**
+
 - **Slow mouse movement** → Gentle, smooth bending that follows cursor
 - **Fast mouse movement** → Dramatic overshoot with spring-back
 - **Quick swipe across** → Border whips and oscillates before settling
@@ -67,6 +70,7 @@ M 0 50 Q controlX controlY width 50
 ```
 
 **Why quadratic bezier?**
+
 - Simpler than cubic (one control point vs two)
 - Natural rope-like curve
 - Endpoints stay fixed (anchored)
@@ -80,28 +84,29 @@ M 0 50 Q controlX controlY width 50
 
 ```typescript
 // Detection and displacement
-const PROXIMITY_THRESHOLD = 120  // pixels - how close mouse needs to be
-const MAX_DISPLACEMENT = 40      // pixels - maximum bend amount
+const PROXIMITY_THRESHOLD = 120 // pixels - how close mouse needs to be
+const MAX_DISPLACEMENT = 40 // pixels - maximum bend amount
 
 // Spring physics
-const SPRING_STIFFNESS = 0.08    // Lower = more lag/momentum (range: 0.05-0.2)
-const SPRING_DAMPING = 0.82      // Higher = less bounce (range: 0.7-0.95)
-const VELOCITY_INFLUENCE = 3.0   // How much mouse speed affects bend (range: 1-5)
+const SPRING_STIFFNESS = 0.08 // Lower = more lag/momentum (range: 0.05-0.2)
+const SPRING_DAMPING = 0.82 // Higher = less bounce (range: 0.7-0.95)
+const VELOCITY_INFLUENCE = 3.0 // How much mouse speed affects bend (range: 1-5)
 ```
 
 ### Parameter Effects
 
-| Parameter | Low Value | High Value |
-|-----------|-----------|------------|
-| `SPRING_STIFFNESS` | Sluggish, laggy response | Snappy, immediate response |
-| `SPRING_DAMPING` | More bounce/oscillation | Quick settling |
-| `VELOCITY_INFLUENCE` | Subtle velocity effect | Dramatic whip on fast movement |
-| `PROXIMITY_THRESHOLD` | Must be very close | Triggers from far away |
-| `MAX_DISPLACEMENT` | Subtle bends | Dramatic bends |
+| Parameter             | Low Value                | High Value                     |
+| --------------------- | ------------------------ | ------------------------------ |
+| `SPRING_STIFFNESS`    | Sluggish, laggy response | Snappy, immediate response     |
+| `SPRING_DAMPING`      | More bounce/oscillation  | Quick settling                 |
+| `VELOCITY_INFLUENCE`  | Subtle velocity effect   | Dramatic whip on fast movement |
+| `PROXIMITY_THRESHOLD` | Must be very close       | Triggers from far away         |
+| `MAX_DISPLACEMENT`    | Subtle bends             | Dramatic bends                 |
 
 ### Recommended Presets
 
 **Subtle/Professional:**
+
 ```typescript
 SPRING_STIFFNESS = 0.12
 SPRING_DAMPING = 0.88
@@ -110,6 +115,7 @@ MAX_DISPLACEMENT = 25
 ```
 
 **Playful/Bouncy:**
+
 ```typescript
 SPRING_STIFFNESS = 0.06
 SPRING_DAMPING = 0.75
@@ -136,10 +142,10 @@ MAX_DISPLACEMENT = 50
 
 ### Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `opacity` | Number | 15 | Border opacity percentage (0-100) |
-| `spacing` | String | '0' | Bottom margin spacing (CSS value) |
+| Prop      | Type   | Default | Description                       |
+| --------- | ------ | ------- | --------------------------------- |
+| `opacity` | Number | 15      | Border opacity percentage (0-100) |
+| `spacing` | String | '0'     | Bottom margin spacing (CSS value) |
 
 ### Inside Content Grid
 
@@ -180,21 +186,24 @@ Classes automatically applied to handle positioning:
 
 ```css
 .full-width-border-svg {
-  grid-column: full-width;     /* Span entire content-grid width */
-  width: 100%;                  /* Full width of parent */
-  height: 100px;                /* Space for bend effect (line at center) */
-  margin-bottom: calc(-50px + var(--border-spacing));  /* Offset to not affect layout */
-  pointer-events: none;         /* Don't interfere with content below */
-  position: absolute;           /* Positioned relative to nearest positioned ancestor */
+  grid-column: full-width; /* Span entire content-grid width */
+  width: 100%; /* Full width of parent */
+  height: 100px; /* Space for bend effect (line at center) */
+  margin-bottom: calc(
+    -50px + var(--border-spacing)
+  ); /* Offset to not affect layout */
+  pointer-events: none; /* Don't interfere with content below */
+  position: absolute; /* Positioned relative to nearest positioned ancestor */
   top: 0;
   left: 0;
-  transform: translate(0, -50%);  /* Center line on parent's top edge */
+  transform: translate(0, -50%); /* Center line on parent's top edge */
 }
 ```
 
 ### Why 100px Height?
 
 The SVG needs vertical space for the bend effect:
+
 - Line sits at `y=50` (center of 100px height)
 - Max displacement is 40px up or down
 - Gives comfortable margin for overshoot
@@ -260,7 +269,7 @@ const trackVelocity = (e: MouseEvent) => {
 ```typescript
 const handleMouseMove = (e: MouseEvent) => {
   const rect = svgRef.value.getBoundingClientRect()
-  const lineY = rect.top + rect.height / 2  // Line center
+  const lineY = rect.top + rect.height / 2 // Line center
   const distanceY = e.clientY - lineY
   const proximity = Math.abs(distanceY)
 
@@ -276,11 +285,11 @@ const handleMouseMove = (e: MouseEvent) => {
     const velocityBoost = mouseVelocityY * VELOCITY_INFLUENCE * intensity
 
     spring.target = baseDisplacement + velocityBoost
-    spring.targetX = mouseX  // Follow mouse horizontally
+    spring.targetX = mouseX // Follow mouse horizontally
 
     startPhysicsLoop()
   } else {
-    spring.target = 0  // Spring back to straight
+    spring.target = 0 // Spring back to straight
   }
 }
 ```

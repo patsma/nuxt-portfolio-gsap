@@ -10,12 +10,12 @@ The system generates custom OG images for social sharing (Twitter, Facebook, Lin
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `nuxt.config.ts` | Module registration |
-| `app/components/OgImage/OgImagePortfolio.vue` | Custom OG image template (1200x630) |
-| `app/app.vue` | Global SEO defaults + default OG component |
-| `app/pages/[...slug].vue` | Per-page dynamic OG images from content |
+| File                                          | Purpose                                    |
+| --------------------------------------------- | ------------------------------------------ |
+| `nuxt.config.ts`                              | Module registration                        |
+| `app/components/OgImage/OgImagePortfolio.vue` | Custom OG image template (1200x630)        |
+| `app/app.vue`                                 | Global SEO defaults + default OG component |
+| `app/pages/[...slug].vue`                     | Per-page dynamic OG images from content    |
 
 ## How It Works
 
@@ -34,7 +34,8 @@ useSeoMeta({
 // Default OG image for all pages
 defineOgImageComponent('Portfolio', {
   title: 'Morten Stig Christensen',
-  description: 'Digital Designer in Tokyo · Shaping experiences rooted in purpose, function, and craft'
+  description:
+    'Digital Designer in Tokyo · Shaping experiences rooted in purpose, function, and craft'
 })
 ```
 
@@ -46,8 +47,12 @@ Dynamic pages override with content-specific data:
 // Dynamic OG image - use page title/description if available
 if (page.value) {
   defineOgImageComponent('Portfolio', {
-    title: page.value?.seo?.title || page.value?.title || 'Morten Stig Christensen',
-    description: page.value?.seo?.description || page.value?.description || 'Digital Designer in Tokyo'
+    title:
+      page.value?.seo?.title || page.value?.title || 'Morten Stig Christensen',
+    description:
+      page.value?.seo?.description ||
+      page.value?.description ||
+      'Digital Designer in Tokyo'
   })
 }
 ```
@@ -55,6 +60,7 @@ if (page.value) {
 ### 3. Custom Template (OgImagePortfolio.vue)
 
 Vue component rendered as image:
+
 - **Dimensions:** 1200x630 (standard OG ratio)
 - **Styling:** Tailwind classes (subset supported)
 - **Props:** `title`, `description` with defaults
@@ -63,12 +69,12 @@ Vue component rendered as image:
 
 Debug panel and direct image access in dev mode:
 
-| URL | Purpose |
-|-----|---------|
-| `/__og-image__/` | Debug panel with all OG images |
-| `/__og-image__/image/og.png` | Homepage OG image |
-| `/__og-image__/image/about/og.png` | About page OG image |
-| `/__og-image__/image/<path>/og.png` | Any page OG image |
+| URL                                 | Purpose                        |
+| ----------------------------------- | ------------------------------ |
+| `/__og-image__/`                    | Debug panel with all OG images |
+| `/__og-image__/image/og.png`        | Homepage OG image              |
+| `/__og-image__/image/about/og.png`  | About page OG image            |
+| `/__og-image__/image/<path>/og.png` | Any page OG image              |
 
 ## Testing (Production)
 
@@ -86,11 +92,11 @@ Override OG data directly in markdown content files:
 
 ```yaml
 ---
-title: "My Page Title"
-description: "Page description for SEO"
+title: 'My Page Title'
+description: 'Page description for SEO'
 seo:
-  title: "Custom OG Title"        # Optional: Override for OG specifically
-  description: "Custom OG desc"   # Optional: Override for OG specifically
+  title: 'Custom OG Title' # Optional: Override for OG specifically
+  description: 'Custom OG desc' # Optional: Override for OG specifically
 ---
 ```
 
@@ -101,11 +107,13 @@ The catch-all page automatically uses `seo.title` > `title` and `seo.description
 The `nuxt.config.ts` contains redundant static OG meta tags that can be removed since `nuxt-og-image` handles dynamic generation:
 
 **Can remove from nuxt.config.ts:**
+
 - `og:image` and `og:image:secure_url`
 - `og:image:alt`, `og:image:type`, `og:image:width`, `og:image:height`
 - `twitter:image`
 
 **Keep:**
+
 - `/public/og.png` as ultimate fallback for scrapers that don't execute JavaScript
 - Static `og:title`, `og:description` etc. as fallbacks
 
@@ -119,13 +127,16 @@ defineOptions({
   inheritAttrs: false
 })
 
-withDefaults(defineProps<{
-  title?: string
-  description?: string
-}>(), {
-  title: 'Morten Stig Christensen',
-  description: 'Digital Designer in Tokyo'
-})
+withDefaults(
+  defineProps<{
+    title?: string
+    description?: string
+  }>(),
+  {
+    title: 'Morten Stig Christensen',
+    description: 'Digital Designer in Tokyo'
+  }
+)
 </script>
 
 <template>

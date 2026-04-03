@@ -6,13 +6,13 @@
 */
 
 /* Design tokens and global theme variables */
-@use "./tokens/theme.scss";
+@use './tokens/theme.scss';
 
 /* Base element resets or minimal globals */
-@use "./base/base.scss";
+@use './base/base.scss';
 
 /* Custom utilities that should allow responsive variants to override */
-@use "./utilities/typography.scss";
+@use './utilities/typography.scss';
 
 /*
   Notes:

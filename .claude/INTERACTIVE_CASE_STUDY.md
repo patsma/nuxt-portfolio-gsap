@@ -39,6 +39,7 @@ InteractiveCaseStudySection.vue
 ## Usage
 
 ### Basic Example
+
 ```vue
 <InteractiveCaseStudySection>
   <template #title>Work</template>
@@ -58,26 +59,26 @@ InteractiveCaseStudySection.vue
 
 Clip direction is automatic based on movement through the list:
 
-| Movement | Clip Direction | Visual |
-|----------|---------------|--------|
-| First hover | `top` | Reveals from top edge |
-| Moving DOWN list (index increases) | `top` | Reveals from top edge |
-| Moving UP list (index decreases) | `bottom` | Reveals from bottom edge |
+| Movement                           | Clip Direction | Visual                   |
+| ---------------------------------- | -------------- | ------------------------ |
+| First hover                        | `top`          | Reveals from top edge    |
+| Moving DOWN list (index increases) | `top`          | Reveals from top edge    |
+| Moving UP list (index decreases)   | `bottom`       | Reveals from bottom edge |
 
 No configuration needed - the system tracks item indices automatically.
 
 ### Props (InteractiveCaseStudyItem)
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `title` | String | Yes | - | Project title |
-| `tag` | String | No | - | Label like "APP", "INTRANET" |
-| `description` | String | Yes | - | Role/description text |
-| `image` | String | Yes | - | Image path |
-| `image-alt` | String | Yes | - | Alt text for accessibility |
-| `slideshow-images` | String[] | No | [] | Additional images for slideshow |
-| `slideshow-image-alts` | String[] | No | [] | Alt texts for slideshow images |
-| `to` | String | No | "/contact" | Navigation path |
+| Prop                   | Type     | Required | Default    | Description                     |
+| ---------------------- | -------- | -------- | ---------- | ------------------------------- |
+| `title`                | String   | Yes      | -          | Project title                   |
+| `tag`                  | String   | No       | -          | Label like "APP", "INTRANET"    |
+| `description`          | String   | Yes      | -          | Role/description text           |
+| `image`                | String   | Yes      | -          | Image path                      |
+| `image-alt`            | String   | Yes      | -          | Alt text for accessibility      |
+| `slideshow-images`     | String[] | No       | []         | Additional images for slideshow |
+| `slideshow-image-alts` | String[] | No       | []         | Alt texts for slideshow images  |
+| `to`                   | String   | No       | "/contact" | Navigation path                 |
 
 **Note:** Clip direction is automatic based on movement through the list (see Direction Logic above).
 
@@ -87,17 +88,18 @@ After hovering for 1 second, additional images cycle with a left-to-right clip r
 
 ```yaml
 # content/data/case-studies.yml
-- title: "Project Name"
-  image: "/images/main.jpg"
+- title: 'Project Name'
+  image: '/images/main.jpg'
   slideshowImages:
-    - "/images/detail-1.jpg"
-    - "/images/detail-2.jpg"
+    - '/images/detail-1.jpg'
+    - '/images/detail-2.jpg'
   slideshowImageAlts:
-    - "Detail view"
-    - "Final result"
+    - 'Detail view'
+    - 'Final result'
 ```
 
 **Timing:**
+
 - **Delay**: 0.5s before slideshow starts
 - **Interval**: 2s between images
 - **Reveal**: 600ms left-to-right clip animation
@@ -108,12 +110,14 @@ After hovering for 1 second, additional images cycle with a left-to-right clip r
 ### Desktop Preview
 
 **Positioning:**
+
 - Teleported to body (fixed positioning for scroll support)
 - Offset: 30px right, centered vertically on cursor
 - `transform-origin: 0 0` (top-left) for correct GSAP positioning
 - `getBoundingClientRect()` accounts for ScrollSmoother transforms
 
 **Animations:**
+
 - **Cursor follow**: 0.6s power2.out lag effect
 - **Clip reveal**: 350ms power2.out (direction-aware)
 - **Clip close**: 350ms power2.in (direction-aware)
@@ -122,17 +126,19 @@ After hovering for 1 second, additional images cycle with a left-to-right clip r
 - **Crossfade**: Dual-image wrappers with opacity
 
 **Clip Path Configurations:**
+
 ```typescript
 type ClipDirection = 'top' | 'bottom' | 'left'
 
 const clipPaths: Record<ClipDirection, { closed: string; open: string }> = {
-  top:    { closed: "inset(0% 0% 100% 0%)",   open: "inset(0% 0% 0% 0%)" },
-  bottom: { closed: "inset(100% 0% 0% 0%)",   open: "inset(0% 0% 0% 0%)" },
-  left:   { closed: "inset(0% 100% 0% 0%)",   open: "inset(0% 0% 0% 0%)" }  // Slideshow
+  top: { closed: 'inset(0% 0% 100% 0%)', open: 'inset(0% 0% 0% 0%)' },
+  bottom: { closed: 'inset(100% 0% 0% 0%)', open: 'inset(0% 0% 0% 0%)' },
+  left: { closed: 'inset(0% 100% 0% 0%)', open: 'inset(0% 0% 0% 0%)' } // Slideshow
 }
 ```
 
 **Direction Resolution (module-level state):**
+
 ```typescript
 let previousItemIndex: number | null = null
 
@@ -150,6 +156,7 @@ const resolveClipDirection = (currentIndex: number): ClipDirection => {
 ```
 
 **Size:**
+
 - Width: 35vw (40vw @ lg), max 30em (40em @ lg)
 - Max height: 80vh
 - Dynamic aspect ratio bound via inline style
@@ -161,6 +168,7 @@ const resolveClipDirection = (currentIndex: number): ClipDirection => {
 **Solution:** Multi-layered failsafe system:
 
 1. **ScrollTrigger Integration** (InteractiveCaseStudySection.vue:155-194)
+
    ```typescript
    $ScrollTrigger.create({
      trigger: sectionRef.value,
@@ -178,6 +186,7 @@ const resolveClipDirection = (currentIndex: number): ClipDirection => {
    ```
 
 2. **Vue Transition** (smooth 300ms opacity fade)
+
    ```vue
    <Transition name="preview-fade">
      <div v-show="showPreview" ref="previewContainerRef">
@@ -215,13 +224,17 @@ img.onload = () => {
 **Solution:** Provide/inject pattern with callback-based navigation.
 
 **Architecture:**
+
 1. **Parent** (`InteractiveCaseStudySection`) provides `navigateWithAnimation` function
 2. **Child** (`InteractiveCaseStudyItem`) intercepts clicks in capture phase
 3. **Guard** (`onBeforeRouteLeave`) catches non-click navigation (back button, etc.)
 
 **Child: Click Interception** (InteractiveCaseStudyItem.vue)
+
 ```typescript
-const navigateWithAnimation = inject<((to: string) => void) | undefined>('navigateWithAnimation')
+const navigateWithAnimation = inject<((to: string) => void) | undefined>(
+  'navigateWithAnimation'
+)
 
 const handleClickCapture = (event: MouseEvent) => {
   // ALWAYS prevent default - we control navigation timing
@@ -239,6 +252,7 @@ const handleClickCapture = (event: MouseEvent) => {
 ```
 
 **Parent: Animation + Navigation** (InteractiveCaseStudySection.vue)
+
 ```typescript
 const navigateWithAnimation = (to: string) => {
   if (showPreview.value) {
@@ -255,6 +269,7 @@ provide('navigateWithAnimation', navigateWithAnimation)
 ```
 
 **Guard: Non-Click Navigation** (back button, programmatic, etc.)
+
 ```typescript
 onBeforeRouteLeave((_to, _from, next) => {
   if (showPreview.value && !isNavigating.value) {
@@ -276,6 +291,7 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 ```
 
 **Transitions:**
+
 - **FIRST_HOVER**: IDLE → REVEALING (initial reveal with chosen direction)
 - **ITEM_SWITCH**: VISIBLE → TRANSITIONING (dual-clip with old→new directions)
 - **RE_ENTRY**: IDLE → REVEALING (after leaving section, new random direction)
@@ -289,8 +305,9 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 **Title:** `.breakout3` (constrained)
 **List:** `.full-width-content` (sub-grid)
 **Item:** `.full-width-content` (nested sub-grid)
-  - Border: `.full-width` (viewport span)
-  - Content: `.breakout3` (constrained)
+
+- Border: `.full-width` (viewport span)
+- Content: `.breakout3` (constrained)
 
 ### Mobile Layout
 
@@ -302,12 +319,14 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 ## Design Tokens
 
 **Colors:**
+
 - Title: `--theme-text-60`
 - Text: `--theme-text-100`
 - Border: `color-mix(in srgb, var(--theme-text-100) 10%, transparent)`
 - Hover bg: `--theme-100`
 
 **Timing:**
+
 - Hover debounce: 100ms
 - Clip animations: 350ms
 - Aspect ratio morph: 400ms
@@ -315,12 +334,14 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 - Easing: `power2.out`, `power2.in`, `power2.inOut`
 
 **Spacing:**
+
 - Item padding: `--space-s` (18-22px) → `--space-m` @ lg
 - Content gap: `--space-m` → `--space-l` @ lg → `--space-xl` @ 2xl
 
 ## Debugging
 
 **Console Logs** (useInteractiveCaseStudyPreview.ts):
+
 ```
 🆕 [PREVIEW:ROUTE] FIRST_HOVER {"image":"..."}
 🔄 [PREVIEW:STATE] IDLE → REVEALING (image: ..., direction: top)
@@ -334,6 +355,7 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 ```
 
 **Direction Flow:**
+
 - Moving DOWN list (1→2→3): direction = "top" (reveals from top)
 - Moving UP list (3→2→1): direction = "bottom" (reveals from bottom)
 - First hover or re-entry: direction = "top"
@@ -343,7 +365,9 @@ IDLE → REVEALING → VISIBLE → CLOSING → IDLE
 The component is heavily optimized for mobile performance:
 
 ### Preview System Disabled on Mobile
+
 On mobile (`isMobile.value === true`), the preview composable returns no-op functions:
+
 - No velocity tracking
 - No spring physics calculations
 - No slideshow timer management
@@ -354,27 +378,35 @@ const mobileNoOpPreview = {
   showPreview: ref(false),
   previewMounted: ref(false),
   setActivePreview: async () => {},
-  clearActivePreview: () => {},
+  clearActivePreview: () => {}
   // ... all functions are no-ops
 }
 ```
 
 ### Teleport Skipped on Mobile
+
 The preview container Teleport is not rendered on mobile:
+
 ```vue
-<Teleport v-if="previewMounted && !isMobile" to="body">
+<Teleport v-if="previewMounted && !isMobile" to="body"></Teleport>
 ```
 
 ### ScrollTrigger for Preview Hiding Skipped
+
 The preview-hiding ScrollTrigger only runs on desktop:
+
 ```typescript
 if ($ScrollTrigger && !isMobile.value) {
-  $ScrollTrigger.create({ /* preview hiding logic */ })
+  $ScrollTrigger.create({
+    /* preview hiding logic */
+  })
 }
 ```
 
 ### Mouse Move Handler Skipped
+
 Cursor tracking early-returns on mobile:
+
 ```typescript
 const handleMouseMove = (event: MouseEvent) => {
   if (isMobile.value) return
@@ -383,14 +415,18 @@ const handleMouseMove = (event: MouseEvent) => {
 ```
 
 ### Combined Page Transition Selector
+
 The `v-page-stagger` directive targets both layouts:
+
 ```vue
-v-page-stagger="{ selector: '.case-study-item, .case-study-card', stagger: 0.08, leaveOnly: true }"
+v-page-stagger="{ selector: '.case-study-item, .case-study-card', stagger: 0.08,
+leaveOnly: true }"
 ```
 
 The page transition system filters out `display: none` elements, so only the visible layout animates.
 
 ### Case Studies Data
+
 - Active items: `content/data/case-studies.yml` (8 items)
 - Archive: `content/data/case-studies-archive.yml` (all 27 items)
 
@@ -422,10 +458,12 @@ The page transition system filters out `display: none` elements, so only the vis
 ### Multi-Slot Visibility During Transitions (2026-02-24)
 
 **Problem:** When hovering an item during a slideshow/item transition and quickly moving cursor outside the section, the preview showed glitchy behavior:
+
 - Two images visible with unfinished clip-path animations
 - Preview would "stick" then suddenly vanish
 
 **Root Cause:** The 3-slot carousel system means during slideshow or item transitions, **multiple slots are visible simultaneously**:
+
 - Slot A: animating OUT (partial clip-path, e.g., 70% visible)
 - Slot B: animating IN (partial clip-path, e.g., 30% visible)
 
@@ -438,10 +476,10 @@ Both `executeClear()` and `clearActivePreviewInstant()` only handled the "active
 
 // 1. Kill all slot animations immediately
 const allSlots = [slotA.value, slotB.value, slotC.value].filter(Boolean)
-allSlots.forEach(slot => $gsap.killTweensOf(slot))
+allSlots.forEach((slot) => $gsap.killTweensOf(slot))
 
 // 2. Hide non-active slots instantly
-allSlots.forEach(slot => {
+allSlots.forEach((slot) => {
   if (slot !== activeSlot) {
     $gsap.set(slot, { opacity: 0 })
   }
@@ -459,6 +497,7 @@ $gsap.to(activeSlot, {
 ```
 
 **Files Modified:**
+
 - `app/composables/useInteractiveCaseStudyPreview.ts`
   - `executeClear()` - debounced cursor exit
   - `clearActivePreviewInstant()` - scroll-based exit
@@ -472,6 +511,7 @@ $gsap.to(activeSlot, {
 The section supports two animation modes controlled by props:
 
 **Props:**
+
 - `animateEntrance` (Boolean, default: false) - Use entrance animation system (first load only, via setupEntrance)
 - `animateOnScroll` (Boolean, default: true) - Use ScrollTrigger animation when scrolling into viewport
 - `position` (String, default: '<-0.5') - GSAP position parameter for entrance timeline timing
@@ -481,6 +521,7 @@ The section supports two animation modes controlled by props:
 **Goal:** Smooth stagger animation for title and items when section enters viewport, with bidirectional playback on scroll.
 
 **Implementation:**
+
 ```typescript
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type GSAPTimeline = any
@@ -494,13 +535,13 @@ const createSectionAnimation = (): GSAPTimeline => {
     tl.fromTo(
       titleRef.value,
       { opacity: 0, y: 40 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }
     )
   }
 
   // Items animation - targets .case-study-item selector (desktop only)
   if (itemsListRef.value) {
-    const items = itemsListRef.value.querySelectorAll(".case-study-item")
+    const items = itemsListRef.value.querySelectorAll('.case-study-item')
     if (items.length > 0) {
       tl.fromTo(
         items,
@@ -510,9 +551,9 @@ const createSectionAnimation = (): GSAPTimeline => {
           y: 0,
           duration: 0.6,
           stagger: 0.1,
-          ease: "power2.out",
+          ease: 'power2.out'
         },
-        "<+0.2" // Start 0.2s after title animation begins
+        '<+0.2' // Start 0.2s after title animation begins
       )
     }
   }
@@ -523,11 +564,11 @@ const createSectionAnimation = (): GSAPTimeline => {
 // ScrollTrigger with scrub for bidirectional playback
 $ScrollTrigger.create({
   trigger: sectionRef.value,
-  start: "top 80%",
-  end: "bottom top+=25%",
+  start: 'top 80%',
+  end: 'bottom top+=25%',
   animation: scrollTimeline,
   scrub: 0.5,
-  invalidateOnRefresh: true,
+  invalidateOnRefresh: true
 })
 ```
 
@@ -541,17 +582,18 @@ The scroll animation system works seamlessly with page transitions by:
 4. **Explicit State Definition**: `.fromTo()` defines both start and end states, ensuring reliable animation regardless of current element state
 
 **Critical Fix for Page Transitions:**
+
 ```typescript
 // Clear inline GSAP styles from page transitions
 // The v-page-stagger directive leaves inline styles (opacity, transform)
 // These stale styles prevent scroll animations from working after transitions
 if (titleRef.value) {
-  $gsap.set(titleRef.value, { clearProps: "all" })
+  $gsap.set(titleRef.value, { clearProps: 'all' })
 }
 if (itemsListRef.value) {
-  const items = itemsListRef.value.querySelectorAll(".case-study-item")
+  const items = itemsListRef.value.querySelectorAll('.case-study-item')
   if (items.length > 0) {
-    $gsap.set(items, { clearProps: "all" })
+    $gsap.set(items, { clearProps: 'all' })
   }
 }
 ```
@@ -567,6 +609,7 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 ```
 
 **How it works:**
+
 - Only runs on first load (via `html.is-first-load` class scoping)
 - Uses `setupEntrance()` from entrance animation system
 - Same `createSectionAnimation()` function as scroll mode
@@ -586,6 +629,7 @@ When `animateEntrance: true`, the section uses the entrance animation system (In
 **Critical**: Use `.case-study-item` selector, NOT `:scope > *`
 
 **Why:**
+
 - `.case-study-list` contains BOTH desktop (`.case-study-item`) AND mobile (`.case-study-card`) items
 - Using `:scope > *` would query all 8 children (4 desktop + 4 mobile)
 - Mobile items have `display: none` on desktop - can't animate hidden elements!

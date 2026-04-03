@@ -29,12 +29,12 @@ video {
   transition: opacity var(--duration-hover) var(--ease-power2);
 
   /* Active state: reduced opacity — !important overrides GSAP inline opacity from entrance animation */
-  &[data-active="true"] {
+  &[data-active='true'] {
     opacity: 0.5 !important;
   }
 
   /* Hover on non-active links — !important overrides GSAP inline opacity from entrance animation */
-  &:not([data-active="true"]):hover {
+  &:not([data-active='true']):hover {
     opacity: 0.5 !important;
   }
 }
@@ -61,7 +61,7 @@ video {
   text-decoration: none;
 
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     inset-inline: 0;
     bottom: 0;
@@ -146,7 +146,7 @@ video {
    - Scoped to html.is-first-load class (injected by SSR, removed after entrance completes)
    - On subsequent page navigations, class is absent so CSS doesn't apply
    - This allows page transitions to handle element visibility normally */
-html.is-first-load [data-entrance-animate="true"] {
+html.is-first-load [data-entrance-animate='true'] {
   opacity: 0;
   visibility: hidden;
 }
