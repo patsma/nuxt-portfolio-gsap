@@ -19,7 +19,7 @@
 
           <p
             ref="descriptionRef"
-            v-page-fade:up="{ distance: 25 }"
+            v-page-clip:bottom
             class="body-mobile-p1 md:body-desktop-p1 text-[var(--theme-text-60)] mb-[var(--space-l)] max-w-xl"
           >
             A next-generation platform that adapts to how you work.
@@ -28,7 +28,7 @@
           </p>
 
           <!-- Mobile image placement -->
-          <div ref="mobileImageRef" v-page-fade:up class="lg:hidden mb-[var(--space-l)]">
+          <div ref="mobileImageRef" v-page-clip:bottom class="lg:hidden mb-[var(--space-l)]">
             <AppImage
               src="/assets/dummy/placeholder3.jpg"
               alt="Product dashboard preview"
@@ -125,7 +125,7 @@ let resizeObserver: ResizeObserver | null = null
 
 const { getSmoother } = useScrollSmootherManager()
 
-const handleScrollToFeatures = () => {
+const _handleScrollToFeatures = () => {
   // Scroll down one viewport -same pattern as ScrollButtonSVG (line 252)
   // Uses GSAP tween on smoother.scrollTop for organic duration/easing
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
