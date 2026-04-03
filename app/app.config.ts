@@ -22,17 +22,17 @@ export default defineAppConfig({
    */
   identity: {
     // Your name as displayed in header and metadata
-    name: 'Your Name',
+    name: 'Morten',
 
     // Your professional title/role
     title: 'Digital Designer',
 
     // Location displayed in header (optional - set to null to hide)
-    location: 'Your City',
+    location: 'Tokyo',
 
     // Timezone for live clock in header (optional - set to null to disable)
     // See: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-    timezone: 'America/New_York',
+    timezone: 'Asia/Tokyo',
 
     // Contact email
     email: 'contact@mschristensen.com'

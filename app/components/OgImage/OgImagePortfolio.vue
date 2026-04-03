@@ -63,7 +63,7 @@ withDefaults(defineProps<{
         <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Development</span>
         <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Art Direction</span>
       </div>
-      <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Your City</span>
+      <span style="font-size: 14px; color: rgba(255, 250, 245, 0.35);">Tokyo</span>
     </div>
   </div>
 </template>
