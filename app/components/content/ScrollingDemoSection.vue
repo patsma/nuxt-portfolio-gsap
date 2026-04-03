@@ -133,7 +133,6 @@ let pinScrollTrigger: ScrollTriggerInstance | null = null
 let baseLeftHeight = 0
 let resizeObserver: ResizeObserver | null = null
 
-
 /**
  * Adjust spacer height to keep total left column height constant.
  * Called every frame during accordion animation via ResizeObserver.
