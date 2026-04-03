@@ -40,7 +40,7 @@
 
           <div
             ref="buttonsRef"
-            v-page-stagger="{ stagger: 0.08, duration: 0.5 }"
+            v-page-fade:up
             class="flex flex-wrap gap-[var(--space-s)]"
           >
             <button
