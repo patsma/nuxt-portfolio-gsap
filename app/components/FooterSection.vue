@@ -102,7 +102,10 @@
       </div>
 
       <!-- Link Item 4: GitHub -->
-      <div v-if="appConfig.social.github" class="link-item full-width-content">
+      <div
+        v-if="appConfig.social.github"
+        class="link-item full-width-content"
+      >
         <FullWidthBorder :opacity="15" />
         <div class="link-item-wrapper content-grid w-full">
           <div

@@ -8,7 +8,10 @@
       <!-- Left column: scrolls naturally -->
       <div ref="leftColumnRef">
         <!-- Hero panel -->
-        <div ref="heroPanelRef" class="lg:min-h-screen flex flex-col lg:justify-center pt-[calc(var(--size-header)+var(--space-xl))] lg:pt-[var(--size-header)] pb-[var(--space-l)] lg:pb-0">
+        <div
+          ref="heroPanelRef"
+          class="lg:min-h-screen flex flex-col lg:justify-center pt-[calc(var(--size-header)+var(--space-xl))] lg:pt-[var(--size-header)] pb-[var(--space-l)] lg:pb-0"
+        >
           <h1
             ref="headlineRef"
             v-page-split:lines="{ animateFrom: 'below' }"
@@ -28,7 +31,11 @@
           </p>
 
           <!-- Mobile image placement -->
-          <div ref="mobileImageRef" v-page-clip:bottom class="lg:hidden mb-[var(--space-l)]">
+          <div
+            ref="mobileImageRef"
+            v-page-clip:bottom
+            class="lg:hidden mb-[var(--space-l)]"
+          >
             <AppImage
               src="/assets/dummy/placeholder3.jpg"
               alt="Product dashboard preview"
@@ -87,7 +94,10 @@
         ref="rightColumnRef"
         class="hidden lg:flex h-screen items-center self-start"
       >
-        <div ref="imageWrapperRef" v-page-clip:bottom>
+        <div
+          ref="imageWrapperRef"
+          v-page-clip:bottom
+        >
           <AppImage
             src="/assets/dummy/placeholder3.jpg"
             alt="Product dashboard preview"

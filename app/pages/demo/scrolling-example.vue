@@ -3,7 +3,10 @@
     <ScrollingDemoSection />
 
     <!-- Bottom spacer — gives the page breathing room after the pinned section -->
-    <div class="min-h-screen" aria-hidden="true" />
+    <div
+      class="min-h-screen"
+      aria-hidden="true"
+    />
   </div>
 </template>
 
