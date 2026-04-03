@@ -133,27 +133,6 @@ let pinScrollTrigger: ScrollTriggerInstance | null = null
 let baseLeftHeight = 0
 let resizeObserver: ResizeObserver | null = null
 
-const { getSmoother } = useScrollSmootherManager()
-
-const _handleScrollToFeatures = () => {
-  // Scroll down one viewport -same pattern as ScrollButtonSVG (line 252)
-  // Uses GSAP tween on smoother.scrollTop for organic duration/easing
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const smoother = getSmoother() as any
-  if (smoother) {
-    const currentScroll = smoother.scrollTop()
-    const targetScroll = currentScroll + window.innerHeight
-    $gsap.to(smoother, {
-      scrollTop: targetScroll,
-      duration: 1.2,
-      ease: 'power2.inOut'
-    })
-  }
-  else {
-    const featuresEl = document.getElementById('features')
-    if (featuresEl) featuresEl.scrollIntoView({ behavior: 'smooth' })
-  }
-}
 
 /**
  * Adjust spacer height to keep total left column height constant.
